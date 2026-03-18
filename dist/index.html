@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <title>Campus Blink</title>
+    <meta name="description" content="Campus Blink is the all-in-one student app for canteen, print, community, and marketplace." />
+    <meta name="theme-color" content="#FFD600" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Campus Blink" />
+
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Campus Blink" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        background: #FFFFFF;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        background: #FFFFFF;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.35s ease;
+      }
+      #app-splash.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .splash-inner {
+        width: min(180px, 50vw);
+        text-align: center;
+      }
+      .splash-logo {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .splash-progress {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 4px;
+        background: rgba(255, 214, 0, 0.2);
+        overflow: hidden;
+      }
+      .splash-progress::after {
+        content: '';
+        display: block;
+        width: 45%;
+        height: 100%;
+        background: #FFD600;
+        animation: splash-load 1.2s linear infinite;
+      }
+      @keyframes splash-load {
+        0% { transform: translateX(-110%); }
+        100% { transform: translateX(250%); }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-DBSpiOMW.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-2YpsQWRC.css">
+  </head>
+
+  <body>
+    <div id="app-splash" aria-hidden="true">
+      <div class="splash-inner">
+        <img class="splash-logo" src="/logo/only_logo.png" alt="Campus Blink" />
+      </div>
+      <div class="splash-progress"></div>
+    </div>
+    <div id="root"></div>
+  </body>
+</html>
+  

@@ -1,0 +1,16 @@
+@import 'tailwindcss' source(none);
+@source '../**/*.{js,ts,jsx,tsx}';
+
+@import 'tw-animate-css';
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  .shadow-medium {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+  }
+  .shadow-strong {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  }
+}

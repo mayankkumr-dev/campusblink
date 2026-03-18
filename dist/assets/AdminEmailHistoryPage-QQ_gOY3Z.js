@@ -1,0 +1,1 @@
+import{j as i}from"./index-DBSpiOMW.js";import{AdminEmailPage as t}from"./AdminEmailPage-D3vQgzPd.js";import"./admin-Bax7yUuu.js";import"./send-CyFeFX4X.js";import"./clock-BE9vDAXf.js";import"./layout-template-CawsGlb2.js";const e=()=>i.jsx(t,{initialTab:"history",title:"Email History"});export{e as AdminEmailHistoryPage};
