@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Download, X, Bell } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { subscribePushNotifications } from '../../api/notifications';
 
 const INSTALL_DISMISS_KEY = 'cb_install_dismiss_until';
 const VISIT_COUNT_KEY = 'cb_visit_count';
@@ -162,11 +162,9 @@ export const PWALayer: React.FC = () => {
         applicationServerKey: vapidPublicKey,
       });
 
-      await supabase.functions.invoke('subscribe-push', {
-        body: {
-          endpoint: subscription.endpoint,
-          keys: subscription.toJSON().keys,
-        },
+      await subscribePushNotifications({
+        endpoint: subscription.endpoint,
+        keys: subscription.toJSON().keys,
       });
     } catch {
       // Ignore permission failures silently; UX handled by pre-prompt.

@@ -4,11 +4,10 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useNavigate, Link, useLocation } from 'react-router';
 import { Eye, EyeOff, Loader2, Mail } from 'lucide-react';
-import { checkUsernameAvailability, resetPassword, resendConfirmationEmail, signIn, signUp } from '../../api/auth';
+import { checkUsernameAvailability, getAuthSession, resetPassword, resendConfirmationEmail, signIn, signUp, verifyAuthOtpToken } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
 import { formatInviteCodeInput, validateInviteCode } from '../../api/invites';
-import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
 const textTransparent = '/logo/text_transparent.png';
@@ -75,7 +74,8 @@ export const LoginRegisterPage: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     const ensureRedirectForSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data } = await getAuthSession();
+      const session = data?.session;
       if (!mounted) return;
       if (session) {
         navigate('/student/home', { replace: true });
@@ -158,10 +158,7 @@ export const LoginRegisterPage: React.FC = () => {
     const finalizeVerification = async () => {
       if (tokenHash && otpType === 'signup') {
         setVerifyingEmailLink(true);
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: 'signup',
-        });
+        const { error } = await verifyAuthOtpToken(tokenHash, 'signup');
         setVerifyingEmailLink(false);
 
         if (error) {

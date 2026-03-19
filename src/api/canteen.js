@@ -80,6 +80,26 @@ export async function getCanteenById(id) {
   }
 }
 
+/**
+ * Fetches the canteen shop owned by a specific profile.
+ * @param {string} ownerId
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export async function getCanteenShopByOwnerId(ownerId) {
+  try {
+    const { data, error } = await supabase
+      .from('canteen_shops')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .single();
+
+    if (error) throw error;
+    return { data: decorateShopStatus(data), error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 export async function getMenuItems(shopId) {
   try {
     const { data, error } = await supabase

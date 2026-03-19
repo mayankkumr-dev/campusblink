@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import { getAdminUserDetailData } from '../../api/admin';
 import { FEATURE_ACCESS_ITEMS, getUserFeatureAccess, toggleUserFeatureAccess, updateUserFeatureAccess } from '../../api/featureAccess';
 
 export const AdminUserDetailPage: React.FC = () => {
@@ -29,16 +29,15 @@ export const AdminUserDetailPage: React.FC = () => {
 
     const load = async () => {
       setIsLoading(true);
-      const [{ data: profile }, { data: userPosts }, featureAccessResult] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
-        supabase.from('posts').select('*').eq('author_id', userId).order('created_at', { ascending: false }),
+      const [userDetailResult, featureAccessResult] = await Promise.all([
+        getAdminUserDetailData(userId),
         getUserFeatureAccess(userId),
       ]);
 
       if (!mounted) return;
 
-      setUser(profile || null);
-      setPosts(userPosts || []);
+      setUser(userDetailResult.data?.profile || null);
+      setPosts(userDetailResult.data?.posts || []);
       setRestrictedFeatures(featureAccessResult.data?.restrictedFeatures || []);
       setRestrictionReason(featureAccessResult.data?.reason || '');
       setIsLoading(false);

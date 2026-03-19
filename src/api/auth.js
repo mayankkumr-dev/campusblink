@@ -361,6 +361,32 @@ export async function signOut() {
   }
 }
 
+/**
+ * Returns current auth session.
+ */
+export async function getAuthSession() {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+/**
+ * Verifies OTP token from auth callback links.
+ */
+export async function verifyAuthOtpToken(tokenHash, type = 'signup') {
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 export async function resendConfirmationEmail(email, redirectTo) {
   try {
     const { data, error } = await supabase.auth.resend({

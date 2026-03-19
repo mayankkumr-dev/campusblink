@@ -239,3 +239,69 @@ export async function acceptDirectConversationRequest(conversationId, userId) {
     return { data: null, error };
   }
 }
+
+/**
+ * Returns unique IDs of followers/following for a user.
+ */
+export async function getDirectChatNetworkUserIds(userId) {
+  try {
+    const [followingResult, followerResult] = await Promise.all([
+      supabase.from('follows').select('following_id').eq('follower_id', userId),
+      supabase.from('follows').select('follower_id').eq('following_id', userId),
+    ]);
+
+    const ids = new Set();
+    (followingResult.data || []).forEach((item) => ids.add(item.following_id));
+    (followerResult.data || []).forEach((item) => ids.add(item.follower_id));
+    ids.delete(userId);
+
+    return { data: Array.from(ids), error: null };
+  } catch (error) {
+    return { data: [], error };
+  }
+}
+
+/**
+ * Searches people for direct chat and ranks by network + exactness.
+ */
+export async function searchDirectChatPeople({ query, currentUserId, networkUserIds = [] }) {
+  try {
+    const safe = String(query || '').trim().replace(/[%_]/g, '').slice(0, 40);
+    if (safe.length < 2) {
+      return { data: [], error: null };
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, username, avatar_url')
+      .or(`username.ilike.%${safe}%,name.ilike.%${safe}%`)
+      .neq('id', currentUserId)
+      .limit(30);
+
+    if (error) throw error;
+
+    const networkSet = new Set(networkUserIds);
+    const normalizedQuery = safe.toLowerCase();
+    const score = (item) => {
+      const username = String(item.username || '').toLowerCase();
+      const name = String(item.name || '').toLowerCase();
+      let points = 0;
+      if (networkSet.has(item.id)) points += 1000;
+      if (username === normalizedQuery) points += 80;
+      else if (username.startsWith(normalizedQuery)) points += 40;
+      else if (username.includes(normalizedQuery)) points += 20;
+      if (name === normalizedQuery) points += 35;
+      else if (name.startsWith(normalizedQuery)) points += 15;
+      else if (name.includes(normalizedQuery)) points += 8;
+      return points;
+    };
+
+    const ranked = (data || [])
+      .sort((a, b) => score(b) - score(a))
+      .slice(0, 10);
+
+    return { data: ranked, error: null };
+  } catch (error) {
+    return { data: [], error };
+  }
+}

@@ -81,3 +81,16 @@ export async function createNotification(userId, type, title, message, link = nu
     return { data: null, error };
   }
 }
+
+export async function subscribePushNotifications(payload) {
+  try {
+    const { data, error } = await supabase.functions.invoke('subscribe-push', {
+      body: payload,
+    });
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}

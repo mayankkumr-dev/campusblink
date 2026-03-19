@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { verifyAuthOtpToken } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 
 const appLogoDiamond = '/logo/only_logo_transparent.png';
@@ -26,7 +26,7 @@ export const AuthCallbackPage: React.FC = () => {
         return;
       }
 
-      const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+      const { error } = await verifyAuthOtpToken(tokenHash, type);
 
       if (error) {
         const msg = String(error?.message || '').toLowerCase();

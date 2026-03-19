@@ -84,6 +84,80 @@ export async function getPrintShopById(id) {
   }
 }
 
+/**
+ * Fetches the print shop owned by a specific profile.
+ * @param {string} ownerId
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export async function getPrintShopByOwnerId(ownerId) {
+  try {
+    const { data, error } = await supabase
+      .from('print_shops')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .single();
+
+    if (error) throw error;
+    return { data: decorateShopStatus(data), error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+/**
+ * Fetches lightweight student profile fields for order rendering.
+ * @param {string} studentId
+ * @returns {Promise<{data: any, error: any}>}
+ */
+export async function getStudentProfileSummary(studentId) {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('name, avatar_url, username')
+      .eq('id', studentId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+/**
+ * Refreshes an expiring signed Supabase storage URL when needed.
+ * @param {string} rawUrl
+ * @returns {Promise<{data: string, error: any}>}
+ */
+export async function refreshSignedStorageUrl(rawUrl) {
+  try {
+    const projectUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    const signedPrefix = `${projectUrl}/storage/v1/object/sign/`;
+    const normalized = String(rawUrl || '').trim();
+
+    if (!projectUrl || !normalized.startsWith(signedPrefix)) {
+      return { data: normalized, error: null };
+    }
+
+    const rest = normalized.slice(signedPrefix.length);
+    const [bucketAndPath] = rest.split('?');
+    const splitIndex = bucketAndPath.indexOf('/');
+
+    if (splitIndex <= 0) {
+      return { data: normalized, error: null };
+    }
+
+    const bucket = bucketAndPath.slice(0, splitIndex);
+    const objectPath = decodeURIComponent(bucketAndPath.slice(splitIndex + 1));
+    const { data: signed, error } = await supabase.storage.from(bucket).createSignedUrl(objectPath, 60 * 60 * 6);
+
+    if (error) throw error;
+    return { data: signed?.signedUrl || normalized, error: null };
+  } catch (error) {
+    return { data: String(rawUrl || '').trim(), error };
+  }
+}
+
 export async function uploadPrintShopLogo(shopId, file) {
   try {
     const { data, error } = await uploadImage(file, `campus-blink/shop-logos/${shopId}`);

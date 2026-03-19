@@ -6,8 +6,9 @@ import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName, getTimeGreeting } from '../../lib/user';
-import { supabase } from '../../lib/supabase';
+import { getStudentRecentActivity } from '../../api/dashboard';
 import { getMyInviteOverview, requestInviteRefresh } from '../../api/invites';
+import { REPUTATION } from '../../utils/constants';
 import toast from 'react-hot-toast';
 
 // using the stacked logo format
@@ -27,7 +28,7 @@ export const StudentDashboard: React.FC = () => {
   const firstName = useMemo(() => getFirstName(profile?.name, 'Student'), [profile?.name]);
   const greeting = useMemo(() => getTimeGreeting(), []);
   const repBalance = Number(profile?.campus_credits ?? 0);
-  const repToTrusted = Math.max(0, 300 - repBalance);
+  const repToTrusted = Math.max(0, REPUTATION.TRUSTED_MEMBER_THRESHOLD - repBalance);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,28 +36,10 @@ export const StudentDashboard: React.FC = () => {
     const loadRecentActivity = async () => {
       if (!profile?.id) return;
 
-      const [postsResp, listingsResp, canteenResp, printResp] = await Promise.all([
-        supabase.from('posts').select('id, title, created_at').eq('author_id', profile.id).order('created_at', { ascending: false }).limit(2),
-        supabase.from('listings').select('id, title, created_at, is_sold').eq('seller_id', profile.id).order('created_at', { ascending: false }).limit(2),
-        supabase.from('canteen_orders').select('id, status, created_at, shop_id').eq('student_id', profile.id).order('created_at', { ascending: false }).limit(2),
-        supabase.from('print_orders').select('id, file_name, status, created_at').eq('student_id', profile.id).order('created_at', { ascending: false }).limit(2),
-      ]);
-
-      const combined = [
-        ...((postsResp.data || []).map((item) => ({ type: 'Community', title: item.title || 'Posted in community', time: item.created_at, status: 'posted' }))),
-        ...((listingsResp.data || []).map((item) => ({ type: 'Buy/Sell', title: item.title || 'Marketplace listing', time: item.created_at, status: item.is_sold ? 'sold' : 'live' }))),
-        ...((canteenResp.data || []).map((item) => ({ type: 'Canteen', title: `Order #${String(item.id).slice(0, 6)}`, time: item.created_at, status: item.status || 'placed' }))),
-        ...((printResp.data || []).map((item) => ({ type: 'Print', title: item.file_name || 'Print order', time: item.created_at, status: item.status || 'queued' }))),
-      ]
-        .sort((left, right) => new Date(right.time).getTime() - new Date(left.time).getTime())
-        .slice(0, 4)
-        .map((item) => ({
-          ...item,
-          time: new Date(item.time).toLocaleDateString([], { month: 'short', day: 'numeric' }),
-        }));
+      const { data: combined } = await getStudentRecentActivity(profile.id);
 
       if (isMounted) {
-        setRecentActivity(combined);
+        setRecentActivity(combined || []);
       }
     };
 
