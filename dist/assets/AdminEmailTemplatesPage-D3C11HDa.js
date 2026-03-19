@@ -1,0 +1,1 @@
+import{j as t}from"./index-43dMqhwE.js";import{AdminEmailPage as m}from"./AdminEmailPage-61sSK7cD.js";import"./admin-BP9R3y4Z.js";import"./send-ChMShhrT.js";import"./clock-DI24INTQ.js";import"./layout-template-BLGeCSwU.js";const l=()=>t.jsx(m,{initialTab:"templates",title:"Email Templates"});export{l as AdminEmailTemplatesPage};

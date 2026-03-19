@@ -1,0 +1,1 @@
+import{j as t}from"./index-43dMqhwE.js";import{AdminLegalPage as o}from"./AdminLegalPage-D0kNdFYc.js";import"./history-DFl8Nlft.js";import"./save-DxvWN2Uo.js";const i=()=>t.jsx(o,{mode:"export",title:"Data Export"});export{i as AdminLegalExportPage};
