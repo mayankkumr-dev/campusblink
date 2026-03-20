@@ -45,33 +45,6 @@ export async function getAllUsers(filters, page = 1) {
   }
 }
 
-/**
- * Fetches profile and posts for admin user detail page.
- * @param {string} userId
- * @returns {Promise<{data: {profile: any, posts: any[]}, error: any}>}
- */
-export async function getAdminUserDetailData(userId) {
-  try {
-    const [{ data: profile, error: profileError }, { data: posts, error: postsError }] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', userId).single(),
-      supabase.from('posts').select('*').eq('author_id', userId).order('created_at', { ascending: false }),
-    ]);
-
-    if (profileError) throw profileError;
-    if (postsError) throw postsError;
-
-    return {
-      data: {
-        profile,
-        posts: posts || [],
-      },
-      error: null,
-    };
-  } catch (error) {
-    return { data: null, error };
-  }
-}
-
 export async function updateUserStatus(adminId, userId, status, reason = '') {
   try {
     const { data, error } = await supabase

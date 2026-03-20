@@ -45,13 +45,14 @@ export const AdminLayout: React.FC = () => {
   const user = useAuthStore((state) => state.user);
 
   const handleLogout = () => {
+    // TODO: implement real auth logout
     navigate('/student/home');
   };
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-[#FFFFFF] border-r border-[#E8E8E8] text-[#0D0D0D] overflow-hidden">
       {/* Logo Area */}
-      <div className="h-[60px] border-b border-[#E8E8E8] flex items-center justify-between px-4 pl-4 shrink-0">
+      <div className="h-[60px] border-b border-[#E8E8E8] flex items-center justify-between px-4 pl-4 shrink-0 shrink-0">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
           <img 
             src={adminLogo} 

@@ -7,11 +7,9 @@ import { getAvatarDataUrl } from '../../lib/avatar';
 import {
   acceptDirectConversationRequest,
   ensureDirectConversation,
-  getDirectChatNetworkUserIds,
   getDirectConversationMessages,
   getDirectConversations,
   markDirectConversationRead,
-  searchDirectChatPeople,
   sendDirectMessage,
 } from '../../api/directChat';
 
@@ -73,10 +71,18 @@ export const StudentChatPage: React.FC = () => {
     let active = true;
 
     async function loadNetwork() {
-      const { data } = await getDirectChatNetworkUserIds(profile.id);
+      const [followingResult, followerResult] = await Promise.all([
+        supabase.from('follows').select('following_id').eq('follower_id', profile.id),
+        supabase.from('follows').select('follower_id').eq('following_id', profile.id),
+      ]);
 
       if (!active) return;
-      setNetworkUserIds(data || []);
+
+      const ids = new Set<string>();
+      (followingResult.data || []).forEach((item: any) => ids.add(item.following_id));
+      (followerResult.data || []).forEach((item: any) => ids.add(item.follower_id));
+      ids.delete(profile.id);
+      setNetworkUserIds(Array.from(ids));
     }
 
     loadNetwork();
@@ -196,14 +202,36 @@ export const StudentChatPage: React.FC = () => {
     const timer = window.setTimeout(async () => {
       setIsPeopleLoading(true);
       const safe = trimmed.replace(/[%_]/g, '').slice(0, 40);
-      const { data } = await searchDirectChatPeople({
-        query: safe,
-        currentUserId: profile.id,
-        networkUserIds,
-      });
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, name, username, avatar_url')
+        .or(`username.ilike.%${safe}%,name.ilike.%${safe}%`)
+        .neq('id', profile.id)
+        .limit(30);
 
       if (!active) return;
-      setPeopleResults((data || []) as ChatPerson[]);
+
+      const networkSet = new Set(networkUserIds);
+      const score = (item: ChatPerson) => {
+        const username = String(item.username || '').toLowerCase();
+        const name = String(item.name || '').toLowerCase();
+        const query = safe.toLowerCase();
+        let points = 0;
+        if (networkSet.has(item.id)) points += 1000;
+        if (username === query) points += 80;
+        else if (username.startsWith(query)) points += 40;
+        else if (username.includes(query)) points += 20;
+        if (name === query) points += 35;
+        else if (name.startsWith(query)) points += 15;
+        else if (name.includes(query)) points += 8;
+        return points;
+      };
+
+      setPeopleResults(
+        ((data || []) as ChatPerson[])
+          .sort((a, b) => score(b) - score(a))
+          .slice(0, 10)
+      );
       setIsPeopleLoading(false);
     }, 220);
 

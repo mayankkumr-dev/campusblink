@@ -5,7 +5,8 @@ import { LayoutGrid, ShoppingBag, Coffee, Settings, LogOut, Bell, Search, Clock,
 import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthStore } from '../../store/authStore';
-import { getMenuItems, updateOrderStatus, getShopOrders, createMenuItem, updateMenuItem, deleteMenuItem, requestCanteenReorder, uploadMenuItemPhoto, updateCanteenShopAvailability, getCanteenShopByOwnerId } from '../../api/canteen';
+import { supabase } from '../../lib/supabase';
+import { getMenuItems, updateOrderStatus, getShopOrders, createMenuItem, updateMenuItem, deleteMenuItem, requestCanteenReorder, uploadMenuItemPhoto, updateCanteenShopAvailability } from '../../api/canteen';
 import { useCanteenOrders, useShopStatus } from '../../hooks/useRealtime';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import toast from 'react-hot-toast';
@@ -47,9 +48,9 @@ export const CanteenDashboardPage: React.FC = () => {
   useEffect(() => {
     async function loadShop() {
       if (!profile?.id) return;
-      const { data } = await getCanteenShopByOwnerId(profile.id);
+      const { data } = await supabase.from('canteen_shops').select('*').eq('owner_id', profile.id).single();
       if (data) {
-        setShop(data);
+        setShop(decorateShopStatus(data));
          // load menu & orders
          const { data: menuData } = await getMenuItems(data.id);
          if (menuData) setMenuItems(menuData);

@@ -1,1 +1,0 @@
-import{j as m}from"./index-43dMqhwE.js";import{AdminEmailPage as o}from"./AdminEmailPage-61sSK7cD.js";import"./admin-BP9R3y4Z.js";import"./send-ChMShhrT.js";import"./clock-DI24INTQ.js";import"./layout-template-BLGeCSwU.js";const s=()=>m.jsx(o,{initialTab:"compose",title:"Compose Email"});export{s as AdminEmailComposePage};

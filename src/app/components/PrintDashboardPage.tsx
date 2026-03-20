@@ -5,7 +5,8 @@ import { LayoutGrid, Printer, Settings, LogOut, Bell, Search, Clock, Check, X, A
 import { Link, useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuthStore } from '../../store/authStore';
-import { cleanupOldPrintFiles, getShopPrintOrders, requestReorder, updatePrintOrderStatus, updatePrintShopAvailability, getPrintShopByOwnerId, getStudentProfileSummary, refreshSignedStorageUrl } from '../../api/print';
+import { supabase } from '../../lib/supabase';
+import { cleanupOldPrintFiles, getShopPrintOrders, requestReorder, updatePrintOrderStatus, updatePrintShopAvailability } from '../../api/print';
 import { usePrintOrders, useShopStatus } from '../../hooks/useRealtime';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { extractCloudinaryPublicId } from '../../lib/cloudinary';
@@ -58,7 +59,11 @@ export const PrintDashboardPage: React.FC = () => {
       return order;
     }
 
-    const { data: studentProfile } = await getStudentProfileSummary(order.student_id);
+    const { data: studentProfile } = await supabase
+      .from('profiles')
+      .select('name, avatar_url, username')
+      .eq('id', order.student_id)
+      .maybeSingle();
 
     if (!studentProfile) return order;
     return {
@@ -74,9 +79,9 @@ export const PrintDashboardPage: React.FC = () => {
   useEffect(() => {
     async function loadShop() {
       if (!profile?.id) return;
-      const { data } = await getPrintShopByOwnerId(profile.id);
+      const { data } = await supabase.from('print_shops').select('*').eq('owner_id', profile.id).single();
       if (data) {
-        setShop(data);
+        setShop(decorateShopStatus(data));
         cleanupOldPrintFiles(data.id).catch(() => {});
         const { data: orderData } = await getShopPrintOrders(data.id);
         if (orderData) {
@@ -217,9 +222,21 @@ export const PrintDashboardPage: React.FC = () => {
       return url;
     }
 
-    const { data: refreshed } = await refreshSignedStorageUrl(url);
-    if (refreshed) {
-      return refreshed;
+    const projectUrl = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    const signedPrefix = `${projectUrl}/storage/v1/object/sign/`;
+    if (projectUrl && url.startsWith(signedPrefix)) {
+      const rest = url.slice(signedPrefix.length);
+      const [bucketAndPath] = rest.split('?');
+      const splitIndex = bucketAndPath.indexOf('/');
+
+      if (splitIndex > 0) {
+        const bucket = bucketAndPath.slice(0, splitIndex);
+        const objectPath = decodeURIComponent(bucketAndPath.slice(splitIndex + 1));
+        const { data: signed, error } = await supabase.storage.from(bucket).createSignedUrl(objectPath, 60 * 60 * 6);
+        if (!error && signed?.signedUrl) {
+          return signed.signedUrl;
+        }
+      }
     }
 
     return url;
