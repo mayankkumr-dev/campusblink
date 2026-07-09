@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "dev": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:all": "npm run dev --prefix backend & npm run dev --prefix frontend"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.101.1",
     "dotenv": "^17.4.0",

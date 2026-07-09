@@ -3,12 +3,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
-const rateLimitMiddleware = require('./middleware/rateLimit');
+const { authLimiter, adminMutationLimiter, generalLimiter } = require('./middleware/rateLimit');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+// Note: Custom authController imports removed; auth is handled exclusively by Supabase Auth.
 const emailRoutes = require('./routes/email');
 const adminRoutes = require('./routes/admin');
 const professorRoutes = require('./routes/professor');
@@ -34,7 +36,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 }));
 
 // Request logging
@@ -43,8 +45,9 @@ app.use(morgan('combined'));
 // Compression
 app.use(compression());
 
-// Rate limiting
-app.use(rateLimitMiddleware);
+
+// Cookie parsing (required for secure HttpOnly JWT cookies)
+app.use(cookieParser());
 
 // Body parsing - JSON for most routes
 app.use(express.json());
@@ -73,14 +76,20 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/email', emailRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/professor', professorRoutes);
-app.use('/api/canteen', canteenRoutes);
-app.use('/api/print', printRoutes);
-app.use('/api/uploads', uploadRoutes);
-app.use('/api/push', pushRoutes);
+// Note: Custom /api/register, /api/login, /api/logout routes removed. Auth is handled exclusively by Supabase Auth.
+app.use('/api/auth', generalLimiter, authRoutes);
+app.use('/api/email', generalLimiter, emailRoutes);
+app.use('/api/admin', (req, res, next) => {
+  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(req.method)) {
+    return adminMutationLimiter(req, res, next);
+  }
+  return generalLimiter(req, res, next);
+}, adminRoutes);
+app.use('/api/professor', generalLimiter, professorRoutes);
+app.use('/api/canteen', generalLimiter, canteenRoutes);
+app.use('/api/print', generalLimiter, printRoutes);
+app.use('/api/uploads', generalLimiter, uploadRoutes);
+app.use('/api/push', generalLimiter, pushRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -101,6 +110,15 @@ app.use((err, req, res, next) => {
     status,
   });
 });
+
+function validateStartupSecrets() {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+    console.error('FATAL: JWT_SECRET environment variable is not set or is too short. Minimum 32 characters required.');
+    process.exit(1);
+  }
+}
+
+validateStartupSecrets();
 
 const PORT = process.env.PORT || 3000;
 
