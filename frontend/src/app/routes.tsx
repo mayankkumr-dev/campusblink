@@ -1,0 +1,641 @@
+import { Navigate, createBrowserRouter } from 'react-router';
+import { NotFoundPage } from './components/NotFoundPage';
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    errorElement: <NotFoundPage />,
+    children: [
+      {
+        path: '',
+        lazy: async () => ({
+          Component: (await import('./components/AuthHomeGate')).AuthHomeGate,
+        }),
+      },
+      {
+        path: 'about',
+        lazy: async () => ({
+          Component: (await import('./components/AboutPage')).AboutPage,
+        }),
+      },
+      {
+        path: 'contact',
+        lazy: async () => ({
+          Component: (await import('./components/ContactPage')).ContactPage,
+        }),
+      },
+      {
+        path: 'privacy',
+        lazy: async () => ({
+          Component: (await import('./components/PrivacyPolicyPage')).PrivacyPolicyPage,
+        }),
+      },
+      {
+        path: 'terms',
+        lazy: async () => ({
+          Component: (await import('./components/TermsPage')).TermsPage,
+        }),
+      },
+      {
+        path: 'boneyard-capture',
+        lazy: async () => ({
+          Component: (await import('./components/BoneyardCapturePage')).BoneyardCapturePage,
+        }),
+      },
+      {
+        path: 'login',
+        lazy: async () => ({
+          Component: (await import('./components/LoginRegisterPage')).LoginRegisterPage,
+        }),
+      },
+      {
+        path: 'register',
+        lazy: async () => ({
+          Component: (await import('./components/LoginRegisterPage')).LoginRegisterPage,
+        }),
+      },
+      {
+        path: 'account-restricted',
+        lazy: async () => ({
+          Component: (await import('./components/AccountRestrictedPage')).AccountRestrictedPage,
+        }),
+      },
+      {
+        path: 'auth/callback',
+        lazy: async () => ({
+          Component: (await import('./components/AuthCallbackPage')).AuthCallbackPage,
+        }),
+      },
+      {
+        path: 'community/:postId',
+        lazy: async () => ({
+          Component: (await import('./components/PostDetailPage')).PostDetailPage,
+        }),
+      },
+      {
+        path: 'search',
+        lazy: async () => ({
+          Component: (await import('./components/SearchPage')).SearchPage,
+        }),
+      },
+      {
+        path: 'profile',
+        Component: () => <Navigate to="/student/profile" replace />,
+      },
+      {
+        path: 'professor/pending',
+        lazy: async () => ({
+          Component: (await import('./components/ProfessorPendingPage')).ProfessorPendingPage,
+        }),
+      },
+      {
+        path: 'professor/rejected',
+        lazy: async () => ({
+          Component: (await import('./components/ProfessorRejectedPage')).ProfessorRejectedPage,
+        }),
+      },
+      {
+        path: 'student',
+        lazy: async () => ({
+          Component: (await import('./components/StudentProtectedLayout')).StudentProtectedLayout,
+        }),
+        errorElement: <NotFoundPage />,
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./components/StudentDashboard')).StudentDashboard,
+            }),
+          },
+          {
+            path: 'home',
+            lazy: async () => ({
+              Component: (await import('./components/StudentDashboard')).StudentDashboard,
+            }),
+          },
+          {
+            path: 'campus-exchange',
+            lazy: async () => ({
+              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
+            }),
+          },
+          {
+            path: 'campus-excahnge',
+            lazy: async () => ({
+              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
+            }),
+          },
+          {
+            path: 'marketplace',
+            lazy: async () => ({
+              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
+            }),
+          },
+          {
+            path: 'buy-sell',
+            lazy: async () => ({
+              Component: (await import('./components/BuySellPage')).BuySellPage,
+            }),
+          },
+          {
+            path: 'buy-and-sell',
+            lazy: async () => ({
+              Component: (await import('./components/BuySellPage')).BuySellPage,
+            }),
+          },
+          {
+            path: 'campus-exchange/buy-sell',
+            lazy: async () => ({
+              Component: (await import('./components/BuySellPage')).BuySellPage,
+            }),
+          },
+          {
+            path: 'campus-excahnge/buy-sell',
+            lazy: async () => ({
+              Component: (await import('./components/BuySellPage')).BuySellPage,
+            }),
+          },
+          {
+            path: 'buy-sell/manage',
+            lazy: async () => ({
+              Component: (await import('./components/MarketplaceManagePage')).MarketplaceManagePage,
+            }),
+          },
+          {
+            path: 'buy-sell/:listingId',
+            lazy: async () => ({
+              Component: (await import('./components/MarketplaceListingDetailPage')).MarketplaceListingDetailPage,
+            }),
+          },
+          {
+            path: 'roommate',
+            lazy: async () => ({
+              Component: (await import('./components/RoommatePage')).RoommatePage,
+            }),
+          },
+          {
+            path: 'campus-exchange/messages',
+            lazy: async () => ({
+              Component: (await import('./components/MarketplaceMessagesPage')).MarketplaceMessagesPage,
+            }),
+          },
+          {
+            path: 'wishlist',
+            lazy: async () => ({
+              Component: (await import('./components/MarketplaceWishlistPage')).MarketplaceWishlistPage,
+            }),
+          },
+          {
+            path: 'canteen',
+            lazy: async () => ({
+              Component: (await import('./components/CanteenMenuPage')).CanteenMenuPage,
+            }),
+          },
+          {
+            path: 'canteen/reorder/:orderId',
+            lazy: async () => ({
+              Component: (await import('./components/CanteenReorderPage')).CanteenReorderPage,
+            }),
+          },
+          {
+            path: 'print',
+            lazy: async () => ({
+              Component: (await import('./components/PrintPage')).PrintPage,
+            }),
+          },
+          {
+            path: 'print/reorder/:orderId',
+            lazy: async () => ({
+              Component: (await import('./components/PrintReorderPage')).PrintReorderPage,
+            }),
+          },
+          {
+            path: 'community',
+            lazy: async () => ({
+              Component: (await import('./components/CommunityFeed')).CommunityFeed,
+            }),
+          },
+          {
+            path: 'societies',
+            lazy: async () => ({
+              Component: (await import('./components/SocietiesFeedPage')).SocietiesFeedPage,
+            }),
+          },
+          {
+            path: 'notifications',
+            lazy: async () => ({
+              Component: (await import('./components/StudentNotificationsPage')).StudentNotificationsPage,
+            }),
+          },
+          {
+            path: 'profile',
+            lazy: async () => ({
+              Component: (await import('./components/ProfilePage')).ProfilePage,
+            }),
+          },
+          {
+            path: 'me',
+            Component: () => <Navigate to="/student/profile" replace />,
+          },
+          {
+            path: 'more',
+            lazy: async () => ({
+              Component: (await import('./components/MorePage')).MorePage,
+            }),
+          },
+          {
+            path: 'profile/:userId',
+            lazy: async () => ({
+              Component: (await import('./components/UserProfilePage')).UserProfilePage,
+            }),
+          },
+          {
+            path: 'settings',
+            lazy: async () => ({
+              Component: (await import('./components/StudentSettingsPage')).StudentSettingsPage,
+            }),
+          },
+          {
+            path: 'settings/notifications',
+            lazy: async () => ({
+              Component: (await import('./components/NotificationPreferencesPage')).NotificationPreferencesPage,
+            }),
+          },
+          {
+            path: 'settings/password',
+            lazy: async () => ({
+              Component: (await import('./components/StudentChangePasswordPage')).StudentChangePasswordPage,
+            }),
+          },
+          {
+            path: 'settings/feedback',
+            lazy: async () => ({
+              Component: (await import('./components/StudentFeedbackPage')).StudentFeedbackPage,
+            }),
+          },
+          {
+            path: 'bookmarks',
+            lazy: async () => ({
+              Component: (await import('./components/SavedBookmarks')).SavedBookmarks,
+            }),
+          },
+          {
+            path: 'search',
+            lazy: async () => ({
+              Component: (await import('./components/SearchPage')).SearchPage,
+            }),
+          },
+        ],
+      },
+      {
+        path: 'canteen-dashboard',
+        lazy: async () => ({
+          Component: (await import('./components/DashboardProtectedRoute')).CanteenDashboardProtectedRoute,
+        }),
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./components/CanteenDashboardPage')).CanteenDashboardPage,
+            }),
+          },
+        ],
+      },
+      {
+        path: 'print-dashboard',
+        lazy: async () => ({
+          Component: (await import('./components/DashboardProtectedRoute')).PrintDashboardProtectedRoute,
+        }),
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./components/PrintDashboardPage')).PrintDashboardPage,
+            }),
+          },
+        ],
+      },
+      {
+        path: 'professor',
+        lazy: async () => ({
+          Component: (await import('./components/ProfessorProtectedLayout')).ProfessorProtectedLayout,
+        }),
+        errorElement: <NotFoundPage />,
+        children: [
+          {
+            index: true,
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorDashboard')).ProfessorDashboard,
+            }),
+          },
+          {
+            path: 'home',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorDashboard')).ProfessorDashboard,
+            }),
+          },
+          {
+            path: 'canteen',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorCanteenPage')).ProfessorCanteenPage,
+            }),
+          },
+          {
+            path: 'print',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorPrintPage')).ProfessorPrintPage,
+            }),
+          },
+          {
+            path: 'societies',
+            lazy: async () => ({
+              Component: (await import('./components/SocietiesFeedPage')).SocietiesFeedPage,
+            }),
+          },
+          {
+            path: 'payments',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorPaymentsPage')).ProfessorPaymentsPage,
+            }),
+          },
+          {
+            path: 'profile',
+            lazy: async () => ({
+              Component: (await import('./components/ProfilePage')).ProfilePage,
+            }),
+          },
+          {
+            path: 'settings/notifications',
+            lazy: async () => ({
+              Component: (await import('./components/NotificationPreferencesPage')).NotificationPreferencesPage,
+            }),
+          },
+          {
+            path: '*',
+            Component: NotFoundPage,
+          },
+        ],
+      },
+      {
+        path: 'admin',
+        lazy: async () => ({
+          Component: (await import('./components/AdminProtectedRoute')).AdminProtectedRoute,
+        }),
+        errorElement: <NotFoundPage />,
+        children: [
+          {
+            path: '',
+            lazy: async () => ({
+              Component: (await import('./components/AdminLayout')).AdminLayout,
+            }),
+            errorElement: <NotFoundPage />,
+            children: [
+              {
+                index: true,
+                lazy: async () => ({
+                  Component: (await import('./components/AdminDashboard')).AdminDashboard,
+                }),
+              },
+              {
+                path: 'alerts',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminSmartAlertsPage')).AdminSmartAlertsPage,
+                }),
+              },
+              {
+                path: 'accounts',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminAccountsHub')).AdminAccountsHub,
+                }),
+              },
+
+              {
+                path: 'orders',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminOrdersHub')).AdminOrdersHub,
+                }),
+              },
+
+              {
+                path: 'community-hub',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityHub')).AdminCommunityHub,
+                }),
+              },
+              {
+                path: 'users',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminUsersPage')).AdminUsersPage,
+                }),
+              },
+              {
+                path: 'users/banned',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminBannedUsersPage')).AdminBannedUsersPage,
+                }),
+              },
+              {
+                path: 'users/roles',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminRolesPage')).AdminRolesPage,
+                }),
+              },
+              {
+                path: 'invites',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminInvitesPage')).AdminInvitesPage,
+                }),
+              },
+              {
+                path: 'invites/waitlist',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminInviteWaitlistPage')).AdminInviteWaitlistPage,
+                }),
+              },
+              {
+                path: 'professors',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminProfessorsPage')).AdminProfessorsPage,
+                }),
+              },
+              {
+                path: 'professors/pending',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminProfessorsPendingPage')).AdminProfessorsPendingPage,
+                }),
+              },
+              {
+                path: 'users/:userId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminUserDetailPage')).AdminUserDetailPage,
+                }),
+              },
+              {
+                path: 'canteen',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteensPage')).AdminCanteensPage,
+                }),
+              },
+              {
+                path: 'canteen/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenSchedulePage')).AdminCanteenSchedulePage,
+                }),
+              },
+              {
+                path: 'canteen/orders',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenOrdersPage')).AdminCanteenOrdersPage,
+                }),
+              },
+              {
+                path: 'canteen/menu',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenMenuPage')).AdminCanteenMenuPage,
+                }),
+              },
+              {
+                path: 'print',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintShopsPage')).AdminPrintShopsPage,
+                }),
+              },
+              {
+                path: 'print/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintSchedulePage')).AdminPrintSchedulePage,
+                }),
+              },
+              {
+                path: 'print/orders',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintOrdersPage')).AdminPrintOrdersPage,
+                }),
+              },
+              {
+                path: 'marketplace',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminMarketplacePage')).AdminMarketplacePage,
+                }),
+              },
+              {
+                path: 'marketplace/reported',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminMarketplaceReportedPage')).AdminMarketplaceReportedPage,
+                }),
+              },
+              {
+                path: 'community',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityPage')).AdminCommunityPage,
+                }),
+              },
+              {
+                path: 'community/reported',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityReportedPage')).AdminCommunityReportedPage,
+                }),
+              },
+              {
+                path: 'community/notice',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityNoticePage')).AdminCommunityNoticePage,
+                }),
+              },
+              {
+                path: 'email',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailPage')).AdminEmailPage,
+                }),
+              },
+              {
+                path: 'email/compose',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailComposePage')).AdminEmailComposePage,
+                }),
+              },
+              {
+                path: 'email/history',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailHistoryPage')).AdminEmailHistoryPage,
+                }),
+              },
+              {
+                path: 'email/templates',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailTemplatesPage')).AdminEmailTemplatesPage,
+                }),
+              },
+              {
+                path: 'finance',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinancePage')).AdminFinancePage,
+                }),
+              },
+              {
+                path: 'finance/credits',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinanceCreditsPage')).AdminFinanceCreditsPage,
+                }),
+              },
+              {
+                path: 'finance/revenue',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinanceRevenuePage')).AdminFinanceRevenuePage,
+                }),
+              },
+              {
+                path: 'settings',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminSettingsPage')).AdminSettingsPage,
+                }),
+              },
+              {
+                path: 'feedback',
+                lazy: async () => ({ Component: (await import('./components/AdminFeedbackPage')).AdminFeedbackPage }),
+              },
+              {
+                path: 'announcements',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminAnnouncementsPage')).AdminAnnouncementsPage,
+                }),
+              },
+              {
+                path: 'contact-issues',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminContactIssuesPage')).AdminContactIssuesPage,
+                }),
+              },
+              {
+                path: 'legal',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminLegalPage')).AdminLegalPage,
+                }),
+              },
+              {
+                path: 'legal/export',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminLegalExportPage')).AdminLegalExportPage,
+                }),
+              },
+              {
+                path: 'audit',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminAuditPage')).AdminAuditPage,
+                }),
+              },
+              {
+                path: '*',
+                Component: NotFoundPage,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        path: '*',
+        Component: NotFoundPage,
+      },
+    ],
+  },
+]);

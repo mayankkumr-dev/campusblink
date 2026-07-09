@@ -1,0 +1,222 @@
+function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccount, onOpenImage, followingIds, onFollowChange }: { post: any; profile: any; onLike: (postId: string, likedByMe: boolean) => void; onDelete: (post: any) => void; onReportPost: (post: any) => void; onReportAccount: (post: any) => void; onOpenImage: (images: string[], index: number) => void; followingIds: Set<string>; onFollowChange: (userId: string, nextFollowing: boolean) => void }) {
+    const navigate = useNavigate();
+    const [showMenu, setShowMenu] = useState(false);
+    const menuRef = useRef<HTMLDivElement | null>(null);
+    const likedByMe = Boolean(profile?.id && post.liked_by?.includes(profile.id));
+    const isAnonymous = post.is_anonymous;
+    const avatar = isAnonymous
+      ? null
+      : post.author?.avatar_url || getAvatarDataUrl({ name: post.author?.name, seed: post.author?.id || post.author_id || post.id });
+    const handle = isAnonymous ? 'anonymous' : getDisplayHandle(post.author?.username, 'student');
+    const images = parseImageUrls(post);
+    const postLink = `${window.location.origin}/community/${post.id}`;
+    const isAdmin = profile?.role === 'admin';
+    const isOwnPost = Boolean(profile?.id && post.author_id === profile.id);
+    const canReportPost = Boolean(profile?.id && !isOwnPost);
+    const canReportAccount = Boolean(profile?.id && !isOwnPost && !isAnonymous && post.author_id);
+    const authorId = post.author?.id || post.author_id || null;
+    const canFollow = Boolean(!isAnonymous && !isOwnPost && authorId);
+    const isFollowingAuthor = Boolean(canFollow && authorId && followingIds.has(authorId));
+
+    useEffect(() => {
+      if (!showMenu) return;
+      const handlePointerDown = (event: PointerEvent) => {
+        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+          setShowMenu(false);
+        }
+      };
+      document.addEventListener('pointerdown', handlePointerDown);
+      return () => document.removeEventListener('pointerdown', handlePointerDown);
+    }, [showMenu]);
+
+    const handleAuthorClick = (event: React.MouseEvent) => {
+      event.stopPropagation();
+      if (isAnonymous || !authorId) return;
+      if (authorId === profile?.id) navigate('/student/profile');
+      else navigate(`/student/profile/${authorId}`);
+    };
+
+    const copyLink = async (event?: React.MouseEvent) => {
+      event?.stopPropagation();
+      try {
+        await navigator.clipboard.writeText(postLink);
+        toast.success('Link copied! 📋');
+      } catch {
+        toast.error('Could not copy link.');
+      }
+      setShowMenu(false);
+    };
+
+    const handleShare = async (event: React.MouseEvent) => {
+      event.stopPropagation();
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: post.title || 'Campus Blink Post',
+            text: `${(post.content || '').slice(0, 100)}${(post.content || '').length > 100 ? '...' : ''}`,
+            url: postLink,
+          });
+          return;
+        } catch {
+        }
+      }
+      await copyLink();
+    };
+
+    return (
+      <article onClick={() => navigate(`/community/${post.id}`)} className="cursor-pointer rounded-[16px] border border-black/10 bg-white p-4  transition-all hover:-translate-y-0.5 hover: md:p-5">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={handleAuthorClick}
+            disabled={isAnonymous}
+            className="mt-1 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-black/10 bg-[#F2F0EB] transition-opacity hover:opacity-80 disabled:cursor-default disabled:hover:opacity-100"
+          >
+            {avatar ? <img src={avatar} alt={post.author?.name || 'avatar'} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center font-bold text-[#0F1419]">?</div>}
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                  <button
+                    type="button"
+                    onClick={handleAuthorClick}
+                    disabled={isAnonymous}
+                    className="truncate font-bold text-[#0F1419] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline"
+                  >
+                    {isAnonymous ? 'Anonymous Student' : post.author?.name || 'Campus Student'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAuthorClick}
+                    disabled={isAnonymous}
+                    className="text-[#536471] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline"
+                  >
+                    @{handle}
+                  </button>
+                  <span className="text-[#536471]">·</span>
+                  <span className="text-[#536471]">{formatRelativeTime(post.created_at)}</span>
+                  {post.author?.college && !isAnonymous && <span className="rounded-md bg-[#1d9bf0]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0F1419]">{post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}</span>}
+                  {post.is_pinned && <span className="rounded-md bg-[#1d9bf0] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0F1419]">Pinned</span>}
+                </div>
+                {post.title && <h3 className="mt-2 text-lg font-bold leading-tight text-[#0F1419]">{post.title}</h3>}
+              </div>
+
+              <div className="flex items-center gap-1">
+                {canFollow && (
+                  <FollowButton
+                    targetUserId={authorId}
+                    initialFollowing={isFollowingAuthor}
+                    size="sm"
+                    variant="inline"
+                    className="hidden sm:inline-flex h-6 px-2 text-[11px]"
+                    onChange={(nextFollowing) => {
+                      if (authorId) onFollowChange(authorId, nextFollowing);
+                    }}
+                  />
+                )}
+
+                <div className="relative" ref={menuRef}>
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setShowMenu((value) => !value);
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-md text-[#536471] transition-colors hover:bg-white/5 hover:text-[#0F1419]"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
+
+                  {showMenu && (
+                    <div className="absolute right-0 top-10 z-20 min-w-[140px] overflow-hidden rounded-lg border border-black/10 bg-white shadow-md">
+                      <button onClick={copyLink} className="w-full px-4 py-2 text-left text-sm font-bold text-[#0F1419] hover:bg-white">Copy Link</button>
+                      {canReportPost && (
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onReportPost(post);
+                            setShowMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm font-bold text-[#CA8A04] hover:bg-[#FEF9C3]"
+                        >
+                          Report Post
+                        </button>
+                      )}
+                      {canReportAccount && (
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onReportAccount(post);
+                            setShowMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm font-bold text-[#CA8A04] hover:bg-[#FEF9C3]"
+                        >
+                          Report Account
+                        </button>
+                      )}
+                      {isOwnPost && (
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onDelete(post);
+                            setShowMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm font-bold text-[#DC2626] hover:bg-[#FEE2E2]"
+                        >
+                          Delete Post
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <p className="community-post-content mt-2 whitespace-pre-wrap text-[14px] leading-6 text-[#0F1419]">{post.content}</p>
+            <PostImageGrid images={images} onOpen={(index) => onOpenImage(images, index)} />
+
+            <div className="mt-4 flex max-w-xl items-center justify-between border-t border-black/10 pt-3 text-[#536471]">
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onLike(post.id, likedByMe);
+                }}
+                className={`group flex items-center gap-2 text-sm transition-colors ${likedByMe ? 'text-[#FF3D57]' : 'hover:text-[#FF3D57]'}`}
+              >
+                <span className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${likedByMe ? 'bg-[#FF3D57]/10' : 'group-hover:bg-[#FF3D57]/10'}`}><Heart className={`h-4 w-4 ${likedByMe ? 'fill-current' : ''}`} /></span>
+                <span>{post.likes_count || 0}</span>
+              </button>
+
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate(`/community/${post.id}`);
+                }}
+                className="group flex items-center gap-2 text-sm transition-colors hover:text-[#0F1419]"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-[#1a8cd8]/15"><MessageCircle className="h-4 w-4" /></span>
+                <span>{post.comments_count || 0}</span>
+              </button>
+
+              <button onClick={handleShare} className="group flex items-center gap-2 text-sm transition-colors hover:text-[#0F1419]">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-[#1a8cd8]/15"><Share2 className="h-4 w-4" /></span>
+              </button>
+            </div>
+
+            {isAdmin && isAnonymous && (
+              <div className="mt-2 flex justify-end">
+                <span
+                  onClick={(e) => e.stopPropagation()}
+                  className="rounded bg-white/6 px-2 py-0.5 font-mono text-[10px] text-[#536471] select-all"
+                  title="Post ID (admin only)"
+                >
+                  ID: {post.id.substring(0, 8)}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </article>
+    );
+  }

@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import './fonts.css';
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-placeholder: var(--text-placeholder);
+  --color-text-inverse: var(--text-inverse);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-light: var(--accent-light);
+  --color-accent-muted: var(--accent-muted);
+  --color-accent-dark: var(--accent-dark);
+
+  --color-yellow: var(--yellow);
+  --color-yellow-hover: var(--yellow-hover);
+  --color-yellow-light: var(--yellow-light);
+  --color-yellow-dark: var(--yellow-dark);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
+  --color-border-focus: var(--border-focus);
+
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-success-dark: var(--success-dark);
+  
+  --color-error: var(--error);
+  --color-error-light: var(--error-light);
+  --color-error-dark: var(--error-dark);
+
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-warning-dark: var(--warning-dark);
+
+  --color-info: var(--info);
+  --color-info-light: var(--info-light);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-accent: var(--shadow-accent);
+}
+
+@layer base {
+  :root, html {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FF;
+    --bg-tertiary: #F1F5F9;
+    --bg-hover: #F0F4FF;
+    --bg-active: #EEF1FF;
+
+    --text-primary: #0A0F1E;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --text-placeholder: #CBD5E1;
+    --text-inverse: #FFFFFF;
+
+    --accent: #2D4EF5;
+    --accent-hover: #1A3CE8;
+    --accent-active: #1530D4;
+    --accent-light: #EEF1FF;
+    --accent-muted: #BFCBFD;
+    --accent-dark: #1E3A8A;
+
+    --yellow: #EAB308;
+    --yellow-hover: var(--yellow-dark);
+    --yellow-light: #FEF9C3;
+    --yellow-dark: #A16207;
+
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --border-accent: #BFCBFD;
+    --border-focus: #2D4EF5;
+
+    --shadow-sm: 0 1px 3px rgba(10,15,30,0.06);
+    --shadow-md: 0 4px 16px rgba(10,15,30,0.08);
+    --shadow-lg: 0 8px 32px rgba(10,15,30,0.12);
+    --shadow-accent: 0 4px 16px rgba(45,78,245,0.15);
+
+    --success: #10B981;
+    --success-light: #D1FAE5;
+    --success-dark: #059669;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --error-dark: #DC2626;
+    --warning: #F59E0B;
+    --warning-light: #FEF3C7;
+    --warning-dark: #D97706;
+    --info: #3B82F6;
+    --info-light: #EFF6FF;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-full: 9999px;
+
+    /* Legacy Map for Fallback */
+    --bg: var(--bg-primary);
+  }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  *, *::before, *::after {
+    word-break: normal !important;
+    overflow-wrap: anywhere;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+  }
+}

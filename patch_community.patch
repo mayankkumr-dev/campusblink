@@ -1,0 +1,10 @@
+--- frontend/src/app/components/CommunityFeed.tsx
++++ frontend/src/app/components/CommunityFeed.tsx
+@@ -769,7 +769,6 @@
+       <div className="w-full max-w-[600px] border-x border-black/10 flex flex-col min-h-screen">
+         {/* Header Tabs */}
+         <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-black/10">
+-          <h2 className="px-4 py-3 text-xl font-bold font-syne">Home</h2>
+           <div className="flex w-full mt-1">
+             <button 
+               onClick={() => setActiveTab('All')}

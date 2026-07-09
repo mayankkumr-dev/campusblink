@@ -1,0 +1,11 @@
+--- frontend/src/app/components/ProfilePage.tsx
++++ frontend/src/app/components/ProfilePage.tsx
+@@ -658,7 +658,7 @@
+   };
+ 
+   if (!profile) {
+-    return <div className="p-8 text-center text-[var(--text-secondary)]">Please log in to view your profile.</div>;
++    return <ProfileSkeleton loading={true} name="profile-page-loading" />;
+   }
+ 
+   const postsStat = activeTab === 'posts' ? content.length : 0;

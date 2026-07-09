@@ -1,0 +1,20 @@
+--- frontend/src/app/components/AdminUsersPage.tsx
++++ frontend/src/app/components/AdminUsersPage.tsx
+@@ -83,4 +83,16 @@
+     }
+     toast.success(`${userName} is now ${newRole.replace('_', ' ')}`, { id: loadingToast });
+     fetchUsers();
+   };
+ 
++  const handlePermanentDelete = async (userId: string, userName: string) => {
++    const confirmed = window.confirm(`Are you absolutely sure you want to PERMANENTLY DELETE ${userName}?\n\nThis removes their account, profile data, auth record, and images from the platform. THIS CANNOT BE UNDONE.`);
++    if (!confirmed) return;
++    const loadingToast = toast.loading(`Deleting ${userName}...`);
++    const { error } = await permanentlyDeleteUser(adminProfile.id, userId);
++    if (error) {
++      toast.error(error.message || 'Failed to permanently delete user', { id: loadingToast });
++      return;
++    }
++    toast.success(`${userName} has been permanently deleted.`, { id: loadingToast });
++    fetchUsers();
++  };
