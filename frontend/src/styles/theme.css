@@ -66,6 +66,26 @@
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
 
+  /* Professor specific dark mode tokens */
+  --prof-bg-base: #0D0F14;
+  --prof-bg-surface: #171A21;
+  --prof-bg-surface-raised: #1F232C;
+  --prof-bg-surface-hover: #262B36;
+  --prof-bg-surface-active: #2D3340;
+  --prof-border-subtle: #262A33;
+  --prof-border-strong: #363C48;
+  --prof-text-primary: #F2F3F5;
+  --prof-text-secondary: #9AA0AC;
+  --prof-text-tertiary: #6B7280;
+  --prof-accent-blue: #5B8DEF;
+  --prof-accent-blue-soft-bg: rgba(91,141,239,0.14);
+  --prof-accent-green: #34D399;
+  --prof-accent-green-soft-bg: rgba(52,211,153,0.12);
+  --prof-accent-orange: #F59E0B;
+  --prof-accent-amber: #F5C451;
+  --prof-accent-red: #F87171;
+  --prof-accent-indigo: #818CF8;
+
   scrollbar-color: #27272A #101113;
 }
 

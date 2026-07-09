@@ -32,6 +32,25 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+
+  --color-prof-bg-base: var(--prof-bg-base);
+  --color-prof-bg-surface: var(--prof-bg-surface);
+  --color-prof-bg-surface-raised: var(--prof-bg-surface-raised);
+  --color-prof-bg-surface-hover: var(--prof-bg-surface-hover);
+  --color-prof-bg-surface-active: var(--prof-bg-surface-active);
+  --color-prof-border-subtle: var(--prof-border-subtle);
+  --color-prof-border-strong: var(--prof-border-strong);
+  --color-prof-text-primary: var(--prof-text-primary);
+  --color-prof-text-secondary: var(--prof-text-secondary);
+  --color-prof-text-tertiary: var(--prof-text-tertiary);
+  --color-prof-accent-blue: var(--prof-accent-blue);
+  --color-prof-accent-blue-soft-bg: var(--prof-accent-blue-soft-bg);
+  --color-prof-accent-green: var(--prof-accent-green);
+  --color-prof-accent-green-soft-bg: var(--prof-accent-green-soft-bg);
+  --color-prof-accent-orange: var(--prof-accent-orange);
+  --color-prof-accent-amber: var(--prof-accent-amber);
+  --color-prof-accent-red: var(--prof-accent-red);
+  --color-prof-accent-indigo: var(--prof-accent-indigo);
 }
 
 @layer base {

@@ -12,11 +12,11 @@ import {
 import toast from 'react-hot-toast';
 
 const YEAR_OPTIONS = [
-  { value: 'all', label: 'All Students', color: 'bg-gray-50 text-gray-700 border-gray-200' },
-  { value: '1st Year', label: '1st Year', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { value: '2nd Year', label: '2nd Year', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { value: '3rd Year', label: '3rd Year', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { value: '4th Year', label: '4th Year', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+  { value: 'all', label: 'All Students', color: 'bg-gray-50 dark:bg-prof-bg-surface-raised text-gray-700 dark:text-prof-text-primary border-gray-200 dark:border-prof-border-strong' },
+  { value: '1st Year', label: '1st Year', color: 'bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue border-blue-200 dark:border-prof-accent-blue/30' },
+  { value: '2nd Year', label: '2nd Year', color: 'bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue border-blue-200 dark:border-prof-accent-blue/30' },
+  { value: '3rd Year', label: '3rd Year', color: 'bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue border-blue-200 dark:border-prof-accent-blue/30' },
+  { value: '4th Year', label: '4th Year', color: 'bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue border-blue-200 dark:border-prof-accent-blue/30' },
 ];
 
 const PIN_DURATION_OPTIONS = [
@@ -58,29 +58,29 @@ const FileUploader: React.FC<{ files: File[], onChange: (files: File[]) => void,
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`relative rounded-2xl border-2 border-dashed p-6 flex flex-col items-center gap-2 cursor-pointer transition-all ${
-          dragging ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/50'
+          dragging ? 'border-blue-400 dark:border-prof-accent-blue bg-blue-50 dark:bg-prof-accent-blue-soft-bg' : 'border-gray-200 dark:border-prof-border-strong bg-gray-50 dark:bg-prof-bg-surface-raised hover:border-blue-300 dark:hover:border-prof-accent-blue/50 hover:bg-blue-50/50 dark:hover:bg-prof-accent-blue/5'
         }`}
       >
-        <UploadCloud className={`w-7 h-7 ${dragging ? 'text-blue-500' : 'text-gray-400'}`} />
-        <p className="text-sm font-bold text-gray-700">
-          Drag files here or <span className="text-blue-600">browse</span>
+        <UploadCloud className={`w-7 h-7 ${dragging ? 'text-blue-500 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-tertiary'}`} />
+        <p className="text-sm font-bold text-gray-700 dark:text-prof-text-primary">
+          Drag files here or <span className="text-blue-600 dark:text-prof-accent-blue">browse</span>
         </p>
         <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES} onChange={(e) => {
           onChange([...files, ...Array.from(e.target.files || [])]);
           e.target.value = '';
         }} className="sr-only" />
         {uploading && (
-          <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <div className="absolute inset-0 bg-white/80 dark:bg-prof-bg-surface/80 rounded-2xl flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600 dark:text-prof-accent-blue" />
           </div>
         )}
       </div>
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((f, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-100 shadow-sm">
-              <FileText className="w-4 h-4 text-blue-500" />
-              <span className="flex-1 text-xs font-semibold text-gray-700 truncate min-w-0">{f.name}</span>
+            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-prof-bg-surface border border-gray-100 dark:border-prof-border-subtle shadow-sm dark:shadow-none">
+              <FileText className="w-4 h-4 text-blue-500 dark:text-prof-accent-blue" />
+              <span className="flex-1 text-xs font-semibold text-gray-700 dark:text-prof-text-primary truncate min-w-0">{f.name}</span>
               <button type="button" onClick={(e) => { e.stopPropagation(); onChange(files.filter((_, idx) => idx !== i)); }} className="text-gray-400 hover:text-red-500">
                 <X className="w-4 h-4" />
               </button>
@@ -158,76 +158,76 @@ export const ProfessorNoticeAdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] px-4 py-8 md:px-8 font-sans">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-prof-bg-base px-4 py-8 md:px-8 font-sans transition-colors duration-200">
       <div className="max-w-[1000px] mx-auto">
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate('/professor/settings')} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-bold transition-all shadow-sm">
+          <button onClick={() => navigate('/professor/settings')} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-prof-bg-surface border border-gray-200 dark:border-prof-border-strong text-gray-600 dark:text-prof-text-secondary hover:bg-gray-50 dark:hover:bg-prof-border-strong text-xs font-bold transition-all shadow-sm dark:shadow-none">
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
           <div>
-            <h1 className="font-syne text-2xl font-extrabold text-gray-900 tracking-tight">Student Broadcasting</h1>
-            <p className="text-xs text-gray-500 font-medium">Publish official notices to {profile?.college} students</p>
+            <h1 className="font-syne text-2xl font-extrabold text-gray-900 dark:text-prof-text-primary tracking-tight">Student Broadcasting</h1>
+            <p className="text-xs text-gray-500 dark:text-prof-text-secondary font-medium">Publish official notices to {profile?.college} students</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Compose Form */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+          <div className="bg-white dark:bg-prof-bg-surface rounded-3xl border border-gray-100 dark:border-prof-border-subtle shadow-[0_4px_20px_rgb(0,0,0,0.02)] dark:shadow-none overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-100 dark:border-prof-border-subtle bg-gray-50/50 dark:bg-prof-bg-surface-raised/50">
               <div className="flex items-center gap-2">
-                <Megaphone className="w-4 h-4 text-blue-600" />
-                <h2 className="font-syne text-base font-extrabold text-gray-900">Compose Notice</h2>
+                <Megaphone className="w-4 h-4 text-blue-600 dark:text-prof-accent-blue" />
+                <h2 className="font-syne text-base font-extrabold text-gray-900 dark:text-prof-text-primary">Compose Notice</h2>
               </div>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Notice Title</label>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full h-11 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-900 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-gray-300" placeholder="e.g. Mid-term Schedule" />
+                <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-1.5">Notice Title</label>
+                <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full h-11 rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 text-sm font-semibold text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary" placeholder="e.g. Mid-term Schedule" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Notice Content</label>
-                <textarea value={content} onChange={(e) => setContent(e.target.value)} required rows={6} className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-900 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 transition-all placeholder:text-gray-300 resize-none" placeholder="Write the full content..." />
+                <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-1.5">Notice Content</label>
+                <textarea value={content} onChange={(e) => setContent(e.target.value)} required rows={6} className="w-full rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 py-3 text-sm font-medium text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary resize-none" placeholder="Write the full content..." />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Target Audience</label>
+                <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-2">Target Audience</label>
                 <div className="flex flex-wrap gap-2">
                   {YEAR_OPTIONS.map((opt) => (
-                    <button type="button" key={opt.value} onClick={() => setTargetYear(opt.value)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${targetYear === opt.value ? 'ring-2 ring-blue-500 ring-offset-1 ' + opt.color : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'}`}>
+                    <button type="button" key={opt.value} onClick={() => setTargetYear(opt.value)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${targetYear === opt.value ? 'ring-2 ring-blue-500 dark:ring-prof-accent-blue ring-offset-1 dark:ring-offset-prof-bg-surface ' + opt.color : 'bg-white dark:bg-prof-bg-surface border-gray-200 dark:border-prof-border-strong text-gray-500 dark:text-prof-text-secondary hover:border-gray-300 dark:hover:border-prof-border-subtle'}`}>
                       {opt.label}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Attachments (optional)</label>
+                <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-2">Attachments (optional)</label>
                 <FileUploader files={files} onChange={setFiles} uploading={isSubmitting && files.length > 0} />
               </div>
-              <button type="submit" disabled={isSubmitting} className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-60">
+              <button type="submit" disabled={isSubmitting} className="w-full h-11 rounded-xl bg-blue-600 dark:bg-prof-accent-blue hover:bg-blue-700 dark:hover:bg-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md dark:shadow-none disabled:opacity-60">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Megaphone className="w-4 h-4" />} Publish to Students
               </button>
             </form>
           </div>
 
           {/* Published List */}
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] overflow-hidden flex flex-col max-h-[700px]">
-            <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50 shrink-0">
-              <h2 className="font-syne text-base font-extrabold text-gray-900">Broadcast History</h2>
-              <p className="text-xs text-gray-500 font-medium mt-0.5">{notices.length} student broadcasts</p>
+          <div className="bg-white dark:bg-prof-bg-surface rounded-3xl border border-gray-100 dark:border-prof-border-subtle shadow-[0_4px_20px_rgb(0,0,0,0.02)] dark:shadow-none overflow-hidden flex flex-col max-h-[700px]">
+            <div className="px-6 py-5 border-b border-gray-100 dark:border-prof-border-subtle bg-gray-50/50 dark:bg-prof-bg-surface-raised/50 shrink-0">
+              <h2 className="font-syne text-base font-extrabold text-gray-900 dark:text-prof-text-primary">Broadcast History</h2>
+              <p className="text-xs text-gray-500 dark:text-prof-text-secondary font-medium mt-0.5">{notices.length} student broadcasts</p>
             </div>
-            <div className="divide-y divide-gray-100 overflow-y-auto flex-1 p-2">
-              {isLoadingNotices && <div className="p-10 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-500" /></div>}
+            <div className="divide-y divide-gray-100 dark:divide-prof-border-subtle overflow-y-auto flex-1 p-2">
+              {isLoadingNotices && <div className="p-10 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-blue-500 dark:text-prof-accent-blue" /></div>}
               {!isLoadingNotices && notices.map(notice => (
-                <div key={notice.id} className="p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                <div key={notice.id} className="p-4 rounded-2xl hover:bg-gray-50 dark:hover:bg-prof-bg-surface-raised transition-colors">
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-syne text-sm font-bold truncate ${notice.is_deleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{notice.title}</h3>
-                      <p className={`text-xs mt-1 line-clamp-2 ${notice.is_deleted ? 'text-gray-400' : 'text-gray-600'}`}>{notice.content}</p>
+                      <h3 className={`font-syne text-sm font-bold truncate ${notice.is_deleted ? 'text-gray-400 dark:text-prof-text-tertiary line-through' : 'text-gray-900 dark:text-prof-text-primary'}`}>{notice.title}</h3>
+                      <p className={`text-xs mt-1 line-clamp-2 ${notice.is_deleted ? 'text-gray-400 dark:text-prof-text-tertiary' : 'text-gray-600 dark:text-prof-text-secondary'}`}>{notice.content}</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[10px] text-gray-400 font-medium"><Calendar className="w-3 h-3 inline mr-1" />{formatDate(notice.created_at)}</span>
-                        <span className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[9px] font-bold uppercase">{notice.target_year}</span>
+                        <span className="text-[10px] text-gray-400 dark:text-prof-text-tertiary font-medium"><Calendar className="w-3 h-3 inline mr-1" />{formatDate(notice.created_at)}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-prof-border-strong text-gray-600 dark:text-prof-text-secondary text-[9px] font-bold uppercase">{notice.target_year}</span>
                       </div>
                     </div>
-                    <button onClick={() => handleSoftDelete(notice)} className={`w-8 h-8 flex items-center justify-center rounded-xl transition-colors ${notice.is_deleted ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-500 hover:bg-red-100'}`}>
+                    <button onClick={() => handleSoftDelete(notice)} className={`w-8 h-8 flex items-center justify-center rounded-xl transition-colors ${notice.is_deleted ? 'bg-green-50 dark:bg-prof-accent-green-soft-bg text-green-600 dark:text-prof-accent-green hover:bg-green-100 dark:hover:bg-prof-accent-green/20' : 'bg-red-50 dark:bg-prof-accent-red/10 text-red-500 dark:text-prof-accent-red hover:bg-red-100 dark:hover:bg-prof-accent-red/20'}`}>
                       {notice.is_deleted ? <RotateCcw className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>

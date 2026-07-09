@@ -27,14 +27,14 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
       }}
       className={`group relative flex items-center gap-3 py-3 px-4 mx-3 my-1.5 rounded-2xl transition-all duration-300 font-sans text-sm ${
         isActive
-          ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)]'
-          : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700'
+          ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none'
+          : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
       }`}
     >
-      <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-500"}`} />
+      <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary"}`} />
       <span className="flex-1">{label}</span>
       {Number(badgeCount || 0) > 0 && (
-        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm dark:bg-prof-accent-red">
           {badgeCount}
         </span>
       )}
@@ -80,7 +80,7 @@ export const ProfessorLayout: React.FC = () => {
   ];
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface dark:border-r dark:border-prof-border-subtle rounded-3xl dark:rounded-none shadow-[0_12px_40px_rgba(0,0,0,0.06)] dark:shadow-none overflow-hidden">
       {/* Logo */}
       <div className="h-20 flex items-center justify-center shrink-0 pt-2">
         <Link to="/professor/home" className="no-underline cursor-pointer block transform hover:scale-105 transition-transform">
@@ -117,14 +117,14 @@ export const ProfessorLayout: React.FC = () => {
       </div>
 
       {/* Profile */}
-      <div className="p-5 bg-white shrink-0 pb-6">
+      <div className="p-5 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
         <div className="flex items-center gap-3 mb-6 px-2">
-          <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center text-blue-700 font-syne font-bold text-lg border border-blue-100/50 shadow-sm shrink-0">
+          <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
             {firstName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-sans font-bold text-sm text-gray-900 truncate tracking-tight">Prof. {firstName}</h4>
-            <span className="text-[11px] font-medium text-gray-500 truncate block">{profile?.email}</span>
+            <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight">Prof. {firstName}</h4>
+            <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block">{profile?.email}</span>
           </div>
         </div>
         
@@ -134,16 +134,16 @@ export const ProfessorLayout: React.FC = () => {
             onClick={() => setIsMobileOpen(false)}
             className={({ isActive }) => `group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl transition-all duration-300 ${
               isActive 
-                ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)]' 
-                : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700'
+                ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
+                : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
             }`}
           >
-            <Settings size={18} strokeWidth={location.pathname === '/professor/settings/notifications' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings/notifications' ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-500'}`} />
+            <Settings size={18} strokeWidth={location.pathname === '/professor/settings/notifications' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings/notifications' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary'}`} />
             <span className="text-sm">Settings</span>
           </NavLink>
           
-          <button onClick={handleLogout} className="w-full group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl text-red-500 hover:bg-red-50/60 hover:text-red-600 transition-all duration-300">
-            <LogOut size={18} strokeWidth={1.25} className="text-red-400 group-hover:text-red-500 transition-colors" />
+          <button onClick={handleLogout} className="w-full group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300">
+            <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover:text-red-500 dark:group-hover:text-prof-accent-red transition-colors" />
             <span className="text-sm font-bold">Sign out</span>
           </button>
         </div>
@@ -152,9 +152,9 @@ export const ProfessorLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-[#FAFAFA] flex flex-col md:flex-row font-sans text-gray-900">
+    <div className="min-h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between h-16 px-5 bg-white shadow-sm sticky top-0 z-50 safe-area-top select-none">
+      <div className="md:hidden flex items-center justify-between h-16 px-5 bg-white dark:bg-prof-bg-surface dark:border-b dark:border-prof-border-subtle shadow-sm dark:shadow-none sticky top-0 z-50 safe-area-top select-none">
         <Link to="/professor/home" className="no-underline cursor-pointer">
           <div className="h-14 overflow-hidden flex items-center pt-1">
             <ThemeAwareLogo alt="Campus Blink" className="h-24 w-auto object-contain" />
@@ -162,7 +162,7 @@ export const ProfessorLayout: React.FC = () => {
         </Link>
         <div className="flex items-center gap-3">
           <ProfessorBadge size="sm" />
-          <button onClick={() => setIsMobileOpen(true)} className="p-2 rounded-full hover:bg-gray-100 text-gray-700 transition-colors">
+          <button onClick={() => setIsMobileOpen(true)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-prof-bg-surface-hover text-gray-700 dark:text-prof-text-primary transition-colors">
             <Menu className="w-6 h-6" strokeWidth={1.5} />
           </button>
         </div>
@@ -194,7 +194,7 @@ export const ProfessorLayout: React.FC = () => {
       <PushPermissionBanner />
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] flex items-center justify-around h-[72px] z-40 safe-area-bottom select-none pb-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-prof-bg-surface/90 backdrop-blur-md border-t border-gray-100 dark:border-prof-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-around h-[72px] z-40 safe-area-bottom select-none pb-2">
         {navItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.to
@@ -213,15 +213,15 @@ export const ProfessorLayout: React.FC = () => {
               className="flex flex-col items-center justify-center gap-1.5 flex-1 h-full pt-2"
             >
               <div className="relative">
-                <item.icon size={22} strokeWidth={isActive ? 2 : 1.25} className={`transition-transform duration-300 ${isActive ? 'text-blue-600 scale-110' : 'text-gray-400'}`} />
+                <item.icon size={22} strokeWidth={isActive ? 2 : 1.25} className={`transition-transform duration-300 ${isActive ? 'text-blue-600 dark:text-prof-accent-blue scale-110' : 'text-gray-400 dark:text-prof-text-secondary'}`} />
                 {Number(item.badgeCount || 0) > 0 && (
                   <span className="absolute -top-1.5 -right-2 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-white"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 dark:bg-prof-accent-red opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 dark:bg-prof-accent-red border-2 border-white dark:border-prof-bg-surface"></span>
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] font-bold tracking-wide transition-colors ${isActive ? 'text-blue-700' : 'text-gray-400'}`}>
+              <span className={`text-[10px] font-bold tracking-wide transition-colors ${isActive ? 'text-blue-700 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-secondary'}`}>
                 {item.label}
               </span>
             </NavLink>
