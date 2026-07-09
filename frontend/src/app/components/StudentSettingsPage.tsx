@@ -4,7 +4,6 @@ import { useNavigate, Link } from 'react-router';
 import toast from 'react-hot-toast';
 import { signOut } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
-import { ThemeSelector } from './ui/ThemeToggle';
 
 export const StudentSettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,17 +31,7 @@ export const StudentSettingsPage: React.FC = () => {
           <h1 className="font-syne text-3xl md:text-4xl font-extrabold text-slate-900">Account controls</h1>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-[0_8px_30px_-12px_rgba(0,0,0,0.04)] border border-slate-100 overflow-hidden">
-          
-          <div className="p-6 md:p-8 border-b border-slate-100">
-            <div className="flex items-center gap-4 mb-2">
-              <h2 className="font-syne text-xl font-bold text-slate-900">Appearance</h2>
-            </div>
-            <p className="text-sm text-slate-500 mb-6">Choose how Campus Blink looks on your device</p>
-            <div className="flex">
-              <ThemeSelector />
-            </div>
-          </div>
+        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
           
           <div className="flex flex-col">
             <Link to="/student/bookmarks" className="group flex items-center justify-between p-6 md:p-8 border-b border-slate-100 hover:bg-slate-50 transition-colors">

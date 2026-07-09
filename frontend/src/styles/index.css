@@ -61,16 +61,16 @@
 
 @layer base {
   :root, html {
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F8F9FF;
-    --bg-tertiary: #F1F5F9;
-    --bg-hover: #F0F4FF;
-    --bg-active: #EEF1FF;
+    --bg-primary: #F9FAFB;
+    --bg-secondary: #FFFFFF;
+    --bg-tertiary: #F3F4F6;
+    --bg-hover: #F3F4F6;
+    --bg-active: #E5E7EB;
 
-    --text-primary: #0A0F1E;
-    --text-secondary: #64748B;
-    --text-muted: #94A3B8;
-    --text-placeholder: #CBD5E1;
+    --text-primary: #111827;
+    --text-secondary: #4B5563;
+    --text-muted: #9CA3AF;
+    --text-placeholder: #D1D5DB;
     --text-inverse: #FFFFFF;
 
     --accent: #2D4EF5;
@@ -85,15 +85,15 @@
     --yellow-light: #FEF9C3;
     --yellow-dark: #A16207;
 
-    --border: #E2E8F0;
-    --border-strong: #CBD5E1;
+    --border: #E5E7EB;
+    --border-strong: #D1D5DB;
     --border-accent: #BFCBFD;
     --border-focus: #2D4EF5;
 
-    --shadow-sm: 0 1px 3px rgba(10,15,30,0.06);
-    --shadow-md: 0 4px 16px rgba(10,15,30,0.08);
-    --shadow-lg: 0 8px 32px rgba(10,15,30,0.12);
-    --shadow-accent: 0 4px 16px rgba(45,78,245,0.15);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-accent: none;
 
     --success: #10B981;
     --success-light: #D1FAE5;

@@ -16,7 +16,6 @@ import {
   Clock,
   ExternalLink
 } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
 import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
@@ -207,7 +206,6 @@ export const StudentDashboard: React.FC = () => {
           <img src="/logo2/Blue_transparent.png" alt="Campus Blink" className="h-8 w-auto object-contain" />
         </Link>
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <button
             onClick={() => navigate('/student/notifications')}
             className="relative p-2 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors"

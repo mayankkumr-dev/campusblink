@@ -10,11 +10,13 @@ export const useThemeStore = create(
       initTheme: () => {
         set({ isDark: false, theme: 'light' })
         document.documentElement.setAttribute('data-theme', 'light')
+        document.documentElement.classList.remove('dark')
       },
 
       setTheme: (theme) => {
         set({ theme: 'light', isDark: false })
         document.documentElement.setAttribute('data-theme', 'light')
+        document.documentElement.classList.remove('dark')
       },
 
       toggleTheme: () => {

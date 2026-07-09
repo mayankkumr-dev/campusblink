@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { Bell, Home, MoreHorizontal, Search, Store, User, Users, Star, Settings, UtensilsCrossed, Printer, Building2 } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';
@@ -109,7 +108,6 @@ export const StudentLayout: React.FC = () => {
           </div>
         </Link>
         <div className="flex items-center gap-2">
-          <ThemeToggle />
           <button
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
