@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { NavLink, useLocation } from 'react-router';
 import {
   Home,
@@ -14,6 +15,9 @@ import {
   ChevronRight,
   Sparkles,
   Newspaper,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -40,6 +44,27 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const location = useLocation();
   const [unreadNoticeCount, setUnreadNoticeCount] = useState(0);
+
+  const { theme, setTheme } = useTheme();
+  
+  const cycleTheme = () => {
+    if (theme === 'light') setTheme('dark');
+    else if (theme === 'dark') setTheme('system');
+    else setTheme('light');
+  };
+
+  const getThemeIcon = () => {
+    if (theme === 'light') return <Sun className="w-4 h-4 text-accent-blue" />;
+    if (theme === 'dark') return <Moon className="w-4 h-4 text-accent-blue" />;
+    return <Monitor className="w-4 h-4 text-accent-blue" />;
+  };
+
+  const getThemeLabel = () => {
+    if (theme === 'light') return 'Light Mode';
+    if (theme === 'dark') return 'Dark Mode';
+    return 'System Theme';
+  };
+
 
   // Fetch unread notice count on mount and when profile loads
   useEffect(() => {
@@ -143,12 +168,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`group fixed top-0 left-0 h-dvh bg-white border-r border-slate-200/80 z-[40] flex flex-col justify-between select-none transition-all duration-300 ${
+      className={`group fixed top-0 left-0 h-dvh bg-surface border-r border-border-subtle z-[40] flex flex-col justify-between select-none transition-all duration-300 ${
         isChatSection ? 'w-[260px] md:w-[88px] hover:md:w-[260px]' : 'w-[260px]'
       }`}
     >
       {/* Top Section: Branding & User Profile Container */}
-      <div className="flex flex-col border-b border-slate-100 px-4 pt-5 pb-4 space-y-4 shrink-0">
+      <div className="flex flex-col border-b border-border-subtle px-4 pt-5 pb-4 space-y-4 shrink-0">
         {/* Campus Blink Logo */}
         <div className={`flex items-center ${isChatSection ? 'justify-center md:justify-center' : 'justify-between'}`}>
           <NavLink to="/student/home" className="flex items-center gap-2.5 no-underline group py-1">
@@ -164,7 +189,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
         {/* User Profile Container Card */}
         <div
-          className={`bg-slate-50 border border-slate-200/70 rounded-2xl p-3 flex items-center gap-3 transition-all ${
+          className={`bg-surface border border-border-subtle rounded-2xl p-3 flex items-center gap-3 transition-all ${
             isChatSection ? 'md:hidden group-hover:md:flex' : ''
           }`}
         >
@@ -173,21 +198,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <img
                 src={profile.avatar_url}
                 alt={displayName}
-                className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                className="w-10 h-10 rounded-full object-cover border border-border-subtle"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-accent-blue-soft border border-accent-blue-soft flex items-center justify-center text-accent-blue font-bold text-sm">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent-green border-2 border-surface rounded-full" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="font-syne font-bold text-sm text-slate-900 truncate leading-tight">
+            <p className="font-syne font-bold text-sm text-text-primary truncate leading-tight">
               {displayName}
             </p>
-            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+            <p className="text-[11px] text-text-secondary truncate mt-0.5">
               {displayCollege}
             </p>
           </div>
@@ -208,8 +233,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 onClick={item.action}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 group ${
                   isActive
-                    ? 'bg-blue-50/90 text-blue-600 font-semibold shadow-2xs'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                    ? 'bg-accent-blue-soft text-accent-blue font-semibold shadow-2xs'
+                    : 'text-text-secondary hover:bg-surface hover:text-text-primary font-medium'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -217,7 +242,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     <IconComponent
                       size={19}
                       strokeWidth={isActive ? 2 : 1.6}
-                      className={isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-700 transition-colors'}
+                      className={isActive ? 'text-accent-blue' : 'text-text-secondary/70 group-hover:text-text-primary transition-colors'}
                     />
                     {item.badge !== undefined && (
                       <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
@@ -239,8 +264,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               to={item.path}
               className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 group ${
                 isActive
-                  ? 'bg-blue-50/90 text-blue-600 font-semibold shadow-2xs'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                  ? 'bg-accent-blue-soft text-accent-blue font-semibold shadow-2xs'
+                  : 'text-text-secondary hover:bg-surface hover:text-text-primary font-medium'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -248,7 +273,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   <IconComponent
                     size={19}
                     strokeWidth={isActive ? 2 : 1.6}
-                    className={isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-700 transition-colors'}
+                    className={isActive ? 'text-accent-blue' : 'text-text-secondary/70 group-hover:text-text-primary transition-colors'}
                   />
                   {item.badge !== undefined && (
                     <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
@@ -266,13 +291,16 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       </div>
 
       {/* Bottom Footer Area */}
-      <div className={`p-4 border-t border-slate-100 ${isChatSection ? 'md:hidden group-hover:md:block' : ''}`}>
-        <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/60 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Light Mode Professional</span>
+      <div className={`p-4 border-t border-border-subtle ${isChatSection ? 'md:hidden group-hover:md:block' : ''}`}>
+        <button 
+          onClick={cycleTheme}
+          className="w-full bg-surface-elevated hover:bg-bg-hover rounded-xl p-3 border border-border-subtle flex items-center justify-between transition-colors"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold text-text-primary">
+            {getThemeIcon()}
+            <span>{getThemeLabel()}</span>
           </div>
-        </div>
+        </button>
       </div>
     </aside>
   );

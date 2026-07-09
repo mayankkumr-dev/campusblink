@@ -406,19 +406,19 @@ export function BuySellPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 pt-6 pb-24 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-surface px-4 pt-6 pb-24 sm:px-6 lg:px-8 font-sans">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Marketplace Header Card */}
-        <section className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <section className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
           <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.38fr_0.62fr] lg:px-10 lg:py-10">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-600">
+              <div className="inline-flex items-center gap-2 rounded-full bg-accent-blue-soft px-3.5 py-1.5 text-xs font-semibold text-accent-blue">
                 Campus Blink Marketplace
               </div>
-              <h1 className="mt-4 font-syne text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+              <h1 className="mt-4 font-syne text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">
                 Buy smart, sell fast, campus-first.
               </h1>
-              <p className="mt-3.5 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+              <p className="mt-3.5 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
                 A clean campus marketplace for gadgets, books, furniture, and quick hostel pickups.
               </p>
 
@@ -439,21 +439,21 @@ export function BuySellPage() {
                 </button>
                 <Link
                   to="/student/campus-exchange/messages"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
                 >
-                  <MessageCircle className="h-4 w-4 text-slate-500" />
+                  <MessageCircle className="h-4 w-4 text-text-secondary" />
                   Messages
                 </Link>
                 <Link
                   to="/student/wishlist"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
                 >
-                  <Heart className="h-4 w-4 text-slate-500" />
+                  <Heart className="h-4 w-4 text-text-secondary" />
                   Wishlist
                 </Link>
                 <Link
                   to="/student/buy-sell/manage"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
                 >
                   Manage Listings
                 </Link>
@@ -463,42 +463,42 @@ export function BuySellPage() {
             {/* Active / Sold Stat Cards with Subtle Depth */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-blue-50/60 to-white p-5 shadow-[0_4px_16px_rgba(37,99,235,0.06)]">
-                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600">Active listings</div>
-                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-slate-900">{activeListingsCount}</div>
-                <div className="mt-1 text-xs font-medium text-slate-500">Items currently live on campus</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-accent-blue">Active listings</div>
+                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-text-primary">{activeListingsCount}</div>
+                <div className="mt-1 text-xs font-medium text-text-secondary">Items currently live on campus</div>
               </div>
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Sold</div>
-                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-slate-900">{soldListingsCount}</div>
-                <div className="mt-1 text-xs font-medium text-slate-500">Listings closed successfully</div>
+              <div className="rounded-2xl border border-border-subtle bg-surface p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Sold</div>
+                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-text-primary">{soldListingsCount}</div>
+                <div className="mt-1 text-xs font-medium text-text-secondary">Listings closed successfully</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Streamlined Search Bar and Category Navigation */}
-        <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
+        <section className="rounded-3xl border border-border-subtle bg-surface p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative flex-1 max-w-xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/70" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search campus listings by item, hostel, or seller..."
-                className="w-full rounded-2xl border border-slate-200/80 bg-slate-50/70 pl-11 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                className="w-full rounded-2xl border border-border-subtle bg-surface-elevated pl-11 pr-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder outline-none transition-all focus:border-accent-blue focus:bg-surface focus:ring-2 focus:ring-accent-blue/20"
               />
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+              <div className="flex items-center gap-2 text-xs font-medium text-text-secondary">
                 <SlidersHorizontal className="h-4 w-4" />
                 <span>Filter:</span>
               </div>
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors hover:bg-slate-50"
+                className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2.5 text-xs font-semibold text-text-primary outline-none transition-colors hover:bg-surface-elevated"
               >
                 <option value="all">All categories</option>
                 {MARKETPLACE_CATEGORIES.map((item) => (
@@ -510,14 +510,14 @@ export function BuySellPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-border-subtle">
             <button
               type="button"
               onClick={() => setCategory('all')}
               className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
                 category === 'all'
                   ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+                  : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
               }`}
             >
               All
@@ -530,7 +530,7 @@ export function BuySellPage() {
                 className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
                   category === item
                     ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+                    : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
                 }`}
               >
                 {item}
@@ -540,7 +540,7 @@ export function BuySellPage() {
         </section>
 
         {/* Elegant Component-Based Product Cards Grid */}
-        <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+        <section className="rounded-3xl border border-border-subtle bg-surface p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
           {isLoading ? (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
@@ -552,18 +552,18 @@ export function BuySellPage() {
               {featuredListings.map((listing) => (
                 <div
                   key={listing.id}
-                  className="group overflow-hidden rounded-2xl border border-slate-100 bg-white p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                  className="group overflow-hidden rounded-2xl border border-border-subtle bg-surface p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
                     <Link to={`/student/buy-sell/${listing.id}`} className="block relative">
-                      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-slate-50">
+                      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-surface">
                         <ImageWithFallback
                           src={getListingImage(listing)}
                           alt={listing.title}
                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
-                      <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-800 shadow-xs">
+                      <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-text-primary shadow-xs">
                         {listing.condition}
                       </span>
                     </Link>
@@ -571,27 +571,27 @@ export function BuySellPage() {
                     <div className="pt-3.5 px-1">
                       <div className="flex items-start justify-between gap-2">
                         <Link to={`/student/buy-sell/${listing.id}`}>
-                          <h3 className="font-syne font-bold text-sm text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                          <h3 className="font-syne font-bold text-sm text-text-primary line-clamp-1 group-hover:text-blue-600 transition-colors">
                             {listing.title}
                           </h3>
                         </Link>
-                        <p className="font-syne text-base font-extrabold text-blue-600 shrink-0">
+                        <p className="font-syne text-base font-extrabold text-accent-blue shrink-0">
                           {formatPrice(listing.price)}
                         </p>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500 line-clamp-1">
+                      <p className="mt-1 text-xs text-text-secondary line-clamp-1">
                         {listing.category} · {formatMarketplaceTime(listing.created_at)}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 px-1">
+                  <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between gap-2 px-1">
                     <button
                       onClick={() => handleToggleWishlist(listing.id)}
                       className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${
                         wishlistIds.includes(listing.id)
-                          ? 'text-rose-600'
-                          : 'text-slate-500 hover:text-slate-900'
+                          ? 'text-accent-red'
+                          : 'text-text-secondary hover:text-text-primary'
                       }`}
                     >
                       <Heart
@@ -605,14 +605,14 @@ export function BuySellPage() {
                       {profile?.id && profile.id !== listing.seller_id ? (
                         <Link
                           to="/student/campus-exchange/messages"
-                          className="rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                          className="rounded-xl border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-elevated transition-colors"
                         >
                           Chat
                         </Link>
                       ) : null}
                       <Link
                         to={`/student/buy-sell/${listing.id}`}
-                        className="rounded-xl bg-slate-100 hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-900 transition-colors"
+                        className="rounded-xl bg-surface-elevated hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-text-primary transition-colors"
                       >
                         Details
                       </Link>

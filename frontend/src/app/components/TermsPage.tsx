@@ -7,7 +7,7 @@ export const TermsPage = () => {
   return (
     <div className="min-h-screen bg-[#0A0F1E] text-white font-sans p-6 md:p-12 relative overflow-hidden">
       <div className="max-w-3xl mx-auto relative z-10">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 group">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-text-secondary/70 hover:text-white transition-colors mb-8 group">
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back
         </button>
         <div className="flex items-center gap-3 mb-8">
@@ -16,7 +16,7 @@ export const TermsPage = () => {
           </div>
           <h1 className="font-syne font-extrabold text-4xl md:text-5xl">Terms of Service</h1>
         </div>
-        <div className="space-y-8 text-gray-400 leading-relaxed font-sans">
+        <div className="space-y-8 text-text-secondary/70 leading-relaxed font-sans">
           <section className="bg-[#F8F9FF] p-8 rounded-[2rem] border border-[#ffffff0f]">
              <h3 className="text-white font-syne font-bold text-2xl mb-3">1. Be Cool</h3>
              <p>Don't use Campus Blink to bully, harass, or scam your fellow students. If you sell someone a textbook, make sure half the pages aren't missing. Just be a decent human being.</p>

@@ -20,17 +20,17 @@ export const AdminOrdersHub: React.FC = () => {
       {/* Operations Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="font-syne text-xl font-extrabold text-text-primary tracking-tight">
             Shop Operations Hub
           </h2>
-          <p className="text-xs text-slate-500 font-medium">
+          <p className="text-xs text-text-secondary font-medium">
             Monitor real-time canteen orders, print jobs, and menu availability across all campus shops
           </p>
         </div>
       </div>
 
       {/* Primary Navigation Tabs */}
-      <div className="bg-white p-1.5 rounded-2xl border border-slate-100 flex items-center gap-1.5 overflow-x-auto hide-scrollbar shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+      <div className="bg-surface p-1.5 rounded-2xl border border-border-subtle flex items-center gap-1.5 overflow-x-auto hide-scrollbar shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -42,12 +42,12 @@ export const AdminOrdersHub: React.FC = () => {
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
               }`}
             >
               <Icon
                 className={`w-4 h-4 stroke-[2] ${
-                  isActive ? 'text-white' : 'text-slate-400'
+                  isActive ? 'text-white' : 'text-text-secondary/70'
                 }`}
               />
               <span>{tab.label}</span>

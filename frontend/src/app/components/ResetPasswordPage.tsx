@@ -127,7 +127,7 @@ export const ResetPasswordPage: React.FC = () => {
             </div>
           ) : isSuccess ? (
             <div className="py-8 flex flex-col items-center text-center gap-5">
-              <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500">
+              <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-accent-green">
                 <CheckCircle className="w-10 h-10" />
               </div>
               <div>

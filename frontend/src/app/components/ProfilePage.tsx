@@ -92,7 +92,7 @@ function MediaEditorModal({
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4">
       <div className="w-full max-w-2xl rounded-[24px] bg-[var(--bg)] shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
-        <div className="flex items-center justify-between border-b border-white px-6 py-4">
+        <div className="flex items-center justify-between border-b border-surface px-6 py-4">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--yellow-dark)]">Adjust {state.kind}</p>
             <h3 className="mt-1  text-2xl font-extrabold text-[var(--text-primary)]">Preview before saving</h3>
@@ -126,7 +126,7 @@ function MediaEditorModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-white px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-surface px-6 py-4">
           <button type="button" onClick={onClose} className="rounded-md border border-black/10 bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)]">Cancel</button>
           <button type="button" onClick={onSubmit} disabled={isSaving} className="rounded-md bg-[var(--text-primary)] px-5 py-2.5 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)] disabled:opacity-60">
             {isSaving ? 'Saving...' : 'Use this image'}
@@ -193,13 +193,13 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
   };
 
   return (
-    <article className="border-b border-slate-100 px-6 py-5 bg-white transition-colors hover:bg-slate-50/60">
+    <article className="border-b border-border-subtle px-6 py-5 bg-surface transition-colors hover:bg-slate-50/60">
       <div className="flex gap-4">
-        <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200/80 bg-slate-50 shadow-2xs">
+        <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-border-subtle bg-surface shadow-2xs">
           {avatar ? (
             <img loading="lazy" src={avatar} alt={displayName} className="h-full w-full rounded-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-700 bg-slate-100">?</div>
+            <div className="flex h-full w-full items-center justify-center text-sm font-bold text-text-primary bg-surface-elevated">?</div>
           )}
         </div>
 
@@ -207,51 +207,51 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                <span className="truncate font-syne font-bold text-slate-900">{displayName}</span>
-                <span className="text-slate-500 font-medium">@{handle}</span>
-                <span className="text-slate-300">·</span>
-                <span className="text-xs text-slate-400">{formatRelativeTime(post.created_at)}</span>
+                <span className="truncate font-syne font-bold text-text-primary">{displayName}</span>
+                <span className="text-text-secondary font-medium">@{handle}</span>
+                <span className="text-text-placeholder">·</span>
+                <span className="text-xs text-text-secondary/70">{formatRelativeTime(post.created_at)}</span>
                 {post.is_anonymous && (
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                  <span className="rounded-full bg-surface-elevated px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
                     Anonymous 🔒
                   </span>
                 )}
                 {post.author?.college && !post.is_anonymous && (
-                  <span className="rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
+                  <span className="rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
                     {post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}
                   </span>
                 )}
               </div>
-              {post.title && <h3 className="mt-1.5 text-base font-bold text-slate-900">{post.title}</h3>}
+              {post.title && <h3 className="mt-1.5 text-base font-bold text-text-primary">{post.title}</h3>}
             </div>
 
-            <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
+            <button className="flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary/70 transition-colors hover:bg-surface-elevated hover:text-slate-700">
               <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
-          <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-slate-800 font-normal">{post.content}</p>
+          <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-text-primary font-normal">{post.content}</p>
 
           {images.length > 0 && (
             images.length === 1 ? (
-              <div className="mt-3.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
+              <div className="mt-3.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
                 <AdaptivePostImage
                   src={images[0]}
                   alt="Post attachment"
                   onClick={() => onOpenImage(images, 0)}
-                  className="w-full max-h-[500px] bg-slate-50"
+                  className="w-full max-h-[500px] bg-surface"
                   imgClassName="h-full w-full object-contain"
                 />
               </div>
             ) : (
-              <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
+              <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
                 {images.slice(0, 4).map((image, index) => (
                   <AdaptivePostImage
                     key={`${image}-${index}`}
                     src={image}
                     alt={`Post attachment ${index + 1}`}
                     onClick={() => onOpenImage(images, index)}
-                    className="bg-slate-100"
+                    className="bg-surface-elevated"
                     imgClassName="h-full w-full object-contain"
                   >
                     {images.length > 4 && index === 3 ? (
@@ -265,15 +265,15 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
             )
           )}
 
-          <div className="mt-4 flex max-w-md items-center justify-between text-slate-500 pt-1">
+          <div className="mt-4 flex max-w-md items-center justify-between text-text-secondary pt-1">
             <button
               onClick={() => onLike(post.id, likedByMe)}
               className={`group flex items-center gap-1.5 text-xs font-medium transition-colors ${
-                likedByMe ? 'text-rose-600' : 'hover:text-rose-600'
+                likedByMe ? 'text-accent-red' : 'hover:text-rose-600'
               }`}
             >
               <span className={`flex h-8 px-2.5 items-center justify-center rounded-xl transition-all ${
-                likedByMe ? 'bg-rose-50 text-rose-600' : 'group-hover:bg-rose-50'
+                likedByMe ? 'bg-accent-red/15 text-accent-red' : 'group-hover:bg-rose-50'
               }`}>
                 <Heart className={`h-4 w-4 mr-1.5 ${likedByMe ? 'fill-current' : ''}`} strokeWidth={1.5} />
                 {post.likes_count || 0}
@@ -288,7 +288,7 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
             </button>
 
             <button onClick={handleCopyPostLink} className="group flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-slate-800">
-              <span className="flex h-8 px-2.5 items-center justify-center rounded-xl transition-all group-hover:bg-slate-100">
+              <span className="flex h-8 px-2.5 items-center justify-center rounded-xl transition-all group-hover:bg-surface-elevated">
                 <Link2 className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
                 Share
               </span>
@@ -672,23 +672,23 @@ export const ProfilePage: React.FC = () => {
   const joinedOn = profile.created_at ? new Date(profile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' }) : '';
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 font-sans">
+    <div className="min-h-screen bg-surface pb-24 text-text-primary font-sans">
       <div className="w-full flex justify-center min-h-screen pb-28">
         {/* Main Feed Column */}
-        <div className="w-full max-w-[680px] bg-white border-x border-slate-200/80 shadow-xs flex flex-col min-h-screen pb-10">
+        <div className="w-full max-w-[680px] bg-surface border-x border-border-subtle shadow-xs flex flex-col min-h-screen pb-10">
           {/* Sticky Top Header Bar */}
-          <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-3.5 flex items-center justify-between">
+          <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-border-subtle px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-border-subtle bg-surface text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
               aria-label="Back"
             >
               <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
             </button>
             <div>
-              <h1 className="font-syne font-bold text-base text-slate-900 leading-tight">{profile.name}</h1>
-              <p className="text-xs text-slate-500">{postsStat} {activeTab}</p>
+              <h1 className="font-syne font-bold text-base text-text-primary leading-tight">{profile.name}</h1>
+              <p className="text-xs text-text-secondary">{postsStat} {activeTab}</p>
             </div>
           </div>
 
@@ -696,7 +696,7 @@ export const ProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setProfileMenuOpen((value) => !value)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-surface text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
               aria-label="Open profile menu"
             >
               <Menu className="h-4 w-4" strokeWidth={1.8} />
@@ -704,18 +704,18 @@ export const ProfilePage: React.FC = () => {
             {profileMenuOpen && (
               <>
                 <button type="button" aria-label="Close profile menu" className="fixed inset-0 z-40 cursor-default" onClick={() => setProfileMenuOpen(false)} />
-                <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                    <Settings className="h-4 w-4 text-slate-400" /> Settings
+                <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated">
+                    <Settings className="h-4 w-4 text-text-secondary/70" /> Settings
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/notifications'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                    <Bell className="h-4 w-4 text-slate-400" /> Notifications
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/notifications'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated">
+                    <Bell className="h-4 w-4 text-text-secondary/70" /> Notifications
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/password'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                    <Lock className="h-4 w-4 text-slate-400" /> Password
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/password'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated">
+                    <Lock className="h-4 w-4 text-text-secondary/70" /> Password
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/feedback'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                    <MessageCircle className="h-4 w-4 text-slate-400" /> Feedback
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/feedback'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated">
+                    <MessageCircle className="h-4 w-4 text-text-secondary/70" /> Feedback
                   </button>
                 </div>
               </>
@@ -723,9 +723,9 @@ export const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <section className="w-full bg-white">
+        <section className="w-full bg-surface">
           {/* Banner Container */}
-          <div className="group relative w-full overflow-hidden bg-slate-100" style={{ aspectRatio: `${BANNER_WIDTH} / ${BANNER_HEIGHT}`, minHeight: '180px', maxHeight: '250px' }}>
+          <div className="group relative w-full overflow-hidden bg-surface-elevated" style={{ aspectRatio: `${BANNER_WIDTH} / ${BANNER_HEIGHT}`, minHeight: '180px', maxHeight: '250px' }}>
             {profile.cover_url && !removeCover ? (
               <img loading="lazy" src={coverPreview || profile.cover_url} alt="Profile banner" className="h-full w-full object-cover object-center transition-opacity duration-300" />
             ) : (
@@ -734,7 +734,7 @@ export const ProfilePage: React.FC = () => {
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60" />
             <button
               onClick={() => coverInputRef.current?.click()}
-              className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-white"
+              className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-text-primary shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-white"
             >
               <Camera className="h-3.5 w-3.5" />
               Edit Cover
@@ -742,7 +742,7 @@ export const ProfilePage: React.FC = () => {
             {profile.cover_url ? (
               <button
                 onClick={() => handleRemoveMedia('cover')}
-                className="absolute right-[134px] top-4 inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-rose-600 shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-rose-50"
+                className="absolute right-[134px] top-4 inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-accent-red shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-rose-50"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Remove
@@ -753,7 +753,7 @@ export const ProfilePage: React.FC = () => {
 
           {/* Avatar & Action Buttons Row */}
           <div className={`relative mx-auto -mt-14 flex items-end justify-between px-6 ${visibleSocialLinks.length ? 'pb-12' : ''}`}>
-            <div className="group relative h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-white shadow-md">
+            <div className="group relative h-28 w-28 overflow-hidden rounded-full border-4 border-surface bg-surface shadow-md">
               <ProfilePictureInteract imageUrl={displayAvatar} alt={profile.name} className="h-full w-full">
                 <img loading="lazy" src={displayAvatar} alt={profile.name} className="h-full w-full rounded-full object-cover transition-transform duration-150 group-hover:scale-[1.03]" />
               </ProfilePictureInteract>
@@ -761,7 +761,7 @@ export const ProfilePage: React.FC = () => {
                 <Camera className="h-5 w-5 text-white" />
               </button>
               {profile.avatar_url ? (
-                <button onClick={() => handleRemoveMedia('avatar')} className="absolute bottom-1 right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-rose-600 shadow-sm" title="Remove photo">
+                <button onClick={() => handleRemoveMedia('avatar')} className="absolute bottom-1 right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-accent-red shadow-sm" title="Remove photo">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               ) : null}
@@ -773,7 +773,7 @@ export const ProfilePage: React.FC = () => {
                 <div className="flex items-center gap-2.5">
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
+                    className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300"
                   >
                     Edit Profile
                   </button>
@@ -787,7 +787,7 @@ export const ProfilePage: React.FC = () => {
                         toast.error('Could not copy profile link.');
                       }
                     }}
-                    className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
+                    className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300"
                   >
                     Share Profile
                   </button>
@@ -801,73 +801,73 @@ export const ProfilePage: React.FC = () => {
           <div className="mx-auto px-6 pt-4">
             <div className="animate-[fadeIn_0.3s_ease]">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="font-syne font-bold text-2xl text-slate-900 select-text leading-tight">{profile.name}</h1>
-                <span className="inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                <h1 className="font-syne font-bold text-2xl text-text-primary select-text leading-tight">{profile.name}</h1>
+                <span className="inline-flex items-center rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
                   <GraduationCap className="mr-1 h-3.5 w-3.5" />
                   MAIT
                 </span>
               </div>
 
-              <p className="mt-0.5 text-sm font-medium text-slate-500">@{getDisplayHandle(profile.username, 'student')}</p>
+              <p className="mt-0.5 text-sm font-medium text-text-secondary">@{getDisplayHandle(profile.username, 'student')}</p>
 
-              <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-slate-700 select-text">
+              <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-text-primary select-text">
                 {profile.bio || 'Set up your profile with a short intro, your links, and what you are known for on campus.'}
               </p>
 
               {/* College Tags & Metadata Strip */}
-              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary">
                 {profile.location ? (
-                  <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-slate-400" /><span>{profile.location}</span></div>
+                  <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-text-secondary/70" /><span>{profile.location}</span></div>
                 ) : null}
                 {profile.website ? (
-                  <a href={`https://${displayWebsite}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition-colors text-blue-600 hover:underline"><Link2 className="h-3.5 w-3.5" /><span>{displayWebsite}</span></a>
+                  <a href={`https://${displayWebsite}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition-colors text-accent-blue hover:underline"><Link2 className="h-3.5 w-3.5" /><span>{displayWebsite}</span></a>
                 ) : null}
-                {joinedOn ? <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-slate-400" /><span>Joined {joinedOn}</span></div> : null}
-                <div className="flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-slate-400" /><span>{profile.college || ONLY_COLLEGE}</span></div>
+                {joinedOn ? <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-text-secondary/70" /><span>Joined {joinedOn}</span></div> : null}
+                <div className="flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-text-secondary/70" /><span>{profile.college || ONLY_COLLEGE}</span></div>
               </div>
 
               {/* Stats Row: Posts, Followers, Following, Reputation */}
               <div className="grid grid-cols-4 gap-3 my-6">
-                <div className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
-                  <div className="font-syne font-bold text-xl text-slate-900">{postsStat}</div>
-                  <div className="text-xs font-medium text-slate-500 mt-0.5">Posts</div>
+                <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
+                  <div className="font-syne font-bold text-xl text-text-primary">{postsStat}</div>
+                  <div className="text-xs font-medium text-text-secondary mt-0.5">Posts</div>
                 </div>
 
                 <button
                   onClick={() => setPeopleModal('followers')}
-                  className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                  className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
                 >
-                  <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followersCount}</div>
-                  <div className="text-xs font-medium text-slate-500 mt-0.5">Followers</div>
+                  <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">{followersCount}</div>
+                  <div className="text-xs font-medium text-text-secondary mt-0.5">Followers</div>
                 </button>
 
                 <button
                   onClick={() => setPeopleModal('following')}
-                  className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                  className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
                 >
-                  <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followingCount}</div>
-                  <div className="text-xs font-medium text-slate-500 mt-0.5">Following</div>
+                  <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">{followingCount}</div>
+                  <div className="text-xs font-medium text-text-secondary mt-0.5">Following</div>
                 </button>
 
-                <div className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
-                  <div className="font-syne font-bold text-xl text-amber-500">{profile.campus_credits || 0}</div>
-                  <div className="text-xs font-medium text-slate-500 mt-0.5">Reputation</div>
+                <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
+                  <div className="font-syne font-bold text-xl text-accent-amber">{profile.campus_credits || 0}</div>
+                  <div className="text-xs font-medium text-text-secondary mt-0.5">Reputation</div>
                 </div>
               </div>
 
               {/* Your Reputation Card with Soft Subtle Shadows */}
-              <div className="rounded-2xl bg-gradient-to-br from-white via-amber-50/30 to-amber-50/60 p-5 shadow-[0_4px_20px_rgba(245,158,11,0.08)] border border-amber-200/60 mb-6">
+              <div className="rounded-2xl bg-gradient-to-br from-white via-amber-50/30 to-amber-50/60 p-5 shadow-[0_4px_20px_rgba(245,158,11,0.08)] border border-accent-amber-soft/20 mb-6">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700">
-                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent-amber">
+                      <Star className="h-4 w-4 text-accent-amber fill-amber-500" />
                       Your Reputation Score
                     </div>
-                    <div className="mt-1 font-syne text-2xl font-bold text-slate-900">
-                      {profile.campus_credits || 0} <span className="text-xs font-semibold text-slate-500 ml-1">credits earned</span>
+                    <div className="mt-1 font-syne text-2xl font-bold text-text-primary">
+                      {profile.campus_credits || 0} <span className="text-xs font-semibold text-text-secondary ml-1">credits earned</span>
                     </div>
                   </div>
-                  <button className="text-xs font-semibold text-amber-700 bg-amber-100/70 hover:bg-amber-100 rounded-xl px-3.5 py-2 transition-colors shrink-0">
+                  <button className="text-xs font-semibold text-accent-amber bg-amber-100/70 hover:bg-amber-100 rounded-xl px-3.5 py-2 transition-colors shrink-0">
                     How to earn →
                   </button>
                 </div>
@@ -876,7 +876,7 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Navigation Tabs: Posts, Replies, Likes */}
-          <div className="border-b border-slate-100 px-6 bg-white sticky top-14 z-20">
+          <div className="border-b border-border-subtle px-6 bg-surface sticky top-14 z-20">
             <div className="flex gap-6">
               {['posts', 'replies', 'likes'].map((tab) => (
                 <button
@@ -884,8 +884,8 @@ export const ProfilePage: React.FC = () => {
                   onClick={() => setActiveTab(tab)}
                   className={`relative py-3.5 text-sm font-semibold capitalize transition-all duration-150 ${
                     activeTab === tab
-                      ? 'text-blue-600 border-b-2 border-blue-600'
-                      : 'text-slate-500 hover:text-slate-900 border-b-2 border-transparent'
+                      ? 'text-accent-blue border-b-2 border-blue-600'
+                      : 'text-text-secondary hover:text-text-primary border-b-2 border-transparent'
                   }`}
                 >
                   {tab}
@@ -895,7 +895,7 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Content Feed Section */}
-          <div className="bg-white">
+          <div className="bg-surface">
             <div className="min-h-[260px] transition-opacity duration-200">
               {isLoadingContent ? (
                 <div className="py-6 px-6">
@@ -906,8 +906,8 @@ export const ProfilePage: React.FC = () => {
                   {content.map((item) => (
                     <div key={`${activeTab}-${item.id}`}>
                       {activeTab === 'replies' && item.reply_content ? (
-                        <div className="px-6 pt-4 text-xs font-medium text-slate-500 bg-slate-50/50">
-                          Replied: <span className="text-slate-700 italic">"{item.reply_content}"</span>
+                        <div className="px-6 pt-4 text-xs font-medium text-text-secondary bg-background">
+                          Replied: <span className="text-text-primary italic">"{item.reply_content}"</span>
                         </div>
                       ) : null}
                       <PostCard post={item} viewerProfile={profile} onLike={handleLike} onOpenImage={(images, index) => setLightbox({ images, index })} />
@@ -916,14 +916,14 @@ export const ProfilePage: React.FC = () => {
                 </div>
               ) : (
                 <div className="py-20 text-center px-6">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200/60 text-slate-400 shadow-2xs">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-surface border border-border-subtle text-text-secondary/70 shadow-2xs">
                     {activeTab === 'posts' ? <Star className="h-5 w-5" /> : activeTab === 'replies' ? <MessageCircle className="h-5 w-5" /> : <Heart className="h-5 w-5" />}
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">No {activeTab} yet</h3>
-                  <p className="mt-1 text-sm text-slate-500">Your {activeTab} activity will appear here.</p>
+                  <h3 className="text-base font-bold text-text-primary">No {activeTab} yet</h3>
+                  <p className="mt-1 text-sm text-text-secondary">Your {activeTab} activity will appear here.</p>
                   {activeTab === 'posts' ? (
                     <button
-                      className="mt-5 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50"
+                      className="mt-5 rounded-xl border border-border-subtle bg-surface px-5 py-2.5 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated"
                       onClick={() => navigate('/student/community')}
                     >
                       Create a Post
@@ -960,13 +960,13 @@ export const ProfilePage: React.FC = () => {
 
       {isEditModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm p-4 font-sans">
-          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-4.5 backdrop-blur-md">
-              <h2 className="font-syne text-xl font-extrabold text-slate-900">Edit Profile</h2>
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border-subtle bg-white/95 px-6 py-4.5 backdrop-blur-md">
+              <h2 className="font-syne text-xl font-extrabold text-text-primary">Edit Profile</h2>
               <button
                 onClick={() => !isSaving && setIsEditModalOpen(false)}
-                className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-xl p-2 text-text-secondary/70 transition-colors hover:bg-surface-elevated hover:text-slate-700"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -976,29 +976,29 @@ export const ProfilePage: React.FC = () => {
             <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
               {/* Basic Info Section */}
               <section className="space-y-4">
-                <div className="border-b border-slate-100 pb-2">
-                  <h3 className="font-syne text-sm font-bold text-slate-900">Basic Info</h3>
-                  <p className="text-xs text-slate-500">Update your primary identity displayed across Campus Blink.</p>
+                <div className="border-b border-border-subtle pb-2">
+                  <h3 className="font-syne text-sm font-bold text-text-primary">Basic Info</h3>
+                  <p className="text-xs text-text-secondary">Update your primary identity displayed across Campus Blink.</p>
                 </div>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     Full Name
                   </span>
                   <input
                     value={formData.name}
                     onChange={(event) => setFormData({ ...formData, name: event.target.value })}
-                    className="w-full rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                    className="w-full rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder outline-none transition-all focus:border-accent-blue focus:bg-surface focus:ring-2 focus:ring-accent-blue/20 shadow-2xs"
                     placeholder="Your Full Name"
                   />
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     Username
                   </span>
-                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
-                    <span className="mr-1.5 font-semibold text-slate-400 text-sm">@</span>
+                  <div className="flex items-center rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <span className="mr-1.5 font-semibold text-text-secondary/70 text-sm">@</span>
                     <input
                       value={formData.username}
                       onChange={(event) =>
@@ -1007,14 +1007,14 @@ export const ProfilePage: React.FC = () => {
                           username: event.target.value.replace(/^@+/, '').replace(/\s+/g, ''),
                         })
                       }
-                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-placeholder"
                       placeholder="username"
                     />
                   </div>
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     Bio
                   </span>
                   <textarea
@@ -1022,10 +1022,10 @@ export const ProfilePage: React.FC = () => {
                     onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
                     rows={3}
                     maxLength={160}
-                    className="w-full resize-none rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                    className="w-full resize-none rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder outline-none transition-all focus:border-accent-blue focus:bg-surface focus:ring-2 focus:ring-accent-blue/20 shadow-2xs"
                     placeholder="Tell campus about yourself..."
                   />
-                  <span className="mt-1.5 block text-right text-xs font-medium text-slate-400">
+                  <span className="mt-1.5 block text-right text-xs font-medium text-text-secondary/70">
                     {formData.bio.length} / 160
                   </span>
                 </label>
@@ -1033,51 +1033,51 @@ export const ProfilePage: React.FC = () => {
 
               {/* Personal Section */}
               <section className="space-y-4">
-                <div className="border-b border-slate-100 pb-2">
-                  <h3 className="font-syne text-sm font-bold text-slate-900">Personal & College</h3>
-                  <p className="text-xs text-slate-500">Your campus affiliation and location details.</p>
+                <div className="border-b border-border-subtle pb-2">
+                  <h3 className="font-syne text-sm font-bold text-text-primary">Personal & College</h3>
+                  <p className="text-xs text-text-secondary">Your campus affiliation and location details.</p>
                 </div>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     Location
                   </span>
-                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
-                    <MapPin className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <MapPin className="mr-2.5 h-4 w-4 text-text-secondary/70 shrink-0" />
                     <input
                       value={formData.location}
                       onChange={(event) => setFormData({ ...formData, location: event.target.value })}
-                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-placeholder"
                       placeholder="e.g. Rohini, Delhi"
                     />
                   </div>
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     Website
                   </span>
-                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
-                    <Link2 className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <Link2 className="mr-2.5 h-4 w-4 text-text-secondary/70 shrink-0" />
                     <input
                       value={formData.website}
                       onChange={(event) => setFormData({ ...formData, website: event.target.value })}
-                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-placeholder"
                       placeholder="https://yourportfolio.com"
                     />
                   </div>
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-secondary">
                     College
                   </span>
-                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
-                    <GraduationCap className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <GraduationCap className="mr-2.5 h-4 w-4 text-text-secondary/70 shrink-0" />
                     <select
                       value={formData.college}
                       onChange={(event) => setFormData({ ...formData, college: event.target.value })}
-                      className="w-full bg-transparent text-sm font-medium text-slate-900 outline-none"
+                      className="w-full bg-transparent text-sm font-medium text-text-primary outline-none"
                     >
                       <option value={ONLY_COLLEGE}>{ONLY_COLLEGE}</option>
                     </select>
@@ -1087,10 +1087,10 @@ export const ProfilePage: React.FC = () => {
 
               {/* Dynamic Social Links Section */}
               <section className="space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="flex items-center justify-between border-b border-border-subtle pb-2">
                   <div>
-                    <h3 className="font-syne text-sm font-bold text-slate-900">Social Links</h3>
-                    <p className="text-xs text-slate-500">
+                    <h3 className="font-syne text-sm font-bold text-text-primary">Social Links</h3>
+                    <p className="text-xs text-text-secondary">
                       Add up to {MAX_PROFILE_SOCIAL_LINKS} external profiles.
                     </p>
                   </div>
@@ -1100,7 +1100,7 @@ export const ProfilePage: React.FC = () => {
                       onClick={() =>
                         setSocialLinks((current) => [...current, { platform: 'instagram', url: '' }])
                       }
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-border-subtle bg-surface px-3.5 py-1.5 text-xs font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
                     >
                       <Plus className="h-3.5 w-3.5" strokeWidth={2.2} /> Add link
                     </button>
@@ -1123,7 +1123,7 @@ export const ProfilePage: React.FC = () => {
                               ),
                             )
                           }
-                          className="rounded-2xl border border-slate-200/80 bg-slate-50/60 px-3.5 py-3 text-xs font-semibold text-slate-800 outline-none transition-colors focus:border-blue-600 focus:bg-white"
+                          className="rounded-2xl border border-border-subtle bg-slate-50/60 px-3.5 py-3 text-xs font-semibold text-text-primary outline-none transition-colors focus:border-accent-blue focus:bg-surface"
                         >
                           {SOCIAL_PLATFORM_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -1141,7 +1141,7 @@ export const ProfilePage: React.FC = () => {
                             )
                           }
                           placeholder="Paste URL or handle..."
-                          className="rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white"
+                          className="rounded-2xl border border-border-subtle bg-slate-50/60 px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder outline-none transition-all focus:border-accent-blue focus:bg-surface"
                         />
                         <button
                           type="button"
@@ -1150,15 +1150,15 @@ export const ProfilePage: React.FC = () => {
                               current.filter((_, entryIndex) => entryIndex !== index),
                             )
                           }
-                          className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                          className="inline-flex items-center justify-center rounded-2xl border border-border-subtle bg-surface p-3 text-text-secondary/70 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 text-center">
-                      <p className="text-xs text-slate-500">No extra social links added yet.</p>
+                    <div className="rounded-2xl border border-border-subtle bg-background p-4 text-center">
+                      <p className="text-xs text-text-secondary">No extra social links added yet.</p>
                     </div>
                   )}
                 </div>
@@ -1166,11 +1166,11 @@ export const ProfilePage: React.FC = () => {
             </div>
 
             {/* Sticky Footer */}
-            <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-slate-100 bg-white/95 px-6 py-4 backdrop-blur-md">
+            <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-border-subtle bg-white/95 px-6 py-4 backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => !isSaving && setIsEditModalOpen(false)}
-                className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                className="rounded-xl border border-border-subtle bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
               >
                 Cancel
               </button>

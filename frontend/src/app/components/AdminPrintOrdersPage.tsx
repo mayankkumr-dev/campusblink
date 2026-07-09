@@ -187,12 +187,12 @@ export const AdminPrintOrdersPage: React.FC = () => {
 
   const renderStatusPill = (status: string) => {
     const s = status.toLowerCase();
-    let pillStyle = 'bg-slate-100 text-slate-700 border-slate-200';
-    if (s === 'pending') pillStyle = 'bg-amber-50 text-amber-700 border-amber-200';
-    if (s === 'printing') pillStyle = 'bg-blue-50 text-blue-700 border-blue-200';
-    if (s === 'ready') pillStyle = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    if (s === 'collected') pillStyle = 'bg-purple-50 text-purple-700 border-purple-200';
-    if (s === 'cancelled') pillStyle = 'bg-rose-50 text-rose-700 border-rose-200';
+    let pillStyle = 'bg-surface-elevated text-text-primary border-border-subtle';
+    if (s === 'pending') pillStyle = 'bg-accent-amber-soft text-accent-amber border-accent-amber-soft';
+    if (s === 'printing') pillStyle = 'bg-accent-blue-soft text-blue-700 border-accent-blue-soft';
+    if (s === 'ready') pillStyle = 'bg-accent-green/15 text-accent-green border-emerald-200';
+    if (s === 'collected') pillStyle = 'bg-accent-purple/15 text-purple-700 border-purple-200';
+    if (s === 'cancelled') pillStyle = 'bg-accent-red/15 text-accent-red border-rose-200';
 
     return (
       <span
@@ -206,7 +206,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-amber" />
       </div>
     );
   }
@@ -215,69 +215,69 @@ export const AdminPrintOrdersPage: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-300 font-sans">
       {/* Contextual Top Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center justify-between text-xs font-bold text-text-secondary/70 uppercase tracking-wider">
             <span>Print Jobs Today</span>
-            <Printer className="h-4 w-4 text-amber-500" />
+            <Printer className="h-4 w-4 text-accent-amber" />
           </div>
-          <div className="mt-3 font-syne text-2xl font-extrabold text-slate-900">
+          <div className="mt-3 font-syne text-2xl font-extrabold text-text-primary">
             {stats.jobsToday}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center justify-between text-xs font-bold text-text-secondary/70 uppercase tracking-wider">
             <span>Print Revenue</span>
-            <TrendingUp className="h-4 w-4 text-emerald-500" />
+            <TrendingUp className="h-4 w-4 text-accent-green" />
           </div>
-          <div className="mt-3 font-syne text-2xl font-extrabold text-emerald-600">
+          <div className="mt-3 font-syne text-2xl font-extrabold text-accent-green">
             ₹{stats.totalRevenue.toLocaleString()}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center justify-between text-xs font-bold text-text-secondary/70 uppercase tracking-wider">
             <span>Avg Pages / Order</span>
-            <FileText className="h-4 w-4 text-blue-500" />
+            <FileText className="h-4 w-4 text-accent-blue" />
           </div>
-          <div className="mt-3 font-syne text-2xl font-extrabold text-slate-900">
+          <div className="mt-3 font-syne text-2xl font-extrabold text-text-primary">
             {stats.avgPages} pages
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="rounded-3xl border border-border-subtle bg-surface p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+          <div className="flex items-center justify-between text-xs font-bold text-text-secondary/70 uppercase tracking-wider">
             <span>Cancelled Rate</span>
-            <AlertCircle className="h-4 w-4 text-rose-500" />
+            <AlertCircle className="h-4 w-4 text-accent-red" />
           </div>
-          <div className="mt-3 font-syne text-2xl font-extrabold text-slate-900">
+          <div className="mt-3 font-syne text-2xl font-extrabold text-text-primary">
             {stats.cancelledRate}%
           </div>
         </div>
       </div>
 
       {/* Search & Bulk Controls Bar */}
-      <div className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-white p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)] lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 rounded-3xl border border-border-subtle bg-surface p-5 shadow-[0_2px_16px_rgba(0,0,0,0.03)] lg:flex-row lg:items-center lg:justify-between">
         <div className="relative w-full lg:w-80 group">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary/70 group-focus-within:text-amber-500 transition-colors" />
           <input
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Search print job, file name, student..."
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-2xs"
+            className="w-full rounded-2xl border border-border-subtle bg-surface py-2.5 pl-10 pr-4 text-xs font-semibold text-text-primary placeholder:text-text-placeholder outline-none focus:border-amber-400 focus:bg-surface transition-all shadow-2xs"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           {selectedCount > 0 ? (
-            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+            <div className="flex items-center gap-2 bg-accent-amber-soft border border-accent-amber-soft rounded-xl px-3 py-1.5">
               <span className="text-xs font-bold text-amber-900">
                 {selectedCount} selected
               </span>
               <select
                 value={bulkStatus}
                 onChange={(event) => setBulkStatus(event.target.value)}
-                className="rounded-lg border border-amber-200 bg-white px-2 py-1 text-xs font-bold text-slate-800 outline-none"
+                className="rounded-lg border border-accent-amber-soft bg-surface px-2 py-1 text-xs font-bold text-text-primary outline-none"
               >
                 {PRINT_STATUSES.filter((status) => status !== 'all').map((status) => (
                   <option key={status} value={status}>
@@ -299,7 +299,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 outline-none focus:border-amber-400 focus:bg-white"
+            className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-bold text-text-primary outline-none focus:border-amber-400 focus:bg-surface"
           >
             {PRINT_STATUSES.map((status) => (
               <option key={status} value={status}>
@@ -310,7 +310,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
           <select
             value={shopFilter}
             onChange={(event) => setShopFilter(event.target.value)}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 outline-none focus:border-amber-400 focus:bg-white"
+            className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-bold text-text-primary outline-none focus:border-amber-400 focus:bg-surface"
           >
             <option value="all">All Print Shops</option>
             {uniqueShops.map((shop) => (
@@ -322,7 +322,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
           <button
             type="button"
             onClick={loadOrders}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors shadow-2xs"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Refresh</span>
@@ -330,7 +330,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
           <button
             type="button"
             onClick={exportCsv}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors shadow-2xs"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Export CSV</span>
@@ -339,41 +339,41 @@ export const AdminPrintOrdersPage: React.FC = () => {
       </div>
 
       {/* Print Orders Table */}
-      <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+      <div className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/70">
+              <tr className="border-b border-border-subtle bg-surface-elevated">
                 <th className="py-3.5 px-4 w-12 text-center">
                   <input
                     type="checkbox"
                     checked={allFilteredSelected}
                     onChange={toggleSelectAllFiltered}
-                    className="rounded bg-white border-slate-300 text-amber-500 focus:ring-amber-500"
+                    className="rounded bg-surface border-slate-300 text-accent-amber focus:ring-amber-500"
                   />
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Order ID
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Student
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Shop
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   File Details
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Print Specs
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="py-3.5 px-4 text-right text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                <th className="py-3.5 px-4 text-right text-[11px] font-extrabold text-text-secondary/70 uppercase tracking-wider">
                   Action Control
                 </th>
               </tr>
@@ -386,28 +386,28 @@ export const AdminPrintOrdersPage: React.FC = () => {
                       type="checkbox"
                       checked={selectedOrderIds.includes(order.id)}
                       onChange={() => toggleOrderSelection(order.id)}
-                      className="rounded bg-white border-slate-300 text-amber-500 focus:ring-amber-500"
+                      className="rounded bg-surface border-slate-300 text-accent-amber focus:ring-amber-500"
                     />
                   </td>
                   <td className="py-4 px-4">
-                    <div className="font-syne text-xs font-bold text-slate-900">
+                    <div className="font-syne text-xs font-bold text-text-primary">
                       #{String(order.id).slice(0, 8)}
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
+                    <div className="text-[10px] text-text-secondary/70 mt-0.5">
                       {new Date(order.created_at).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-xs font-semibold text-slate-800">
+                  <td className="py-4 px-4 text-xs font-semibold text-text-primary">
                     {order.student?.name || 'Student'}
                   </td>
-                  <td className="py-4 px-4 text-xs text-slate-600 font-medium">
+                  <td className="py-4 px-4 text-xs text-text-secondary font-medium">
                     {order.shop?.name || 'Unknown'}
                   </td>
                   <td className="py-4 px-4 text-xs">
-                    <div className="font-bold text-slate-900">
+                    <div className="font-bold text-text-primary">
                       {order.file_name || 'Document'}
                     </div>
                     {order.file_url ? (
@@ -415,19 +415,19 @@ export const AdminPrintOrdersPage: React.FC = () => {
                         href={order.file_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:underline"
+                        className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-accent-green hover:underline"
                       >
                         <ExternalLink className="h-3 w-3" />
                         <span>Open file</span>
                       </a>
                     ) : (
-                      <div className="mt-0.5 text-[10px] font-bold text-amber-600">
+                      <div className="mt-0.5 text-[10px] font-bold text-accent-amber">
                         Upload pending / test mode
                       </div>
                     )}
                   </td>
-                  <td className="py-4 px-4 text-[11px] text-slate-500">
-                    <div className="font-semibold text-slate-700">
+                  <td className="py-4 px-4 text-[11px] text-text-secondary">
+                    <div className="font-semibold text-text-primary">
                       {order.pages || 0} pages • {order.copies || 1} copies
                     </div>
                     <div>
@@ -435,7 +435,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
                       {order.is_double_sided ? 'Double-sided' : 'Single-sided'}
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-syne text-xs font-extrabold text-slate-900">
+                  <td className="py-4 px-4 font-syne text-xs font-extrabold text-text-primary">
                     ₹{Number(order.total_price || 0).toLocaleString()}
                   </td>
                   <td className="py-4 px-4">
@@ -445,7 +445,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
                     <select
                       value={order.status || ''}
                       onChange={(event) => updateStatus(order.id, event.target.value)}
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none focus:border-amber-400 focus:bg-white transition-all shadow-2xs"
+                      className="rounded-xl border border-border-subtle bg-surface px-3 py-1.5 text-xs font-bold text-text-primary outline-none focus:border-amber-400 focus:bg-surface transition-all shadow-2xs"
                     >
                       {PRINT_STATUSES.filter((s) => s !== 'all').map((status) => (
                         <option key={status} value={status}>
@@ -458,7 +458,7 @@ export const AdminPrintOrdersPage: React.FC = () => {
               ))}
               {filteredOrders.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center text-xs font-semibold text-slate-400">
+                  <td colSpan={9} className="py-16 text-center text-xs font-semibold text-text-secondary/70">
                     No print jobs found matching your search or filters.
                   </td>
                 </tr>

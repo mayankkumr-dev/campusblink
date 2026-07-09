@@ -107,7 +107,7 @@ function CommentItem({ comment, post, profile, depth = 0, onDelete, onReplySubmi
         </div>
       </div>
       {showDeleteConfirm && (
-        <div className="mb-2 ml-11 rounded-[14px] border border-[#DC2626]/20 bg-[var(--error-light)] p-3">
+        <div className="mb-2 ml-11 rounded-[14px] border border-[#DC2626]/20 bg-accent-red/15 p-3">
           <p className="text-sm font-bold text-[var(--text-primary)]">Delete this comment? This cannot be undone.</p>
           <div className="mt-2 flex gap-2">
             <button onClick={() => { setShowDeleteConfirm(false); onDelete(comment.id, comment.parent_comment_id || null); }} className="rounded-md bg-[#DC2626] px-3 py-1.5 text-xs font-bold text-white hover:bg-[var(--error-dark)]">Delete</button>

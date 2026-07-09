@@ -50,17 +50,17 @@ export const AdminAccountsHub: React.FC = () => {
       {/* Top Controls Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="font-syne text-xl font-extrabold text-text-primary tracking-tight">
             Accounts &amp; Access Directory
           </h2>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
+          <p className="text-xs text-text-secondary font-medium mt-0.5">
             Manage user roles, professor approvals, campus shops, and moderation policies
           </p>
         </div>
       </div>
 
       {/* Primary Scrollable Pills Container */}
-      <div className="bg-white p-1.5 rounded-2xl border border-slate-100 flex items-center gap-1.5 overflow-x-auto hide-scrollbar shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+      <div className="bg-surface p-1.5 rounded-2xl border border-border-subtle flex items-center gap-1.5 overflow-x-auto hide-scrollbar shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -77,12 +77,12 @@ export const AdminAccountsHub: React.FC = () => {
               className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
               }`}
             >
               <Icon
                 className={`w-4 h-4 stroke-[2] ${
-                  isActive ? 'text-white' : 'text-slate-400'
+                  isActive ? 'text-white' : 'text-text-secondary/70'
                 }`}
               />
               <span>{tab.label}</span>
@@ -93,7 +93,7 @@ export const AdminAccountsHub: React.FC = () => {
 
       {/* Secondary Pill Sub-Tabs */}
       {currentSubTabs.length > 1 && (
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 overflow-x-auto hide-scrollbar">
+        <div className="flex items-center gap-2 border-b border-border-subtle pb-4 overflow-x-auto hide-scrollbar">
           {currentSubTabs.map((subtab) => {
             const isSubActive = activeSubTab === subtab.id;
             return (
@@ -104,7 +104,7 @@ export const AdminAccountsHub: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   isSubActive
                     ? 'bg-slate-900 text-white shadow-2xs'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                    : 'text-text-secondary hover:bg-surface-elevated hover:text-slate-800'
                 }`}
               >
                 {subtab.label}

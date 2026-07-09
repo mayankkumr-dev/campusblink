@@ -18,9 +18,9 @@ const FEATURES = [
 ];
 
 const STATUS_BADGE: Record<string, string> = {
-  approved: 'bg-[var(--success-light)] text-[var(--success-dark)]',
+  approved: 'bg-accent-green/15 text-accent-green',
   pending: 'bg-[#FEF9C3] text-[var(--yellow-dark)]',
-  rejected: 'bg-[#FEE2E2] text-[var(--error-dark)]',
+  rejected: 'bg-[#FEE2E2] text-accent-red',
 };
 
 export const AdminProfessorsPage: React.FC = () => {
@@ -232,8 +232,8 @@ export const AdminProfessorsPage: React.FC = () => {
 
                     {prof.professor_rejection_reason && status === 'rejected' && (
                       <div className="mt-3 p-3 rounded-md bg-[#FEE2E2] border border-[#EF4444]/20">
-                        <p className="text-xs font-bold text-[var(--error-dark)]">Rejection Reason</p>
-                        <p className="text-sm text-[var(--error-dark)] mt-0.5">{prof.professor_rejection_reason}</p>
+                        <p className="text-xs font-bold text-accent-red">Rejection Reason</p>
+                        <p className="text-sm text-accent-red mt-0.5">{prof.professor_rejection_reason}</p>
                       </div>
                     )}
                   </div>

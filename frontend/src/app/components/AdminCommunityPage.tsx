@@ -204,7 +204,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
       );
     }
 
-    return <span className="inline-flex items-center rounded bg-[var(--success-light)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#16A34A]">Active</span>;
+    return <span className="inline-flex items-center rounded bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-green">Active</span>;
   };
 
   return (
@@ -254,7 +254,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-md bg-[var(--bg-tertiary)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--text-primary)]">{revealResult.post.type || 'General'}</span>
-                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-[#FEE2E2] text-[#DC2626]' : 'bg-[var(--success-light)] text-[#16A34A]'}`}>
+                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-[#FEE2E2] text-[#DC2626]' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.post.is_anonymous ? 'Anonymous' : 'Public'}
                     </span>
                   </div>
@@ -286,7 +286,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                   <p><span className="font-bold text-[var(--text-primary)]">Role:</span> <span className="rounded bg-[var(--bg-tertiary)] px-2 py-0.5 text-[10px] font-bold uppercase">{revealResult.author.role || 'student'}</span></p>
                   <p>
                     <span className="font-bold text-[var(--text-primary)]">Status:</span>{' '}
-                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-[#FEE2E2] text-[#DC2626]' : revealResult.author.status === 'restricted' ? 'bg-[#FEF9C3] text-[var(--yellow-dark)]' : 'bg-[var(--success-light)] text-[#16A34A]'}`}>
+                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-[#FEE2E2] text-[#DC2626]' : revealResult.author.status === 'restricted' ? 'bg-[#FEF9C3] text-[var(--yellow-dark)]' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.author.status || 'active'}
                     </span>
                   </p>
@@ -325,7 +325,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               {revealResult.author.status === 'restricted' || revealResult.author.status === 'banned' ? (
                 <button
                   onClick={() => handleStatusFromReveal('active')}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#16A34A]/20 bg-[var(--success-light)] px-3 py-2 text-xs font-bold text-[var(--success-dark)] hover:bg-[#16A34A] hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[#16A34A]/20 bg-accent-green/15 px-3 py-2 text-xs font-bold text-accent-green hover:bg-[#16A34A] hover:text-white"
                 >
                   <ShieldAlert className="h-4 w-4" /> Unrestrict Account
                 </button>
@@ -430,7 +430,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1 font-syne text-base font-bold text-[#16A34A]">
+                      <div className="flex items-center gap-1 font-syne text-base font-bold text-accent-green">
                         <MessageSquare className="h-4 w-4" /> {post.comment_count || 0}
                       </div>
                     </div>

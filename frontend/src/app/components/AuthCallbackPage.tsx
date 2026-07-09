@@ -73,7 +73,7 @@ export const AuthCallbackPage: React.FC = () => {
 
       {state === 'success' && (
         <div className="flex flex-col items-center gap-4 text-center">
-          <CheckCircle className="w-12 h-12 text-[#16A34A]" />
+          <CheckCircle className="w-12 h-12 text-accent-green" />
           <p className="text-2xl font-bold">Email verified!</p>
           <p className="text-sm text-[var(--text-secondary)]">Taking you to login…</p>
         </div>

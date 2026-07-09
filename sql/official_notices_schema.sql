@@ -78,6 +78,27 @@ CREATE POLICY "admins manage all notices"
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
   );
 
+-- 9. RLS Policy: Professors can read 'all' and 'faculty' notices
+CREATE POLICY "professors read notices"
+  ON public.official_notices
+  FOR SELECT
+  USING (
+    college = (SELECT college FROM public.profiles WHERE id = auth.uid())
+    AND is_fully_removed = false
+    AND (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'professor'
+    AND target_year IN ('all', 'faculty')
+  );
+
+-- 10. RLS Policy: Professors can write 'faculty' notices
+CREATE POLICY "professors write faculty notices"
+  ON public.official_notices
+  FOR INSERT
+  WITH CHECK (
+    college = (SELECT college FROM public.profiles WHERE id = auth.uid())
+    AND (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'professor'
+    AND target_year = 'faculty'
+  );
+
 -- ============================================================================
 -- STORAGE BUCKET SETUP (Run once or configure via Supabase Storage UI)
 -- Bucket name: notice-attachments (Public bucket)
@@ -86,5 +107,5 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('notice-attachments', 'notice-attachments', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 9. Notify Supabase API (PostgREST) to immediately reload the schema cache
+-- 11. Notify Supabase API (PostgREST) to immediately reload the schema cache
 NOTIFY pgrst, 'reload schema';

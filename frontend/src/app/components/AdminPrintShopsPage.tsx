@@ -147,7 +147,7 @@ export const AdminPrintShopsPage: React.FC = () => {
 
   const StatusBadge = ({ status }: { status: string }) => {
     const badges: any = {
-      'Active': 'bg-[var(--success-light)] text-[#16A34A]',
+      'Active': 'bg-accent-green/15 text-accent-green',
       'Pending': 'bg-[#FEF9C3] text-[var(--yellow-dark)]',
       'Suspended': 'bg-[#FEE2E2] text-[#DC2626]'
     };
@@ -235,7 +235,7 @@ export const AdminPrintShopsPage: React.FC = () => {
                    <div className="font-sans text-xs text-[var(--text-secondary)]">{shop.owner?.email || 'No email associated'}</div>
                 </td>
                 <td className="p-4">
-                  <div className="font-syne font-bold text-xl text-[#16A34A]">{shop.total_orders || 0}</div>
+                  <div className="font-syne font-bold text-xl text-accent-green">{shop.total_orders || 0}</div>
                 </td>
                 <td className="p-4">
                   <StatusBadge status={shop.is_active ? 'Active' : 'Suspended'} />
@@ -262,7 +262,7 @@ export const AdminPrintShopsPage: React.FC = () => {
                         <FileText className="w-4 h-4 text-[var(--yellow)]" /> Print Orders
                       </button>
                       <button className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-black/[0.03] flex items-center gap-2">
-                        <Package className="w-4 h-4 text-[#16A34A]" /> Manage Stationery
+                        <Package className="w-4 h-4 text-accent-green" /> Manage Stationery
                       </button>
                       
                       <div className="h-px bg-[var(--bg-tertiary)] my-1" />
@@ -272,7 +272,7 @@ export const AdminPrintShopsPage: React.FC = () => {
                       </button>
                       
                       {!shop.is_active ? (
-                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-[#16A34A] hover:bg-[#16A34A]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2">
                           <PlayCircle className="w-4 h-4" /> Reactivate Shop
                         </button>
                       ) : (

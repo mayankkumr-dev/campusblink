@@ -104,7 +104,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
     
     const normalizedStatus = status || 'active';
     const badges: any = {
-      'active': 'bg-[var(--success-light)] text-[#16A34A]',
+      'active': 'bg-accent-green/15 text-accent-green',
       'sold': 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]',
       'disabled': 'bg-[#FEE2E2] text-[#DC2626]'
     };
@@ -202,7 +202,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                    <div className="font-sans text-xs text-[var(--text-secondary)]">{listing.seller?.email || 'No email'}</div>
                 </td>
                 <td className="p-4">
-                  <div className="font-syne font-bold text-xl text-[#16A34A]">₹{listing.price}</div>
+                  <div className="font-syne font-bold text-xl text-accent-green">₹{listing.price}</div>
                 </td>
                 <td className="p-4">
                   <StatusBadge status={listing.is_admin_disabled ? 'disabled' : (listing.status || (listing.is_sold ? 'sold' : 'active'))} reports={listing.report_count} />
@@ -230,12 +230,12 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                       
                       {!listing.is_sold && !listing.is_admin_disabled && (
                         <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'sold')} className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-black/[0.03] flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-[#16A34A]" /> Mark as Sold
+                          <CheckCircle2 className="w-4 h-4 text-accent-green" /> Mark as Sold
                         </button>
                       )}
                       
                       {listing.is_admin_disabled ? (
-                        <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'enabled')} className="w-full text-left px-4 py-2 text-[#16A34A] hover:bg-[#16A34A]/10 flex items-center gap-2 font-bold">
+                        <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'enabled')} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2 font-bold">
                           <PlayCircle className="w-4 h-4" /> Enable Listing
                         </button>
                       ) : (

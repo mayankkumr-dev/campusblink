@@ -232,33 +232,33 @@ export const UserProfilePage: React.FC = () => {
   return (
     <>
     
-      <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 font-sans">
+      <div className="min-h-screen bg-surface pb-24 text-text-primary font-sans">
         <div className="w-full flex justify-center min-h-screen pb-28">
           {/* Main Feed Column */}
-          <div className="w-full max-w-[680px] bg-white border-x border-slate-200/80 shadow-xs flex flex-col min-h-screen pb-10">
+          <div className="w-full max-w-[680px] bg-surface border-x border-border-subtle shadow-xs flex flex-col min-h-screen pb-10">
             {/* Sticky Top Header Bar */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-3.5 flex items-center justify-between">
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-border-subtle px-6 py-3.5 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => navigate(-1)}
-                  className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+                  className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-border-subtle bg-surface text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
                   aria-label="Back"
                 >
                   <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
                 </button>
                 <div>
-                  <h1 className="font-syne font-bold text-base text-slate-900 leading-tight flex items-center gap-1.5">
+                  <h1 className="font-syne font-bold text-base text-text-primary leading-tight flex items-center gap-1.5">
                     {targetProfile.name}
                     {targetProfile.role === 'professor' && <ProfessorBadge />}
                   </h1>
-                  <p className="text-xs text-slate-500">{posts.length} Posts</p>
+                  <p className="text-xs text-text-secondary">{posts.length} Posts</p>
                 </div>
               </div>
             </div>
 
-            <section className="w-full bg-white">
+            <section className="w-full bg-surface">
               {/* Banner Container */}
-              <div className="relative aspect-[16/6] min-h-[180px] w-full overflow-hidden bg-slate-100 md:min-h-[220px]">
+              <div className="relative aspect-[16/6] min-h-[180px] w-full overflow-hidden bg-surface-elevated md:min-h-[220px]">
                 {targetProfile.cover_url ? (
                   <img loading="lazy" src={targetProfile.cover_url} alt="Profile banner" className="h-full w-full object-cover" />
                 ) : (
@@ -275,7 +275,7 @@ export const UserProfilePage: React.FC = () => {
 
               {/* Avatar & Action Strip */}
               <div className="relative mx-auto -mt-14 flex items-end justify-between px-6 pb-2">
-                <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-white shadow-md">
+                <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-surface bg-surface shadow-md">
                   <ProfilePictureInteract imageUrl={avatar} alt={targetProfile.name} className="h-full w-full">
                     <img loading="lazy" src={avatar} alt={targetProfile.name} className="h-full w-full rounded-full object-cover" />
                   </ProfilePictureInteract>
@@ -285,20 +285,20 @@ export const UserProfilePage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setPeopleModal('following')}
-                    className="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+                    className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-semibold text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
                   >
                     {followingCount} Following
                   </button>
                   <button
                     type="button"
                     onClick={() => setPeopleModal('followers')}
-                    className="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+                    className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2 text-xs font-semibold text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
                   >
                     {followerCount} Followers
                   </button>
                   {currentProfile?.id && currentProfile.id !== targetProfile.id && (
                     targetProfile.role === 'professor' ? (
-                      <span className="rounded-xl bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-700 border border-amber-200/60">
+                      <span className="rounded-xl bg-accent-amber-soft px-3.5 py-2 text-xs font-bold text-accent-amber border border-accent-amber-soft/20">
                         Faculty Member
                       </span>
                     ) : (
@@ -315,7 +315,7 @@ export const UserProfilePage: React.FC = () => {
                         />
                         <button
                           onClick={handleReportAccount}
-                          className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 transition-colors"
+                          className="rounded-xl border border-rose-200 bg-accent-red/15 px-3.5 py-2 text-xs font-semibold text-accent-red hover:bg-rose-100 transition-colors"
                         >
                           Report Account
                         </button>
@@ -328,29 +328,29 @@ export const UserProfilePage: React.FC = () => {
               {/* User Info & Bio Section */}
               <div className="mx-auto px-6 pt-3">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="font-syne font-bold text-2xl text-slate-900 leading-tight flex items-center gap-1.5">
+                  <h1 className="font-syne font-bold text-2xl text-text-primary leading-tight flex items-center gap-1.5">
                     {targetProfile.name}
                     {targetProfile.role === 'professor' && <ProfessorBadge />}
                   </h1>
                 </div>
 
-                <p className="mt-0.5 text-sm font-medium text-slate-500">@{getDisplayHandle(targetProfile.username, 'student')}</p>
+                <p className="mt-0.5 text-sm font-medium text-text-secondary">@{getDisplayHandle(targetProfile.username, 'student')}</p>
 
-                <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-slate-700">
+                <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-text-primary">
                   {targetProfile.bio || "This user hasn't added a bio yet."}
                 </p>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary">
                   {targetProfile.location && (
-                    <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-slate-400" /><span>{targetProfile.location}</span></div>
+                    <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-text-secondary/70" /><span>{targetProfile.location}</span></div>
                   )}
                   {targetProfile.website && (
-                    <a href={`https://${targetProfile.website.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-medium text-blue-600 transition-colors hover:underline">
+                    <a href={`https://${targetProfile.website.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-medium text-accent-blue transition-colors hover:underline">
                       <ExternalLink className="h-3.5 w-3.5" />
                       <span>{targetProfile.website.replace(/^https?:\/\//, '')}</span>
                     </a>
                   )}
-                  <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-slate-400" /><span>Joined {new Date(targetProfile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span></div>
+                  <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-text-secondary/70" /><span>Joined {new Date(targetProfile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span></div>
                 </div>
 
                 {visibleSocialLinks.length ? (
@@ -361,30 +361,30 @@ export const UserProfilePage: React.FC = () => {
 
                 {/* Stats Row with Soft Shadows */}
                 <div className="grid grid-cols-3 gap-3 my-6">
-                  <div className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center">
-                    <div className="font-syne font-bold text-xl text-slate-900">{posts.length}</div>
-                    <div className="text-xs font-medium text-slate-500 mt-0.5">Posts</div>
+                  <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center">
+                    <div className="font-syne font-bold text-xl text-text-primary">{posts.length}</div>
+                    <div className="text-xs font-medium text-text-secondary mt-0.5">Posts</div>
                   </div>
                   <button
                     onClick={() => setPeopleModal('followers')}
-                    className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                    className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
                   >
-                    <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followerCount}</div>
-                    <div className="text-xs font-medium text-slate-500 mt-0.5">Followers</div>
+                    <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">{followerCount}</div>
+                    <div className="text-xs font-medium text-text-secondary mt-0.5">Followers</div>
                   </button>
                   <button
                     onClick={() => setPeopleModal('following')}
-                    className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                    className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
                   >
-                    <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followingCount}</div>
-                    <div className="text-xs font-medium text-slate-500 mt-0.5">Following</div>
+                    <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">{followingCount}</div>
+                    <div className="text-xs font-medium text-text-secondary mt-0.5">Following</div>
                   </button>
                 </div>
               </div>
 
               {/* Posts Feed Header */}
-              <div className="border-b border-slate-100 px-6 py-3.5 bg-white sticky top-14 z-20">
-                <h2 className="font-syne text-sm font-bold uppercase tracking-wider text-slate-900">Posts</h2>
+              <div className="border-b border-border-subtle px-6 py-3.5 bg-surface sticky top-14 z-20">
+                <h2 className="font-syne text-sm font-bold uppercase tracking-wider text-text-primary">Posts</h2>
               </div>
 
               {/* Posts Feed */}
@@ -398,43 +398,43 @@ export const UserProfilePage: React.FC = () => {
                       <article
                         key={post.id}
                         onClick={() => navigate(`/community/${post.id}`)}
-                        className="cursor-pointer px-6 py-5 bg-white transition-colors hover:bg-slate-50/60"
+                        className="cursor-pointer px-6 py-5 bg-surface transition-colors hover:bg-slate-50/60"
                       >
                         <div className="flex gap-4">
-                          <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200/80 bg-slate-50 shadow-2xs">
+                          <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-border-subtle bg-surface shadow-2xs">
                             <img loading="lazy" src={postAvatar} alt={post.author?.name || 'avatar'} className="h-full w-full rounded-full object-cover" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                              <span className="font-syne font-bold text-slate-900">{post.author?.name || targetProfile.name}</span>
-                              <span className="text-slate-300">·</span>
-                              <span className="text-xs text-slate-400">{formatRelativeTime(post.created_at)}</span>
+                              <span className="font-syne font-bold text-text-primary">{post.author?.name || targetProfile.name}</span>
+                              <span className="text-text-placeholder">·</span>
+                              <span className="text-xs text-text-secondary/70">{formatRelativeTime(post.created_at)}</span>
                               {post.author?.college && (
-                                <span className="rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
+                                <span className="rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
                                   {post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}
                                 </span>
                               )}
                             </div>
-                            {post.title && <h3 className="mt-1.5 text-base font-bold text-slate-900">{post.title}</h3>}
-                            <p className="mt-2 text-sm leading-relaxed text-slate-800 line-clamp-3">{post.content}</p>
+                            {post.title && <h3 className="mt-1.5 text-base font-bold text-text-primary">{post.title}</h3>}
+                            <p className="mt-2 text-sm leading-relaxed text-text-primary line-clamp-3">{post.content}</p>
                             {images.length > 0 && (
                               images.length === 1 ? (
-                                <div className="mt-3.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
+                                <div className="mt-3.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
                                   <AdaptivePostImage
                                     src={images[0]}
                                     alt="Post attachment"
-                                    className="w-full max-h-[400px] bg-slate-50"
+                                    className="w-full max-h-[400px] bg-surface"
                                     imgClassName="h-full w-full object-contain"
                                   />
                                 </div>
                               ) : (
-                                <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
+                                <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
                                   {images.slice(0, 4).map((image, index) => (
                                     <AdaptivePostImage
                                       key={`${image}-${index}`}
                                       src={image}
                                       alt={`Post attachment ${index + 1}`}
-                                      className="bg-slate-100"
+                                      className="bg-surface-elevated"
                                       imgClassName="h-full w-full object-contain"
                                     >
                                       {images.length > 4 && index === 3 ? (
@@ -445,7 +445,7 @@ export const UserProfilePage: React.FC = () => {
                                 </div>
                               )
                             )}
-                            <div className="mt-4 flex items-center gap-6 text-xs font-medium text-slate-400">
+                            <div className="mt-4 flex items-center gap-6 text-xs font-medium text-text-secondary/70">
                               <span>{post.comments_count || 0} comments</span>
                               <span>{post.likes_count || 0} likes</span>
                             </div>
@@ -456,8 +456,8 @@ export const UserProfilePage: React.FC = () => {
                   })
                 ) : (
                   <div className="px-6 py-16 text-center">
-                    <h3 className="text-base font-bold text-slate-900">No public posts yet</h3>
-                    <p className="mt-1 text-sm text-slate-500">This user hasn't posted anything publicly.</p>
+                    <h3 className="text-base font-bold text-text-primary">No public posts yet</h3>
+                    <p className="mt-1 text-sm text-text-secondary">This user hasn't posted anything publicly.</p>
                   </div>
                 )}
               </div>

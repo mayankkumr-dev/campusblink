@@ -26,7 +26,7 @@ export const ProfessorRejectedPage: React.FC = () => {
         </p>
         
         {profile?.professor_rejection_reason && (
-          <div className="bg-[#FFF4F4] w-full p-4 rounded-xl border border-[#FEE2E2] mb-4">
+          <div className="bg-[#FFF4F4] w-full p-4 rounded-xl border border-accent-red/20 mb-4">
             <p className="font-sans text-sm text-[#DC2626] font-medium text-left">
               Reason: {profile.professor_rejection_reason}
             </p>

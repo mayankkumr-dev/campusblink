@@ -21,20 +21,20 @@ const SIZE_CLASSES = {
 
 const VARIANT_CLASSES = {
   primary: {
-    idle: 'border border-slate-200 bg-slate-900 text-white hover:bg-amber-500 hover:border-amber-500 shadow-2xs',
-    active: 'border border-slate-200 bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200',
+    idle: 'border border-border-subtle bg-slate-900 text-white hover:bg-amber-500 hover:border-amber-500 shadow-2xs',
+    active: 'border border-border-subtle bg-surface-elevated text-text-secondary hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200',
   },
   ghost: {
-    idle: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs',
-    active: 'border border-slate-200 bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600',
+    idle: 'border border-border-subtle bg-surface text-text-primary hover:bg-surface-elevated shadow-2xs',
+    active: 'border border-border-subtle bg-surface-elevated text-text-secondary hover:bg-rose-50 hover:text-rose-600',
   },
   inline: {
-    idle: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-    active: 'border border-slate-200 bg-slate-100 text-slate-500 hover:bg-slate-200',
+    idle: 'border border-border-subtle bg-surface text-text-primary hover:bg-surface-elevated',
+    active: 'border border-border-subtle bg-surface-elevated text-text-secondary hover:bg-slate-200',
   },
   soft: {
-    idle: 'border border-slate-200/90 bg-slate-100 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-slate-700 shadow-2xs font-bold',
-    active: 'border border-emerald-200/80 bg-emerald-50 text-emerald-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 font-bold',
+    idle: 'border border-slate-200/90 bg-surface-elevated hover:bg-amber-500 hover:text-white hover:border-amber-500 text-text-primary shadow-2xs font-bold',
+    active: 'border border-emerald-200/80 bg-accent-green/15 text-accent-green hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 font-bold',
   },
 };
 

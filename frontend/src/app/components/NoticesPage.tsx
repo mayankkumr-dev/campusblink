@@ -63,7 +63,7 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
         href={att.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative block w-32 h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)] transition-all"
+        className="group relative block w-32 h-24 rounded-2xl overflow-hidden border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.10)] transition-all"
       >
         <img
           src={att.url}
@@ -83,18 +83,18 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
       href={att.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-slate-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-slate-300 transition-all group min-w-0 max-w-[260px]"
+      className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-border-subtle bg-surface shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-slate-300 transition-all group min-w-0 max-w-[260px]"
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isPdf ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isPdf ? 'bg-accent-red/15 text-accent-red' : 'bg-accent-blue-soft text-accent-blue'}`}>
         <FileText className="w-5 h-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-bold text-slate-800 truncate">{att.name}</p>
-        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">
+        <p className="text-xs font-bold text-text-primary truncate">{att.name}</p>
+        <p className="text-[10px] text-text-secondary font-medium uppercase tracking-wider mt-0.5">
           {isPdf ? 'PDF Document' : 'Document'}
         </p>
       </div>
-      <Download className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 transition-colors shrink-0" />
+      <Download className="w-3.5 h-3.5 text-text-secondary/70 group-hover:text-amber-600 transition-colors shrink-0" />
     </a>
   );
 };
@@ -102,12 +102,12 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
 // ─── Deleted Notice Placeholder ──────────────────────────────────────────────
 
 const DeletedNoticePlaceholder: React.FC = () => (
-  <article className="bg-slate-50 rounded-3xl border border-slate-200/60 p-5">
+  <article className="bg-surface rounded-3xl border border-border-subtle p-5">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-        <Trash2 className="w-4 h-4 text-slate-400" />
+      <div className="w-8 h-8 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
+        <Trash2 className="w-4 h-4 text-text-secondary/70" />
       </div>
-      <p className="text-sm text-slate-500 font-medium italic">
+      <p className="text-sm text-text-secondary font-medium italic">
         This message has been deleted.
       </p>
     </div>
@@ -147,18 +147,18 @@ const NoticeCard: React.FC<{
   };
 
   return (
-    <article className={`bg-white rounded-3xl border shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.07)] transition-all ${
-      pinActive ? 'border-amber-200 ring-1 ring-amber-100' : 'border-slate-100'
+    <article className={`bg-surface rounded-3xl border shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.07)] transition-all ${
+      pinActive ? 'border-accent-amber-soft ring-1 ring-amber-100' : 'border-border-subtle'
     }`}>
       {/* Pinned Banner */}
       {pinActive && (
         <div className="flex items-center gap-2 px-5 pt-4 pb-0">
-          <Pin className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
-          <span className="text-[11px] font-bold text-amber-700 uppercase tracking-widest">
+          <Pin className="w-3.5 h-3.5 text-accent-amber fill-amber-600" />
+          <span className="text-[11px] font-bold text-accent-amber uppercase tracking-widest">
             Pinned Notice
           </span>
           {notice.pin_expires_at && (
-            <span className="ml-auto text-[10px] text-amber-600 font-medium">
+            <span className="ml-auto text-[10px] text-accent-amber font-medium">
               Expires {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
             </span>
           )}
@@ -168,14 +168,14 @@ const NoticeCard: React.FC<{
       <div className="p-5 md:p-6">
         {/* Header Row */}
         <div className="flex items-start justify-between gap-4 mb-3">
-          <h2 className="font-syne text-base sm:text-lg font-extrabold text-slate-900 leading-snug flex-1">
+          <h2 className="font-syne text-base sm:text-lg font-extrabold text-text-primary leading-snug flex-1">
             {notice.title}
           </h2>
           <div className="flex items-center gap-2 shrink-0">
             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
               notice.target_year === 'all'
-                ? 'bg-slate-100 text-slate-600'
-                : 'bg-amber-50 text-amber-700 border border-amber-100'
+                ? 'bg-surface-elevated text-text-secondary'
+                : 'bg-accent-amber-soft text-accent-amber border border-amber-100'
             }`}>
               <Users className="w-3 h-3" />
               {yearLabel(notice.target_year)}
@@ -187,7 +187,7 @@ const NoticeCard: React.FC<{
                 title="Delete notice"
                 onClick={handleSoftDelete}
                 disabled={deletingId}
-                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-lg bg-surface-elevated hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 flex items-center justify-center transition-colors"
               >
                 {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
               </button>
@@ -196,14 +196,14 @@ const NoticeCard: React.FC<{
         </div>
 
         {/* Content */}
-        <p className="text-sm text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
+        <p className="text-sm text-text-primary font-medium leading-relaxed whitespace-pre-wrap">
           {displayContent}
         </p>
         {isLong && (
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-amber-700 hover:text-amber-900 transition-colors"
+            className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-accent-amber hover:text-amber-900 transition-colors"
           >
             {expanded
               ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
@@ -222,8 +222,8 @@ const NoticeCard: React.FC<{
         )}
 
         {/* Footer: Date only — no author shown */}
-        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end">
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+        <div className="mt-4 pt-4 border-t border-border-subtle flex items-center justify-end">
+          <div className="flex items-center gap-1.5 text-[11px] text-text-secondary/70 font-medium">
             <Calendar className="w-3.5 h-3.5" />
             {formatDate(notice.created_at)}
           </div>
@@ -236,18 +236,18 @@ const NoticeCard: React.FC<{
 // ─── Skeleton Loader ─────────────────────────────────────────────────────────
 
 const NoticeSkeleton = () => (
-  <div className="bg-white rounded-3xl border border-slate-100 p-6 animate-pulse">
+  <div className="bg-surface rounded-3xl border border-border-subtle p-6 animate-pulse">
     <div className="flex justify-between gap-4 mb-3">
-      <div className="h-5 bg-slate-100 rounded-lg w-3/4" />
-      <div className="h-6 bg-slate-100 rounded-full w-20 shrink-0" />
+      <div className="h-5 bg-surface-elevated rounded-lg w-3/4" />
+      <div className="h-6 bg-surface-elevated rounded-full w-20 shrink-0" />
     </div>
     <div className="space-y-2">
-      <div className="h-3 bg-slate-100 rounded w-full" />
-      <div className="h-3 bg-slate-100 rounded w-5/6" />
-      <div className="h-3 bg-slate-100 rounded w-4/6" />
+      <div className="h-3 bg-surface-elevated rounded w-full" />
+      <div className="h-3 bg-surface-elevated rounded w-5/6" />
+      <div className="h-3 bg-surface-elevated rounded w-4/6" />
     </div>
-    <div className="mt-5 pt-4 border-t border-slate-100 flex justify-end">
-      <div className="h-3 bg-slate-100 rounded w-24" />
+    <div className="mt-5 pt-4 border-t border-border-subtle flex justify-end">
+      <div className="h-3 bg-surface-elevated rounded w-24" />
     </div>
   </div>
 );
@@ -302,25 +302,25 @@ export const NoticesPage: React.FC = () => {
   const regular = activeNotices.filter((n) => !isPinnedAndActive(n));
 
   return (
-    <div className="min-h-full bg-slate-50/40 px-4 py-6 md:px-6 md:py-8">
+    <div className="min-h-full bg-background px-4 py-6 md:px-6 md:py-8">
       <div className="max-w-2xl mx-auto">
         {/* Page Header */}
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+              <div className="w-9 h-9 rounded-xl bg-accent-amber-soft border border-amber-100 flex items-center justify-center text-accent-amber">
                 <Megaphone className="w-4.5 h-4.5" />
               </div>
-              <div className="text-[11px] font-bold text-amber-700 uppercase tracking-widest">
+              <div className="text-[11px] font-bold text-accent-amber uppercase tracking-widest">
                 Official Communications
               </div>
             </div>
-            <h1 className="font-syne text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="font-syne text-3xl font-extrabold text-text-primary tracking-tight">
               Notices
             </h1>
-            <p className="text-sm text-slate-500 font-medium mt-1">
+            <p className="text-sm text-text-secondary font-medium mt-1">
               {studyYearLabel ? (
-                <>Showing notices for <span className="font-bold text-slate-700">{studyYearLabel}</span> & all students at your college.</>
+                <>Showing notices for <span className="font-bold text-text-primary">{studyYearLabel}</span> & all students at your college.</>
               ) : (
                 'Official notices from your college administration.'
               )}
@@ -330,7 +330,7 @@ export const NoticesPage: React.FC = () => {
             type="button"
             onClick={() => load(true)}
             disabled={isRefreshing}
-            className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all shadow-2xs disabled:opacity-50"
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated text-xs font-bold transition-all shadow-2xs disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -341,7 +341,7 @@ export const NoticesPage: React.FC = () => {
         {isAdmin && (
           <Link
             to="/student/notices/admin"
-            className="mb-6 flex items-center justify-between px-5 py-3.5 rounded-2xl bg-amber-50 border border-amber-200 hover:bg-amber-100/60 transition-colors"
+            className="mb-6 flex items-center justify-between px-5 py-3.5 rounded-2xl bg-accent-amber-soft border border-accent-amber-soft hover:bg-amber-100/60 transition-colors"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-white">
@@ -349,10 +349,10 @@ export const NoticesPage: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-bold text-amber-900">Notice Admin Panel</p>
-                <p className="text-xs text-amber-700 font-medium">Compose and manage official notices</p>
+                <p className="text-xs text-accent-amber font-medium">Compose and manage official notices</p>
               </div>
             </div>
-            <ExternalLink className="w-4 h-4 text-amber-600" />
+            <ExternalLink className="w-4 h-4 text-accent-amber" />
           </Link>
         )}
 
@@ -366,11 +366,11 @@ export const NoticesPage: React.FC = () => {
         {/* Empty */}
         {!isLoading && notices.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-surface border border-border-subtle flex items-center justify-center text-text-secondary/70 mb-4">
               <Bell className="w-7 h-7 stroke-[1.5]" />
             </div>
-            <p className="font-syne text-lg font-bold text-slate-800">No notices yet</p>
-            <p className="text-sm text-slate-500 font-medium mt-1 max-w-xs">
+            <p className="font-syne text-lg font-bold text-text-primary">No notices yet</p>
+            <p className="text-sm text-text-secondary font-medium mt-1 max-w-xs">
               Official notices from your college administration will appear here.
             </p>
           </div>
@@ -388,9 +388,9 @@ export const NoticesPage: React.FC = () => {
         {/* Divider */}
         {!isLoading && pinned.length > 0 && (regular.length > 0 || deletedNotices.length > 0) && (
           <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Recent</span>
-            <div className="flex-1 h-px bg-slate-200" />
+            <div className="flex-1 h-px bg-border-subtle" />
+            <span className="text-[11px] font-bold text-text-secondary/70 uppercase tracking-widest">Recent</span>
+            <div className="flex-1 h-px bg-border-subtle" />
           </div>
         )}
 

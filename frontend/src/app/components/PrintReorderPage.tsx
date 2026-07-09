@@ -189,8 +189,8 @@ export const PrintReorderPage: React.FC = () => {
           <ArrowLeft className="w-4 h-4" /> Back to Print Page
         </button>
 
-        <div className="mb-4 rounded-lg border border-amber-400/40 bg-amber-50 px-5 py-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="mb-4 rounded-lg border border-amber-400/40 bg-accent-amber-soft px-5 py-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-accent-amber flex-shrink-0 mt-0.5" />
           <div>
             <p className="font-bold text-[var(--text-primary)] text-sm">Free Reorder Request #{request.id.slice(0, 6)}</p>
             <p className="text-xs text-[var(--text-secondary)] mt-0.5">Upload your PDF and confirm specs. This reorder is 100% free because your previous order was marked collected by mistake.</p>

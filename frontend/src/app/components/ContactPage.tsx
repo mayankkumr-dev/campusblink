@@ -110,7 +110,7 @@ export const ContactPage = () => {
     <div className="min-h-screen bg-[#0A0F1E] text-white font-sans p-6 md:p-12 relative overflow-hidden">
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px]" />
       <div className="max-w-5xl mx-auto relative z-10">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 group">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-text-secondary/70 hover:text-white transition-colors mb-8 group">
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Back
         </button>
         <div className="flex items-center gap-3 mb-6">
@@ -123,7 +123,7 @@ export const ContactPage = () => {
         <div className="grid lg:grid-cols-2 gap-6 mt-12">
           <form onSubmit={handleSubmit} className="bg-[#F8F9FF] border border-[#ffffff1a] p-8 rounded-[2rem]">
             <h3 className="font-syne font-bold text-2xl mb-2">Report a problem</h3>
-            <p className="text-gray-400 mb-6 text-sm">Tell us exactly what went wrong so we can help you quickly.</p>
+            <p className="text-text-secondary/70 mb-6 text-sm">Tell us exactly what went wrong so we can help you quickly.</p>
 
             <div className="space-y-4">
               <input
@@ -189,7 +189,7 @@ export const ContactPage = () => {
                <Mail className="w-6 h-6 text-[var(--yellow)]" />
             </div>
             <h3 className="font-syne font-bold text-xl mb-2">Email Us</h3>
-            <p className="text-gray-400 mb-4 text-sm">For support, partnerships, or just to say hi.</p>
+            <p className="text-text-secondary/70 mb-4 text-sm">For support, partnerships, or just to say hi.</p>
             <a href="mailto:contactus.mayank@gmail.com" className="font-bold text-[var(--yellow)] hover:underline">contactus.mayank@gmail.com</a>
 
             <div className="mt-8 w-full border-t border-[#ffffff14] pt-8" />
@@ -198,7 +198,7 @@ export const ContactPage = () => {
                <MapPin className="w-6 h-6 text-purple-400" />
             </div>
             <h3 className="font-syne font-bold text-xl mb-2">Campus Drop-in</h3>
-            <p className="text-gray-400 text-sm">Find us in the library, probably debugging near the charging ports.</p>
+            <p className="text-text-secondary/70 text-sm">Find us in the library, probably debugging near the charging ports.</p>
           </div>
         </div>
       </div>

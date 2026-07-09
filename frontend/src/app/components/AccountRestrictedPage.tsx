@@ -32,7 +32,7 @@ export const AccountRestrictedPage: React.FC = () => {
         <p className="mt-4 text-center text-sm leading-7 text-[#3A3A3A]">{message}</p>
 
         {reason ? (
-          <div className="mt-5 rounded-lg border border-[#FEE2E2] bg-[#FFF5F5] p-4 text-sm text-[#7F1D1D]">
+          <div className="mt-5 rounded-lg border border-accent-red/20 bg-[#FFF5F5] p-4 text-sm text-[#7F1D1D]">
             <p className="font-bold">Admin note</p>
             <p className="mt-1">{reason}</p>
           </div>

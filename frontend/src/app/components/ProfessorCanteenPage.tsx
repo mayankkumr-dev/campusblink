@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Minus, Plus, ShoppingCart, Truck, X } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ShoppingCart, Truck, X, Clock, MapPin, ChevronRight, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -13,11 +13,16 @@ export const ProfessorCanteenPage: React.FC = () => {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [cart, setCart] = useState<Record<string, { item: any; qty: number }>>({});
   const [loading, setLoading] = useState(true);
+  
+  // Slide-out cart state
   const [showCheckout, setShowCheckout] = useState(false);
   const [deliverToRoom, setDeliverToRoom] = useState(false);
   const [roomNumber, setRoomNumber] = useState(profile?.staff_room_number || '');
   const [paymentMethod, setPaymentMethod] = useState<'now' | 'counter' | 'later'>('now');
   const [placing, setPlacing] = useState(false);
+
+  // Category filter state
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
     const loadShops = async () => {
@@ -35,20 +40,27 @@ export const ProfessorCanteenPage: React.FC = () => {
   useEffect(() => {
     if (!selectedShop) return;
     const loadMenu = async () => {
+      setLoading(true);
       const { data } = await supabase
         .from('menu_items')
         .select('*')
         .eq('shop_id', selectedShop.id)
         .order('category')
         .order('name');
-      // Filter is_available true on client side mapping just in case of nulls, or display all and let user know it's unav?
       setMenuItems((data || []).filter(item => item.is_available !== false));
+      setLoading(false);
+      setSelectedCategory('All');
     };
     loadMenu();
   }, [selectedShop?.id]);
 
+  const categories = ['All', ...Array.from(new Set(menuItems.map(item => item.category).filter(Boolean)))];
+  const filteredItems = selectedCategory === 'All' ? menuItems : menuItems.filter(item => item.category === selectedCategory);
+
   const cartItems = Object.values(cart);
-  const cartTotal = cartItems.reduce((sum, c) => sum + (c.item.price * c.qty), 0);
+  const cartSubtotal = cartItems.reduce((sum, c) => sum + (c.item.price * c.qty), 0);
+  const cartTax = Math.round(cartSubtotal * 0.05); // 5% dummy tax
+  const cartTotal = cartSubtotal + cartTax;
   const cartCount = cartItems.reduce((sum, c) => sum + c.qty, 0);
 
   const addToCart = (item: any) => {
@@ -87,13 +99,12 @@ export const ProfessorCanteenPage: React.FC = () => {
         student_id: profile.id,
         shop_id: selectedShop.id,
         items,
-        total: cartTotal,
+        total: cartTotal, // Send total including tax
         status: 'placed',
         is_professor_order: true,
         is_delivery_order: deliverToRoom,
         delivery_room_number: deliverToRoom ? roomNumber : null,
         professor_pay_later: paymentMethod === 'later',
-        
       };
 
       const { data: order, error } = await supabase
@@ -126,11 +137,11 @@ export const ProfessorCanteenPage: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading && !selectedShop) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8">
         <div className="grid gap-4">
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: 4 }).map((_, index) => (
             <ListSkeleton key={`prof-canteen-skeleton-${index}`} rows={1} />
           ))}
         </div>
@@ -138,127 +149,55 @@ export const ProfessorCanteenPage: React.FC = () => {
     );
   }
 
-  // Checkout view
-  if (showCheckout && selectedShop) {
-    return (
-      <div className="max-w-2xl mx-auto">
-        <button onClick={() => setShowCheckout(false)} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to menu
-        </button>
-
-        <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)] mb-6">Checkout</h1>
-
-        {/* Order Summary */}
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-          <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">Order from {selectedShop.name}</h3>
-          {cartItems.map(c => (
-            <div key={c.item.id} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
-              <span className="text-sm text-[var(--text-primary)]">{c.item.name} × {c.qty}</span>
-              <span className="text-sm font-bold text-[var(--text-primary)]">₹{c.item.price * c.qty}</span>
-            </div>
-          ))}
-          <div className="flex items-center justify-between pt-3 mt-2">
-            <span className="font-bold text-[var(--text-primary)]">Total</span>
-            <span className="font-syne font-extrabold text-xl text-[var(--text-primary)]">₹{cartTotal}</span>
-          </div>
-        </div>
-
-        {/* Delivery Toggle */}
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Truck className="w-5 h-5 text-[var(--yellow-dark)]" />
-              <div>
-                <span className="text-sm font-bold text-[var(--text-primary)]">Deliver to my room?</span>
-                <p className="text-xs text-[var(--text-secondary)]">We'll deliver your order to your cabin</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setDeliverToRoom(!deliverToRoom)}
-              className={`relative w-12 h-6 rounded-md transition-colors ${deliverToRoom ? 'bg-[var(--yellow-dark)]' : 'bg-[var(--border)]'}`}
-            >
-              <div className={`absolute top-0.5 w-5 h-5 bg-[var(--bg)] rounded-sm shadow transition-transform ${deliverToRoom ? 'translate-x-6' : 'translate-x-0.5'}`} />
-            </button>
-          </div>
-          {deliverToRoom && (
-            <div className="mt-3">
-              <label className="text-xs font-medium text-[var(--text-secondary)]">Room Number</label>
-              <input
-                type="text"
-                value={roomNumber}
-                onChange={e => setRoomNumber(e.target.value)}
-                placeholder="e.g. A-201"
-                className="w-full mt-1 h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--yellow-dark)]"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Payment Method */}
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-6">
-          <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">Payment Method</h3>
-          {[
-            { value: 'now' as const, label: 'Pay Now via UPI', desc: 'Scan QR code to pay' },
-            { value: 'counter' as const, label: 'Pay at Counter', desc: 'Pay when picking up' },
-            { value: 'later' as const, label: 'Pay Later', desc: 'Added to your pending payments' },
-          ].map(opt => (
-            <label
-              key={opt.value}
-              className={`flex items-center gap-3 p-3 rounded-md border cursor-pointer mb-2 last:mb-0 transition-colors ${
-                paymentMethod === opt.value ? 'border-[var(--yellow-dark)] bg-[#FEF9C3]/30' : 'border-[var(--border)] hover:bg-[var(--bg-primary)]'
-              }`}
-            >
-              <input
-                type="radio"
-                name="payment"
-                checked={paymentMethod === opt.value}
-                onChange={() => setPaymentMethod(opt.value)}
-                className="accent-[var(--yellow-dark)]"
-              />
-              <div>
-                <span className="text-sm font-bold text-[var(--text-primary)]">{opt.label}</span>
-                <p className="text-xs text-[var(--text-secondary)]">{opt.desc}</p>
-              </div>
-            </label>
-          ))}
-        </div>
-
-        <button
-          onClick={handlePlaceOrder}
-          disabled={placing || cartCount === 0}
-          className="w-full h-12 rounded-md bg-[var(--text-primary)] text-white font-bold text-sm hover:bg-[var(--yellow-dark)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50"
-        >
-          {placing ? 'Placing Order...' : `Place Order — ₹${cartTotal}`}
-        </button>
-      </div>
-    );
-  }
-
-  // Shop selection
+  // Shop Selection View
   if (!selectedShop) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)] mb-6">Canteen</h1>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-20">
+        <header className="mb-10">
+          <p className="text-xs font-semibold tracking-widest text-gray-400 uppercase mb-2">Campus Dining</p>
+          <h1 className="font-syne font-extrabold text-4xl sm:text-5xl text-gray-900 tracking-tight leading-tight">
+            Select a Canteen
+          </h1>
+          <p className="text-sm text-gray-500 mt-4 max-w-xl leading-relaxed">
+            Choose from the available dining locations on campus. Your faculty discount is automatically applied to eligible items.
+          </p>
+        </header>
+
         {shops.length === 0 ? (
-          <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-8 text-center">
-            <p className="text-sm text-[var(--text-secondary)]">No canteen shops available at your college.</p>
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+            <div className="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4">
+              <Truck className="w-6 h-6 text-gray-400" />
+            </div>
+            <p className="text-lg font-bold text-gray-900 font-syne">No canteens available</p>
+            <p className="text-sm text-gray-500 mt-2">There are currently no active canteens in your college.</p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {shops.map(shop => (
               <button
                 key={shop.id}
                 onClick={() => setSelectedShop(shop)}
-                className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 text-left hover:border-[var(--yellow)] hover:shadow-sm transition-all flex items-center gap-4"
+                className="group bg-white rounded-3xl p-6 text-left border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col gap-5 relative overflow-hidden"
               >
-                {shop.logo_url ? (
-                  <img src={shop.logo_url} alt={shop.name} className="w-14 h-14 rounded-md object-cover border border-[var(--border)]" />
-                ) : (
-                  <div className="w-14 h-14 rounded-md bg-[#FEF9C3] flex items-center justify-center text-2xl">🍔</div>
-                )}
-                <div>
-                  <h3 className="font-syne font-bold text-lg text-[var(--text-primary)]">{shop.name}</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">{shop.college}</p>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform"></div>
+                <div className="flex items-center gap-4">
+                  {shop.logo_url ? (
+                    <img src={shop.logo_url} alt={shop.name} className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl shadow-sm">
+                      🍔
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-syne font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">{shop.name}</h3>
+                    <p className="text-xs font-semibold text-gray-500 mt-1 flex items-center gap-1 uppercase tracking-wider">
+                      <MapPin className="w-3 h-3" /> {shop.college}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-4 border-t border-gray-50">
+                   <span className="text-sm font-medium text-gray-500">View Menu</span>
+                   <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                 </div>
               </button>
             ))}
@@ -268,78 +207,287 @@ export const ProfessorCanteenPage: React.FC = () => {
     );
   }
 
-  // Menu + cart view
+  // Menu View
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <button onClick={() => { setSelectedShop(null); setCart({}); setMenuItems([]); }} className="p-2 rounded-md hover:bg-[var(--bg-secondary)]">
-            <ArrowLeft className="w-5 h-5 text-[var(--text-primary)]" />
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-32">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => { setSelectedShop(null); setCart({}); setMenuItems([]); }} 
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:text-blue-600 hover:shadow-md transition-all"
+          >
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)]">{selectedShop.name}</h1>
-            <p className="text-sm text-[var(--text-secondary)]">Select items to order</p>
+            <h1 className="font-syne font-extrabold text-3xl text-gray-900">{selectedShop.name}</h1>
+            <p className="text-sm text-gray-500 font-medium mt-1 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gray-400" /> Prep time: ~10-15 mins
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-3 mb-24">
-        {menuItems.map(item => {
-          const inCart = cart[item.id];
-          return (
-            <div key={item.id} className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-4 flex items-center justify-between">
-              <div className="flex-1 flex gap-3">
-                {item.image_url && (
-                   <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-md object-cover border border-[var(--border)]" />
-                )}
-                <div>
-                  <h4 className="font-bold text-sm text-[var(--text-primary)]">{item.name}</h4>
-                  {item.description && <p className="text-xs text-[var(--text-secondary)] mt-0.5">{item.description}</p>}
-                  <span className="text-sm font-bold text-[var(--yellow-dark)] mt-1 block">₹{item.price}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {inCart ? (
-                  <div className="flex items-center gap-2 bg-[#FEF9C3] rounded-md px-2 py-1">
-                    <button onClick={() => removeFromCart(item.id)} className="w-6 h-6 flex items-center justify-center rounded-sm hover:bg-[#F59E0B]/20">
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="text-sm font-bold w-5 text-center">{inCart.qty}</span>
-                    <button onClick={() => addToCart(item)} className="w-6 h-6 flex items-center justify-center rounded-sm hover:bg-[#F59E0B]/20">
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : (
-                  <button onClick={() => addToCart(item)} className="h-8 px-4 rounded-md border border-[var(--yellow-dark)] text-[var(--yellow-dark)] text-xs font-bold hover:bg-[#FEF9C3] transition-colors">
-                    Add
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Cart Bar */}
-      {cartCount > 0 && (
-        <div className="fixed bottom-16 md:bottom-0 left-0 md:left-[240px] right-0 bg-[var(--bg)] border-t border-[var(--border)] p-4 z-30 safe-area-bottom">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <ShoppingCart className="w-5 h-5 text-[var(--yellow-dark)]" />
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[var(--yellow-dark)] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{cartCount}</span>
-              </div>
-              <span className="font-syne font-bold text-lg">₹{cartTotal}</span>
-            </div>
+      {/* Categories Filter (Soft Light-themed Pills) */}
+      {categories.length > 1 && (
+        <div className="flex overflow-x-auto hide-scrollbar gap-3 mb-10 pb-2">
+          {categories.map(category => (
             <button
-              onClick={() => setShowCheckout(true)}
-              className="h-10 px-6 rounded-md bg-[var(--text-primary)] text-white text-sm font-bold hover:bg-[var(--yellow-dark)] hover:text-[var(--text-primary)] transition-colors"
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 shadow-sm ${
+                selectedCategory === category
+                  ? 'bg-blue-600 text-white shadow-blue-500/25'
+                  : 'bg-white text-gray-600 border border-gray-100 hover:bg-gray-50 hover:text-gray-900'
+              }`}
             >
-              Checkout
+              {category}
             </button>
-          </div>
+          ))}
         </div>
       )}
+
+      {/* Menu Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+           <ListSkeleton rows={4} />
+           <ListSkeleton rows={4} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {filteredItems.map(item => {
+            const inCart = cart[item.id];
+            return (
+              <div key={item.id} className="bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex items-center justify-between gap-4">
+                <div className="flex-1 flex gap-4 min-w-0">
+                  {item.image_url ? (
+                     <img src={item.image_url} alt={item.name} className="w-20 h-20 rounded-2xl object-cover shadow-sm bg-gray-50 shrink-0" />
+                  ) : (
+                     <div className="w-20 h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-2xl shrink-0 shadow-sm">
+                       🍲
+                     </div>
+                  )}
+                  <div className="min-w-0 flex flex-col justify-center">
+                    <h4 className="font-bold text-base text-gray-900 truncate font-syne">{item.name}</h4>
+                    {item.description && <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">{item.description}</p>}
+                    <span className="text-sm font-black text-blue-600 mt-2 block tracking-tight">₹{item.price}</span>
+                  </div>
+                </div>
+                
+                <div className="shrink-0 pl-2">
+                  {inCart ? (
+                    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 bg-blue-50 rounded-2xl p-1.5 border border-blue-100">
+                      <button onClick={() => removeFromCart(item.id)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm hover:bg-blue-600 hover:text-white transition-colors">
+                        <Minus className="w-4 h-4" strokeWidth={2.5} />
+                      </button>
+                      <span className="text-sm font-bold w-4 text-center text-blue-900">{inCart.qty}</span>
+                      <button onClick={() => addToCart(item)} className="w-8 h-8 flex items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm hover:bg-blue-600 hover:text-white transition-colors">
+                        <Plus className="w-4 h-4" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => addToCart(item)} className="h-10 px-6 rounded-2xl border-2 border-gray-100 bg-white text-gray-900 text-sm font-bold hover:border-blue-600 hover:text-blue-600 shadow-sm transition-all flex items-center gap-2">
+                      Add <Plus className="w-4 h-4" strokeWidth={2.5} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Floating View Cart Button */}
+      {cartCount > 0 && !showCheckout && (
+        <div className="fixed bottom-24 md:bottom-10 left-1/2 -translate-x-1/2 z-30 animate-in fade-in slide-in-from-bottom-10 duration-500">
+          <button
+            onClick={() => setShowCheckout(true)}
+            className="flex items-center gap-4 bg-gray-900 text-white pl-6 pr-4 py-4 rounded-[32px] shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform"
+          >
+            <div className="flex items-center gap-3 border-r border-gray-700 pr-4">
+              <div className="relative">
+                <ShoppingCart className="w-5 h-5" />
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-blue-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  {cartCount}
+                </span>
+              </div>
+              <span className="font-syne font-bold text-lg">₹{cartSubtotal}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-blue-300">
+              Checkout <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Persistent Slide-Out Cart Panel */}
+      <div className={`fixed inset-y-0 right-0 w-full md:w-[440px] bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.1)] z-50 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col ${showCheckout ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex items-center justify-between p-6 sm:p-8 border-b border-gray-100 shrink-0 bg-white">
+          <h2 className="text-2xl font-extrabold text-gray-900 font-syne flex items-center gap-3">
+             <ShoppingCart className="w-6 h-6 text-blue-600" /> Your Order
+          </h2>
+          <button onClick={() => setShowCheckout(false)} className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-gray-900 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+            <X className="w-5 h-5" strokeWidth={2} />
+          </button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-[#FAFAFA]">
+          {cartItems.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                 <ShoppingCart className="w-10 h-10 text-gray-300" strokeWidth={1.5} />
+              </div>
+              <p className="text-xl font-bold text-gray-900 font-syne mb-2">Cart is empty</p>
+              <p className="text-sm text-gray-500">Looks like you haven't added anything yet.</p>
+              <button onClick={() => setShowCheckout(false)} className="mt-8 px-8 py-3 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-900 hover:border-gray-900 transition-colors">
+                 Continue Browsing
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {/* Order Items */}
+              <div className="space-y-5 bg-white p-5 rounded-3xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 px-1">Order Details</h3>
+                {cartItems.map(c => (
+                  <div key={c.item.id} className="flex gap-4 items-center">
+                    {c.item.image_url ? (
+                      <img src={c.item.image_url} alt={c.item.name} className="w-16 h-16 rounded-2xl object-cover bg-gray-50 shrink-0" />
+                    ) : (
+                      <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-xl shrink-0">🍲</div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-gray-900 truncate">{c.item.name}</h4>
+                      <p className="text-sm text-blue-600 font-bold mt-1">₹{c.item.price}</p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-gray-50 rounded-full p-1 border border-gray-100">
+                      <button onClick={() => removeFromCart(c.item.id)} className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-600 hover:text-blue-600 transition-colors">
+                        <Minus className="w-3 h-3" strokeWidth={2.5} />
+                      </button>
+                      <span className="text-sm font-bold w-3 text-center">{c.qty}</span>
+                      <button onClick={() => addToCart(c.item)} className="w-7 h-7 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-600 hover:text-blue-600 transition-colors">
+                        <Plus className="w-3 h-3" strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Delivery Toggle */}
+              <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${deliverToRoom ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-400'}`}>
+                       <Truck className="w-5 h-5" strokeWidth={2} />
+                    </div>
+                    <div>
+                      <span className="text-sm font-bold text-gray-900">Cabin Delivery</span>
+                      <p className="text-xs text-gray-500 mt-0.5">We'll bring it to your room</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setDeliverToRoom(!deliverToRoom)}
+                    className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${deliverToRoom ? 'bg-blue-600' : 'bg-gray-200'}`}
+                  >
+                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 ${deliverToRoom ? 'translate-x-7' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+                
+                {deliverToRoom && (
+                  <div className="mt-5 pt-5 border-t border-gray-50 animate-in fade-in slide-in-from-top-2">
+                    <label className="text-xs font-bold tracking-widest text-gray-400 uppercase">Room Number</label>
+                    <div className="relative mt-2">
+                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                       <input
+                         type="text"
+                         value={roomNumber}
+                         onChange={e => setRoomNumber(e.target.value)}
+                         placeholder="e.g. A-201"
+                         className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow"
+                       />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Method */}
+              <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 px-1">Payment Method</h3>
+                <div className="space-y-3">
+                  {[
+                    { value: 'now' as const, label: 'Pay Now (UPI)', desc: 'Scan QR at counter' },
+                    { value: 'counter' as const, label: 'Pay at Counter', desc: 'Cash or Card' },
+                    { value: 'later' as const, label: 'Add to Dues', desc: 'Settle later from dashboard' },
+                  ].map(opt => (
+                    <label
+                      key={opt.value}
+                      className={`flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all duration-200 ${
+                        paymentMethod === opt.value 
+                           ? 'border-blue-600 bg-blue-50/50 shadow-sm' 
+                           : 'border-gray-100 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === opt.value ? 'border-blue-600' : 'border-gray-300'}`}>
+                            {paymentMethod === opt.value && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                         </div>
+                         <div>
+                           <span className={`text-sm font-bold ${paymentMethod === opt.value ? 'text-blue-900' : 'text-gray-900'}`}>{opt.label}</span>
+                           <p className="text-xs text-gray-500 mt-0.5">{opt.desc}</p>
+                         </div>
+                      </div>
+                      {paymentMethod === opt.value && <Check className="w-5 h-5 text-blue-600" />}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Cart Footer */}
+        {cartItems.length > 0 && (
+           <div className="p-6 sm:p-8 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] shrink-0">
+             <div className="space-y-3 mb-6">
+               <div className="flex justify-between text-sm font-medium text-gray-500">
+                 <span>Subtotal</span>
+                 <span>₹{cartSubtotal}</span>
+               </div>
+               <div className="flex justify-between text-sm font-medium text-gray-500">
+                 <span>Taxes & Fees (5%)</span>
+                 <span>₹{cartTax}</span>
+               </div>
+               <div className="flex justify-between text-xl font-extrabold text-gray-900 pt-3 border-t border-gray-100 font-syne">
+                 <span>Total</span>
+                 <span className="text-blue-600">₹{cartTotal}</span>
+               </div>
+             </div>
+             
+             <button 
+               onClick={handlePlaceOrder} 
+               disabled={placing || cartCount === 0 || (deliverToRoom && !roomNumber.trim())} 
+               className="w-full h-14 rounded-full bg-blue-600 text-white font-bold text-base hover:bg-blue-700 transition-all shadow-[0_8px_20px_rgba(37,99,235,0.2)] disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 group"
+             >
+                {placing ? 'Processing...' : `Place Order • ₹${cartTotal}`} 
+                {!placing && <ArrowLeft className="w-5 h-5 rotate-180 group-hover:translate-x-1 transition-transform" />}
+             </button>
+           </div>
+        )}
+      </div>
+
+      {/* Backdrop for Slide-Out Cart */}
+      {showCheckout && (
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-40 animate-in fade-in duration-300" onClick={() => setShowCheckout(false)} />
+      )}
+      
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };

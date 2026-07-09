@@ -87,7 +87,7 @@ export const AdminInviteWaitlistPage: React.FC = () => {
                 <td className="px-3 py-2 text-[var(--text-secondary)]">{row.college || '-'}</td>
                 <td className="px-3 py-2 text-[var(--text-secondary)]">{new Date(row.created_at).toLocaleDateString()}</td>
                 <td className="px-3 py-2">
-                  <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${row.is_invited ? 'bg-[var(--success-light)] text-[var(--success-dark)]' : 'bg-[#FEF9C3] text-[#A16207]'}`}>
+                  <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${row.is_invited ? 'bg-accent-green/15 text-accent-green' : 'bg-[#FEF9C3] text-[#A16207]'}`}>
                     {row.is_invited ? 'Invited' : 'Waiting'}
                   </span>
                 </td>

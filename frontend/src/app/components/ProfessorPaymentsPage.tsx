@@ -88,21 +88,21 @@ export const ProfessorPaymentsPage: React.FC = () => {
   return (
     <div className="mx-auto max-w-4xl space-y-8 pb-28 font-sans">
       {/* Modern Payments Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-border-subtle bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
         <div>
-          <h1 className="font-syne text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="font-syne text-2xl font-extrabold tracking-tight text-text-primary sm:text-3xl">
             Faculty Payments
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-text-secondary">
             Review and settle pending canteen and print shop account dues.
           </p>
         </div>
         {totalUnpaid > 0 && (
           <div className="rounded-2xl border border-rose-100 bg-rose-50/60 px-5 py-3.5 text-right sm:min-w-[170px]">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-rose-600">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-red">
               Total Due Amount
             </p>
-            <p className="font-syne text-2xl font-extrabold text-rose-600">
+            <p className="font-syne text-2xl font-extrabold text-accent-red">
               ₹{totalUnpaid.toLocaleString()}
             </p>
           </div>
@@ -112,7 +112,7 @@ export const ProfessorPaymentsPage: React.FC = () => {
       {/* Sleek Integrated Segmented Toggle Tabs & Filter Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Integrated Segmented Control */}
-        <div className="inline-flex rounded-2xl border border-slate-200/80 bg-slate-100/70 p-1.5 shadow-2xs">
+        <div className="inline-flex rounded-2xl border border-border-subtle bg-surface-elevated/70 p-1.5 shadow-2xs">
           {(['unpaid', 'history'] as const).map((tab) => {
             const isActive = viewTab === tab;
             return (
@@ -125,8 +125,8 @@ export const ProfessorPaymentsPage: React.FC = () => {
                 }}
                 className={`rounded-xl px-5 py-2 text-xs font-bold transition-all ${
                   isActive
-                    ? 'bg-white text-slate-900 shadow-xs font-syne'
-                    : 'text-slate-500 hover:text-slate-800'
+                    ? 'bg-surface text-text-primary shadow-xs font-syne'
+                    : 'text-text-secondary hover:text-slate-800'
                 }`}
               >
                 {tab === 'unpaid' ? `Unpaid (${unpaid.length})` : `History (${paid.length})`}
@@ -147,7 +147,7 @@ export const ProfessorPaymentsPage: React.FC = () => {
                 className={`rounded-xl px-4 py-2 text-xs font-semibold capitalize transition-all ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
-                    : 'border border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50'
+                    : 'border border-border-subtle bg-surface text-text-secondary hover:bg-surface-elevated'
                 }`}
               >
                 {f === 'all' ? 'All Shops' : f}
@@ -159,7 +159,7 @@ export const ProfessorPaymentsPage: React.FC = () => {
 
       {/* Select All Row (Unpaid Only) */}
       {viewTab === 'unpaid' && filtered.length > 0 && (
-        <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-5 py-3.5 shadow-2xs">
+        <div className="flex items-center justify-between rounded-2xl border border-border-subtle bg-surface px-5 py-3.5 shadow-2xs">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -167,10 +167,10 @@ export const ProfessorPaymentsPage: React.FC = () => {
               onChange={toggleSelectAll}
               className="h-4.5 w-4.5 rounded border-slate-300 accent-blue-600"
             />
-            <span className="text-xs font-semibold text-slate-700">Select All Unpaid Dues</span>
+            <span className="text-xs font-semibold text-text-primary">Select All Unpaid Dues</span>
           </label>
           {selected.size > 0 && (
-            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-600">
+            <span className="rounded-full bg-accent-blue-soft px-3 py-1 text-xs font-bold text-accent-blue">
               {selected.size} selected — ₹{selectedTotal.toLocaleString()}
             </span>
           )}
@@ -187,22 +187,22 @@ export const ProfessorPaymentsPage: React.FC = () => {
       ) : filtered.length === 0 ? (
         viewTab === 'unpaid' ? (
           /* Beautifully Polished Caught-Up Empty State Layout */
-          <div className="rounded-3xl border border-slate-100 bg-white p-12 sm:p-16 text-center shadow-[0_2px_20px_rgba(0,0,0,0.03)]">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-50 border border-emerald-100 text-emerald-600 shadow-2xs">
+          <div className="rounded-3xl border border-border-subtle bg-surface p-12 sm:p-16 text-center shadow-[0_2px_20px_rgba(0,0,0,0.03)]">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-accent-green/15 border border-emerald-100 text-accent-green shadow-2xs">
               <Check className="h-8 w-8 stroke-[2.2]" />
             </div>
-            <h3 className="font-syne text-xl font-extrabold text-slate-900">All Caught Up! 🎉</h3>
-            <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-relaxed text-slate-500">
+            <h3 className="font-syne text-xl font-extrabold text-text-primary">All Caught Up! 🎉</h3>
+            <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-relaxed text-text-secondary">
               You have no unpaid faculty dues. All Canteen refreshments and Print Shop document jobs have been fully cleared.
             </p>
           </div>
         ) : (
-          <div className="rounded-3xl border border-slate-100 bg-white p-12 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 text-slate-400">
+          <div className="rounded-3xl border border-border-subtle bg-surface p-12 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface border border-border-subtle text-text-secondary/70">
               <CreditCard className="h-6 w-6" />
             </div>
-            <h3 className="font-syne text-base font-bold text-slate-900">No payment history yet</h3>
-            <p className="mt-1 text-xs text-slate-500">
+            <h3 className="font-syne text-base font-bold text-text-primary">No payment history yet</h3>
+            <p className="mt-1 text-xs text-text-secondary">
               Your settled orders and receipts will appear here automatically.
             </p>
           </div>
@@ -215,10 +215,10 @@ export const ProfessorPaymentsPage: React.FC = () => {
             return (
               <div
                 key={payment.id}
-                className={`rounded-2xl border bg-white p-5 transition-all ${
+                className={`rounded-2xl border bg-surface p-5 transition-all ${
                   isSelected
                     ? 'border-blue-400 bg-blue-50/20 shadow-[0_4px_16px_rgba(37,99,235,0.08)]'
-                    : 'border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_18px_rgba(0,0,0,0.06)]'
+                    : 'border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_18px_rgba(0,0,0,0.06)]'
                 }`}
               >
                 <div className="flex items-start gap-3.5">
@@ -233,46 +233,46 @@ export const ProfessorPaymentsPage: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="h-8 w-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+                        <div className="h-8 w-8 rounded-xl bg-surface border border-border-subtle flex items-center justify-center shrink-0">
                           {payment.order_type === 'canteen' ? (
-                            <UtensilsCrossed className="h-4 w-4 text-amber-600" />
+                            <UtensilsCrossed className="h-4 w-4 text-accent-amber" />
                           ) : (
-                            <Printer className="h-4 w-4 text-blue-600" />
+                            <Printer className="h-4 w-4 text-accent-blue" />
                           )}
                         </div>
-                        <span className="font-syne font-bold text-sm text-slate-900 truncate">
+                        <span className="font-syne font-bold text-sm text-text-primary truncate">
                           {payment.shop_name || 'Campus Shop'}
                         </span>
                       </div>
                       {isPaidOrPrepaid ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200/60 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent-green/20 bg-accent-green/15 px-3 py-1 text-[11px] font-bold text-accent-green">
                           <Check className="h-3 w-3" />{' '}
                           {payment.payment_status === 'prepaid' && !payment.is_paid ? 'Prepaid' : 'Paid'}
                         </span>
                       ) : payment.payment_status === 'deferred' ? (
-                        <span className="rounded-full border border-amber-200/60 bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-700">
+                        <span className="rounded-full border border-accent-amber-soft/20 bg-accent-amber-soft px-3 py-1 text-[11px] font-bold text-accent-amber">
                           Deferred
                         </span>
                       ) : (
-                        <span className="rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-700">
+                        <span className="rounded-full border border-accent-red/20 bg-accent-red/15 px-3 py-1 text-[11px] font-bold text-accent-red">
                           Unpaid
                         </span>
                       )}
                     </div>
 
-                    <p className="mt-2 text-xs text-slate-600 line-clamp-2">
+                    <p className="mt-2 text-xs text-text-secondary line-clamp-2">
                       {Array.isArray(payment.items)
                         ? payment.items.map((i: any) => i.name || i.item_name || i.file_name || 'Item').join(', ')
                         : 'Order charges'}
                     </p>
 
-                    <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs text-slate-400">
+                    <div className="mt-3.5 pt-3 border-t border-border-subtle flex items-center justify-between">
+                      <span className="text-xs text-text-secondary/70">
                         {payment.is_paid && payment.paid_at
                           ? `Paid ${formatDate(payment.paid_at)}`
                           : formatDate(payment.created_at)}
                       </span>
-                      <span className="font-syne font-extrabold text-sm text-slate-900">
+                      <span className="font-syne font-extrabold text-sm text-text-primary">
                         ₹{Number(payment.amount || 0).toLocaleString()}
                       </span>
                     </div>
@@ -286,7 +286,7 @@ export const ProfessorPaymentsPage: React.FC = () => {
 
       {/* Floating Action Buttons for Unpaid Dues */}
       {viewTab === 'unpaid' && unpaid.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 md:left-[240px] z-30 border-t border-slate-100 bg-white/95 p-4 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-0 right-0 md:left-[240px] z-30 border-t border-border-subtle bg-white/95 p-4 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
           <div className="mx-auto max-w-4xl flex items-center gap-3">
             <button
               type="button"
@@ -300,7 +300,7 @@ export const ProfessorPaymentsPage: React.FC = () => {
               type="button"
               onClick={() => handlePay(unpaid.map((p) => p.id))}
               disabled={paying}
-              className="rounded-2xl border border-rose-200 bg-rose-50 px-5 sm:px-6 py-3.5 text-xs sm:text-sm font-bold text-rose-600 transition-colors hover:bg-rose-100 disabled:opacity-50"
+              className="rounded-2xl border border-rose-200 bg-accent-red/15 px-5 sm:px-6 py-3.5 text-xs sm:text-sm font-bold text-accent-red transition-colors hover:bg-rose-100 disabled:opacity-50"
             >
               Pay All (₹{totalUnpaid.toLocaleString()})
             </button>

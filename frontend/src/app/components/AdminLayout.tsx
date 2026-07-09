@@ -37,14 +37,14 @@ const NavItem = ({
       className={`group flex items-center justify-between px-3.5 py-2.5 my-0.5 rounded-2xl transition-all font-sans text-xs font-semibold ${
         isActive
           ? 'bg-amber-500 text-white shadow-2xs'
-          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+          : 'text-text-secondary hover:bg-surface-elevated/80 hover:text-text-primary'
       }`}
     >
       <div className="flex items-center gap-3">
         <Icon
           size={16}
           className={`stroke-[1.8] transition-colors ${
-            isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'
+            isActive ? 'text-white' : 'text-text-secondary/70 group-hover:text-text-primary'
           }`}
         />
         <span>{label}</span>
@@ -59,7 +59,7 @@ const NavItem = ({
 };
 
 const SectionLabel = ({ label }: { label: string }) => (
-  <div className="pt-5 pb-1.5 px-3.5 font-sans font-bold text-[10px] text-slate-400 uppercase tracking-widest">
+  <div className="pt-5 pb-1.5 px-3.5 font-sans font-bold text-[10px] text-text-secondary/70 uppercase tracking-widest">
     {label}
   </div>
 );
@@ -106,9 +106,9 @@ export const AdminLayout: React.FC = () => {
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white border-r border-slate-100 text-slate-900 overflow-hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+    <div className="flex flex-col h-full bg-surface border-r border-border-subtle text-text-primary overflow-hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
       {/* Logo Area */}
-      <div className="h-20 border-b border-slate-100 flex items-center justify-between px-6 shrink-0 overflow-hidden">
+      <div className="h-20 border-b border-border-subtle flex items-center justify-between px-6 shrink-0 overflow-hidden">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center">
           <ThemeAwareLogo
             height={48}
@@ -258,16 +258,16 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Admin Profile Bottom Area */}
-      <div className="p-4 border-t border-slate-100 shrink-0 bg-slate-50/70">
+      <div className="p-4 border-t border-border-subtle shrink-0 bg-surface-elevated">
         <div className="flex items-center gap-3 mb-3.5">
-          <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-syne font-extrabold text-sm border border-amber-200">
+          <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-accent-amber flex items-center justify-center font-syne font-extrabold text-sm border border-accent-amber-soft">
             A
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-sans font-bold text-xs text-slate-900 truncate">
+            <h4 className="font-sans font-bold text-xs text-text-primary truncate">
               Admin Console
             </h4>
-            <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[9px] uppercase font-bold text-emerald-700 mt-0.5">
+            <span className="inline-flex items-center rounded-full bg-accent-green/15 border border-emerald-200 px-2 py-0.5 text-[9px] uppercase font-bold text-accent-green mt-0.5">
               Super Admin
             </span>
           </div>
@@ -275,7 +275,7 @@ export const AdminLayout: React.FC = () => {
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 h-9 px-3 rounded-xl text-rose-600 bg-white border border-rose-200 hover:bg-rose-50 transition-colors font-bold text-xs shadow-2xs"
+          className="w-full flex items-center justify-center gap-2 h-9 px-3 rounded-xl text-accent-red bg-surface border border-rose-200 hover:bg-rose-50 transition-colors font-bold text-xs shadow-2xs"
         >
           <LogOut size={14} />
           <span>Exit Console</span>
@@ -285,16 +285,16 @@ export const AdminLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-dvh flex flex-col md:flex-row font-sans bg-slate-50 text-slate-900">
+    <div className="min-h-dvh flex flex-col md:flex-row font-sans bg-surface text-text-primary">
       {/* Mobile Header / Hamburger */}
-      <div className="md:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-slate-100 sticky top-0 z-50 safe-area-top select-none shadow-2xs">
+      <div className="md:hidden flex items-center justify-between h-16 px-4 bg-surface border-b border-border-subtle sticky top-0 z-50 safe-area-top select-none shadow-2xs">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
           <ThemeAwareLogo height={40} alt="Campus Blink" className="h-10 w-auto object-contain" />
         </Link>
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 text-slate-700 rounded-xl hover:bg-slate-50"
+          className="p-2 text-text-primary rounded-xl hover:bg-surface-elevated"
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
@@ -320,11 +320,11 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-64 flex flex-col min-h-dvh bg-slate-50">
+      <div className="flex-1 md:ml-64 flex flex-col min-h-dvh bg-surface">
         {/* Header */}
-        <header className="h-20 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0 sticky top-0 z-30">
+        <header className="h-20 bg-white/90 backdrop-blur-md border-b border-border-subtle flex items-center justify-between px-6 lg:px-10 shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <h1 className="font-syne font-extrabold text-lg md:text-2xl text-slate-900 capitalize tracking-tight truncate">
+            <h1 className="font-syne font-extrabold text-lg md:text-2xl text-text-primary capitalize tracking-tight truncate">
               {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
             </h1>
           </div>
@@ -334,10 +334,10 @@ export const AdminLayout: React.FC = () => {
               className="relative group cursor-pointer"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
             >
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
-              <div className="w-full flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-10 pr-3.5 text-xs text-slate-600 group-hover:border-amber-400 group-hover:bg-white transition-all">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/70 group-hover:text-amber-500 transition-colors" />
+              <div className="w-full flex items-center justify-between bg-surface border border-border-subtle rounded-2xl py-2.5 pl-10 pr-3.5 text-xs text-text-secondary group-hover:border-amber-400 group-hover:bg-white transition-all">
                 <span>Search administrative logs, users, orders...</span>
-                <span className="flex items-center justify-center rounded-lg bg-white px-2 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200 shadow-2xs">
+                <span className="flex items-center justify-center rounded-lg bg-surface px-2 py-0.5 text-[10px] font-bold text-text-secondary border border-border-subtle shadow-2xs">
                   Cmd+K
                 </span>
               </div>
@@ -348,20 +348,20 @@ export const AdminLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/admin/alerts')}
-              className="relative rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-600 transition-colors hover:bg-slate-50"
+              className="relative rounded-2xl border border-border-subtle bg-surface p-2.5 text-text-secondary transition-colors hover:bg-surface-elevated"
               aria-label="Admin Notifications"
             >
               <Bell className="w-4.5 h-4.5 stroke-[2]" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full" />
             </button>
 
-            <div className="flex items-center gap-3 pl-2 border-l border-slate-100">
+            <div className="flex items-center gap-3 pl-2 border-l border-border-subtle">
               <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xs font-syne font-bold shadow-xs">
                 A
               </div>
               <div className="hidden xl:block">
-                <p className="text-xs font-bold text-slate-900 leading-tight">Super Admin</p>
-                <p className="text-[10px] text-slate-400 font-medium">Enterprise Backend</p>
+                <p className="text-xs font-bold text-text-primary leading-tight">Super Admin</p>
+                <p className="text-[10px] text-text-secondary/70 font-medium">Enterprise Backend</p>
               </div>
             </div>
           </div>

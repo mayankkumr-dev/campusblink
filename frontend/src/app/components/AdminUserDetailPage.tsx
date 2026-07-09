@@ -205,7 +205,7 @@ export const AdminUserDetailPage: React.FC = () => {
       <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <Megaphone className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+            <Megaphone className="h-5 w-5 text-accent-amber mt-0.5 shrink-0" />
             <div>
               <h3 className="font-syne text-lg font-bold text-[var(--text-primary)]">Notice Admin</h3>
               <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
@@ -225,7 +225,7 @@ export const AdminUserDetailPage: React.FC = () => {
               <Loader2 className="absolute inset-0 m-auto h-4 w-4 animate-spin text-white" />
             ) : (
               <span
-                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-surface rounded-full shadow transition-transform ${
                   user.is_notice_admin ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
@@ -234,7 +234,7 @@ export const AdminUserDetailPage: React.FC = () => {
         </div>
         <p className="mt-3 text-xs text-[var(--text-secondary)] font-medium">
           Current status:{' '}
-          <span className={`font-bold ${user.is_notice_admin ? 'text-amber-600' : 'text-slate-500'}`}>
+          <span className={`font-bold ${user.is_notice_admin ? 'text-accent-amber' : 'text-text-secondary'}`}>
             {user.is_notice_admin ? '✓ Notice Admin' : 'Standard user'}
           </span>
         </p>

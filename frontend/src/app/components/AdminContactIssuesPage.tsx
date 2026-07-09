@@ -129,7 +129,7 @@ export const AdminContactIssuesPage: React.FC = () => {
                   </td>
                   <td className="p-4">
                     <span
-                      className={`rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${issue.status === 'resolved' ? 'bg-[var(--success-light)] text-[var(--success-dark)]' : issue.status === 'in_progress' ? 'bg-[var(--info-light)] text-[var(--info)]' : 'bg-[#FEF9C3] text-[var(--yellow-dark)]'}`}
+                      className={`rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${issue.status === 'resolved' ? 'bg-accent-green/15 text-accent-green' : issue.status === 'in_progress' ? 'bg-[var(--info-light)] text-[var(--info)]' : 'bg-[#FEF9C3] text-[var(--yellow-dark)]'}`}
                     >
                       {String(issue.status || 'open').replace('_', ' ')}
                     </span>
@@ -148,7 +148,7 @@ export const AdminContactIssuesPage: React.FC = () => {
                       {issue.status !== 'resolved' && (
                         <button
                           onClick={() => setIssueStatus(issue.id, 'resolved')}
-                          className="inline-flex items-center gap-1 rounded bg-[var(--success-light)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--success-dark)]"
+                          className="inline-flex items-center gap-1 rounded bg-accent-green/15 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-green"
                         >
                           <CheckCircle2 className="h-3.5 w-3.5" /> Resolve
                         </button>

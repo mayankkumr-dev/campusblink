@@ -156,14 +156,14 @@ export const AdminCommunityReportedPage: React.FC = () => {
                     <td className="p-4 text-xs text-[var(--text-secondary)]">{new Date(report.created_at).toLocaleString()}</td>
                     <td className="p-4">
                       {report.status === 'reviewed' ? (
-                        <span className="inline-flex items-center gap-1 rounded bg-[var(--success-light)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--success-dark)]">
+                        <span className="inline-flex items-center gap-1 rounded bg-accent-green/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-green">
                           <CheckCircle2 className="h-3 w-3" /> Reviewed
                         </span>
                       ) : (
                         <div className="flex flex-col gap-2">
                           <button
                             onClick={() => handleResolve(report.id, 'reviewed')}
-                            className="inline-flex items-center gap-1 rounded bg-[var(--success-light)] px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--success-dark)]"
+                            className="inline-flex items-center gap-1 rounded bg-accent-green/15 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-accent-green"
                           >
                             <ShieldAlert className="h-3.5 w-3.5" /> Review
                           </button>

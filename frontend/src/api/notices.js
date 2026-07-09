@@ -48,6 +48,79 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
 }
 
 /**
+ * Fetch notices visible to the faculty/professors (target_year = 'faculty').
+ */
+export async function getNoticesForFaculty({ college, limit = 50, offset = 0 } = {}) {
+  try {
+    let query = supabase
+      .from('official_notices')
+      .select(`
+        id,
+        title,
+        content,
+        target_year,
+        attachments,
+        is_pinned,
+        pin_expires_at,
+        is_deleted,
+        created_at,
+        author:profiles!official_notices_author_id_fkey(name, email, role)
+      `)
+      .eq('target_year', 'faculty')
+      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (college) {
+      query = query.eq('college', college);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return { data: data || [], error: null };
+  } catch (error) {
+    return { data: [], error };
+  }
+}
+
+/**
+ * Fetch campus notices visible to professors (target_year = 'all').
+ */
+export async function getCampusNoticesForProfessor({ college, limit = 50, offset = 0 } = {}) {
+  try {
+    let query = supabase
+      .from('official_notices')
+      .select(`
+        id,
+        title,
+        content,
+        target_year,
+        attachments,
+        is_pinned,
+        pin_expires_at,
+        is_deleted,
+        created_at
+      `)
+      .eq('target_year', 'all')
+      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
+      .order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (college) {
+      query = query.eq('college', college);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return { data: data || [], error: null };
+  } catch (error) {
+    return { data: [], error };
+  }
+}
+
+/**
  * Count unread notices (created after last-seen timestamp) for badge display.
  * Returns a number capped at 99.
  */

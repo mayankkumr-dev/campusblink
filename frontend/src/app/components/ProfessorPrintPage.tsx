@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Truck, Upload, FileText, X } from 'lucide-react';
+import { ArrowLeft, Truck, Upload, FileText, X, MapPin, Printer, Check, ChevronRight, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -7,7 +7,6 @@ import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
 import { insertPendingPayment } from '../../api/professor';
 import { ListSkeleton } from './ui/Skeletons';
-
 
 type InkComplexity = 'light' | 'dark';
 type InkAnalysis = { pageCount: number; pageDarkRatios: number[]; averageDarkRatio: number; inkMultiplier: number; inkRatePerPage: number; complexity: InkComplexity; };
@@ -68,6 +67,9 @@ export const ProfessorPrintPage: React.FC = () => {
   const [roomNumber, setRoomNumber] = useState(profile?.staff_room_number || '');
   const [paymentMethod, setPaymentMethod] = useState<'now' | 'counter' | 'later'>('now');
   const [pages, setPages] = useState(1);
+  
+  // Mobile UI
+  const [showMobileCart, setShowMobileCart] = useState(false);
 
   useEffect(() => {
     const loadShops = async () => {
@@ -82,7 +84,6 @@ export const ProfessorPrintPage: React.FC = () => {
     loadShops();
   }, [profile?.college]);
 
-  
   const [inkAnalyses, setInkAnalyses] = useState<InkAnalysis[]>([]);
   const [isAnalyzingInk, setIsAnalyzingInk] = useState(false);
 
@@ -132,7 +133,6 @@ export const ProfessorPrintPage: React.FC = () => {
   
   const totalAmount = calculateDisplayTotal();
 
-
   const removeFile = (idx: number) => {
     setFiles(prev => prev.filter((_, i) => i !== idx));
   };
@@ -145,7 +145,6 @@ export const ProfessorPrintPage: React.FC = () => {
     setPlacing(true);
 
     try {
-      // Upload files to Supabase Storage
       const fileUrls: string[] = [];
       for (const file of files) {
         const ext = file.name.split('.').pop() || 'pdf';
@@ -167,7 +166,7 @@ export const ProfessorPrintPage: React.FC = () => {
         shop_id: selectedShop.id,
         file_name: files.map(f => f.name).join(', '),
         file_url: fileUrls[0] || null,
-                pages,
+        pages,
         copies,
         is_color: isColor,
         has_binding: isBinding,
@@ -177,7 +176,6 @@ export const ProfessorPrintPage: React.FC = () => {
         is_delivery_order: deliverToRoom,
         delivery_room_number: deliverToRoom ? roomNumber : null,
         professor_pay_later: paymentMethod === 'later',
-        
       };
 
       const { data: order, error } = await supabase
@@ -199,13 +197,13 @@ export const ProfessorPrintPage: React.FC = () => {
         });
       }
 
-      toast.success('Print order placed! 🖨️');
+      toast.success('Print order placed successfully! 🖨️');
       setFiles([]);
       setSelectedShop(null);
       setCopies(1);
-      
       setIsColor(false);
       setIsBinding(false);
+      setShowMobileCart(false);
     } catch (err: any) {
       toast.error(err?.message || 'Failed to place order');
     } finally {
@@ -215,38 +213,72 @@ export const ProfessorPrintPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="grid gap-4">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <ListSkeleton key={`prof-print-skeleton-${index}`} rows={1} />
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="bg-white rounded-3xl p-6 border border-gray-100 h-64 shadow-sm animate-pulse flex flex-col gap-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl"></div>
+              <div className="h-6 w-3/4 bg-gray-100 rounded"></div>
+              <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
+              <div className="mt-auto h-16 w-full bg-gray-100 rounded-2xl"></div>
+            </div>
           ))}
         </div>
       </div>
     );
   }
 
+  // Shop Selection View
   if (!selectedShop) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)] mb-6">Print Shop</h1>
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20 bg-[#FAFAFA] min-h-[calc(100vh-4rem)]">
+        <header className="mb-12">
+          <p className="text-xs font-bold tracking-widest text-gray-400 uppercase mb-2">Campus Print Services</p>
+          <h1 className="font-syne font-extrabold text-4xl sm:text-5xl text-gray-900 tracking-tight leading-tight">
+            Select Print Shop
+          </h1>
+          <p className="text-sm text-gray-500 mt-4 max-w-xl leading-relaxed">
+            Choose a shop to view its specialized rates and upload your academic documents for priority faculty printing.
+          </p>
+        </header>
+
         {shops.length === 0 ? (
-          <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-8 text-center">
-            <p className="text-sm text-[var(--text-secondary)]">No print shops available at your college.</p>
+          <div className="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.03)]">
+             <div className="w-16 h-16 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4">
+               <Printer className="w-6 h-6 text-gray-400" />
+             </div>
+            <p className="text-lg font-bold text-gray-900 font-syne">No print shops available</p>
+            <p className="text-sm text-gray-500 mt-2">There are currently no active print shops in your college.</p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {shops.map(shop => (
               <button
                 key={shop.id}
                 onClick={() => setSelectedShop(shop)}
-                className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 text-left hover:border-[var(--yellow)] hover:shadow-sm transition-all"
+                className="bg-white rounded-3xl p-6 text-left border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgb(0,0,0,0.06)] hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden"
               >
-                <h3 className="font-syne font-bold text-lg text-[var(--text-primary)]">{shop.name}</h3>
-                <p className="text-sm text-[var(--text-secondary)] mt-1">{shop.college}</p>
-                <div className="flex gap-4 mt-2 text-xs text-[var(--text-secondary)]">
-                  <span>B/W: ₹{shop.bw_price_per_page}/page</span>
-                  <span>Color: ₹{shop.color_price_per_page}/page</span>
-                  <span>Binding: ₹{shop.binding_charge}</span>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-[120px] -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <Printer className="w-8 h-8 text-blue-600" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-syne font-bold text-xl text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">{shop.name}</h3>
+                <p className="text-xs font-semibold text-gray-500 flex items-center gap-1 uppercase tracking-wider mb-6">
+                  <MapPin className="w-3 h-3" /> {shop.college}
+                </p>
+                <div className="bg-gray-50 rounded-2xl p-4 grid grid-cols-3 gap-2 divide-x divide-gray-200 border border-gray-100/50">
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">B/W</p>
+                    <p className="text-sm font-bold text-gray-900 mt-1">₹{shop.bw_price_per_page}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Color</p>
+                    <p className="text-sm font-bold text-gray-900 mt-1">₹{shop.color_price_per_page}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bind</p>
+                    <p className="text-sm font-bold text-gray-900 mt-1">₹{shop.binding_charge}</p>
+                  </div>
                 </div>
               </button>
             ))}
@@ -256,156 +288,243 @@ export const ProfessorPrintPage: React.FC = () => {
     );
   }
 
+  // Print Configuration View
+  const CartPanelContent = (
+    <>
+      <div className="flex-1 overflow-y-auto pr-2 pb-4 space-y-4 hide-scrollbar">
+         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 px-1">Upload Summary</h3>
+         
+         {files.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-10 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+               <FileText className="w-10 h-10 text-gray-300 mb-3" />
+               <p className="text-sm font-bold text-gray-500">No files added yet</p>
+            </div>
+         ) : (
+            files.map((file, idx) => {
+               const analysis = inkAnalyses[idx];
+               const pCount = analysis?.pageCount || 1;
+               const rate = isColor && selectedShop ? selectedShop.color_price_per_page : (analysis?.inkRatePerPage || 2);
+               const basePrice = pCount * rate;
+               const fileTotal = (basePrice + (isBinding && selectedShop ? selectedShop.binding_charge : 0)) * copies;
+               
+               return (
+                  <div key={idx} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden group">
+                     <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                     <h4 className="text-sm font-bold text-gray-900 truncate mb-3 pr-6">{file.name}</h4>
+                     <button onClick={() => removeFile(idx)} className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <X className="w-4 h-4" />
+                     </button>
+                     
+                     <div className="bg-gray-50 rounded-xl p-3 flex justify-between items-center text-xs text-gray-600 font-medium">
+                        <div className="flex flex-col gap-1">
+                           <span>{pCount} pgs × ₹{rate} {isBinding ? `+ ₹${selectedShop?.binding_charge} bind` : ''}</span>
+                           <span>× {copies} {copies > 1 ? 'copies' : 'copy'}</span>
+                        </div>
+                        <span className="text-base font-bold text-blue-600">₹{fileTotal}</span>
+                     </div>
+                     {!isColor && analysis && (
+                        <div className="mt-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                           <div className={`w-2 h-2 rounded-full ${analysis.complexity === 'dark' ? 'bg-amber-400' : 'bg-emerald-400'}`}></div>
+                           {analysis.complexity === 'dark' ? 'Heavy Ink Detected (₹5/pg)' : 'Light Ink Detected (₹2/pg)'}
+                        </div>
+                     )}
+                  </div>
+               )
+            })
+         )}
+      </div>
+
+      <div className="pt-6 border-t border-gray-100 shrink-0">
+         <div className="flex justify-between items-end mb-6">
+            <div>
+               <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-1">Total Amount</span>
+               {isAnalyzingInk && <span className="text-xs text-blue-500 font-medium flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Analyzing files...</span>}
+            </div>
+            <span className="text-4xl font-extrabold text-blue-600 font-syne tracking-tight">₹{totalAmount}</span>
+         </div>
+         <button 
+            onClick={handlePlaceOrder} 
+            disabled={placing || files.length === 0} 
+            className="w-full h-14 rounded-full bg-blue-600 text-white font-bold text-base hover:bg-blue-700 transition-all shadow-[0_8px_20px_rgba(37,99,235,0.2)] disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 group"
+         >
+            {placing ? <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</> : 'Place Print Order'}
+         </button>
+      </div>
+    </>
+  );
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <button onClick={() => { setSelectedShop(null); setFiles([]); }} className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6">
-        <ArrowLeft className="w-4 h-4" /> Back to shops
-      </button>
-
-      <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)] mb-2">{selectedShop.name}</h1>
-      <p className="text-sm text-[var(--text-secondary)] mb-6">Upload files and configure your print job</p>
-
-      {/* File Upload */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-        <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">Upload Files</h3>
-        <label className="flex flex-col items-center justify-center p-6 bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] rounded-lg cursor-pointer hover:border-[var(--yellow-dark)] transition-colors">
-          <Upload className="w-8 h-8 text-[var(--text-muted)] mb-2" />
-          <span className="text-sm font-bold text-[var(--text-secondary)]">Click to upload files</span>
-          <span className="text-xs text-[var(--text-muted)] mt-1">PDF, DOC, JPG, PNG</span>
-          <input type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={handleFileChange} className="hidden" />
-        </label>
-
-        {files.length > 0 && (
-          <div className="mt-3 space-y-2">
-            {files.map((f, i) => (
-              <div key={i} className="flex items-center justify-between bg-[var(--bg-primary)] rounded-md p-2.5">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[var(--accent)]" />
-                  <span className="text-sm text-[var(--text-primary)] truncate max-w-[200px]">{f.name}</span>
-                </div>
-                <button onClick={() => removeFile(i)} className="p-1 hover:bg-[var(--border)] rounded-sm">
-                  <X className="w-3 h-3 text-[var(--text-secondary)]" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Print Options */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-        <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">Print Options</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs font-medium text-[var(--text-secondary)]">Pages</label>
-            <input type="number" min={1} value={pages} onChange={e => setPages(Math.max(1, parseInt(e.target.value) || 1))} className="w-full mt-1 h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] text-sm" />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[var(--text-secondary)]">Copies</label>
-            <input type="number" min={1} value={copies} onChange={e => setCopies(Math.max(1, parseInt(e.target.value) || 1))} className="w-full mt-1 h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] text-sm" />
-          </div>
-        </div>
-        <div className="flex gap-4 mt-4">
-          <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-md border cursor-pointer transition-colors ${isColor ? 'border-[var(--yellow-dark)] bg-[#FEF9C3]/30' : 'border-[var(--border)]'}`}>
-            <input type="checkbox" checked={isColor} onChange={() => setIsColor(!isColor)} className="accent-[var(--yellow-dark)]" />
-            <span className="text-sm font-medium">Color</span>
-          </label>
-          <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-md border cursor-pointer transition-colors ${isBinding ? 'border-[var(--yellow-dark)] bg-[#FEF9C3]/30' : 'border-[var(--border)]'}`}>
-            <input type="checkbox" checked={isBinding} onChange={() => setIsBinding(!isBinding)} className="accent-[var(--yellow-dark)]" />
-            <span className="text-sm font-medium">Binding</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Delivery Toggle */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Truck className="w-5 h-5 text-[var(--accent)]" />
-            <div>
-              <span className="text-sm font-bold text-[var(--text-primary)]">Deliver to my room?</span>
-              <p className="text-xs text-[var(--text-secondary)]">We'll deliver your printout</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setDeliverToRoom(!deliverToRoom)}
-            className={`relative w-12 h-6 rounded-md transition-colors ${deliverToRoom ? 'bg-[var(--accent)]' : 'bg-[var(--border)]'}`}
-          >
-            <div className={`absolute top-0.5 w-5 h-5 bg-[var(--bg)] rounded-sm shadow transition-transform ${deliverToRoom ? 'translate-x-6' : 'translate-x-0.5'}`} />
-          </button>
-        </div>
-        {deliverToRoom && (
-          <div className="mt-3">
-            <label className="text-xs font-medium text-[var(--text-secondary)]">Room Number</label>
-            <input type="text" value={roomNumber} onChange={e => setRoomNumber(e.target.value)} placeholder="e.g. A-201" className="w-full mt-1 h-10 px-3 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] text-sm focus:outline-none focus:border-[var(--accent)]" />
-          </div>
-        )}
-      </div>
-
-      {/* Payment Method */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-4">
-        <h3 className="font-bold text-sm text-[var(--text-primary)] mb-3">Payment Method</h3>
-        {[
-          { value: 'now' as const, label: 'Pay Now via UPI', desc: 'Scan QR code to pay' },
-          { value: 'counter' as const, label: 'Pay at Counter', desc: 'Pay when picking up' },
-          { value: 'later' as const, label: 'Pay Later', desc: 'Added to your pending payments' },
-        ].map(opt => (
-          <label
-            key={opt.value}
-            className={`flex items-center gap-3 p-3 rounded-md border cursor-pointer mb-2 last:mb-0 transition-colors ${
-              paymentMethod === opt.value ? 'border-[var(--accent)] bg-[#F0F9FF]' : 'border-[var(--border)] hover:bg-[var(--bg-primary)]'
-            }`}
-          >
-            <input type="radio" name="payment" checked={paymentMethod === opt.value} onChange={() => setPaymentMethod(opt.value)} className="accent-[var(--accent)]" />
-            <div>
-              <span className="text-sm font-bold text-[var(--text-primary)]">{opt.label}</span>
-              <p className="text-xs text-[var(--text-secondary)]">{opt.desc}</p>
-            </div>
-          </label>
-        ))}
-      </div>
-
-      {/* Price Summary */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 mb-6">
-        <h3 className="font-bold mb-3">Cost Breakdown</h3>
-        {files.map((file, idx) => {
-          const analysis = inkAnalyses[idx];
-          const pCount = analysis?.pageCount || 1;
-          const rate = isColor && selectedShop ? selectedShop.color_price_per_page : (analysis?.inkRatePerPage || 2);
-          const basePrice = pCount * rate;
-          const fileTotal = (basePrice + (isBinding && selectedShop ? selectedShop.binding_charge : 0)) * copies;
-          
-          return (
-            <div key={idx} className="flex justify-between text-sm mb-2 pb-2 border-b border-[var(--border)] last:border-0 last:pb-0">
-              <div className="flex flex-col">
-                <span className="text-[var(--text-primary)] truncate max-w-[200px]">{file.name}</span>
-                <span className="text-[var(--text-secondary)] text-xs mt-1">
-                  {pCount} pgs × ₹{rate}/pg {isBinding ? `+ ₹${selectedShop?.binding_charge || 20} bind` : ''} × {copies} {copies > 1 ? 'copies' : 'copy'}
-                </span>
-                {!isColor && (
-                  <span className="text-[10px] text-[var(--text-muted)] mt-0.5">
-                    Ink Analysis: {analysis?.complexity === 'dark' ? 'Heavy Ink (₹5/page)' : 'Light Ink (₹2/page)'}
-                  </span>
-                )}
-              </div>
-              <span className="text-[var(--text-primary)] font-medium pt-2">₹{fileTotal}</span>
-            </div>
-          );
-        })}
+    <div className="max-w-[1400px] mx-auto min-h-screen bg-[#FAFAFA] font-sans text-gray-900 pb-24">
+      <div className="flex flex-col lg:flex-row gap-8 px-4 sm:px-6 lg:px-8 pt-8">
         
-        <div className="flex justify-between pt-3 mt-2 border-t-2 border-[var(--border)]">
-          <span className="font-bold text-[var(--text-primary)]">Total Amount</span>
-          <span className="font-syne font-extrabold text-xl text-[var(--text-primary)]">{isAnalyzingInk ? "Analyzing..." : `₹${totalAmount}`}</span>
+        {/* Left Main Configuration Area */}
+        <div className="flex-1 lg:max-w-[700px] xl:max-w-[800px]">
+           <button onClick={() => { setSelectedShop(null); setFiles([]); }} className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-gray-900 transition-colors mb-8 group">
+             <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center group-hover:border-gray-400 transition-colors">
+               <ArrowLeft className="w-4 h-4" />
+             </div>
+             Back to Shops
+           </button>
+
+           <h1 className="font-syne font-extrabold text-3xl text-gray-900 mb-2">{selectedShop.name}</h1>
+           <p className="text-sm text-gray-500 font-medium mb-8">Configure your print job settings and upload necessary documents.</p>
+
+           {/* Upload Dropzone */}
+           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.02)] border border-gray-100 mb-6">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Document Upload</h3>
+              <label className="flex flex-col items-center justify-center py-12 px-6 bg-blue-50/30 border-2 border-dashed border-blue-200 rounded-3xl cursor-pointer hover:bg-blue-50/80 hover:border-blue-400 transition-all group text-center">
+                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-[0_4px_20px_rgba(59,130,246,0.15)] mb-5 group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300">
+                    <Upload className="w-7 h-7 text-blue-600" strokeWidth={2} />
+                 </div>
+                 <span className="text-lg font-bold text-blue-900">Click to upload files</span>
+                 <span className="text-sm text-blue-600/70 mt-2 font-medium">Supports PDF, DOCX, JPG, PNG</span>
+                 <input type="file" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={handleFileChange} className="hidden" />
+              </label>
+           </div>
+
+           {/* Print Settings (Tactile Controls) */}
+           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.02)] border border-gray-100 mb-6">
+             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Print Configuration</h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Copies and Pages - Tactical Inputs */}
+                <div className="space-y-6">
+                   <div>
+                      <label className="text-sm font-bold text-gray-900 mb-3 block">Total Pages (per file)</label>
+                      <input type="number" min={1} value={pages} onChange={e => setPages(Math.max(1, parseInt(e.target.value) || 1))} className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 font-bold text-lg focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                   </div>
+                   <div>
+                      <label className="text-sm font-bold text-gray-900 mb-3 block">Number of Copies</label>
+                      <input type="number" min={1} value={copies} onChange={e => setCopies(Math.max(1, parseInt(e.target.value) || 1))} className="w-full h-14 px-5 rounded-2xl border border-gray-200 bg-gray-50 text-gray-900 font-bold text-lg focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                   </div>
+                </div>
+                
+                {/* Color and Binding - Toggle switches / Cards */}
+                <div className="space-y-4">
+                   <label className={`flex items-center justify-between p-5 rounded-2xl border-2 cursor-pointer transition-all ${isColor ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
+                      <div>
+                         <span className={`text-base font-bold ${isColor ? 'text-blue-900' : 'text-gray-900'}`}>Color Print</span>
+                         <p className="text-sm font-medium text-gray-500 mt-1">₹{selectedShop.color_price_per_page} per page</p>
+                      </div>
+                      <div className={`w-14 h-8 rounded-full transition-colors relative flex-shrink-0 ${isColor ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                         <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 ${isColor ? 'translate-x-7' : 'translate-x-1'}`} />
+                      </div>
+                   </label>
+                   
+                   <label className={`flex items-center justify-between p-5 rounded-2xl border-2 cursor-pointer transition-all ${isBinding ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
+                      <div>
+                         <span className={`text-base font-bold ${isBinding ? 'text-blue-900' : 'text-gray-900'}`}>Spiral Binding</span>
+                         <p className="text-sm font-medium text-gray-500 mt-1">₹{selectedShop.binding_charge} flat fee</p>
+                      </div>
+                      <div className={`w-14 h-8 rounded-full transition-colors relative flex-shrink-0 ${isBinding ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                         <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 ${isBinding ? 'translate-x-7' : 'translate-x-1'}`} />
+                      </div>
+                   </label>
+                </div>
+             </div>
+           </div>
+
+           {/* Delivery & Payment Settings */}
+           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-[0_4px_20px_rgb(0,0,0,0.02)] border border-gray-100 mb-6">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Fulfillment Details</h3>
+              
+              {/* Delivery Toggle Card */}
+              <div className="bg-gray-50 rounded-3xl p-5 mb-8">
+                 <div className="flex items-center justify-between">
+                   <div className="flex items-center gap-4">
+                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${deliverToRoom ? 'bg-blue-600 text-white' : 'bg-white text-gray-400 shadow-sm border border-gray-100'}`}>
+                       <Truck className="w-6 h-6" strokeWidth={1.5} />
+                     </div>
+                     <div>
+                       <span className="text-base font-bold text-gray-900 block">Deliver to Cabin</span>
+                       <span className="text-sm text-gray-500">We'll bring the printouts to you</span>
+                     </div>
+                   </div>
+                   <button onClick={() => setDeliverToRoom(!deliverToRoom)} className={`relative w-14 h-8 rounded-full transition-colors duration-300 flex-shrink-0 ${deliverToRoom ? 'bg-blue-600' : 'bg-gray-300'}`}>
+                     <div className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-sm transition-transform duration-300 ${deliverToRoom ? 'translate-x-7' : 'translate-x-1'}`} />
+                   </button>
+                 </div>
+                 {deliverToRoom && (
+                   <div className="mt-5 pt-5 border-t border-gray-200/60 animate-in fade-in">
+                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 block">Room Number</label>
+                     <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input type="text" value={roomNumber} onChange={e => setRoomNumber(e.target.value)} placeholder="e.g. A-201" className="w-full h-14 pl-12 pr-5 rounded-2xl border border-gray-200 bg-white text-gray-900 font-bold text-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" />
+                     </div>
+                   </div>
+                 )}
+              </div>
+
+              {/* Payment Method Cards */}
+              <h4 className="text-sm font-bold text-gray-900 mb-4 block">Payment Option</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { value: 'now' as const, label: 'Pay Now', desc: 'UPI at shop' },
+                  { value: 'counter' as const, label: 'At Counter', desc: 'Cash or Card' },
+                  { value: 'later' as const, label: 'Add to Dues', desc: 'Settle later' },
+                ].map(opt => (
+                  <label key={opt.value} className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col gap-3 group hover:-translate-y-1 ${paymentMethod === opt.value ? 'border-blue-600 bg-blue-50/50 shadow-md' : 'border-gray-100 bg-white hover:border-gray-300 shadow-sm'}`}>
+                    <div className="flex justify-between items-start">
+                       <span className={`text-base font-bold ${paymentMethod === opt.value ? 'text-blue-900' : 'text-gray-700'}`}>{opt.label}</span>
+                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === opt.value ? 'border-blue-600' : 'border-gray-300'}`}>
+                          {paymentMethod === opt.value && <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />}
+                       </div>
+                    </div>
+                    <p className={`text-sm ${paymentMethod === opt.value ? 'text-blue-700/80 font-medium' : 'text-gray-500'}`}>{opt.desc}</p>
+                  </label>
+                ))}
+              </div>
+           </div>
         </div>
+
+        {/* Right Fixed Cart Panel (Desktop) */}
+        <div className="hidden lg:block w-[400px] xl:w-[450px]">
+           <div className="sticky top-8 bg-white rounded-[32px] shadow-[0_20px_60px_rgb(0,0,0,0.05)] border border-gray-100 p-8 flex flex-col h-[calc(100vh-4rem)]">
+              <h2 className="text-xl font-extrabold text-gray-900 font-syne flex items-center gap-3 mb-6 shrink-0">
+                 <FileText className="w-6 h-6 text-blue-600" /> Order Summary
+              </h2>
+              {CartPanelContent}
+           </div>
+        </div>
+
       </div>
 
-      <button
-        onClick={handlePlaceOrder}
-        disabled={placing || files.length === 0}
-        className="w-full h-12 rounded-md bg-[var(--text-primary)] text-white font-bold text-sm hover:bg-[var(--accent)] transition-colors disabled:opacity-50"
-      >
-        {placing ? 'Placing Order...' : `Place Print Order — ₹${totalAmount}`}
-      </button>
+      {/* Mobile Floating View Cart Trigger */}
+      {files.length > 0 && !showMobileCart && (
+         <div className="lg:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-30 animate-in fade-in slide-in-from-bottom-10">
+            <button onClick={() => setShowMobileCart(true)} className="flex items-center gap-4 bg-gray-900 text-white pl-6 pr-4 py-4 rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.2)] hover:scale-105 transition-transform active:scale-95">
+               <span className="font-syne font-bold text-xl border-r border-gray-700 pr-4">₹{totalAmount}</span>
+               <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-blue-300">
+                  View Cart <ChevronRight className="w-5 h-5" />
+               </div>
+            </button>
+         </div>
+      )}
+
+      {/* Mobile Cart Slide-out Panel */}
+      {showMobileCart && (
+         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+            <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowMobileCart(false)} />
+            <div className="relative bg-white rounded-t-[32px] h-[85vh] flex flex-col p-6 sm:p-8 shadow-2xl animate-in slide-in-from-bottom duration-500 cubic-bezier(0.4, 0, 0.2, 1)">
+               <div className="flex justify-between items-center mb-6 shrink-0">
+                  <h2 className="text-2xl font-extrabold text-gray-900 font-syne">Order Summary</h2>
+                  <button onClick={() => setShowMobileCart(false)} className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
+                     <X className="w-5 h-5" />
+                  </button>
+               </div>
+               {CartPanelContent}
+            </div>
+         </div>
+      )}
+
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };

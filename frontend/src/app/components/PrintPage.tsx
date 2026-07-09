@@ -450,17 +450,17 @@ export const PrintPage: React.FC = () => {
         )}
 
         {selectedShop ? (
-          <div className={`mb-5 rounded-lg border px-4 py-3 ${selectedShop.is_open_now ? 'border-[var(--success-light)] bg-[#F0FDF4]' : 'border-[#FEE2E2] bg-[var(--error-light)]'}`}>
-            <p className={`font-sans text-sm font-bold ${selectedShop.is_open_now ? 'text-[var(--success-dark)]' : 'text-[var(--error-dark)]'}`}>{selectedShop.is_open_now ? 'Print shop is open' : 'Print shop is closed'}</p>
+          <div className={`mb-5 rounded-lg border px-4 py-3 ${selectedShop.is_open_now ? 'border-accent-green/20 bg-accent-green/15' : 'border-accent-red/20 bg-accent-red/15'}`}>
+            <p className={`font-sans text-sm font-bold ${selectedShop.is_open_now ? 'text-accent-green' : 'text-accent-red'}`}>{selectedShop.is_open_now ? 'Print shop is open' : 'Print shop is closed'}</p>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">{selectedShop.shop_status_reason || 'Availability follows the shop schedule.'}</p>
           </div>
         ) : null}
 
         {/* Reorder Requested Banners */}
         {reorderRequests.map((order) => (
-          <div key={order.id} className="mb-4 rounded-lg border border-amber-400/40 bg-amber-50 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div key={order.id} className="mb-4 rounded-lg border border-amber-400/40 bg-accent-amber-soft px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-accent-amber flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-[var(--text-primary)] text-sm">Reprint Required — No Payment Needed</p>
                 <p className="text-xs text-[var(--text-secondary)] mt-0.5">
@@ -521,11 +521,11 @@ export const PrintPage: React.FC = () => {
             onDrop={handleDrop}
             className="flex flex-col items-center flex-shrink-0 cursor-pointer"
           >
-            <div className="w-[140px] h-[180px] md:w-[180px] md:h-[240px] bg-slate-50 border-2 border-slate-200 border-dashed rounded-2xl relative flex flex-col items-center justify-center p-4 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-[140px] h-[180px] md:w-[180px] md:h-[240px] bg-surface border-2 border-border-subtle border-dashed rounded-2xl relative flex flex-col items-center justify-center p-4 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 group">
+              <div className="w-12 h-12 rounded-full bg-surface shadow-sm flex items-center justify-center text-accent-blue group-hover:scale-110 transition-transform duration-300">
                  <Plus className="w-6 h-6" />
               </div>
-              <span className="text-[13px] font-bold text-slate-600 mt-4 group-hover:text-blue-600 transition-colors">Add files</span>
+              <span className="text-[13px] font-bold text-text-secondary mt-4 group-hover:text-blue-600 transition-colors">Add files</span>
             </div>
           </div>
         </div>
@@ -567,27 +567,27 @@ export const PrintPage: React.FC = () => {
               <div className="flex gap-4">
                 <button 
                   onClick={() => setColorMode('bw')}
-                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'bw' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'bw' ? 'border-accent-blue bg-blue-50/50 shadow-sm' : 'border-border-subtle bg-surface hover:border-slate-300 hover:bg-surface-elevated'}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm relative">
+                  <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center mb-2 shadow-sm relative">
                     <div className="w-4 h-4 rounded-full border-[3px] border-slate-700 absolute -translate-x-1 mix-blend-multiply" />
                     <div className="w-4 h-4 rounded-full border-[3px] border-slate-400 absolute translate-x-1 mix-blend-multiply" />
                   </div>
-                  <span className={`text-[12px] font-bold ${colorMode === 'bw' ? 'text-blue-700' : 'text-slate-700'}`}>B&W</span>
-                  <span className={`text-[10px] ${colorMode === 'bw' ? 'text-blue-500/80' : 'text-slate-400'}`}>₹{bwPrice}/page</span>
+                  <span className={`text-[12px] font-bold ${colorMode === 'bw' ? 'text-blue-700' : 'text-text-primary'}`}>B&W</span>
+                  <span className={`text-[10px] ${colorMode === 'bw' ? 'text-blue-500/80' : 'text-text-secondary/70'}`}>₹{bwPrice}/page</span>
                 </button>
                 
                 <button 
                   onClick={() => setColorMode('color')}
-                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'color' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'color' ? 'border-accent-blue bg-blue-50/50 shadow-sm' : 'border-border-subtle bg-surface hover:border-slate-300 hover:bg-surface-elevated'}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm relative overflow-hidden">
+                  <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center mb-2 shadow-sm relative overflow-hidden">
                     <div className="w-4 h-4 rounded-full bg-[#FF4444] absolute -translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
                     <div className="w-4 h-4 rounded-full bg-[#44FF44] absolute translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
                     <div className="w-4 h-4 rounded-full bg-[#4444FF] absolute translate-y-1.5 mix-blend-multiply" />
                   </div>
-                  <span className={`text-[12px] font-bold ${colorMode === 'color' ? 'text-blue-700' : 'text-slate-700'}`}>Color</span>
-                  <span className={`text-[10px] ${colorMode === 'color' ? 'text-blue-500/80' : 'text-slate-400'}`}>₹{colorPrice}/page</span>
+                  <span className={`text-[12px] font-bold ${colorMode === 'color' ? 'text-blue-700' : 'text-text-primary'}`}>Color</span>
+                  <span className={`text-[10px] ${colorMode === 'color' ? 'text-blue-500/80' : 'text-text-secondary/70'}`}>₹{colorPrice}/page</span>
                 </button>
               </div>
             </div>
@@ -600,22 +600,22 @@ export const PrintPage: React.FC = () => {
               <div className="flex gap-4 mb-5">
                 <button 
                   onClick={() => setOrientation('portrait')}
-                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'portrait' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'portrait' ? 'border-accent-blue bg-blue-50/50 shadow-sm' : 'border-border-subtle bg-surface hover:border-slate-300 hover:bg-surface-elevated'}`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center mb-2 shadow-sm">
                     <div className="w-4 h-6 border-2 border-slate-400 rounded-sm" />
                   </div>
-                  <span className={`text-[12px] font-bold ${orientation === 'portrait' ? 'text-blue-700' : 'text-slate-700'}`}>Portrait</span>
+                  <span className={`text-[12px] font-bold ${orientation === 'portrait' ? 'text-blue-700' : 'text-text-primary'}`}>Portrait</span>
                 </button>
                 
                 <button 
                   onClick={() => setOrientation('landscape')}
-                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'landscape' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'landscape' ? 'border-accent-blue bg-blue-50/50 shadow-sm' : 'border-border-subtle bg-surface hover:border-slate-300 hover:bg-surface-elevated'}`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-surface-elevated border border-border-subtle flex items-center justify-center mb-2 shadow-sm">
                      <div className="w-6 h-4 border-2 border-slate-400 rounded-sm" />
                   </div>
-                  <span className={`text-[12px] font-bold ${orientation === 'landscape' ? 'text-blue-700' : 'text-slate-700'}`}>Landscape</span>
+                  <span className={`text-[12px] font-bold ${orientation === 'landscape' ? 'text-blue-700' : 'text-text-primary'}`}>Landscape</span>
                 </button>
               </div>
 
@@ -633,21 +633,21 @@ export const PrintPage: React.FC = () => {
             </div>
           </div>
 
-        {/* Checkout Banner */}
-         <div className="flex items-center justify-center mb-4 bg-[var(--bg)] p-3 rounded-lg border border-black/10">
-           <span className="font-sans font-bold text-sm text-[var(--yellow-dark)]">Payment can be settled later while you test the print flow 🖨️</span>
+         {/* Checkout Banner */}
+         <div className="flex items-center justify-center mb-4 bg-accent-amber-soft p-3 rounded-lg border border-accent-amber-soft">
+           <span className="font-sans font-bold text-sm text-accent-amber">Payment can be settled later while you test the print flow 🖨️</span>
           </div>
 {/* Floating Bottom Bar */}
-<div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-full max-w-[800px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_15px_50px_-12px_rgba(0,0,0,0.15)] border border-slate-100 p-4 md:p-5 flex flex-col sm:flex-row justify-between items-center gap-4 z-40">
+<div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-full max-w-[800px] bg-surface-elevated rounded-2xl shadow-[0_15px_50px_-12px_rgba(0,0,0,0.15)] border border-border-subtle p-4 md:p-5 flex flex-col sm:flex-row justify-between items-center gap-4 z-40">
    <div className="flex items-center gap-4 w-full sm:w-auto">
-     <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative flex-shrink-0 shadow-sm">
-        <FileText className="w-6 h-6 text-slate-400" />
+     <div className="w-12 h-12 bg-surface border border-border-subtle rounded-xl flex items-center justify-center relative flex-shrink-0 shadow-sm">
+        <FileText className="w-6 h-6 text-text-secondary/70" />
      </div>
      <div>
-        <p className="font-bold text-slate-500 text-[11px] uppercase tracking-wider mb-0.5">
+        <p className="font-bold text-text-secondary text-[11px] uppercase tracking-wider mb-0.5">
           {isAnalyzingInk ? 'Analyzing...' : `Total ${files.reduce((acc, _, idx) => acc + ((inkAnalyses[idx]?.pageCount || mockedPagesPerFile) * copies), 0)} pages`}
         </p>
-        <p className="font-extrabold text-slate-900 text-2xl tracking-tight leading-none">{isAnalyzingInk ? '...' : `₹${calculateDisplayTotal()}`}</p>
+        <p className="font-extrabold text-text-primary text-2xl tracking-tight leading-none">{isAnalyzingInk ? '...' : `₹${calculateDisplayTotal()}`}</p>
      </div>
    </div>
    

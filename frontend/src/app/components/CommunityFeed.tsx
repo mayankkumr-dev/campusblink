@@ -914,7 +914,7 @@ export const CommunityFeed: React.FC = () => {
         />
 
         {!isAllowed('community_posting') ? (
-          <div className="mx-4 my-2 rounded-md border border-[#FEE2E2] bg-[var(--error-light)] px-4 py-3 text-sm font-semibold text-[var(--error-dark)]">
+          <div className="mx-4 my-2 rounded-md border border-accent-red/20 bg-accent-red/15 px-4 py-3 text-sm font-semibold text-accent-red">
             You cannot post at this time.
           </div>
         ) : null}
@@ -971,14 +971,14 @@ export const CommunityFeed: React.FC = () => {
       <div className="hidden lg:block w-[340px] pl-6 py-4 min-h-screen">
         <div className="sticky top-6 space-y-4">
           {/* Welcome Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+          <div className="bg-surface rounded-2xl p-5 border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
             <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-50 shrink-0">
+              <div className="h-11 w-11 rounded-full overflow-hidden border border-border-subtle bg-surface shrink-0">
                 <img src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id })} alt={profile?.name || 'User'} className="h-full w-full object-cover" />
               </div>
               <div className="min-w-0">
-                <h3 className="font-syne font-bold text-base text-slate-900 truncate">Hello {profile?.name?.split(' ')[0] || 'Mayank'}</h3>
-                <p className="text-xs text-slate-500">Welcome to Campus Community</p>
+                <h3 className="font-syne font-bold text-base text-text-primary truncate">Hello {profile?.name?.split(' ')[0] || 'Mayank'}</h3>
+                <p className="text-xs text-text-secondary">Welcome to Campus Community</p>
               </div>
             </div>
             <button
@@ -991,35 +991,35 @@ export const CommunityFeed: React.FC = () => {
           </div>
 
           {/* What's happening Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-            <h2 className="font-syne font-bold text-base text-slate-900 mb-3.5">What's happening</h2>
+          <div className="bg-surface rounded-2xl p-5 border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <h2 className="font-syne font-bold text-base text-text-primary mb-3.5">What's happening</h2>
             <div className="space-y-3.5">
               <div className="cursor-pointer group">
-                <p className="text-xs font-medium text-slate-400">Trending in Campus</p>
+                <p className="text-xs font-medium text-text-secondary/70">Trending in Campus</p>
                 <div className="flex items-center justify-between mt-0.5">
-                  <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">#Hackathon2024</p>
-                  <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Trending</span>
+                  <p className="font-bold text-sm text-text-primary group-hover:text-blue-600 transition-colors">#Hackathon2024</p>
+                  <span className="text-[11px] font-semibold text-accent-blue bg-accent-blue-soft px-2 py-0.5 rounded-full">Trending</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">2,543 posts</p>
+                <p className="text-xs text-text-secondary mt-0.5">2,543 posts</p>
               </div>
-              <div className="border-t border-slate-100 pt-3 cursor-pointer group">
-                <p className="text-xs font-medium text-slate-400">Technology · Trending</p>
-                <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors mt-0.5">React 19</p>
-                <p className="text-xs text-slate-500 mt-0.5">15K posts</p>
+              <div className="border-t border-border-subtle pt-3 cursor-pointer group">
+                <p className="text-xs font-medium text-text-secondary/70">Technology · Trending</p>
+                <p className="font-bold text-sm text-text-primary group-hover:text-blue-600 transition-colors mt-0.5">React 19</p>
+                <p className="text-xs text-text-secondary mt-0.5">15K posts</p>
               </div>
             </div>
           </div>
 
           {/* Filter by college Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-            <h2 className="font-syne font-bold text-base text-slate-900 mb-3">Filter by college</h2>
+          <div className="bg-surface rounded-2xl p-5 border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <h2 className="font-syne font-bold text-base text-text-primary mb-3">Filter by college</h2>
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setCollegeFilter('all')}
                 className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
                   collegeFilter === 'all'
                     ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                    : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
                 }`}
               >
                 All
@@ -1031,7 +1031,7 @@ export const CommunityFeed: React.FC = () => {
                   className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
                     collegeFilter === college
                       ? 'bg-blue-600 text-white shadow-2xs'
-                      : 'bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                      : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
                   }`}
                 >
                   {college.includes('(MAIT)') ? 'MAIT' : college}
@@ -1230,7 +1230,7 @@ const InlinePostComposer = ({
   return (
     <div ref={rootRef} className="p-4 border-b border-black/10 flex gap-3">
       <div 
-        className="w-10 h-10 rounded-full bg-[var(--bg-secondary)] flex-shrink-0 flex items-center justify-center text-gray-400 font-bold overflow-hidden cursor-pointer border border-black/10" 
+        className="w-10 h-10 rounded-full bg-[var(--bg-secondary)] flex-shrink-0 flex items-center justify-center text-text-secondary/70 font-bold overflow-hidden cursor-pointer border border-black/10" 
         onClick={() => onExpandedChange(true)}
       >
         <img src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id || profile?.email })} alt="avatar" className="h-full w-full rounded-full object-cover" />
@@ -1273,14 +1273,14 @@ const InlinePostComposer = ({
                     {formData.isAnonymous ? 'Anonymous ON' : 'Post Anonymously'}
                   </span>
                   <div className={`w-5 h-5 rounded flex items-center justify-center border-2 ${formData.isAnonymous ? 'border-green-500 bg-green-500/20' : 'border-[var(--text-primary)]'}`}>
-                    {formData.isAnonymous && <span className="text-green-500 text-xs">✓</span>}
+                    {formData.isAnonymous && <span className="text-accent-green text-xs">✓</span>}
                   </div>
                   <input type="checkbox" className="hidden" checked={formData.isAnonymous} onChange={() => setFormData({ ...formData, isAnonymous: !formData.isAnonymous })} />
                 </label>
               </div>
               <div className="flex items-center gap-4">
                 {formData.content.length > 0 && (
-                  <span className={`text-sm ${formData.content.length > 900 ? 'text-red-500' : 'text-[var(--text-primary)]'}`}>
+                  <span className={`text-sm ${formData.content.length > 900 ? 'text-accent-red' : 'text-[var(--text-primary)]'}`}>
                     {formData.content.length}/1000
                   </span>
                 )}

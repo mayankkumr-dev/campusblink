@@ -130,7 +130,7 @@ export const AdminGlobalSearch: React.FC = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'user': return <User className="w-4 h-4 text-[var(--accent)]" />;
-      case 'order': return <ShoppingBag className="w-4 h-4 text-[#16A34A]" />;
+      case 'order': return <ShoppingBag className="w-4 h-4 text-accent-green" />;
       case 'post': return <MessageSquare className="w-4 h-4 text-[var(--yellow)]" />;
       default: return <Search className="w-4 h-4 text-[var(--text-secondary)]" />;
     }

@@ -2,6 +2,7 @@
   import { createRoot } from "react-dom/client";
   import { registerSW } from "virtual:pwa-register";
   import App from "./app/App.tsx";
+  import { ThemeProvider } from "next-themes";
   import "./styles/index.css";
 
   try {
@@ -40,5 +41,9 @@
     }
   });
 
-  createRoot(document.getElementById("root")!).render(<App />);
+  createRoot(document.getElementById("root")!).render(
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <App />
+    </ThemeProvider>
+  );
   

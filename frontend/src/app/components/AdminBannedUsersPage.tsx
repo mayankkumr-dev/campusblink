@@ -61,7 +61,7 @@ export const AdminBannedUsersPage: React.FC = () => {
                   <td className="p-4 text-sm text-[var(--text-primary)]"><div className="font-bold">{user.name || 'Unnamed user'}</div><div className="text-xs text-[var(--text-secondary)]">{user.email}</div></td>
                   <td className="p-4 text-sm text-[var(--text-primary)]">{user.ban_reason || 'No reason recorded'}</td>
                   <td className="p-4 text-xs text-[var(--text-secondary)]">{user.banned_at ? new Date(user.banned_at).toLocaleString() : 'Unknown'}</td>
-                  <td className="p-4"><button onClick={() => handleUnban(user.id)} className="inline-flex items-center gap-2 rounded-lg bg-[#16A34A]/10 px-3 py-2 text-sm font-bold text-[#16A34A] transition-colors hover:bg-[#16A34A]/20"><Unlock className="h-4 w-4" /> Unban</button></td>
+                  <td className="p-4"><button onClick={() => handleUnban(user.id)} className="inline-flex items-center gap-2 rounded-lg bg-[#16A34A]/10 px-3 py-2 text-sm font-bold text-accent-green transition-colors hover:bg-[#16A34A]/20"><Unlock className="h-4 w-4" /> Unban</button></td>
                 </tr>
               ))}
             </tbody>

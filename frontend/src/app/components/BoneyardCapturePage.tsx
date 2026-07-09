@@ -155,7 +155,7 @@ export const BoneyardCapturePage: React.FC = () => {
       <ProfileSkeleton loading={false} name="profile-page-main">
         <section className="space-y-4 rounded-lg border border-black/10 p-4">
           <Block className="aspect-[4/1] w-full" />
-          <Block className="-mt-10 h-24 w-24 rounded-full border-4 border-white" />
+          <Block className="-mt-10 h-24 w-24 rounded-full border-4 border-surface" />
           <Block className="h-6 w-[180px]" />
           <Block className="h-4 w-[120px]" />
           <Block className="h-3 w-[300px]" />

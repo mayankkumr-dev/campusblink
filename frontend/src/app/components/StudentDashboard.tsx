@@ -161,54 +161,54 @@ export const StudentDashboard: React.FC = () => {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'Community':
-        return <Users className="w-5 h-5 text-purple-600" />;
+        return <Users className="w-5 h-5 text-accent-purple" />;
       case 'Print':
         return <Printer className="w-5 h-5 text-cyan-600" />;
       case 'Canteen':
-        return <Coffee className="w-5 h-5 text-amber-600" />;
+        return <Coffee className="w-5 h-5 text-accent-amber" />;
       default:
-        return <Store className="w-5 h-5 text-blue-600" />;
+        return <Store className="w-5 h-5 text-accent-blue" />;
     }
   };
 
   const getActivityIconBg = (type: string) => {
     switch (type) {
       case 'Community':
-        return 'bg-purple-50 border border-purple-100';
+        return 'bg-accent-purple/15 border border-purple-100';
       case 'Print':
-        return 'bg-cyan-50 border border-cyan-100';
+        return 'bg-accent-teal/15 border border-cyan-100';
       case 'Canteen':
-        return 'bg-amber-50 border border-amber-100';
+        return 'bg-accent-amber-soft border border-amber-100';
       default:
-        return 'bg-blue-50 border border-blue-100';
+        return 'bg-accent-blue-soft border border-accent-blue-soft';
     }
   };
 
   const getStatusBadgeStyle = (status: string) => {
     const s = (status || '').toLowerCase();
     if (s === 'ready' || s === 'completed' || s === 'delivered') {
-      return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+      return 'bg-accent-green/15 text-accent-green border border-accent-green/20';
     }
     if (s === 'preparing' || s === 'pending' || s === 'placed') {
-      return 'bg-amber-50 text-amber-700 border border-amber-200/60';
+      return 'bg-accent-amber-soft text-accent-amber border border-accent-amber-soft/20';
     }
     if (s === 'posted' || s === 'active') {
-      return 'bg-blue-50 text-blue-700 border border-blue-200/60';
+      return 'bg-accent-blue-soft text-blue-700 border border-blue-200/60';
     }
-    return 'bg-slate-100 text-slate-700 border border-slate-200/60';
+    return 'bg-surface-elevated text-text-primary border border-border-subtle';
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-slate-50/50 min-h-full">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-background min-h-full">
       {/* Top Header Row (Mobile / Quick Profile Bar) */}
-      <div className="flex justify-between items-center md:hidden bg-white border border-slate-200/80 rounded-2xl px-4 py-3 shadow-2xs">
+      <div className="flex justify-between items-center md:hidden bg-surface border border-border-subtle rounded-2xl px-4 py-3 shadow-2xs">
         <Link to="/" className="flex items-center gap-2">
           <img src="/logo2/Blue_transparent.png" alt="Campus Blink" className="h-8 w-auto object-contain" />
         </Link>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/student/notifications')}
-            className="relative p-2 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors"
+            className="relative p-2 rounded-full bg-surface-elevated border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -220,35 +220,35 @@ export const StudentDashboard: React.FC = () => {
       </div>
 
       {/* Hero Header Card (Light Mode Premium SaaS Aesthetic) */}
-      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
+      <div className="bg-surface border border-border-subtle rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
         {/* Subtle Decorative Light Pattern Accents */}
         <div className="absolute -right-12 -top-12 w-64 h-64 bg-blue-50/60 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute right-32 -bottom-16 w-48 h-48 bg-amber-50/50 rounded-full blur-2xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3">
-            <h1 className="font-syne font-extrabold text-3xl md:text-4xl text-slate-900 tracking-tight leading-tight">
+            <h1 className="font-syne font-extrabold text-3xl md:text-4xl text-text-primary tracking-tight leading-tight">
               Hello, {firstName}.
             </h1>
-            <p className="text-sm md:text-base text-slate-500 font-medium max-w-xl">
+            <p className="text-sm md:text-base text-text-secondary font-medium max-w-xl">
               Welcome back to your campus command center. Explore listings, track canteen & print requests, and connect with your peers.
             </p>
           </div>
 
           {/* Mini Reputation Snapshot Card */}
-          <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 md:px-5 md:py-4 shrink-0">
-            <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+          <div className="flex items-center gap-4 bg-surface border border-border-subtle rounded-2xl p-4 md:px-5 md:py-4 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-accent-amber-soft border border-amber-100 flex items-center justify-center text-accent-amber shrink-0">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary/70">
                 Reputation Score
               </p>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="font-syne font-extrabold text-2xl text-slate-900">
+                <span className="font-syne font-extrabold text-2xl text-text-primary">
                   {repBalance}
                 </span>
-                <span className="text-xs font-semibold text-slate-500">pts</span>
+                <span className="text-xs font-semibold text-text-secondary">pts</span>
               </div>
             </div>
           </div>
@@ -264,7 +264,7 @@ export const StudentDashboard: React.FC = () => {
             badge: 'All Colleges',
             path: '/student/buy-sell',
             icon: Store,
-            iconClass: 'bg-blue-50 text-blue-600 border border-blue-100',
+            iconClass: 'bg-accent-blue-soft text-accent-blue border border-accent-blue-soft',
           },
           {
             title: 'Canteen',
@@ -272,7 +272,7 @@ export const StudentDashboard: React.FC = () => {
             badge: 'Your Campus Only',
             path: '/student/canteen',
             icon: Coffee,
-            iconClass: 'bg-amber-50 text-amber-600 border border-amber-100',
+            iconClass: 'bg-accent-amber-soft text-accent-amber border border-amber-100',
           },
           {
             title: 'Print Shop',
@@ -280,7 +280,7 @@ export const StudentDashboard: React.FC = () => {
             badge: 'Your Campus Only',
             path: '/student/print',
             icon: Printer,
-            iconClass: 'bg-cyan-50 text-cyan-600 border border-cyan-100',
+            iconClass: 'bg-accent-teal/15 text-cyan-600 border border-cyan-100',
           },
           {
             title: 'Community',
@@ -288,7 +288,7 @@ export const StudentDashboard: React.FC = () => {
             badge: 'All Colleges',
             path: '/student/community',
             icon: Users,
-            iconClass: 'bg-purple-50 text-purple-600 border border-purple-100',
+            iconClass: 'bg-accent-purple/15 text-accent-purple border border-purple-100',
           },
         ].map((item, i) => {
           const IconComponent = item.icon;
@@ -296,25 +296,25 @@ export const StudentDashboard: React.FC = () => {
             <button
               key={i}
               onClick={() => navigate(item.path)}
-              className="bg-white border border-slate-200/80 rounded-2xl p-5 text-left flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-200 group min-h-[148px]"
+              className="bg-surface border border-border-subtle rounded-2xl p-5 text-left flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-200 group min-h-[148px]"
             >
               <div className="flex items-center justify-between">
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${item.iconClass} transition-transform group-hover:scale-105`}>
                   <IconComponent className="w-5 h-5" />
                 </div>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary/70 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all">
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
               </div>
 
               <div className="mt-4">
-                <h3 className="font-syne font-bold text-lg text-slate-900">
+                <h3 className="font-syne font-bold text-lg text-text-primary">
                   {item.title}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium mb-2.5">
+                <p className="text-xs text-text-secondary font-medium mb-2.5">
                   {item.subtitle}
                 </p>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 border border-slate-200/70 text-slate-600">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-surface-elevated border border-border-subtle text-text-secondary">
                   {item.badge}
                 </span>
               </div>
@@ -329,20 +329,20 @@ export const StudentDashboard: React.FC = () => {
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-syne font-bold text-xl text-slate-900">
+              <h2 className="font-syne font-bold text-xl text-text-primary">
                 Recent Activity
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-text-secondary font-medium">
                 Latest updates across your campus interactions
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs font-semibold text-slate-600">
-              <Activity className="w-3.5 h-3.5 text-slate-500" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-elevated border border-border-subtle text-xs font-semibold text-text-secondary">
+              <Activity className="w-3.5 h-3.5 text-text-secondary" />
               Live
             </span>
           </div>
 
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
+          <div className="bg-surface border border-border-subtle rounded-2xl p-5 md:p-6 shadow-xs">
             {isInviteLoading && recentActivity.length === 0 ? (
               <div className="space-y-4 py-2">
                 <PostSkeleton />
@@ -350,11 +350,11 @@ export const StudentDashboard: React.FC = () => {
               </div>
             ) : recentActivity.length === 0 ? (
               <div className="py-12 text-center space-y-2">
-                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <div className="w-12 h-12 rounded-2xl bg-surface border border-border-subtle flex items-center justify-center mx-auto mb-3 text-text-secondary/70">
                   <Activity className="w-6 h-6" />
                 </div>
-                <p className="font-syne font-bold text-base text-slate-900">No recent activity</p>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                <p className="font-syne font-bold text-base text-text-primary">No recent activity</p>
+                <p className="text-xs text-text-secondary max-w-sm mx-auto">
                   Your campus activity including community discussions, canteen orders, and print requests will appear right here.
                 </p>
               </div>
@@ -370,17 +370,17 @@ export const StudentDashboard: React.FC = () => {
                         {getActivityIcon(act.type)}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="font-syne font-bold text-sm text-slate-900 truncate">
+                        <h4 className="font-syne font-bold text-sm text-text-primary truncate">
                           {act.title}
                         </h4>
-                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                        <p className="text-xs text-text-secondary truncate mt-0.5">
                           {act.subtitle}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right flex-shrink-0 flex flex-col items-end">
-                      <span className="text-[11px] text-slate-400 font-medium mb-1">
+                      <span className="text-[11px] text-text-secondary/70 font-medium mb-1">
                         {act.time}
                       </span>
                       <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize ${getStatusBadgeStyle(act.status)}`}>
@@ -397,46 +397,46 @@ export const StudentDashboard: React.FC = () => {
         {/* Right Column: Quick Insights & Actions Stack (5 columns) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Quick Actions Card */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
-            <h2 className="font-syne font-bold text-lg text-slate-900 mb-3">
+          <div className="bg-surface border border-border-subtle rounded-2xl p-5 md:p-6 shadow-xs">
+            <h2 className="font-syne font-bold text-lg text-text-primary mb-3">
               Quick Actions
             </h2>
             <div className="space-y-2.5">
               <button
                 onClick={() => navigate('/student/community?compose=1&type=notice')}
-                className="w-full p-3.5 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
+                className="w-full p-3.5 rounded-xl bg-surface hover:bg-blue-50/50 border border-border-subtle hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-text-primary hover:text-blue-700 transition-all group"
               >
                 <span className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-surface border border-border-subtle flex items-center justify-center text-text-secondary group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   Post a Notice
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-text-secondary/70 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
               <button
                 onClick={() => navigate('/student/buy-sell?compose=1')}
-                className="w-full p-3.5 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
+                className="w-full p-3.5 rounded-xl bg-surface hover:bg-blue-50/50 border border-border-subtle hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-text-primary hover:text-blue-700 transition-all group"
               >
                 <span className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-surface border border-border-subtle flex items-center justify-center text-text-secondary group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
                     <Store className="w-4 h-4" />
                   </div>
                   Sell an Item
                 </span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-4 h-4 text-text-secondary/70 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>
 
           {/* Your Invites Card */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs space-y-4">
+          <div className="bg-surface border border-border-subtle rounded-2xl p-5 md:p-6 shadow-xs space-y-4">
             <div>
-              <h2 className="font-syne font-bold text-lg text-slate-900">
+              <h2 className="font-syne font-bold text-lg text-text-primary">
                 Your Invites
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-text-secondary mt-0.5">
                 Share invite codes with verified campus friends
               </p>
             </div>
@@ -448,27 +448,27 @@ export const StudentDashboard: React.FC = () => {
                 {availableCodes.slice(0, 2).map((item: any) => (
                   <div
                     key={item.id}
-                    className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-3"
+                    className="bg-surface border border-border-subtle rounded-xl p-3.5 space-y-3"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-sm tracking-wider text-slate-900">
+                      <span className="font-mono font-bold text-sm tracking-wider text-text-primary">
                         {item.code}
                       </span>
                       <button
                         onClick={() => handleCopyInvite(item.code)}
-                        className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-900 transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-slate-200/60 text-text-secondary hover:text-text-primary transition-colors"
                         title="Copy code"
                       >
                         {copiedCode === item.code ? (
-                          <Check className="w-4 h-4 text-emerald-600" />
+                          <Check className="w-4 h-4 text-accent-green" />
                         ) : (
                           <Copy className="w-4 h-4" />
                         )}
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-200/80">
-                      <span className="text-[11px] font-medium text-slate-500">
+                    <div className="flex items-center justify-between pt-2 border-t border-border-subtle">
+                      <span className="text-[11px] font-medium text-text-secondary">
                         Ready to use
                       </span>
                       <button
@@ -483,16 +483,16 @@ export const StudentDashboard: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center space-y-3">
-                <p className="text-xs text-slate-600 font-medium">
+              <div className="bg-surface border border-border-subtle rounded-xl p-4 text-center space-y-3">
+                <p className="text-xs text-text-secondary font-medium">
                   You have helped {usedCodesCount} friends join Campus Blink!
                 </p>
                 {cooldownRemaining > 0 ? (
                   <div>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                    <p className="text-[10px] uppercase tracking-wider text-text-secondary/70 font-semibold">
                       New invites available in
                     </p>
-                    <p className="font-mono font-bold text-sm text-slate-900 mt-1">
+                    <p className="font-mono font-bold text-sm text-text-primary mt-1">
                       {cooldownHours}:{cooldownMinutes}:{cooldownSeconds}
                     </p>
                   </div>
@@ -510,30 +510,30 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {/* Reputation Progress Card */}
-          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
+          <div className="bg-surface border border-border-subtle rounded-2xl p-5 md:p-6 shadow-xs">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-syne font-bold text-lg text-slate-900">
+              <h2 className="font-syne font-bold text-lg text-text-primary">
                 Reputation Points
               </h2>
-              <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-accent-blue bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 rounded-full">
                 Active
               </span>
             </div>
             <div className="flex items-baseline gap-2 mt-3">
-              <span className="font-syne font-extrabold text-3xl text-slate-900">
+              <span className="font-syne font-extrabold text-3xl text-text-primary">
                 {repBalance}
               </span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs text-text-secondary font-medium">
                 Campus Credits
               </span>
             </div>
-            <div className="h-2.5 w-full bg-slate-100 border border-slate-200/70 rounded-full overflow-hidden mt-3.5">
+            <div className="h-2.5 w-full bg-surface-elevated border border-border-subtle rounded-full overflow-hidden mt-3.5">
               <div
                 className="h-full bg-blue-600 rounded-full transition-all duration-700"
                 style={{ width: `${Math.min(100, Math.max(5, (repBalance / 100) * 100))}%` }}
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-2.5">
+            <p className="text-[11px] text-text-secondary/70 mt-2.5">
               {repToTrusted > 0
                 ? `${repToTrusted} more points to reach Trusted Campus Member status.`
                 : 'You have achieved Trusted Campus Member status!'}

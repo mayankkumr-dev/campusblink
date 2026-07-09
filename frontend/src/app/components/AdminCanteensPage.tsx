@@ -137,7 +137,7 @@ export const AdminCanteensPage: React.FC = () => {
 
   const StatusBadge = ({ status }: { status: string }) => {
     const badges: any = {
-      'Active': 'bg-[var(--success-light)] text-[#16A34A]',
+      'Active': 'bg-accent-green/15 text-accent-green',
       'Pending': 'bg-[#FEF9C3] text-[var(--yellow-dark)]',
       'Suspended': 'bg-[#FEE2E2] text-[#DC2626]'
     };
@@ -228,7 +228,7 @@ export const AdminCanteensPage: React.FC = () => {
                   <div className="font-sans text-sm text-[var(--text-primary)] flex gap-2 mb-0.5">
                      <span className="text-[var(--text-secondary)]">Orders:</span> {canteen.total_orders || 0}
                   </div>
-                  <div className="font-sans text-xs text-[#16A34A] font-bold">
+                  <div className="font-sans text-xs text-accent-green font-bold">
                      ₹{(canteen.total_revenue || 0).toLocaleString()}
                   </div>
                 </td>
@@ -261,7 +261,7 @@ export const AdminCanteensPage: React.FC = () => {
                       </button>
                       
                       {!canteen.is_active ? (
-                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-[#16A34A] hover:bg-[#16A34A]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2">
                           <PlayCircle className="w-4 h-4" /> Reactivate Canteen
                         </button>
                       ) : (

@@ -143,7 +143,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
             </div>
 
             <div className="mb-3 flex items-center gap-2 text-xs">
-              <span className={`rounded px-2 py-1 font-bold ${item.is_veg ? 'bg-[#16A34A]/10 text-[#16A34A]' : 'bg-[#DC2626]/10 text-[#DC2626]'}`}>
+              <span className={`rounded px-2 py-1 font-bold ${item.is_veg ? 'bg-[#16A34A]/10 text-accent-green' : 'bg-[#DC2626]/10 text-[#DC2626]'}`}>
                 {item.is_veg ? 'Veg' : 'Non-veg'}
               </span>
               <span className={`rounded px-2 py-1 font-bold ${item.is_available ? 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]' : 'bg-[#DC2626]/15 text-[#DC2626]'}`}>

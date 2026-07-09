@@ -11,8 +11,8 @@ export const ProfessorBadge: React.FC<ProfessorBadgeProps> = ({ size = 'sm', cla
     : 'px-2 py-0.5 text-[10px]';
 
   return (
-    <span className={`inline-flex items-center gap-1 font-bold rounded-md bg-[#FEF9C3] text-[var(--yellow-dark)] border border-[#F59E0B]/30 tracking-wide ${sizeClasses} ${className}`}>
-      Faculty 🎓
+    <span className={`inline-flex items-center gap-1.5 font-bold rounded-full bg-indigo-50 text-indigo-600 tracking-wide ${sizeClasses} ${className}`}>
+      Faculty <span className="text-[1.1em]">🎓</span>
     </span>
   );
 };

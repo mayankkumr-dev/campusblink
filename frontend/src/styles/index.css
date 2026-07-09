@@ -3,49 +3,25 @@
 @import './theme.css';
 
 @theme {
-  --color-bg-primary: var(--bg-primary);
-  --color-bg-secondary: var(--bg-secondary);
-  --color-bg-tertiary: var(--bg-tertiary);
-  --color-bg-hover: var(--bg-hover);
-  --color-bg-active: var(--bg-active);
-
+  --color-background: var(--bg-background);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  
+  --color-border-subtle: var(--border-subtle);
+  
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
-  --color-text-muted: var(--text-muted);
   --color-text-placeholder: var(--text-placeholder);
   --color-text-inverse: var(--text-inverse);
 
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-active: var(--accent-active);
-  --color-accent-light: var(--accent-light);
-  --color-accent-muted: var(--accent-muted);
-  --color-accent-dark: var(--accent-dark);
-
-  --color-yellow: var(--yellow);
-  --color-yellow-hover: var(--yellow-hover);
-  --color-yellow-light: var(--yellow-light);
-  --color-yellow-dark: var(--yellow-dark);
-
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
-  --color-border-accent: var(--border-accent);
-  --color-border-focus: var(--border-focus);
-
-  --color-success: var(--success);
-  --color-success-light: var(--success-light);
-  --color-success-dark: var(--success-dark);
-  
-  --color-error: var(--error);
-  --color-error-light: var(--error-light);
-  --color-error-dark: var(--error-dark);
-
-  --color-warning: var(--warning);
-  --color-warning-light: var(--warning-light);
-  --color-warning-dark: var(--warning-dark);
-
-  --color-info: var(--info);
-  --color-info-light: var(--info-light);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-soft: var(--accent-blue-soft);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-soft: var(--accent-amber-soft);
+  --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-teal: var(--accent-teal);
 
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
@@ -56,79 +32,27 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
-  --shadow-accent: var(--shadow-accent);
 }
 
 @layer base {
-  :root, html {
-    --bg-primary: #F9FAFB;
-    --bg-secondary: #FFFFFF;
-    --bg-tertiary: #F3F4F6;
-    --bg-hover: #F3F4F6;
-    --bg-active: #E5E7EB;
-
-    --text-primary: #111827;
-    --text-secondary: #4B5563;
-    --text-muted: #9CA3AF;
-    --text-placeholder: #D1D5DB;
-    --text-inverse: #FFFFFF;
-
-    --accent: #2D4EF5;
-    --accent-hover: #1A3CE8;
-    --accent-active: #1530D4;
-    --accent-light: #EEF1FF;
-    --accent-muted: #BFCBFD;
-    --accent-dark: #1E3A8A;
-
-    --yellow: #EAB308;
-    --yellow-hover: var(--yellow-dark);
-    --yellow-light: #FEF9C3;
-    --yellow-dark: #A16207;
-
-    --border: #E5E7EB;
-    --border-strong: #D1D5DB;
-    --border-accent: #BFCBFD;
-    --border-focus: #2D4EF5;
-
-    --shadow-sm: none;
-    --shadow-md: none;
-    --shadow-lg: none;
-    --shadow-accent: none;
-
-    --success: #10B981;
-    --success-light: #D1FAE5;
-    --success-dark: #059669;
-    --error: #EF4444;
-    --error-light: #FEE2E2;
-    --error-dark: #DC2626;
-    --warning: #F59E0B;
-    --warning-light: #FEF3C7;
-    --warning-dark: #D97706;
-    --info: #3B82F6;
-    --info-light: #EFF6FF;
-
-    --radius-sm: 4px;
-    --radius-md: 6px;
-    --radius-lg: 8px;
-    --radius-xl: 12px;
-    --radius-full: 9999px;
-
-    /* Legacy Map for Fallback */
-    --bg: var(--bg-primary);
-  }
-
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
   *, *::before, *::after {
     word-break: normal !important;
     overflow-wrap: anywhere;
     hyphens: none !important;
     -webkit-hyphens: none !important;
     -ms-hyphens: none !important;
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 200ms;
+    }
+  }
+
+  body {
+    background-color: var(--bg-background);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }

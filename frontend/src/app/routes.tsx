@@ -381,9 +381,33 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'settings',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorSettingsPage')).ProfessorSettingsPage,
+            }),
+          },
+          {
+            path: 'settings/notice-admin',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorNoticeAdminPage')).ProfessorNoticeAdminPage,
+            }),
+          },
+          {
+            path: 'notices',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorCampusNoticesPage')).ProfessorCampusNoticesPage,
+            }),
+          },
+          {
+            path: 'notices/faculty',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorFacultyNoticesPage')).ProfessorFacultyNoticesPage,
+            }),
+          },
+          {
             path: 'settings/notifications',
             lazy: async () => ({
-              Component: (await import('./components/NotificationPreferencesPage')).NotificationPreferencesPage,
+              Component: (await import('./components/ProfessorSettingsPage')).ProfessorSettingsPage,
             }),
           },
           {

@@ -1011,7 +1011,7 @@ export const LoginRegisterPage: React.FC = () => {
                     <p className="font-sans text-sm font-bold text-[var(--text-primary)]">
                       ✅ Invited by {getFirstName(inviteValidated?.inviter?.name, 'a friend')}
                     </p>
-                    <span className="text-xs font-bold text-[var(--success-dark)] uppercase tracking-[0.16em]">{inviteValidated.code}</span>
+                    <span className="text-xs font-bold text-accent-green uppercase tracking-[0.16em]">{inviteValidated.code}</span>
                   </div>
                 ) : null}
                 {tab === 'register' && (
@@ -1049,7 +1049,7 @@ export const LoginRegisterPage: React.FC = () => {
                       />
                       <p className="mt-2 text-xs font-medium text-[var(--text-secondary)]">Only lowercase letters, numbers, dots, and underscores. 3-20 characters.</p>
                       {usernameStatus.state !== 'idle' ? (
-                        <p className={`mt-1 text-xs font-bold ${usernameStatus.state === 'available' ? 'text-[var(--success-dark)]' : usernameStatus.state === 'checking' ? 'text-[var(--text-secondary)]' : 'text-[#B42318]'}`}>
+                        <p className={`mt-1 text-xs font-bold ${usernameStatus.state === 'available' ? 'text-accent-green' : usernameStatus.state === 'checking' ? 'text-[var(--text-secondary)]' : 'text-[#B42318]'}`}>
                           {usernameStatus.message}
                         </p>
                       ) : null}
@@ -1268,7 +1268,7 @@ export const LoginRegisterPage: React.FC = () => {
 
             {forgotSuccessEmail ? (
               <div className="text-center py-4 space-y-4">
-                <div className="mx-auto w-14 h-14 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-500">
+                <div className="mx-auto w-14 h-14 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-accent-green">
                   <CheckCircle className="w-7 h-7" />
                 </div>
                 <h3 className="font-syne text-xl font-bold text-[var(--text-primary)]">

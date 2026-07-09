@@ -50,7 +50,7 @@ export class FeatureErrorBoundary extends Component<
       return (
         <div className={`w-full py-12 px-4 flex items-center justify-center ${this.props.className || ''}`}>
           <div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-6 md:p-8 shadow-md text-center flex flex-col items-center">
-            <div className="w-14 h-14 rounded-full bg-[var(--error-light)] flex items-center justify-center mb-4">
+            <div className="w-14 h-14 rounded-full bg-accent-red/15 flex items-center justify-center mb-4">
               <AlertTriangle className="w-7 h-7 text-[var(--error)]" />
             </div>
 
@@ -65,7 +65,7 @@ export class FeatureErrorBoundary extends Component<
             </p>
 
             {isDev && this.state.error && (
-              <div className="w-full text-left bg-[var(--error-light)]/60 border border-[var(--error)]/30 rounded-lg p-3 mb-6 overflow-x-auto max-h-48">
+              <div className="w-full text-left bg-accent-red/15/60 border border-[var(--error)]/30 rounded-lg p-3 mb-6 overflow-x-auto max-h-48">
                 <p className="text-xs font-mono font-bold text-[var(--error)] mb-1">
                   {this.state.error.name}: {this.state.error.message}
                 </p>

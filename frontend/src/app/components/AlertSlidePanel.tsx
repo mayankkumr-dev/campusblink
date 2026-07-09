@@ -27,21 +27,21 @@ interface AlertSlidePanelProps {
 function getAlertAppearance(n: any) {
   const t = `${n.type || ''} ${n.title || ''} ${n.message || ''}`.toLowerCase();
   if (t.includes('reject') || t.includes('cancel') || t.includes('error') || t.includes('fail')) {
-    return { bgClass: 'bg-rose-50 text-rose-600', Icon: AlertTriangle };
+    return { bgClass: 'bg-accent-red/15 text-accent-red', Icon: AlertTriangle };
   }
   if (t.includes('print')) {
-    return { bgClass: 'bg-blue-50 text-blue-600', Icon: Printer };
+    return { bgClass: 'bg-accent-blue-soft text-accent-blue', Icon: Printer };
   }
   if (t.includes('canteen') || t.includes('order') || t.includes('food')) {
-    return { bgClass: 'bg-amber-50 text-amber-600', Icon: UtensilsCrossed };
+    return { bgClass: 'bg-accent-amber-soft text-accent-amber', Icon: UtensilsCrossed };
   }
   if (t.includes('announce') || n.type === 'announcement') {
-    return { bgClass: 'bg-purple-50 text-purple-600', Icon: Megaphone };
+    return { bgClass: 'bg-accent-purple/15 text-accent-purple', Icon: Megaphone };
   }
   if (t.includes('success') || t.includes('ready') || t.includes('complete') || t.includes('paid')) {
-    return { bgClass: 'bg-emerald-50 text-emerald-600', Icon: CheckCircle2 };
+    return { bgClass: 'bg-accent-green/15 text-accent-green', Icon: CheckCircle2 };
   }
-  return { bgClass: 'bg-slate-50 text-slate-600', Icon: Bell };
+  return { bgClass: 'bg-surface text-text-secondary', Icon: Bell };
 }
 
 function groupNotifications(notifications: any[]) {
@@ -169,7 +169,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
   return (
     <>
       <div
-        className={`fixed inset-0 z-[75] bg-slate-900/25 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[75] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -180,26 +180,26 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
         role="dialog"
         aria-modal="true"
         aria-label="Alerts"
-        className={`fixed left-0 top-0 h-full z-[76] flex flex-col bg-white border-r border-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.14)] transition-transform duration-300 ease-in-out w-full md:w-[410px] font-sans ${
+        className={`fixed left-0 top-0 h-full z-[76] flex flex-col bg-surface border-r border-border-subtle shadow-[0_20px_60px_rgba(0,0,0,0.14)] transition-transform duration-300 ease-in-out w-full md:w-[410px] font-sans ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="sticky top-0 z-10 flex h-[72px] shrink-0 items-center justify-between border-b border-slate-100 bg-white/95 px-6 backdrop-blur-md">
+        <div className="sticky top-0 z-10 flex h-[72px] shrink-0 items-center justify-between border-b border-border-subtle bg-surface px-6">
           <div className="flex items-center gap-2.5">
             {showFollowRequests ? (
               <button 
                 onClick={() => setShowFollowRequests(false)} 
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 transition-colors -ml-2"
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-text-secondary/70 hover:bg-surface-elevated transition-colors -ml-2"
                 aria-label="Back to alerts"
               >
                 <ChevronLeft className="h-5 w-5 stroke-[2.2]" />
               </button>
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 shadow-2xs">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-blue-soft text-accent-blue shadow-2xs">
                 <Bell className="h-4.5 w-4.5 stroke-[2.2]" />
               </div>
             )}
-            <h2 className="font-syne text-xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary">
               {showFollowRequests ? 'Follow requests' : 'Alerts'}
             </h2>
           </div>
@@ -209,7 +209,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
               <button
                 type="button"
                 onClick={handleClearAllAlerts}
-                className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                className="inline-flex items-center gap-1 rounded-xl border border-border-subtle bg-surface px-3.5 py-1.5 text-xs font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
                 title="Clear all alerts"
               >
                 Clear
@@ -218,7 +218,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-xl p-2 text-text-secondary/70 transition-colors hover:bg-surface-elevated hover:text-text-primary"
               aria-label="Close alerts"
             >
               <X className="h-5 w-5" />
@@ -229,26 +229,26 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
         <div className="flex-1 overflow-y-auto pb-6">
           {showFollowRequests ? (
             <div className="flex flex-col items-center justify-center px-8 py-28 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-slate-400 shadow-sm">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface border border-border-subtle text-text-secondary/70 shadow-sm">
                 <UserPlus className="h-6 w-6 stroke-[1.5]" />
               </div>
-              <h3 className="font-syne text-base font-bold text-slate-900">No pending requests</h3>
-              <p className="mt-1 text-xs text-slate-500 max-w-xs">
+              <h3 className="font-syne text-base font-bold text-text-primary">No pending requests</h3>
+              <p className="mt-1 text-xs text-text-secondary max-w-xs">
                 When people ask to follow you, their requests will show up here.
               </p>
             </div>
           ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-3"></div>
-              <p className="text-xs font-semibold text-slate-500">Loading your alerts...</p>
+              <p className="text-xs font-semibold text-text-secondary">Loading your alerts...</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-8 py-28 text-center">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-slate-400 shadow-sm">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface text-text-secondary/70 shadow-sm">
                 <Bell className="h-6 w-6 stroke-[1.5]" />
               </div>
-              <h3 className="font-syne text-base font-bold text-slate-900">No new alerts</h3>
-              <p className="mt-1 text-xs text-slate-500 max-w-xs">
+              <h3 className="font-syne text-base font-bold text-text-primary">No new alerts</h3>
+              <p className="mt-1 text-xs text-text-secondary max-w-xs">
                 You are all caught up! Orders, campus updates, and print notifications will appear here.
               </p>
             </div>
@@ -259,21 +259,21 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                 <button 
                   type="button"
                   onClick={() => setShowFollowRequests(true)}
-                  className="w-full group flex items-center justify-between rounded-2xl bg-white border border-slate-200/60 p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-pointer text-left"
+                  className="w-full group flex items-center justify-between rounded-2xl bg-surface border border-border-subtle p-4 shadow-sm hover:shadow-md hover:border-border-subtle transition-all cursor-pointer text-left"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 border border-slate-100">
-                      <UserPlus className="h-5 w-5 text-slate-600" />
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-surface border border-border-subtle">
+                      <UserPlus className="h-5 w-5 text-text-secondary" />
                       <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-sm">
                         3
                       </span>
                     </div>
                     <div>
-                      <h3 className="font-syne text-[15px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Follow requests</h3>
-                      <p className="text-xs text-slate-500 mt-0.5">Approve or ignore requests</p>
+                      <h3 className="font-syne text-[15px] font-bold text-text-primary group-hover:text-accent-blue transition-colors">Follow requests</h3>
+                      <p className="text-xs text-text-secondary mt-0.5">Approve or ignore requests</p>
                     </div>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                  <ChevronRight className="h-5 w-5 text-text-secondary/70 group-hover:text-accent-blue transition-colors" />
                 </button>
               </div>
 
@@ -283,8 +283,8 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                 
                 return (
                   <div key={group} className="mb-2">
-                    <div className="px-6 py-3 bg-white/95 sticky top-0 z-10 backdrop-blur-sm">
-                      <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                    <div className="px-6 py-3 bg-background sticky top-0 z-10">
+                      <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-text-secondary/70">
                         {group}
                       </h4>
                     </div>
@@ -302,7 +302,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                               }
                             }}
                             className={`group relative flex items-start gap-4 px-4 py-4 rounded-2xl transition-all duration-200 ${
-                              isUnread ? 'bg-blue-50/40 shadow-[0_2px_12px_rgba(37,99,235,0.03)]' : 'hover:bg-slate-50/80'
+                              isUnread ? 'bg-accent-blue-soft shadow-[0_2px_12px_rgba(37,99,235,0.03)]' : 'hover:bg-surface-elevated'
                             } ${n.link ? 'cursor-pointer' : ''}`}
                           >
                             <div
@@ -313,17 +313,17 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
 
                             <div className="min-w-0 flex-1 pr-10">
                               <div className="flex items-center gap-2 mb-0.5">
-                                <h3 className="font-syne text-sm font-bold text-slate-900 leading-snug">
+                                <h3 className="font-syne text-sm font-bold text-text-primary leading-snug">
                                   {n.title}
                                 </h3>
                                 {isUnread && (
                                   <span className="h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" title="Unread" />
                                 )}
                               </div>
-                              <p className="text-xs leading-relaxed text-slate-600 line-clamp-3">
+                              <p className="text-xs leading-relaxed text-text-secondary line-clamp-3">
                                 {n.message}
                               </p>
-                              <p className="mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                              <p className="mt-2 text-[10px] font-bold text-text-secondary/70 uppercase tracking-wide">
                                 {n.created_at
                                   ? new Date(n.created_at).toLocaleString([], {
                                       month: 'short',
@@ -343,7 +343,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                                     event.stopPropagation();
                                     onClose();
                                   }}
-                                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-slate-500 transition-colors hover:text-slate-800 hover:shadow-md"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary transition-colors hover:text-text-primary hover:shadow-md"
                                   title="Open link"
                                 >
                                   <ExternalLink className="h-4 w-4" />
@@ -355,7 +355,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                                   event.stopPropagation();
                                   handleDeleteAlert(n.id);
                                 }}
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-slate-400 transition-colors hover:text-rose-600 hover:shadow-md"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary/70 transition-colors hover:text-accent-red hover:shadow-md"
                                 title="Delete alert"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -374,7 +374,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                   <button
                     onClick={() => loadAlerts(true)}
                     disabled={isLoadingMore}
-                    className="px-5 py-2.5 rounded-full bg-slate-50 border border-slate-200/60 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    className="px-5 py-2.5 rounded-full bg-surface border border-border-subtle text-xs font-bold text-text-secondary hover:bg-surface-elevated hover:text-text-primary transition-colors disabled:opacity-50 flex items-center gap-2"
                   >
                     {isLoadingMore ? (
                       <>

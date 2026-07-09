@@ -60,12 +60,12 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
         <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-6">
           <div className="mb-3 flex items-center gap-3"><IndianRupee className="h-4 w-4 text-[var(--yellow)]" /><span className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Revenue</span></div>
           <div className="font-syne text-3xl font-bold text-[var(--text-primary)]">₹{Number(stats?.totalRevenue || 0).toLocaleString()}</div>
-          <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-[#16A34A]"><ArrowUpRight className="h-3 w-3" /> Live aggregate from canteen shops</div>
+          <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-accent-green"><ArrowUpRight className="h-3 w-3" /> Live aggregate from canteen shops</div>
         </div>
         <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-6">
-          <div className="mb-3 flex items-center gap-3"><TrendingUp className="h-4 w-4 text-[#16A34A]" /><span className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">Reputation Issued</span></div>
+          <div className="mb-3 flex items-center gap-3"><TrendingUp className="h-4 w-4 text-accent-green" /><span className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">Reputation Issued</span></div>
           <div className="font-syne text-3xl font-bold text-[var(--text-primary)]">{Number(stats?.creditsPurchased || 0).toLocaleString()}</div>
-          <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-[#16A34A]"><ArrowUpRight className="h-3 w-3" /> Reputation log sum</div>
+          <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-accent-green"><ArrowUpRight className="h-3 w-3" /> Reputation log sum</div>
         </div>
         <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-6">
           <div className="mb-3 flex items-center gap-3"><Landmark className="h-4 w-4 text-[var(--accent)]" /><span className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">Pending Payouts</span></div>

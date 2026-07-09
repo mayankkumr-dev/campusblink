@@ -103,7 +103,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
             className="space-y-6 order-2"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-syne text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl flex items-center gap-2.5">
+              <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary sm:text-2xl flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
                 In Process & Ready for Pickup
               </h2>
@@ -153,24 +153,24 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
       {/* Incoming Requests Section */}
       <div className="space-y-6 order-1">
         <div className="flex items-center justify-between">
-          <h2 className="font-syne text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl flex items-center gap-2.5">
+          <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary sm:text-2xl flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
             Incoming Requests
           </h2>
           {newOrdersList.length > 0 && (
-            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-100">
+            <span className="rounded-full bg-accent-blue-soft px-3 py-1 text-xs font-bold text-blue-700 border border-accent-blue-soft">
               {newOrdersList.length} Pending
             </span>
           )}
         </div>
 
         {newOrdersList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 border border-slate-100 text-slate-400 shadow-2xs">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-border-subtle bg-surface px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-surface border border-border-subtle text-text-secondary/70 shadow-2xs">
               <UtensilsCrossed className="h-6 w-6 stroke-[1.5]" />
             </div>
-            <h3 className="font-syne text-base font-bold text-slate-900">No incoming orders</h3>
-            <p className="mt-1 text-xs text-slate-500 max-w-sm">
+            <h3 className="font-syne text-base font-bold text-text-primary">No incoming orders</h3>
+            <p className="mt-1 text-xs text-text-secondary max-w-sm">
               You are caught up! When students place orders from the campus menu, they will appear here instantly.
             </p>
           </div>
@@ -213,24 +213,24 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+              className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
             >
-              <div className="border-b border-slate-100 bg-slate-50/70 p-6 flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 shadow-2xs">
+              <div className="border-b border-border-subtle bg-surface-elevated p-6 flex items-start gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-red/15 text-accent-red border border-rose-100 shadow-2xs">
                   <AlertCircle className="h-5 w-5 stroke-[2.2]" />
                 </div>
                 <div>
-                  <h3 className="font-syne text-xl font-bold text-slate-900">
+                  <h3 className="font-syne text-xl font-bold text-text-primary">
                     Reject Order #{rejectModal.order.id.slice(0, 6)}
                   </h3>
-                  <p className="text-xs text-slate-500">
-                    Notify <strong className="text-slate-800">{rejectModal.order.profiles?.name}</strong> about the reason for cancellation.
+                  <p className="text-xs text-text-secondary">
+                    Notify <strong className="text-text-primary">{rejectModal.order.profiles?.name}</strong> about the reason for cancellation.
                   </p>
                 </div>
               </div>
 
               <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
                   Select a Quick Reason
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -244,8 +244,8 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                       }}
                       className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
                         selectedReason === reason
-                          ? 'bg-rose-50 border border-rose-200 text-rose-700 shadow-2xs'
-                          : 'bg-slate-50 border border-slate-200/80 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          ? 'bg-accent-red/15 border border-rose-200 text-accent-red shadow-2xs'
+                          : 'bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
                       }`}
                     >
                       {reason}
@@ -253,7 +253,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                   ))}
                 </div>
                 <div className="pt-2">
-                  <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-secondary">
                     <MessageSquare className="h-3.5 w-3.5" /> Or write a custom message
                   </p>
                   <textarea
@@ -265,16 +265,16 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                     placeholder={`e.g. "Sorry ${
                       rejectModal.order.profiles?.name?.split(' ')[0] || 'Student'
                     }, the kitchen just ran out of this item..."`}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-3.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 min-h-[90px] resize-none"
+                    className="w-full rounded-xl border border-border-subtle bg-surface p-3.5 text-xs text-text-primary placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 min-h-[90px] resize-none"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 border-t border-slate-100 bg-slate-50/70 p-5">
+              <div className="flex items-center justify-end gap-2.5 border-t border-border-subtle bg-surface-elevated p-5">
                 <button
                   type="button"
                   onClick={() => setRejectModal({ isOpen: false, order: null })}
-                  className="rounded-xl px-5 py-2.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  className="rounded-xl px-5 py-2.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary"
                 >
                   Cancel
                 </button>

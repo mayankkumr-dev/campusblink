@@ -186,7 +186,7 @@ export const AdminSettingsPage: React.FC = () => {
                <div>
                  <div className="flex justify-between items-center mb-1">
                    <span className="font-sans text-sm text-[var(--text-secondary)]">Database Usage</span>
-                   <span className="font-sans text-xs font-bold text-[#16A34A]">23%</span>
+                   <span className="font-sans text-xs font-bold text-accent-green">23%</span>
                  </div>
                  <div className="w-full bg-[var(--bg-tertiary)] h-2 rounded-md overflow-hidden">
                    <div className="bg-[#16A34A] h-full" style={{ width: '23%' }} />

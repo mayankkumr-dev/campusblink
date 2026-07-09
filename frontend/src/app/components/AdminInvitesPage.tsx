@@ -430,7 +430,7 @@ export const AdminInvitesPage: React.FC = () => {
                       <td className="px-3 py-2">{row.createdByUser?.name || row.createdByUser?.email || 'Admin pool'}</td>
                       <td className="px-3 py-2">{row.usedByUser?.name || '-'}</td>
                       <td className="px-3 py-2">
-                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${status === 'Used' ? 'bg-[#F1F5F9] text-[#475569]' : status === 'Expired' ? 'bg-[var(--error-light)] text-[var(--error-dark)]' : 'bg-[var(--success-light)] text-[var(--success-dark)]'}`}>
+                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${status === 'Used' ? 'bg-[#F1F5F9] text-[#475569]' : status === 'Expired' ? 'bg-accent-red/15 text-accent-red' : 'bg-accent-green/15 text-accent-green'}`}>
                           {status}
                         </span>
                       </td>
@@ -454,7 +454,7 @@ export const AdminInvitesPage: React.FC = () => {
                           {!row.is_used ? (
                             <button
                               onClick={() => handleRevoke(row.id)}
-                              className="rounded-md border border-[var(--error-dark)]/30 bg-[var(--error-light)] px-3 py-1 text-xs font-bold text-[var(--error-dark)]"
+                              className="rounded-md border border-[var(--error-dark)]/30 bg-accent-red/15 px-3 py-1 text-xs font-bold text-accent-red"
                             >
                               Revoke
                             </button>
