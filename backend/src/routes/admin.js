@@ -130,10 +130,21 @@ router.get('/users', authMiddleware, adminOnlyMiddleware, async (req, res) => {
 router.patch('/users/:id', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, role, restrictions } = req.body;
+    const { status, role, restrictions, ban_reason } = req.body;
 
     const updates = {};
-    if (status) updates.status = status;
+    if (status) {
+      updates.status = status;
+      if (status === 'banned') {
+        updates.ban_reason = ban_reason || '';
+        updates.banned_by = req.user.id;
+        updates.banned_at = new Date().toISOString();
+      } else {
+        updates.ban_reason = null;
+        updates.banned_by = null;
+        updates.banned_at = null;
+      }
+    }
     if (role) updates.role = role;
     if (restrictions !== undefined) updates.restrictions = restrictions;
 

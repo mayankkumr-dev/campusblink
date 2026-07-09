@@ -48,16 +48,21 @@ export async function getAllUsers(filters, page = 1) {
 }
 
 export async function updateUserStatus(adminId, userId, status, reason = '') {
+  if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ status, ban_reason: reason, banned_by: status === 'banned' ? adminId : null, banned_at: status === 'banned' ? new Date().toISOString() : null })
-      .eq('id', userId)
-      .select()
-      .single();
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+      },
+      body: JSON.stringify({ status, ban_reason: reason })
+    });
       
-    if (error) throw error;
-    await logAdminAction(adminId, `USER_${status.toUpperCase()}`, 'profile', userId, data.email, { reason });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update status');
+    
+    await logAdminAction(adminId, `USER_${status.toUpperCase()}`, 'profile', userId, data.email || userId, { reason });
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
@@ -65,16 +70,21 @@ export async function updateUserStatus(adminId, userId, status, reason = '') {
 }
 
 export async function changeUserRole(adminId, userId, newRole) {
+  if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', userId)
-      .select()
-      .single();
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+      },
+      body: JSON.stringify({ role: newRole })
+    });
       
-    if (error) throw error;
-    await logAdminAction(adminId, 'CHANGED_ROLE', 'profile', userId, data.email, { new_role: newRole });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to change role');
+    
+    await logAdminAction(adminId, 'CHANGED_ROLE', 'profile', userId, data.email || userId, { new_role: newRole });
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
