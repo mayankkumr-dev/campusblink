@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Megaphone } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { FEATURE_ACCESS_ITEMS, getUserFeatureAccess, toggleUserFeatureAccess, updateUserFeatureAccess } from '../../api/featureAccess';
+import { setNoticeAdminPermission } from '../../api/notices';
 
 export const AdminUserDetailPage: React.FC = () => {
   const { userId } = useParams();
@@ -18,6 +19,7 @@ export const AdminUserDetailPage: React.FC = () => {
   const [restrictionReason, setRestrictionReason] = useState('');
   const [isSavingFeatures, setIsSavingFeatures] = useState(false);
   const [featureActionLoading, setFeatureActionLoading] = useState<string | null>(null);
+  const [isTogglingNoticeAdmin, setIsTogglingNoticeAdmin] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -115,6 +117,20 @@ export const AdminUserDetailPage: React.FC = () => {
     setIsSavingFeatures(false);
   };
 
+  const handleToggleNoticeAdmin = async () => {
+    if (!user?.id) return;
+    const next = !user.is_notice_admin;
+    setIsTogglingNoticeAdmin(true);
+    const { error } = await setNoticeAdminPermission(user.id, next);
+    setIsTogglingNoticeAdmin(false);
+    if (error) {
+      toast.error((error as any).message || 'Failed to update notice admin permission.');
+      return;
+    }
+    setUser((prev: any) => ({ ...prev, is_notice_admin: next }));
+    toast.success(next ? 'Notice Admin permission granted.' : 'Notice Admin permission revoked.');
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <button
@@ -183,6 +199,45 @@ export const AdminUserDetailPage: React.FC = () => {
             {isSavingFeatures ? 'Saving...' : 'Save feature access'}
           </button>
         </div>
+      </div>
+
+      {/* Notice Admin Permission Card */}
+      <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Megaphone className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+            <div>
+              <h3 className="font-syne text-lg font-bold text-[var(--text-primary)]">Notice Admin</h3>
+              <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+                Allows this user to compose and publish official notices visible to students at <strong>{user.college || 'their college'}</strong>.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggleNoticeAdmin}
+            disabled={isTogglingNoticeAdmin}
+            className={`relative shrink-0 w-12 h-7 rounded-full transition-colors disabled:opacity-50 ${
+              user.is_notice_admin ? 'bg-amber-500' : 'bg-slate-200'
+            }`}
+          >
+            {isTogglingNoticeAdmin ? (
+              <Loader2 className="absolute inset-0 m-auto h-4 w-4 animate-spin text-white" />
+            ) : (
+              <span
+                className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                  user.is_notice_admin ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            )}
+          </button>
+        </div>
+        <p className="mt-3 text-xs text-[var(--text-secondary)] font-medium">
+          Current status:{' '}
+          <span className={`font-bold ${user.is_notice_admin ? 'text-amber-600' : 'text-slate-500'}`}>
+            {user.is_notice_admin ? '✓ Notice Admin' : 'Standard user'}
+          </span>
+        </p>
       </div>
 
       <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-5">

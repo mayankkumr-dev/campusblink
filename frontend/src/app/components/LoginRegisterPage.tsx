@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useNavigate, Link, useLocation } from 'react-router';
-import { Eye, EyeOff, Loader2, Mail } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, KeyRound, CheckCircle, X } from 'lucide-react';
 import { checkUsernameAvailability, resetPassword, resendConfirmationEmail, signIn, signUp } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
@@ -88,6 +88,10 @@ export const LoginRegisterPage: React.FC = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [emailVerifiedBanner, setEmailVerifiedBanner] = useState(false);
   const [verifyingEmailLink, setVerifyingEmailLink] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotEmailInput, setForgotEmailInput] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSuccessEmail, setForgotSuccessEmail] = useState<string | null>(null);
 
   const setUser = useAuthStore(state => state.setUser);
   const setProfile = useAuthStore(state => state.setProfile);
@@ -117,6 +121,17 @@ export const LoginRegisterPage: React.FC = () => {
     setTab(initialTab);
     setRegisterStep(initialTab === 'register' ? 1 : 2);
   }, [initialTab]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('reset') === 'success') {
+      setAuthStatus({
+        type: 'success',
+        title: 'Password Reset Successful!',
+        message: 'Your password has been changed. You can now sign in with your new password.',
+      });
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -599,53 +614,51 @@ export const LoginRegisterPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error('Enter your username or email to reset the password.');
+  const handleForgotPassword = () => {
+    setForgotEmailInput(email);
+    setForgotSuccessEmail(null);
+    setShowForgotModal(true);
+  };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const inputVal = forgotEmailInput.trim();
+    if (!inputVal) {
+      toast.error('Please enter your registered email or username.');
       return;
     }
 
-    let targetEmail = email;
-    if (!email.includes('@')) {
-      toast.loading('Looking up email for username...');
+    setForgotLoading(true);
+    let targetEmail = inputVal;
+    if (!inputVal.includes('@')) {
       try {
-        const { data, error: rpcError } = await supabase.rpc('get_email_by_username', { p_username: email });
+        const { data, error: rpcError } = await supabase.rpc('get_email_by_username', { p_username: inputVal });
         if (rpcError || !data) {
-          toast.dismiss();
-          toast.error('Username not found. Please enter a valid registered username.');
+          toast.error('Username not found. Please enter your registered email address.');
+          setForgotLoading(false);
           return;
         }
         targetEmail = data;
-        toast.dismiss();
       } catch (err) {
-        toast.dismiss();
         toast.error('Failed to look up username.');
+        setForgotLoading(false);
         return;
       }
     }
 
-    const toastId = toast.loading('Sending reset link...');
-    const { error } = await resetPassword(targetEmail, `${window.location.origin}/login`);
-    toast.dismiss(toastId);
+    const { error } = await resetPassword(targetEmail, `${window.location.origin}/auth/callback?type=recovery`);
+    setForgotLoading(false);
+
     if (error) {
       const errorMessage = (error && typeof error === 'object' && 'message' in error)
         ? String((error as { message?: string }).message)
         : 'Failed to send reset email.';
-      setAuthStatus({
-        type: 'error',
-        title: 'Password reset failed',
-        message: errorMessage,
-      });
       toast.error(errorMessage);
       return;
     }
 
-    setAuthStatus({
-      type: 'info',
-      title: 'Reset email sent',
-      message: 'Check your inbox and spam folder for the password reset email.',
-    });
-    toast.success('Password reset email sent. Check your inbox.');
+    setForgotSuccessEmail(targetEmail);
+    toast.success('Password reset email sent!');
   };
 
   const resendTargetEmail = showPostSignupScreen ? pendingVerification?.email : email;
@@ -903,7 +916,7 @@ export const LoginRegisterPage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="max-w-md mx-auto w-full flex-1 flex flex-col justify-start py-4 lg:py-2 rounded-[28px] border border-black/10 bg-[var(--bg)]/92 px-5 shadow-[0_24px_60px_rgba(13,13,13,0.08)] backdrop-blur-sm md:px-7 overflow-y-auto">
+        <div className="max-w-md mx-auto w-full flex-1 flex flex-col justify-start py-6 lg:py-4 rounded-[28px] border border-black/10 bg-[var(--bg)]/95 px-6 shadow-[0_24px_60px_rgba(13,13,13,0.08)] backdrop-blur-md md:px-8 overflow-y-auto transition-all duration-300">
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
@@ -1242,6 +1255,92 @@ export const LoginRegisterPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl max-w-md w-full p-6 relative overflow-hidden">
+            <button
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {forgotSuccessEmail ? (
+              <div className="text-center py-4 space-y-4">
+                <div className="mx-auto w-14 h-14 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-500">
+                  <CheckCircle className="w-7 h-7" />
+                </div>
+                <h3 className="font-syne text-xl font-bold text-[var(--text-primary)]">
+                  Check Your Email!
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                  We've sent a password reset link to <span className="font-semibold text-[var(--text-primary)]">{forgotSuccessEmail}</span>. Click the link in your email to set a new password.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotModal(false)}
+                  className="w-full py-3 px-4 rounded-xl bg-[var(--yellow)] text-[var(--text-primary)] font-syne font-bold text-sm shadow hover:opacity-95 transition-all mt-2"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotSubmit} className="space-y-5">
+                <div className="text-center">
+                  <div className="mx-auto w-12 h-12 rounded-xl bg-[var(--yellow)]/15 border border-[var(--yellow)]/30 flex items-center justify-center text-[var(--yellow)] mb-3">
+                    <KeyRound className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-syne text-xl font-bold text-[var(--text-primary)]">
+                    Reset Your Password
+                  </h3>
+                  <p className="mt-1 text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Enter your registered email address or username below and we'll send you a link to reset your password.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5">
+                    Email Address or Username
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={forgotEmailInput}
+                    onChange={(e) => setForgotEmailInput(e.target.value)}
+                    placeholder="student@example.edu or username"
+                    className="block w-full px-4 py-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] text-sm focus:outline-none focus:border-[var(--yellow)] focus:ring-1 focus:ring-[var(--yellow)] transition-all"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(false)}
+                    className="flex-1 py-3 px-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold text-sm transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="flex-1 py-3 px-4 rounded-xl bg-[var(--yellow)] text-[var(--text-primary)] font-syne font-bold text-sm shadow hover:opacity-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {forgotLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Reset Link'
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

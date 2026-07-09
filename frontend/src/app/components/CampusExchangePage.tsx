@@ -1,50 +1,64 @@
 import React from 'react';
-import { Building2, MessageCircle, Store } from 'lucide-react';
+import { Building2, MessageCircle, Store, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 
 export const CampusExchangePage: React.FC = () => {
   return (
-    <div className="min-h-full bg-[var(--bg-primary)] px-4 py-6 md:px-6 md:py-8">
-      <div className="mx-auto max-w-[980px]">
-        <div className="rounded-[20px] border border-black/10 bg-[var(--bg)] p-6 shadow-[0_10px_30px_rgba(13,13,13,0.06)] md:p-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">Marketplace Hub</p>
-          <h1 className="mt-2 font-syne text-4xl font-extrabold tracking-tight text-[var(--text-primary)]">Campus Excahnge</h1>
-          <p className="mt-2 max-w-2xl text-sm text-[var(--text-secondary)]">Choose where you want to go: trading campus items or finding a roommate near your preferred location.</p>
+    <div className="min-h-screen bg-slate-50/50 px-4 py-8 md:px-8 md:py-12 font-sans">
+      <div className="mx-auto max-w-[1000px]">
+        <div className="mb-10 text-center md:text-left">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-blue-500 mb-3">Marketplace Hub</p>
+          <h1 className="font-syne text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-4">Campus Exchange</h1>
+          <p className="max-w-2xl text-[15px] text-slate-500 leading-relaxed mx-auto md:mx-0">
+            Choose where you want to go: trading campus items, finding a roommate near your preferred location, or catching up on your messages.
+          </p>
+        </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            <Link
-              to="/student/buy-sell"
-              className="group rounded-[16px] border border-black/10 bg-[#FFFDF4] p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(13,13,13,0.08)]"
-            >
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--yellow)]/20 text-[var(--text-primary)]">
-                <Store className="h-5 w-5" />
-              </div>
-              <h2 className="mt-3 font-syne text-2xl font-bold text-[var(--text-primary)]">Buy & Sell</h2>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">List items, discover student deals, and manage your listings.</p>
-            </Link>
+        <div className="grid gap-6 md:grid-cols-3">
+          <Link
+            to="/student/buy-sell"
+            className="group rounded-3xl bg-white p-8 text-left transition-all duration-300 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_40px_-10px_rgba(37,99,235,0.1)] border border-slate-100 hover:-translate-y-1 relative overflow-hidden flex flex-col h-full"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500" />
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mb-6 shadow-sm relative z-10 border border-blue-100">
+              <Store className="h-6 w-6" />
+            </div>
+            <h2 className="font-syne text-2xl font-bold text-slate-900 mb-2 relative z-10">Buy & Sell</h2>
+            <p className="text-[14px] text-slate-500 leading-relaxed mb-6 flex-grow relative z-10">List items, discover student deals, and manage your active marketplace listings.</p>
+            <div className="flex items-center text-blue-600 font-bold text-sm mt-auto group-hover:gap-2 transition-all relative z-10">
+              Explore <ArrowRight className="h-4 w-4 ml-1" />
+            </div>
+          </Link>
 
-            <Link
-              to="/student/roommate"
-              className="group rounded-[16px] border border-black/10 bg-[#FFFDF4] p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(13,13,13,0.08)]"
-            >
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--yellow)]/20 text-[var(--text-primary)]">
-                <Building2 className="h-5 w-5" />
-              </div>
-              <h2 className="mt-3 font-syne text-2xl font-bold text-[var(--text-primary)]">Find Your roommate</h2>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">Post that you need a flatmate and include your address/preferences.</p>
-            </Link>
+          <Link
+            to="/student/roommate"
+            className="group rounded-3xl bg-white p-8 text-left transition-all duration-300 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.1)] border border-slate-100 hover:-translate-y-1 relative overflow-hidden flex flex-col h-full"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500" />
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mb-6 shadow-sm relative z-10 border border-emerald-100">
+              <Building2 className="h-6 w-6" />
+            </div>
+            <h2 className="font-syne text-2xl font-bold text-slate-900 mb-2 relative z-10">Find a Roommate</h2>
+            <p className="text-[14px] text-slate-500 leading-relaxed mb-6 flex-grow relative z-10">Post that you need a flatmate and easily share your address and personal preferences.</p>
+            <div className="flex items-center text-emerald-600 font-bold text-sm mt-auto group-hover:gap-2 transition-all relative z-10">
+              Search <ArrowRight className="h-4 w-4 ml-1" />
+            </div>
+          </Link>
 
-            <Link
-              to="/student/campus-exchange/messages"
-              className="group rounded-[16px] border border-black/10 bg-[#FFFDF4] p-5 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_22px_rgba(13,13,13,0.08)]"
-            >
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[var(--yellow)]/20 text-[var(--text-primary)]">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-              <h2 className="mt-3 font-syne text-2xl font-bold text-[var(--text-primary)]">Messages</h2>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">Open buyer-seller and flatmate chats from one place.</p>
-            </Link>
-          </div>
+          <Link
+            to="/student/campus-exchange/messages"
+            className="group rounded-3xl bg-white p-8 text-left transition-all duration-300 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_40px_-10px_rgba(245,158,11,0.1)] border border-slate-100 hover:-translate-y-1 relative overflow-hidden flex flex-col h-full"
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500" />
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-500 mb-6 shadow-sm relative z-10 border border-amber-100">
+              <MessageCircle className="h-6 w-6" />
+            </div>
+            <h2 className="font-syne text-2xl font-bold text-slate-900 mb-2 relative z-10">Messages</h2>
+            <p className="text-[14px] text-slate-500 leading-relaxed mb-6 flex-grow relative z-10">Open your buyer-seller and flatmate chats easily from one central inbox.</p>
+            <div className="flex items-center text-amber-500 font-bold text-sm mt-auto group-hover:gap-2 transition-all relative z-10">
+              Open Inbox <ArrowRight className="h-4 w-4 ml-1" />
+            </div>
+          </Link>
         </div>
       </div>
     </div>

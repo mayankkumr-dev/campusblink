@@ -40,8 +40,8 @@ export const AuthCallbackPage: React.FC = () => {
       }
 
       if (type === 'recovery') {
-        // Password reset flow — go to login so they can set new password
-        navigate('/login', { replace: true });
+        // Password reset flow — redirect to reset-password page to set new password
+        navigate('/reset-password', { replace: true });
         return;
       }
 

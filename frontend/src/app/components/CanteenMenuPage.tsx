@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from './ui/card';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { Button } from './ui/button';
-import { Search, ShoppingBag, X, Plus, Minus, Coffee, Utensils, Pizza, Soup, Loader2, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Search, ShoppingBag, X, Plus, Minus, Coffee, Utensils, Pizza, Soup, Loader2, AlertTriangle, RotateCcw, ChevronLeft, Store } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { getCanteens, getMenuItems, getMyCanteenReorderRequests, placeOrder, getMyOrders } from '../../api/canteen';
-import { deductCredits } from '../../api/credits';
 import { useMyOrderStatus } from '../../hooks/useRealtime';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import toast from 'react-hot-toast';
@@ -27,7 +26,9 @@ export const CanteenMenuPage: React.FC = () => {
   const profile = useAuthStore(state => state.profile);
   const { hasAccess: hasCanteenAccess, isChecking: checkingCanteenAccess } = useFeatureAccess('canteen_access');
   const { isAllowed } = useFeatureAccess(profile);
-  const { items: cartItems, addItem, removeItem, updateQty, total: getCartTotal, clearCart, shopId: cartShopId } = useCartStore();
+  const { items: cartItems, addItem, removeItem, updateQty, total: getCartTotal, clearCart, shopId: cartShopId, shopName: cartShopName } = useCartStore();
+  const [switchShopModalOpen, setSwitchShopModalOpen] = useState(false);
+  const [pendingAddItem, setPendingAddItem] = useState<any | null>(null);
 
   const [canteens, setCanteens] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
@@ -107,10 +108,12 @@ export const CanteenMenuPage: React.FC = () => {
   ];
 
   const handleAddToCart = (item: any) => {
-    const shop = canteens.find(c => c.id === selectedCanteenId);
-    if (cartShopId && cartShopId !== selectedCanteenId) {
-       toast.error("You can only order from one canteen at a time. Cart cleared.");
+    if (cartShopId && cartShopId !== selectedCanteenId && cartItems.length > 0) {
+      setPendingAddItem(item);
+      setSwitchShopModalOpen(true);
+      return;
     }
+    const shop = canteens.find(c => c.id === selectedCanteenId);
     addItem({
       id: item.id,
       name: item.name,
@@ -119,6 +122,23 @@ export const CanteenMenuPage: React.FC = () => {
       is_veg: item.is_veg
     }, selectedCanteenId, shop?.name || 'Canteen');
     toast.success(`${item.name} added to cart`);
+  };
+
+  const handleConfirmSwitchShop = () => {
+    clearCart();
+    if (pendingAddItem) {
+      const shop = canteens.find(c => c.id === selectedCanteenId);
+      addItem({
+        id: pendingAddItem.id,
+        name: pendingAddItem.name,
+        price: pendingAddItem.price,
+        image_url: pendingAddItem.image_url,
+        is_veg: pendingAddItem.is_veg
+      }, selectedCanteenId, shop?.name || 'Canteen');
+      toast.success(`${pendingAddItem.name} added to cart`);
+    }
+    setSwitchShopModalOpen(false);
+    setPendingAddItem(null);
   };
 
   const getQuantity = (id: string) => {
@@ -169,9 +189,15 @@ export const CanteenMenuPage: React.FC = () => {
     (searchTerm === '' || item.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const tabs = [
+    { id: 'menu', label: 'Menu' },
+    { id: 'history', label: 'Order History' },
+    { id: 'cart', label: `Cart ${cartItems.length > 0 ? `(${cartItems.length})` : ''}` }
+  ];
+
   if (checkingCanteenAccess) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] p-4 md:p-8">
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (
             <ListSkeleton key={`canteen-access-skeleton-${index}`} rows={1} />
@@ -187,15 +213,15 @@ export const CanteenMenuPage: React.FC = () => {
 
   if (!profile?.college) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] font-sans text-[var(--text-primary)] flex items-center justify-center p-6">
-        <div className="max-w-md w-full rounded-lg border border-[var(--text-primary)]/10 bg-[var(--bg)] p-8 text-center shadow-soft">
-          <h2 className="font-syne font-bold text-2xl mb-3">College Required</h2>
-          <p className="text-[var(--text-secondary)] text-sm leading-relaxed mb-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="max-w-md w-full rounded-2xl bg-white p-10 text-center shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
+          <h2 className="font-bold text-2xl mb-4 text-slate-900">College Required</h2>
+          <p className="text-slate-500 text-sm leading-relaxed mb-8">
             Update your profile to select your college to access canteen ordering.
           </p>
           <button
             onClick={() => navigate('/student/profile?edit=1')}
-            className="px-6 py-3 rounded-md bg-[var(--yellow)] text-[var(--text-primary)] font-bold hover:shadow-[0_0_20px_rgba(255,214,0,0.35)] transition-all"
+            className="px-6 py-3.5 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors w-full shadow-md"
           >
             Update Profile
           </button>
@@ -205,40 +231,51 @@ export const CanteenMenuPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] font-sans text-[var(--text-primary)] flex flex-col pt-16 md:pt-0">
+    <div className="min-h-screen bg-slate-50/50 flex flex-col pt-16 md:pt-0 font-sans">
       {/* Top Navbar */}
-      <header className="hidden md:flex h-20 bg-[var(--bg)] border-b border-[var(--text-primary)]/10 px-8 items-center justify-between sticky top-0 z-40 shadow-sm">
+      <header className="hidden md:flex h-[72px] bg-white border-b border-slate-100 px-8 items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3 mt-2">
            {/* Logo intentionally removed from this specific page header as per request */}
         </div>
 
-        <nav className="flex items-center gap-8">
-          <button 
-            onClick={() => { setActiveTab('menu'); setIsCartOpen(false); }}
-            className={`font-syne font-bold text-lg transition-colors ${activeTab === 'menu' && !isCartOpen ? 'text-[var(--text-primary)] border-b-2 border-[var(--yellow)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-          >
-            Menu
-          </button>
-          <button 
-            onClick={() => { setActiveTab('history'); setIsCartOpen(false); }}
-            className={`font-syne font-bold text-lg transition-colors ${activeTab === 'history' ? 'text-[var(--text-primary)] border-b-2 border-[var(--yellow)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-          >
-            Order History
-          </button>
-          <button 
-            onClick={() => { setIsCartOpen(!isCartOpen); }}
-            className={`font-syne font-bold text-lg transition-colors flex items-center gap-2 ${isCartOpen ? 'text-[var(--text-primary)] border-b-2 border-[var(--yellow)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-          >
-            Cart {cartItems.length > 0 && <span className="bg-[var(--yellow)] text-[var(--text-primary)] text-xs px-2 py-0.5 rounded-md shadow-sm">{cartItems.length}</span>}
-          </button>
+        <nav className="flex items-center gap-10">
+          {tabs.map((tab) => {
+            const isActive = (tab.id === 'cart' ? isCartOpen : (activeTab === tab.id && !isCartOpen));
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  if (tab.id === 'cart') {
+                    setIsCartOpen(!isCartOpen);
+                  } else {
+                    setActiveTab(tab.id);
+                    setIsCartOpen(false);
+                  }
+                }}
+                className={`relative py-4 text-[15px] font-semibold transition-colors flex items-center gap-2 ${
+                  isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {tab.label}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabIndicator"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900 rounded-t-full"
+                    initial={false}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="text-right">
-            <p className="font-syne font-bold text-sm leading-tight text-[var(--text-primary)]">{profile?.name || 'Student'}</p>
-            <p className="text-xs text-[var(--yellow-dark)] font-bold font-sans">⭐ {profile?.campus_credits || 0} Reputation available</p>
+            <p className="font-bold text-sm leading-tight text-slate-900">{profile?.name || 'Student'}</p>
+            <p className="text-[11px] text-amber-500 font-bold uppercase tracking-wider mt-0.5">{profile?.campus_credits || 0} Reputation</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-[var(--bg)] border border-[var(--yellow)] overflow-hidden shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shadow-sm">
             <img
               src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, email: profile?.email, seed: profile?.id || profile?.username })}
               alt="Profile"
@@ -249,265 +286,291 @@ export const CanteenMenuPage: React.FC = () => {
       </header>
       
       {/* Mobile nav buttons */}
-      <div className="md:hidden flex bg-[var(--bg)] border-b border-black/10 sticky top-16 z-30">
-        <button onClick={() => { setActiveTab('menu'); setIsCartOpen(false); }} className={`flex-1 py-3 text-sm font-bold ${activeTab === 'menu' && !isCartOpen ? 'border-b-2 border-[var(--yellow)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>Menu</button>
-        <button onClick={() => { setActiveTab('history'); setIsCartOpen(false); }} className={`flex-1 py-3 text-sm font-bold ${activeTab === 'history' ? 'border-b-2 border-[var(--yellow)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>History</button>
-        <button onClick={() => setIsCartOpen(!isCartOpen)} className={`flex-1 py-3 text-sm font-bold ${isCartOpen ? 'border-b-2 border-[var(--yellow)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-          Cart {cartItems.length > 0 && `(${cartItems.length})`}
+      <div className="md:hidden flex bg-white border-b border-slate-100 sticky top-16 z-30 shadow-sm">
+        <button onClick={() => { setActiveTab('menu'); setIsCartOpen(false); }} className={`flex-1 py-3.5 text-sm font-bold relative ${activeTab === 'menu' && !isCartOpen ? 'text-slate-900' : 'text-slate-500'}`}>
+          Menu
+          {activeTab === 'menu' && !isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
+        </button>
+        <button onClick={() => { setActiveTab('history'); setIsCartOpen(false); }} className={`flex-1 py-3.5 text-sm font-bold relative ${activeTab === 'history' ? 'text-slate-900' : 'text-slate-500'}`}>
+          History
+          {activeTab === 'history' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
+        </button>
+        <button onClick={() => setIsCartOpen(!isCartOpen)} className={`flex-1 py-3.5 text-sm font-bold relative flex justify-center items-center gap-1.5 ${isCartOpen ? 'text-slate-900' : 'text-slate-500'}`}>
+          Cart {cartItems.length > 0 && <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.5 rounded-md">{cartItems.length}</span>}
+          {isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
         </button>
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex overflow-hidden relative">
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 transition-all duration-300">
-          {reorderRequests.map((order) => (
-            <div key={order.id} className="mb-4 rounded-lg border border-amber-400/40 bg-amber-50 px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-[var(--text-primary)] text-sm">Canteen Reorder Requested</p>
-                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                    Your order <span className="font-mono font-bold">#{order.id.slice(0, 6)}</span>
-                    {order.canteen_shops?.name ? ` at ${order.canteen_shops.name}` : ''} needs reorder.
-                    If you already paid, you do not need to pay again. If not, you can pay at the canteen.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate(`/student/canteen/reorder/${order.id}`)}
-                className="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-all disabled:opacity-60 whitespace-nowrap shadow-md"
-              >
-                <><RotateCcw className="w-4 h-4" /> Reorder Items</>
-              </button>
-            </div>
-          ))}
-          
-          {isLoading && !isCartOpen ? (
-             <div className="max-w-6xl mx-auto py-8">
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                 {Array.from({ length: 6 }).map((_, index) => (
-                   <ListSkeleton key={`canteen-grid-skeleton-${index}`} rows={1} />
-                 ))}
-               </div>
-             </div>
-          ) : !selectedCanteenId && activeTab === 'menu' ? (
-            <div className="max-w-6xl mx-auto py-8">
-              <h2 className="font-syne font-bold text-3xl md:text-4xl mb-4 text-[var(--text-primary)]">Where are you hungry?</h2>
-              <p className="text-base md:text-lg text-[var(--text-secondary)] font-sans mb-12">Select a canteen below to view their live menu and place an order.</p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {canteens.length === 0 && !isLoading && (
-                  <p className="text-[var(--text-secondary)] col-span-full">No active canteens found on campus at the moment.</p>
-                )}
-                {canteens.map((canteen) => (
-                  <button
-                    key={canteen.id}
-                    onClick={() => setSearchParams({ canteenId: canteen.id })}
-                    className="bg-[var(--bg)] border-2 border-[var(--text-primary)]/10 hover:border-[var(--yellow)] rounded-lg p-6 text-left transition-all group shadow-soft hover:shadow-medium hover:-translate-y-1 relative overflow-hidden"
-                  >
-                     <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-[var(--yellow)]/10 rounded-full blur-[20px] group-hover:bg-[var(--yellow)]/20 transition-colors pointer-events-none" />
-                     {canteen.logo_url ? (
-                       <img src={canteen.logo_url} alt="Logo" className="w-10 h-10 object-cover rounded-full mb-4 relative z-10" />
-                     ) : (
-                       <Utensils className="w-10 h-10 text-[var(--text-primary)] mb-4 group-hover:text-[var(--yellow)] transition-colors relative z-10" />
-                     )}
-                     <h3 className="print-shop-name font-syne font-bold text-xl text-[var(--text-primary)] mb-2 relative z-10">{canteen.name}</h3>
-                     <p className="font-sans text-sm text-[var(--text-secondary)] relative z-10">{canteen.category?.replace('_',' ') || canteen.description || 'Campus Canteen'}</p>
-                     <p className={`mt-3 text-[11px] font-bold uppercase tracking-[0.16em] relative z-10 ${canteen.is_open_now ? 'text-[var(--success-dark)]' : 'text-[var(--error-dark)]'}`}>{canteen.is_open_now ? 'Open now' : 'Closed'}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : activeTab === 'menu' ? (
-            <>
-              {/* Category Nav & Search */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div className="flex overflow-x-auto hide-scrollbar gap-2 md:gap-4 pb-2 md:pb-0">
-                  {dynamicCategories.length > 0 ? dynamicCategories.map((catName) => (
-                    <button
-                      key={catName}
-                      onClick={() => setActiveCategory(catName)}
-                      className={`category-pill flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-md font-bold font-sans transition-all border ${
-                        activeCategory === catName 
-                          ? 'bg-[var(--yellow)] text-[var(--text-primary)] border-[var(--yellow)] shadow-medium' 
-                          : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/30 hover:text-[var(--text-primary)] shadow-sm'
-                      }`}
-                    >
-                      {catName}
-                    </button>
-                  )) : (
-                    categories.map((cat) => (
-                      <button
-                        key={cat.name}
-                        onClick={() => setActiveCategory(cat.name)}
-                        className={`category-pill flex items-center whitespace-nowrap gap-2 px-6 py-3 rounded-md font-bold font-sans transition-all border ${
-                          activeCategory === cat.name 
-                            ? 'bg-[var(--yellow)] text-[var(--text-primary)] border-[var(--yellow)] shadow-medium' 
-                            : 'bg-[var(--bg)] text-[var(--text-secondary)] border-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/30 hover:text-[var(--text-primary)] shadow-sm'
-                        }`}
-                      >
-                        <cat.icon className="w-5 h-5" />
-                        {cat.name}
-                      </button>
-                    ))
-                  )}
-                </div>
-                
-                <div className="relative w-full md:w-80">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
-                  <input 
-                    placeholder="Search for an item" 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-[var(--bg)] border border-[var(--text-primary)]/10 rounded-md pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[var(--yellow)] focus:ring-1 focus:ring-[var(--yellow)]/50 transition-colors text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-sans shadow-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mb-6">
-                <button 
-                  onClick={() => { 
-                    setSearchParams({}); 
-                  }}
-                  className="text-sm font-sans font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--text-primary)]/10 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] px-4 py-1.5 rounded-md transition-colors flex items-center gap-1"
-                >
-                  ← Back to Canteens
-                </button>
-                <h2 className="font-syne font-bold text-2xl md:text-3xl text-[var(--text-primary)]">
-                  {canteens.find(c => c.id === selectedCanteenId)?.name || 'Menu'}
-                </h2>
-                <span className={`rounded-md px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] ${canteens.find(c => c.id === selectedCanteenId)?.is_open_now ? 'bg-[var(--success-light)] text-[var(--success-dark)]' : 'bg-[#FEE2E2] text-[var(--error-dark)]'}`}>
-                  {canteens.find(c => c.id === selectedCanteenId)?.is_open_now ? 'Open' : 'Closed'}
-                </span>
-              </div>
-
-              {/* Menu Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-24 md:pb-0">
-                {filteredItems.length === 0 && <p className="text-[var(--text-secondary)] col-span-full">No items found in this category.</p>}
-                {filteredItems.map(item => {
-                  const qty = getQuantity(item.id);
-                  return (
-                    <Card key={item.id} className="bg-[var(--bg)] border border-[var(--text-primary)]/10 overflow-hidden hover:border-[var(--yellow)] transition-colors group flex flex-col p-4 shadow-soft">
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-[var(--bg-secondary)] relative mb-4">
-                        {item.image_url ? (
-                          <img loading="lazy" src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-                             <Utensils className="w-12 h-12" />
-                          </div>
-                        )}
-                        <div className="absolute top-2 right-2 bg-[var(--bg)]/90  border border-[var(--text-primary)]/10 rounded-md px-2 py-1 shadow-sm flex items-center gap-1.5">
-                           <div className={`w-2 h-2 rounded-full ${item.is_veg ? 'bg-green-500' : 'bg-red-500'}`} />
-                           <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)]">{item.is_veg ? 'Veg' : 'Non-Veg'}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col flex-1">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="canteen-item-name font-syne font-bold leading-tight pr-2 text-[var(--text-primary)]">{item.name}</h3>
-                        </div>
-                        
-                        <div className="text-sm text-[var(--text-secondary)] font-sans space-y-1 mb-4">
-                          <p>{item.description || 'Prepared fresh'}</p>
-                          <p>Prep Time: <span className="font-bold text-[var(--text-primary)]">{item.prep_time_minutes} min</span></p>
-                        </div>
-                        
-                        <div className="mt-auto flex flex-col gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center bg-[var(--bg)] rounded-md border border-[var(--text-primary)]/10 overflow-hidden shadow-sm">
-                              <button 
-                                onClick={() => updateQty(item.id, qty - 1)}
-                                className="w-8 h-8 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="w-8 text-center font-bold text-[var(--text-primary)] text-sm">{qty}</span>
-                              <button 
-                                onClick={() => {
-                                  if(qty === 0) handleAddToCart(item);
-                                  else updateQty(item.id, qty + 1);
-                                }}
-                                className="w-8 h-8 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
-                            <span className="listing-price font-syne font-bold text-xl text-[var(--text-primary)] ml-auto">₹{item.price}</span>
-                          </div>
-                          
-                          {qty > 0 ? (
-                            <button className="w-full py-2.5 rounded-md font-bold font-sans text-sm tracking-wider border-2 border-[var(--yellow)] text-[var(--text-primary)] bg-[var(--yellow)]/20 flex items-center justify-center gap-2 shadow-sm">
-                              <ShoppingBag className="w-4 h-4" /> Added to Cart
-                            </button>
-                          ) : (
-                            <button 
-                              onClick={() => handleAddToCart(item)}
-                              className="w-full py-2.5 rounded-md font-bold font-sans text-sm tracking-wider border border-[var(--text-primary)]/10 hover:border-[var(--yellow)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--yellow)]/10 hover:shadow-sm transition-all flex items-center justify-center gap-2"
-                            >
-                              <ShoppingBag className="w-4 h-4" /> Add to cart
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </>
-          ) : (
-            <>
-              {activeTab === 'history' && (
-                <div className="max-w-6xl mx-auto">
-                  <h2 className="font-syne font-bold text-3xl md:text-4xl mb-8 text-center text-[var(--text-primary)]">Order History</h2>
-
-                  <div className="bg-[var(--bg)] border border-[var(--text-primary)]/10 rounded-lg overflow-hidden shadow-soft overflow-x-auto">
-                    {orderHistory.length === 0 ? (
-                      <div className="p-8 text-center text-[var(--text-secondary)]">You haven't placed any canteen orders yet.</div>
-                    ) : (
-                      <table className="w-full min-w-[600px] text-left font-sans">
-                        <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
-                          <tr className="border-b border-[var(--text-primary)]/10 text-xs text-[var(--text-secondary)] uppercase tracking-widest bg-[var(--bg-secondary)] hover:bg-[var(--bg-primary)] transition-colors duration-150">
-                            <th className="px-6 py-4 font-bold px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Date</th>
-                            <th className="px-6 py-4 font-bold px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Shop</th>
-                            <th className="px-6 py-4 font-bold px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Items</th>
-                            <th className="px-6 py-4 font-bold px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Status</th>
-                            <th className="px-6 py-4 font-bold text-right px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Expense</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[var(--text-primary)]/10">
-                          {orderHistory.map((order) => (
-                            <tr key={order.id} className="hover:bg-[var(--bg-secondary)] transition-colors">
-                              <td className="activity-date px-6 py-4 text-sm text-[var(--text-primary)] font-medium">
-                                {new Date(order.created_at).toLocaleDateString()}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-[var(--text-primary)]">
-                                {order.canteen_shops?.name || 'Unknown'}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-[var(--text-primary)] font-medium max-w-[200px] truncate">
-                                {Array.isArray(order.items) ? order.items.map((i:any) => `${i.qty}x ${i.name}`).join(', ') : 'Custom Order'}
-                              </td>
-                              <td className="px-6 py-4 text-sm">
-                                <span className={`status-badge inline-block px-2 py-1 rounded text-xs font-bold uppercase ${
-                                  order.status === 'ready' ? 'bg-green-100 text-green-700' :
-                                  order.status === 'preparing' ? 'bg-orange-100 text-orange-700' :
-                                  order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                  order.status === 'picked_up' ? 'bg-gray-200 text-[var(--text-2)]' :
-                                  'bg-blue-100 text-blue-700'
-                                }`}>
-                                  {order.status}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-sm font-bold text-right text-[var(--text-primary)]">₹ {order.total}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    )}
+      <main className="flex-1 flex flex-col relative overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10 transition-all duration-300">
+          <div className="max-w-6xl mx-auto">
+            
+            {reorderRequests.map((order) => (
+              <div key={order.id} className="mb-8 rounded-2xl border border-amber-200/60 bg-amber-50/50 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="bg-white p-2 rounded-xl text-amber-600 shadow-sm">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-[15px]">Canteen Reorder Requested</p>
+                    <p className="text-sm text-slate-600 mt-1 max-w-xl leading-relaxed">
+                      Your order <span className="font-mono font-bold bg-white px-1.5 py-0.5 rounded text-xs border border-slate-100">#{order.id.slice(0, 6)}</span>
+                      {order.canteen_shops?.name ? ` at ${order.canteen_shops.name}` : ''} needs reorder.
+                      If you already paid, you do not need to pay again.
+                    </p>
                   </div>
                 </div>
-              )}
-            </>
-          )}
+                <button
+                  onClick={() => navigate(`/student/canteen/reorder/${order.id}`)}
+                  className="flex-shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm transition-all shadow-md w-full sm:w-auto"
+                >
+                  <RotateCcw className="w-4 h-4" /> Reorder Items
+                </button>
+              </div>
+            ))}
+            
+            {isLoading && !isCartOpen ? (
+               <div className="py-8">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                   {Array.from({ length: 6 }).map((_, index) => (
+                     <ListSkeleton key={`canteen-grid-skeleton-${index}`} rows={1} />
+                   ))}
+                 </div>
+               </div>
+            ) : !selectedCanteenId && activeTab === 'menu' ? (
+              <div className="py-8 md:py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <h2 className="font-bold text-4xl md:text-5xl text-slate-900 tracking-tight mb-4">Where are you hungry?</h2>
+                <p className="text-lg text-slate-500 mb-12 max-w-2xl">Select a canteen below to view their live menu and place an order.</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {canteens.length === 0 && !isLoading && (
+                    <div className="col-span-full py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
+                      <p className="text-slate-500">No active canteens found on campus at the moment.</p>
+                    </div>
+                  )}
+                  {canteens.map((canteen) => (
+                    <button
+                      key={canteen.id}
+                      onClick={() => setSearchParams({ canteenId: canteen.id })}
+                      className="bg-white rounded-2xl p-6 text-left transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-1 group border border-slate-100 flex flex-col"
+                    >
+                      <div className="flex items-start justify-between mb-5">
+                        <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden shadow-sm border border-slate-100 group-hover:bg-slate-900 transition-colors duration-300">
+                          {canteen.logo_url ? (
+                            <img src={canteen.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                          ) : (
+                            <Store className="w-7 h-7 text-slate-300 group-hover:text-white transition-colors duration-300" />
+                          )}
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                          canteen.is_open_now ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                        }`}>
+                          {canteen.is_open_now ? 'Open' : 'Closed'}
+                        </span>
+                      </div>
+                      <h3 className="font-bold text-xl text-slate-900 mb-1.5">{canteen.name}</h3>
+                      <p className="text-sm text-slate-500 line-clamp-2">{canteen.category?.replace('_',' ') || canteen.description || 'Campus Canteen'}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : activeTab === 'menu' ? (
+              <div className="animate-in fade-in duration-500 pb-24 md:pb-0">
+                <div className="flex items-center gap-4 mb-8">
+                  <button 
+                    onClick={() => { 
+                      setSearchParams({}); 
+                    }}
+                    className="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-slate-900 bg-white border border-slate-200 rounded-xl transition-all shadow-sm hover:shadow-md"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div>
+                    <h2 className="font-bold text-2xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3">
+                      {canteens.find(c => c.id === selectedCanteenId)?.name || 'Menu'}
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${canteens.find(c => c.id === selectedCanteenId)?.is_open_now ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                        {canteens.find(c => c.id === selectedCanteenId)?.is_open_now ? 'Open' : 'Closed'}
+                      </span>
+                    </h2>
+                  </div>
+                </div>
 
+                {/* Category Nav & Search */}
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 mb-8">
+                  <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-1 -mx-4 px-4 md:mx-0 md:px-0">
+                    {dynamicCategories.length > 0 ? dynamicCategories.map((catName) => (
+                      <button
+                        key={catName}
+                        onClick={() => setActiveCategory(catName)}
+                        className={`flex-shrink-0 flex items-center whitespace-nowrap px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                          activeCategory === catName 
+                            ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' 
+                            : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50 shadow-sm'
+                        }`}
+                      >
+                        {catName}
+                      </button>
+                    )) : (
+                      categories.map((cat) => (
+                        <button
+                          key={cat.name}
+                          onClick={() => setActiveCategory(cat.name)}
+                          className={`flex-shrink-0 flex items-center whitespace-nowrap gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                            activeCategory === cat.name 
+                              ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100' 
+                              : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50 shadow-sm'
+                          }`}
+                        >
+                          <cat.icon className="w-4 h-4" />
+                          {cat.name}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                  
+                  <div className="relative w-full lg:w-80 flex-shrink-0">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input 
+                      placeholder="Search for an item..." 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all text-slate-900 placeholder:text-slate-400 font-medium shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Menu Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {filteredItems.length === 0 && (
+                    <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+                      <p className="text-slate-500 font-medium">No items found in this category.</p>
+                    </div>
+                  )}
+                  {filteredItems.map(item => {
+                    const qty = getQuantity(item.id);
+                    return (
+                      <div key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] flex flex-col transition-all hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.08)] group border border-slate-100/50">
+                        <div className="w-full aspect-[4/3] bg-slate-50 relative overflow-hidden">
+                          {item.image_url ? (
+                            <img loading="lazy" src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-200">
+                               <Utensils className="w-10 h-10" />
+                            </div>
+                          )}
+                          <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md rounded-full px-3 py-1.5 shadow-sm flex items-center gap-2">
+                             <div className={`w-2 h-2 rounded-full ${item.is_veg ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                             <span className="text-[10px] uppercase font-bold tracking-widest text-slate-700">{item.is_veg ? 'Veg' : 'Non-Veg'}</span>
+                          </div>
+                        </div>
+                        <div className="p-6 flex flex-col flex-1">
+                          <h3 className="font-bold text-lg text-slate-900 leading-tight mb-2 pr-2">{item.name}</h3>
+                          
+                          <div className="text-sm text-slate-500 space-y-2 mb-6">
+                            <p className="line-clamp-2 min-h-[40px] leading-relaxed">{item.description || 'Prepared fresh upon ordering'}</p>
+                            <p className="text-xs text-slate-400 font-bold tracking-wide">PREP TIME: {item.prep_time_minutes} MIN</p>
+                          </div>
+                          
+                          <div className="mt-auto flex items-center justify-between">
+                            <span className="font-extrabold text-2xl text-slate-900 tracking-tight">₹{item.price}</span>
+                            
+                            {qty > 0 ? (
+                              <div className="flex items-center bg-slate-50 rounded-xl p-1 border border-slate-100">
+                                <button 
+                                  onClick={() => updateQty(item.id, qty - 1)}
+                                  className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-lg transition-all shadow-sm"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="w-10 text-center font-bold text-slate-900 text-[15px]">{qty}</span>
+                                <button 
+                                  onClick={() => {
+                                    if(qty === 0) handleAddToCart(item);
+                                    else updateQty(item.id, qty + 1);
+                                  }}
+                                  className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-lg transition-all shadow-sm"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => handleAddToCart(item)}
+                                className="px-6 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-100 transition-colors flex items-center gap-2"
+                              >
+                                <Plus className="w-4 h-4" /> Add
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <>
+                {activeTab === 'history' && (
+                  <div className="max-w-4xl mx-auto py-4 md:py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <h2 className="font-bold text-3xl md:text-4xl mb-8 text-slate-900 tracking-tight">Order History</h2>
+
+                    <div className="space-y-4">
+                      {orderHistory.length === 0 ? (
+                        <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+                          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                            <Utensils className="w-8 h-8" />
+                          </div>
+                          <p className="text-slate-500 font-medium">You haven't placed any canteen orders yet.</p>
+                        </div>
+                      ) : (
+                        orderHistory.map((order) => (
+                          <div key={order.id} className="bg-white p-5 md:p-6 rounded-2xl shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)]">
+                            
+                            <div className="flex items-start gap-4 md:gap-5">
+                              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100">
+                                <ShoppingBag className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                                  <h4 className="font-bold text-slate-900 text-lg">{order.canteen_shops?.name || 'Unknown Canteen'}</h4>
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                    order.status === 'ready' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                    order.status === 'preparing' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                    order.status === 'cancelled' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                    order.status === 'picked_up' ? 'bg-slate-100 text-slate-500 border-slate-200' :
+                                    'bg-blue-50 text-blue-600 border-blue-100'
+                                  }`}>
+                                    {order.status.replace('_', ' ')}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500 mb-3 font-medium uppercase tracking-wider">
+                                  {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                                </p>
+                                <div className="text-sm text-slate-700 font-medium leading-relaxed">
+                                   {Array.isArray(order.items) ? order.items.map((i:any) => {
+                                     const quantity = i.qty || i.quantity || 1;
+                                     return `${quantity}x ${i.name}`;
+                                   }).join(', ') : 'Custom Order'}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between md:flex-col md:items-end gap-1 border-t md:border-t-0 border-slate-100 pt-4 md:pt-0">
+                              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Total</span>
+                              <span className="font-bold text-2xl text-slate-900 tracking-tight">₹{order.total}</span>
+                            </div>
+
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+          </div>
         </div>
 
         {/* Cart Panel */}
@@ -519,61 +582,64 @@ export const CanteenMenuPage: React.FC = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsCartOpen(false)}
-                className="fixed inset-0 bg-black/40 -[1px] z-40"
+                className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40"
               />
               <motion.div
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 40, opacity: 0 }}
-                transition={{ type: 'spring', damping: 24, stiffness: 220 }}
-                className="fixed z-50 left-0 right-0 bottom-0 md:bottom-6 md:left-auto md:right-6 md:w-[420px] md:max-h-[84vh] bg-[var(--bg)] border border-[var(--border)] flex flex-col overflow-hidden"
+                initial={{ x: '100%', opacity: 0.5 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: '100%', opacity: 0.5 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed z-50 top-0 right-0 bottom-0 w-full md:w-[440px] bg-white shadow-2xl flex flex-col border-l border-slate-100"
               >
-                <div className="p-4 md:p-5 border-b border-[var(--text-primary)]/10 flex items-center justify-between bg-[var(--bg-secondary)]">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md z-10">
                   <div>
-                    <h2 className="font-syne font-bold text-2xl text-[var(--text-primary)]">Your Cart</h2>
-                    <p className="text-xs text-[var(--text-secondary)] font-bold mt-0.5">{cartItems.length} item{cartItems.length === 1 ? '' : 's'} added</p>
+                    <h2 className="font-bold text-2xl text-slate-900 tracking-tight">Your Cart</h2>
+                    <p className="text-sm text-slate-500 font-medium mt-1">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''}</p>
                   </div>
-                  <button onClick={() => setIsCartOpen(false)} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-2 hover:bg-[var(--bg)] rounded-md transition-colors">
+                  <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 p-2.5 rounded-full transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 hide-scrollbar bg-[var(--bg)]">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50 hide-scrollbar">
                   {cartItems.length === 0 ? (
-                    <div className="h-56 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
-                      <ShoppingBag className="w-16 h-16 opacity-30" />
-                      <p className="font-sans font-medium text-[var(--text-secondary)]">Your cart is empty</p>
+                    <div className="h-full flex flex-col items-center justify-center text-center">
+                      <div className="w-32 h-32 mb-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-200 relative overflow-hidden">
+                         <div className="absolute inset-0 bg-gradient-to-tr from-slate-50 to-white" />
+                         <ShoppingBag className="w-12 h-12 relative z-10" />
+                      </div>
+                      <h3 className="font-bold text-xl text-slate-900 mb-2">Cart is empty</h3>
+                      <p className="text-slate-500 text-sm max-w-[200px] leading-relaxed">Looks like you haven't added anything to your cart yet.</p>
                     </div>
                   ) : (
                     cartItems.map((cartItem: any) => (
-                      <div key={cartItem.id} className="flex gap-4 rounded-lg border border-[var(--text-primary)]/10 p-3">
-                        <div className="w-14 h-14 rounded-lg overflow-hidden bg-[var(--bg-secondary)] flex-shrink-0 flex items-center justify-center">
+                      <div key={cartItem.id} className="flex gap-4 p-4 bg-white rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.03)] border border-slate-100 items-center">
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-50 flex-shrink-0 flex items-center justify-center border border-slate-100">
                           {cartItem.image_url ? (
-                             <img loading="lazy" src={cartItem.image_url} alt={cartItem.name} className="w-full h-full object-cover opacity-90" />
+                             <img src={cartItem.image_url} alt={cartItem.name} className="w-full h-full object-cover" />
                           ) : (
-                             <Utensils className="w-7 h-7 text-[var(--text-muted)]" />
+                             <Utensils className="w-6 h-6 text-slate-300" />
                           )}
                         </div>
-                        <div className="flex-1 flex flex-col min-w-0">
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-syne font-bold text-sm text-[var(--text-primary)] line-clamp-2 pr-3 leading-tight">{cartItem.name}</h4>
-                            <button onClick={() => removeItem(cartItem.id)} className="text-red-500 hover:text-red-600 p-1 -mt-1 -mr-1 transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className="font-bold text-slate-900 text-[15px] truncate pr-2 leading-tight">{cartItem.name}</h4>
+                            <button onClick={() => removeItem(cartItem.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-1 -mt-1 -mr-1">
                               <X className="w-4 h-4" />
                             </button>
                           </div>
-
-                          <div className="flex items-center justify-between mt-auto">
-                            <div className="flex items-center bg-[var(--bg)] rounded-md border border-[var(--text-primary)]/10 overflow-hidden shadow-sm">
-                              <button onClick={() => updateQty(cartItem.id, cartItem.qty - 1)} className="w-7 h-7 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors">
+                          <div className="font-bold text-slate-900 text-sm mb-3">₹{cartItem.price}</div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center bg-slate-50 rounded-lg p-0.5 border border-slate-200">
+                              <button onClick={() => updateQty(cartItem.id, cartItem.qty - 1)} className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-all shadow-sm">
                                 <Minus className="w-3 h-3" />
                               </button>
-                              <span className="w-6 text-center font-bold text-[var(--text-primary)] text-xs">{cartItem.qty}</span>
-                              <button onClick={() => updateQty(cartItem.id, cartItem.qty + 1)} className="w-7 h-7 flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors">
+                              <span className="w-8 text-center font-bold text-slate-900 text-xs">{cartItem.qty}</span>
+                              <button onClick={() => updateQty(cartItem.id, cartItem.qty + 1)} className="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-all shadow-sm">
                                 <Plus className="w-3 h-3" />
                               </button>
                             </div>
-
-                            <span className="font-syne font-bold text-[var(--text-primary)] text-sm">₹{cartItem.price * cartItem.qty}</span>
                           </div>
                         </div>
                       </div>
@@ -582,17 +648,17 @@ export const CanteenMenuPage: React.FC = () => {
                 </div>
 
                 {cartItems.length > 0 && (
-                  <div className="p-4 md:p-5 border-t border-[var(--text-primary)]/10 bg-[var(--bg-secondary)]">
-                    <div className="flex justify-between items-center mb-4 px-1">
-                      <span className="font-sans font-bold text-[var(--text-secondary)]">Total Amount</span>
-                      <span className="font-syne font-bold text-2xl text-[var(--text-primary)]">₹{cartTotal}</span>
+                  <div className="p-6 bg-white border-t border-slate-100 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)] relative z-10">
+                    <div className="flex justify-between items-end mb-6 px-1">
+                      <span className="text-slate-500 font-bold text-xs uppercase tracking-wider">Total Amount</span>
+                      <span className="font-bold text-3xl text-slate-900 tracking-tight">₹{cartTotal}</span>
                     </div>
                     <button
                       onClick={handlePlaceOrder}
                       disabled={isPlacingOrder}
-                      className="w-full py-4 bg-[var(--yellow)] text-[var(--text-primary)] rounded-md font-bold font-sans uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+                      className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold text-[15px] hover:bg-slate-800 transition-all shadow-[0_8px_20px_-8px_rgba(15,23,42,0.3)] hover:shadow-[0_12px_25px_-8px_rgba(15,23,42,0.4)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
                     >
-                      {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Utensils className="w-4 h-4" /> Place Order ({cartItems.length})</>}
+                      {isPlacingOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Place Order securely'}
                     </button>
                   </div>
                 )}
@@ -600,6 +666,47 @@ export const CanteenMenuPage: React.FC = () => {
             </>
           )}
         </AnimatePresence>
+        
+        <AlertDialog.Root open={switchShopModalOpen} onOpenChange={setSwitchShopModalOpen}>
+          <AlertDialog.Portal>
+            <AlertDialog.Overlay className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+            <AlertDialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-[90%] max-w-md translate-x-[-50%] translate-y-[-50%] gap-6 border border-slate-100 bg-white p-8 shadow-2xl rounded-3xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+              <div className="flex flex-col gap-2 text-center">
+                <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <AlertTriangle className="w-8 h-8" />
+                </div>
+                <AlertDialog.Title className="text-xl font-bold text-slate-900">
+                  Start a new order?
+                </AlertDialog.Title>
+                <AlertDialog.Description className="text-[15px] text-slate-500 leading-relaxed">
+                  Your cart has items from <span className="font-bold text-slate-700">{cartShopName || 'another canteen'}</span>. Adding from {canteens.find(c => c.id === selectedCanteenId)?.name || 'this canteen'} will discard those items.
+                </AlertDialog.Description>
+              </div>
+              <div className="flex flex-col-reverse sm:flex-row gap-3 mt-4">
+                <AlertDialog.Cancel asChild>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSwitchShopModalOpen(false);
+                      setPendingAddItem(null);
+                    }}
+                    className="sm:w-1/2 py-6 border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </Button>
+                </AlertDialog.Cancel>
+                <AlertDialog.Action asChild>
+                  <Button
+                    onClick={handleConfirmSwitchShop}
+                    className="sm:w-1/2 py-6 bg-rose-600 text-white hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-500/20 transition-all font-bold rounded-xl"
+                  >
+                    Clear & Continue
+                  </Button>
+                </AlertDialog.Action>
+              </div>
+            </AlertDialog.Content>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
       </main>
     </div>
   );

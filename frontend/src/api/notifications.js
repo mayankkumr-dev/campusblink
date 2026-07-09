@@ -1,14 +1,14 @@
 import { supabase } from '../lib/supabase';
 import { sendPushNotification } from '../lib/pushNotifications';
 
-export async function getNotifications(userId) {
+export async function getNotifications(userId, limit = 30, offset = 0) {
   try {
     const { data, error } = await supabase
       .from('notifications')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(20);
+      .range(offset, offset + limit - 1);
     if (error) throw error;
     return { data, error: null };
   } catch (error) {

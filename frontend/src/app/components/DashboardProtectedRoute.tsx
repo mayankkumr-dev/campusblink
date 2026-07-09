@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
+import { PageSkeleton } from './ui/PageSkeleton';
 
 function AccessDenied() {
   const navigate = useNavigate();
@@ -29,11 +30,7 @@ export const CanteenDashboardProtectedRoute: React.FC = () => {
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
   if (!hasHydrated) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <div className="text-sm font-sans text-[var(--text-secondary)]">Checking access...</div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (!user || !profile) {
@@ -54,11 +51,7 @@ export const PrintDashboardProtectedRoute: React.FC = () => {
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
   if (!hasHydrated) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-        <div className="text-sm font-sans text-[var(--text-secondary)]">Checking access...</div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (!user || !profile) {

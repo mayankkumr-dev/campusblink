@@ -968,42 +968,76 @@ export const CommunityFeed: React.FC = () => {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden lg:block w-[350px] pl-8 py-2 min-h-screen">
-        <div className="sticky top-2">
-          <div className="bg-[var(--bg-secondary)] rounded-2xl mb-4 p-4 border border-black/10">
-            <h2 className="font-bold text-xl mb-4 text-[var(--text-primary)]">Filter by college</h2>
-            <div className="flex flex-wrap gap-2">
-              <button 
-                onClick={() => setCollegeFilter('all')} 
-                className={`rounded-full px-4 py-1.5 text-sm font-bold transition ${collegeFilter === 'all' ? 'bg-[var(--yellow)] text-[var(--text-primary)]' : 'bg-transparent text-[var(--text-secondary)] border border-black/10 hover:bg-[#000000]/5'}`}
+      <div className="hidden lg:block w-[340px] pl-6 py-4 min-h-screen">
+        <div className="sticky top-6 space-y-4">
+          {/* Welcome Card */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-50 shrink-0">
+                <img src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id })} alt={profile?.name || 'User'} className="h-full w-full object-cover" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-syne font-bold text-base text-slate-900 truncate">Hello {profile?.name?.split(' ')[0] || 'Mayank'}</h3>
+                <p className="text-xs text-slate-500">Welcome to Campus Community</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setComposerExpanded(true)}
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 shadow-xs transition-colors"
+            >
+              <Plus className="h-4 w-4" strokeWidth={2.2} />
+              Create post
+            </button>
+          </div>
+
+          {/* What's happening Card */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <h2 className="font-syne font-bold text-base text-slate-900 mb-3.5">What's happening</h2>
+            <div className="space-y-3.5">
+              <div className="cursor-pointer group">
+                <p className="text-xs font-medium text-slate-400">Trending in Campus</p>
+                <div className="flex items-center justify-between mt-0.5">
+                  <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">#Hackathon2024</p>
+                  <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Trending</span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">2,543 posts</p>
+              </div>
+              <div className="border-t border-slate-100 pt-3 cursor-pointer group">
+                <p className="text-xs font-medium text-slate-400">Technology · Trending</p>
+                <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors mt-0.5">React 19</p>
+                <p className="text-xs text-slate-500 mt-0.5">15K posts</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter by college Card */}
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <h2 className="font-syne font-bold text-base text-slate-900 mb-3">Filter by college</h2>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => setCollegeFilter('all')}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                  collegeFilter === 'all'
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                }`}
               >
                 All
               </button>
               {collegeOptions.map((college) => (
-                <button 
-                  key={college} 
-                  onClick={() => setCollegeFilter(college)} 
-                  className={`rounded-full px-4 py-1.5 text-sm font-bold transition ${collegeFilter === college ? 'bg-[var(--yellow)] text-[var(--text-primary)]' : 'bg-transparent text-[var(--text-secondary)] border border-black/10 hover:bg-[#000000]/5'}`}
+                <button
+                  key={college}
+                  onClick={() => setCollegeFilter(college)}
+                  className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    collegeFilter === college
+                      ? 'bg-blue-600 text-white shadow-2xs'
+                      : 'bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                  }`}
                 >
                   {college.includes('(MAIT)') ? 'MAIT' : college}
                 </button>
               ))}
             </div>
-          </div>
-          
-          <div className="bg-[var(--bg-secondary)] rounded-2xl p-4 border border-black/10">
-            <h2 className="font-bold text-xl mb-4 text-[var(--text-primary)]">What's happening</h2>
-            <div className="mb-4 cursor-pointer group">
-              <p className="text-sm text-[var(--text-secondary)]">Trending in Campus</p>
-              <p className="font-bold text-[var(--text-primary)] mt-0.5 group-hover:underline">#Hackathon2024</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-0.5">2,543 posts</p>
-            </div>
-            <div className="mb-4 cursor-pointer group">
-              <p className="text-sm text-[var(--text-secondary)]">Technology · Trending</p>
-              <p className="font-bold text-[var(--text-primary)] mt-0.5 group-hover:underline">React 19</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-0.5">15K posts</p>
-            </div>
-            <button className="text-[var(--text-primary)] hover:text-[var(--yellow)] text-[15px] transition">Show more</button>
           </div>
         </div>
       </div>
@@ -1228,21 +1262,6 @@ const InlinePostComposer = ({
 
         {expanded ? (
           <>
-            <div className="border-b border-black/10 my-2 w-full pb-2">
-              <div className="flex flex-wrap items-center gap-2">
-                {['discussion', 'notice', 'meme', 'confession', 'internship', 'event'].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, type: item })}
-                    className={`rounded-full px-3 py-1 text-[13px] font-bold capitalize transition-colors ${formData.type === item ? 'bg-[var(--yellow)] text-[var(--text-primary)]' : 'bg-transparent text-[var(--text-primary)] border border-[var(--text-primary)]/50 hover:bg-[var(--bg-secondary)]'}`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
             <div className="flex justify-between items-center mt-2">
               <div className="flex gap-1 text-[var(--text-primary)]">
                 <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-[var(--bg-secondary)] rounded-full transition relative group">

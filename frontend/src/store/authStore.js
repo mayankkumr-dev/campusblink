@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 
 export const useAuthStore = create(
@@ -8,28 +8,14 @@ export const useAuthStore = create(
       user: null,
       profile: null,
       isLoading: true,
-
-      applyAdminOverride: (profile, user) => {
-        if (!profile) return null;
-        const resolvedEmail = profile?.email || user?.email || get().user?.email || null;
-        const shouldBeAdmin = resolvedEmail === 'contactus.mayank@gmail.com';
-
-        return {
-          ...profile,
-          email: resolvedEmail,
-          role: shouldBeAdmin ? 'admin' : profile.role,
-        };
-      },
       
       setUser: (user) => set({ user }),
       
-      setProfile: (profile) => set((state) => ({
-        profile: get().applyAdminOverride(profile, state.user),
-      })),
+      setProfile: (profile) => set({ profile }),
 
       setAuth: (user, profile) => set({
         user,
-        profile: get().applyAdminOverride(profile, user),
+        profile,
       }),
       
       updateProfile: (updates) => set((state) => ({ 
@@ -51,6 +37,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'campus-blink-auth',
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

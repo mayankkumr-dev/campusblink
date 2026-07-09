@@ -3,7 +3,6 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig({
   esbuild: {
@@ -26,7 +25,6 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
-    viteCompression(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,

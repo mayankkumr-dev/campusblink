@@ -17,12 +17,18 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-function getStatusColor(status: string): string {
+function getStatusBadgeClass(status: string): string {
   const s = (status || '').toLowerCase();
-  if (s === 'ready' || s === 'completed' || s === 'delivered') return 'bg-[var(--success-light)] text-[var(--success-dark)]';
-  if (s === 'preparing' || s === 'in_progress' || s === 'processing') return 'bg-[#FEF9C3] text-[var(--yellow-dark)]';
-  if (s === 'cancelled' || s === 'rejected') return 'bg-[#FEE2E2] text-[var(--error-dark)]';
-  return 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]';
+  if (s === 'ready' || s === 'completed' || s === 'delivered') {
+    return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+  }
+  if (s === 'preparing' || s === 'in_progress' || s === 'processing') {
+    return 'bg-amber-50 text-amber-700 border border-amber-200/60';
+  }
+  if (s === 'cancelled' || s === 'rejected') {
+    return 'bg-rose-50 text-rose-700 border border-rose-200/60';
+  }
+  return 'bg-slate-100 text-slate-700 border border-slate-200/60';
 }
 
 export const ProfessorDashboard: React.FC = () => {
@@ -58,117 +64,188 @@ export const ProfessorDashboard: React.FC = () => {
   }, [profile?.id]);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Greeting */}
-      <h1 className="font-syne font-extrabold text-3xl md:text-4xl text-[var(--text-primary)] mb-8">
-        {getGreeting()}, Prof. {firstName} 👋
-      </h1>
+    <div className="mx-auto max-w-5xl space-y-8 pb-16 font-sans">
+      {/* Modernized Greeting Header */}
+      <section className="rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+        <h1 className="font-syne text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          {getGreeting()}, Prof. {firstName} 👋
+        </h1>
+        <p className="mt-2 text-sm text-slate-500 max-w-xl leading-relaxed">
+          Welcome to your faculty dashboard. Order canteen refreshments, send print jobs, and manage your campus account seamlessly.
+        </p>
+      </section>
 
-      {/* Module Cards */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Upgraded Main Action Cards (Canteen & Print Shop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <button
           onClick={() => navigate('/professor/canteen')}
-          className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 text-left hover:border-[var(--yellow)] hover:shadow-sm transition-all group"
+          className="group rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-5 text-left"
         >
-          <div className="w-12 h-12 rounded-md bg-[#FEF9C3] flex items-center justify-center mb-3">
-            <UtensilsCrossed className="w-6 h-6 text-[var(--yellow-dark)]" />
+          <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100/80 flex items-center justify-center text-amber-600 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+            <UtensilsCrossed className="w-6 h-6 stroke-[2]" />
           </div>
-          <h3 className="font-syne font-bold text-lg text-[var(--text-primary)] group-hover:text-[var(--yellow-dark)] transition-colors">Canteen</h3>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Order food & beverages</p>
+          <div>
+            <h3 className="font-syne font-bold text-lg text-slate-900 group-hover:text-blue-600 transition-colors">
+              Canteen Orders
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Order faculty refreshments & beverages directly to room or pickup.
+            </p>
+          </div>
         </button>
 
         <button
           onClick={() => navigate('/professor/print')}
-          className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5 text-left hover:border-[var(--yellow)] hover:shadow-sm transition-all group"
+          className="group rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-5 text-left"
         >
-          <div className="w-12 h-12 rounded-md bg-[#F0F9FF] flex items-center justify-center mb-3">
-            <Printer className="w-6 h-6 text-[var(--accent)]" />
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100/80 flex items-center justify-center text-blue-600 shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
+            <Printer className="w-6 h-6 stroke-[2]" />
           </div>
-          <h3 className="font-syne font-bold text-lg text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">Print Shop</h3>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Print documents & files</p>
+          <div>
+            <h3 className="font-syne font-bold text-lg text-slate-900 group-hover:text-blue-600 transition-colors">
+              Print Shop Jobs
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+              Upload documents, syllabus copies, and exam papers for instant printing.
+            </p>
+          </div>
         </button>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      {/* Upgraded Metric Cards with Soft Shadows */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <button
           onClick={() => navigate('/professor/payments')}
-          className={`bg-[var(--bg)] border rounded-lg p-5 text-left hover:shadow-sm transition-all ${
-            pendingTotal > 0 ? 'border-[#DC2626]/30' : 'border-[var(--border)]'
+          className={`group rounded-2xl border p-6 text-left transition-all flex flex-col justify-between ${
+            pendingTotal > 0
+              ? 'border-rose-100 bg-gradient-to-br from-rose-50/50 to-white shadow-[0_4px_18px_rgba(225,29,72,0.06)]'
+              : 'border-slate-100 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_18px_rgba(0,0,0,0.07)]'
           }`}
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">Pending Payments</span>
-            <CreditCard className={`w-4 h-4 ${pendingTotal > 0 ? 'text-[#DC2626]' : 'text-[var(--text-muted)]'}`} />
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Pending Faculty Payments
+            </span>
+            <div
+              className={`h-9 w-9 rounded-xl flex items-center justify-center ${
+                pendingTotal > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'
+              }`}
+            >
+              <CreditCard className="w-4 h-4" />
+            </div>
           </div>
-          <p className={`font-syne font-extrabold text-2xl ${pendingTotal > 0 ? 'text-[#DC2626]' : 'text-[var(--text-primary)]'}`}>
-            ₹{pendingTotal.toLocaleString()}
-          </p>
-          {pendingTotal > 0 && (
-            <p className="text-xs text-[#DC2626] font-medium mt-1 flex items-center gap-1">
-              View & Pay <ChevronRight className="w-3 h-3" />
+          <div className="mt-4">
+            <p
+              className={`font-syne font-extrabold text-3xl tracking-tight ${
+                pendingTotal > 0 ? 'text-rose-600' : 'text-slate-900'
+              }`}
+            >
+              ₹{pendingTotal.toLocaleString()}
             </p>
-          )}
+            {pendingTotal > 0 ? (
+              <p className="text-xs text-rose-600 font-semibold mt-1.5 flex items-center gap-1 group-hover:underline">
+                View & Settle Outstanding Dues <ChevronRight className="w-3.5 h-3.5" />
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400 mt-1.5">All campus accounts clear</p>
+            )}
+          </div>
         </button>
 
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">Today's Orders</span>
-            <Clock className="w-4 h-4 text-[var(--text-muted)]" />
+        <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col justify-between">
+          <div className="flex items-center justify-between w-full">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Today's Orders Activity
+            </span>
+            <div className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
           </div>
-          <p className="font-syne font-extrabold text-2xl text-[var(--text-primary)]">{todayCount}</p>
+          <div className="mt-4">
+            <p className="font-syne font-extrabold text-3xl tracking-tight text-slate-900">
+              {todayCount}
+            </p>
+            <p className="text-xs text-slate-400 mt-1.5">Total requests placed today</p>
+          </div>
         </div>
       </div>
 
-      {/* Recent Orders */}
-      <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-[var(--border)]">
-          <h2 className="font-syne font-bold text-lg text-[var(--text-primary)]">Recent Orders</h2>
+      {/* Highly Legible Premium Recent Orders List */}
+      <section className="rounded-3xl border border-slate-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-syne font-bold text-xl text-slate-900">Recent Faculty Orders</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Summary of your latest canteen and print shop requests.</p>
+          </div>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            {Array.from({ length: 6 }).map((_, index) => (
+          <div className="grid grid-cols-1 gap-4 p-6">
+            {Array.from({ length: 4 }).map((_, index) => (
               <ListSkeleton key={`prof-dashboard-orders-skeleton-${index}`} rows={1} />
             ))}
           </div>
         ) : orders.length === 0 ? (
-          <div className="p-8 text-center">
-            <Package className="w-10 h-10 text-[var(--border)] mx-auto mb-3" />
-            <p className="text-sm text-[var(--text-secondary)]">No orders yet. Start by ordering from the canteen or print shop.</p>
+          <div className="px-6 py-16 text-center">
+            <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3.5 shadow-2xs">
+              <Package className="w-6 h-6 stroke-[1.5]" />
+            </div>
+            <p className="font-syne font-bold text-base text-slate-900">No recent orders found</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Place your first order from the Canteen or Print Shop cards above.
+            </p>
           </div>
         ) : (
-          <div>
+          <div className="divide-y divide-slate-100">
             {orders.map((order) => (
-              <div key={order.id} className="px-5 py-4 border-b border-[var(--border)] last:border-b-0 hover:bg-[var(--bg-primary)] transition-colors">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
+              <div
+                key={order.id}
+                className="px-6 py-4.5 hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="flex items-start gap-3.5 min-w-0">
+                  <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center shrink-0">
                     {order._type === 'canteen' ? (
-                      <UtensilsCrossed className="w-4 h-4 text-[var(--yellow-dark)]" />
+                      <UtensilsCrossed className="w-4.5 h-4.5 text-amber-600" />
                     ) : (
-                      <Printer className="w-4 h-4 text-[var(--accent)]" />
+                      <Printer className="w-4.5 h-4.5 text-blue-600" />
                     )}
-                    <span className="font-semibold text-sm text-[var(--text-primary)]">{order.shop?.name || 'Shop'}</span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${getStatusColor(order.status)}`}>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-syne font-bold text-sm text-slate-900 truncate">
+                        {order.shop?.name || 'Campus Shop'}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                      {order._type === 'canteen'
+                        ? Array.isArray(order.items)
+                          ? order.items.map((i: any) => `${i.name || i.item_name} ×${i.quantity || 1}`).join(', ')
+                          : 'Refreshment Order'
+                        : order.file_name || 'Document Print Job'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                  <div className="text-left sm:text-right">
+                    <p className="font-syne font-bold text-sm text-slate-900">
+                      ₹{order.total_amount || order.amount || 0}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {formatDate(order.created_at)}
+                    </p>
+                  </div>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClass(order.status)}`}
+                  >
                     {order.status || 'Pending'}
                   </span>
-                </div>
-                <p className="text-xs text-[var(--text-secondary)] mb-1">
-                  {order._type === 'canteen'
-                    ? (Array.isArray(order.items) ? order.items.map((i: any) => `${i.name || i.item_name} ×${i.quantity || 1}`).join(', ') : 'Order')
-                    : (order.file_name || 'Print job')
-                  }
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-[var(--text-secondary)]">{formatDate(order.created_at)}</span>
-                  <span className="font-bold text-sm text-[var(--text-primary)]">₹{order.total_amount || order.amount || 0}</span>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

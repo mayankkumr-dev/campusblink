@@ -18,7 +18,7 @@ router.post('/orders', authMiddleware, async (req, res) => {
     const isProfessor = req.profile?.role === 'professor';
 
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
+      .from('canteen_orders')
       .insert({
         user_id: userId,
         canteen_id,
@@ -26,10 +26,9 @@ router.post('/orders', authMiddleware, async (req, res) => {
         total_amount,
         delivery_type,
         notes,
-        order_type: 'canteen',
         status: 'pending',
-        payment_status: isProfessor && req.body.payLater ? 'pending' : 'pending',
-        priority: isProfessor && delivery_type === 'delivery',
+        payment_status: isProfessor && req.body.payLater ? 'deferred' : 'prepaid',
+        priority: isProfessor ? true : false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -59,11 +58,33 @@ router.patch('/orders/:id/status', authMiddleware, canteenOwnerOnlyMiddleware, a
       return res.status(400).json({ error: 'Status required' });
     }
 
+    // First fetch the order and verify it belongs to the authenticated owner's shop
+    const { data: existingOrder, error: fetchError } = await supabaseAdmin
+      .from('canteen_orders')
+      .select('id, canteen_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Verify that req.user.id is the registered owner of the shop being accessed
+    const { data: shop, error: shopError } = await supabaseAdmin
+      .from('canteen_shops')
+      .select('id, owner_id')
+      .eq('id', existingOrder.canteen_id)
+      .eq('owner_id', req.user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return res.status(403).json({ error: 'You do not own this shop' });
+    }
+
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
+      .from('canteen_orders')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .eq('order_type', 'canteen')
       .select()
       .single();
 
@@ -84,11 +105,22 @@ router.get('/orders/shop/:shopId', authMiddleware, canteenOwnerOnlyMiddleware, a
     const { shopId } = req.params;
     const { status, limit = 50, offset = 0 } = req.query;
 
+    // Verify that req.user.id is the registered owner of the shop being accessed
+    const { data: shop, error: shopError } = await supabaseAdmin
+      .from('canteen_shops')
+      .select('id, owner_id')
+      .eq('id', shopId)
+      .eq('owner_id', req.user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return res.status(403).json({ error: 'You do not own this shop' });
+    }
+
     let query = supabaseAdmin
-      .from('orders')
+      .from('canteen_orders')
       .select('*')
-      .eq('canteen_id', shopId)
-      .eq('order_type', 'canteen');
+      .eq('canteen_id', shopId);
 
     // Prioritize delivery orders
     query = query.order('priority', { ascending: false });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
+import { PageSkeleton } from './ui/PageSkeleton';
 
 export const AdminProtectedRoute: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -9,21 +10,18 @@ export const AdminProtectedRoute: React.FC = () => {
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
   if (!hasHydrated) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex items-center justify-center">
-        <div className="text-sm font-sans text-[var(--text-secondary)]">Checking access...</div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (!user || !profile) {
     return <Navigate to="/login" replace />;
   }
 
-  const adminByEmail = profile?.email === 'contactus.mayank@gmail.com' || user?.email === 'contactus.mayank@gmail.com';
-  const adminByRole = profile?.role === 'admin';
+  const isAdminEmail =
+    user.email?.toLowerCase() === 'contactus.mayank@gmail.com' ||
+    profile.email?.toLowerCase() === 'contactus.mayank@gmail.com';
 
-  if (!adminByRole && !adminByEmail) {
+  if (profile?.role !== 'admin' && !isAdminEmail) {
     return <Navigate to="/student/home" replace />;
   }
 

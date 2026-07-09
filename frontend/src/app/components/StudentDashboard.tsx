@@ -1,13 +1,26 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Sun } from "lucide-react";
-import { Card } from './ui/card';
-import { Badge } from './ui/badge';
-import { Bell, Zap, Store, Coffee, Printer, Users, ChevronRight, MessageSquare, ArrowRight, Star } from 'lucide-react';
+import {
+  Copy,
+  ChevronRight,
+  Store,
+  Coffee,
+  Printer,
+  Users,
+  Bell,
+  MessageSquare,
+  ArrowUpRight,
+  Check,
+  Activity,
+  Award,
+  Share2,
+  Clock,
+  ExternalLink
+} from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
-import { getFirstName, getTimeGreeting } from '../../lib/user';
+import { getFirstName } from '../../lib/user';
 import { supabase } from '../../lib/supabase';
 import { getMyInviteOverview, requestInviteRefresh } from '../../api/invites';
 import toast from 'react-hot-toast';
@@ -22,9 +35,9 @@ export const StudentDashboard: React.FC = () => {
   const [isInviteLoading, setIsInviteLoading] = useState(true);
   const [isRefreshingInvites, setIsRefreshingInvites] = useState(false);
   const [clockNow, setClockNow] = useState(Date.now());
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const firstName = useMemo(() => getFirstName(profile?.name, 'Student'), [profile?.name]);
-  const greeting = useMemo(() => getTimeGreeting(), []);
   const repBalance = Number(profile?.campus_credits ?? 0);
   const repToTrusted = Math.max(0, 300 - repBalance);
 
@@ -42,16 +55,16 @@ export const StudentDashboard: React.FC = () => {
       ]);
 
       const combined = [
-        ...((postsResp.data || []).map((item) => ({ type: 'Community', title: item.title || 'Posted in community', time: item.created_at, status: 'posted' }))),
-        ...((listingsResp.data || []).map((item) => ({ type: 'Buy/Sell', title: item.title || 'Marketplace listing', time: item.created_at, status: item.is_sold ? 'sold' : 'live' }))),
-        ...((canteenResp.data || []).map((item) => ({ type: 'Canteen', title: `Order #${String(item.id).slice(0, 6)}`, time: item.created_at, status: item.status || 'placed' }))),
-        ...((printResp.data || []).map((item) => ({ type: 'Print', title: item.file_name || 'Print order', time: item.created_at, status: item.status || 'queued' }))),
+        ...((postsResp.data || []).map((item) => ({ type: 'Community', title: 'Community Post', subtitle: item.title || 'Posted in community', time: item.created_at, status: 'posted' }))),
+        ...((listingsResp.data || []).map((item) => ({ type: 'Buy/Sell', title: 'Marketplace Listing', subtitle: item.title || 'Marketplace listing', time: item.created_at, status: item.is_sold ? 'sold' : 'posted' }))),
+        ...((canteenResp.data || []).map((item) => ({ type: 'Canteen', title: 'Canteen Order', subtitle: `Order #${String(item.id).slice(0, 6)}`, time: item.created_at, status: item.status || 'placed' }))),
+        ...((printResp.data || []).map((item) => ({ type: 'Print', title: 'Print Request', subtitle: item.file_name || 'Print order', time: item.created_at, status: item.status || 'pending' }))),
       ]
         .sort((left, right) => new Date(right.time).getTime() - new Date(left.time).getTime())
         .slice(0, 4)
         .map((item) => ({
           ...item,
-          time: new Date(item.time).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+          time: new Date(item.time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
         }));
 
       if (isMounted) {
@@ -108,6 +121,8 @@ export const StudentDashboard: React.FC = () => {
   const handleCopyInvite = async (code: string) => {
     try {
       await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
       toast.success('Invite code copied.');
     } catch {
       toast.error('Could not copy invite code.');
@@ -115,7 +130,7 @@ export const StudentDashboard: React.FC = () => {
   };
 
   const handleShareInvite = async (code: string) => {
-    const message = `Join me on Campus Blink! Use my invite code: ${code} Sign up at campusblink.me`;
+    const message = `Join me on Campus Blink! Use my invite code: ${code} Sign up at https://campusblink.vercel.app`;
     try {
       if (navigator.share) {
         await navigator.share({ text: message });
@@ -144,233 +159,391 @@ export const StudentDashboard: React.FC = () => {
     setIsRefreshingInvites(false);
   };
 
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'Community':
+        return <Users className="w-5 h-5 text-purple-600" />;
+      case 'Print':
+        return <Printer className="w-5 h-5 text-cyan-600" />;
+      case 'Canteen':
+        return <Coffee className="w-5 h-5 text-amber-600" />;
+      default:
+        return <Store className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
+  const getActivityIconBg = (type: string) => {
+    switch (type) {
+      case 'Community':
+        return 'bg-purple-50 border border-purple-100';
+      case 'Print':
+        return 'bg-cyan-50 border border-cyan-100';
+      case 'Canteen':
+        return 'bg-amber-50 border border-amber-100';
+      default:
+        return 'bg-blue-50 border border-blue-100';
+    }
+  };
+
+  const getStatusBadgeStyle = (status: string) => {
+    const s = (status || '').toLowerCase();
+    if (s === 'ready' || s === 'completed' || s === 'delivered') {
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+    }
+    if (s === 'preparing' || s === 'pending' || s === 'placed') {
+      return 'bg-amber-50 text-amber-700 border border-amber-200/60';
+    }
+    if (s === 'posted' || s === 'active') {
+      return 'bg-blue-50 text-blue-700 border border-blue-200/60';
+    }
+    return 'bg-slate-100 text-slate-700 border border-slate-200/60';
+  };
+
   return (
-    <div className="p-4 md:p-8 space-y-8 animate-in fade-in zoom-in-95 duration-500 bg-[var(--bg-primary)] min-h-screen">
-      {/* Top Bar */}
-      <div className="hidden md:flex justify-between items-center pt-2">
-        <div>
-          <img src="/logo2/Blue_transparent.png" alt="Campus Blink" className="h-12 w-auto object-contain drop-shadow-sm" />
-        </div>
-        <div className="flex items-center gap-4">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-slate-50/50 min-h-full">
+      {/* Top Header Row (Mobile / Quick Profile Bar) */}
+      <div className="flex justify-between items-center md:hidden bg-white border border-slate-200/80 rounded-2xl px-4 py-3 shadow-2xs">
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo2/Blue_transparent.png" alt="Campus Blink" className="h-8 w-auto object-contain" />
+        </Link>
+        <div className="flex items-center gap-3">
           <ThemeToggle />
-          <div className="bg-[var(--bg)]/80  px-4 py-2 rounded-xl flex items-center gap-2 border border-black/10 shadow-soft transition-transform hover:scale-105 cursor-pointer">
-            <Star className="w-4 h-4 text-[var(--yellow)] animate-pulse" />
-            <span className="font-syne font-bold text-sm text-[var(--text-primary)]">⭐ {repBalance}</span>
-          </div>
           <button
             onClick={() => navigate('/student/notifications')}
-            className="relative p-3 bg-[var(--bg)]/80  border border-black/10 rounded-xl hover:bg-[var(--bg-secondary)] transition-all duration-300 group hover:scale-105 shadow-soft"
+            className="relative p-2 rounded-full bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 transition-colors"
+            aria-label="Notifications"
           >
-            <Bell className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]" />
-            {unreadCount > 0 ? (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            ) : (
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[var(--yellow)] rounded-xl ring-2 ring-white animate-pulse" />
+            <Bell className="w-4 h-4" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Hero Section & Modules overlapping */}
-      <div className="relative mb-12 space-y-0">
-        {/* Main background container with the image on the right */}
-        <div className="relative rounded-[2rem] p-6 md:p-10 mb-[-3rem] overflow-hidden border border-black/5 bg-[#FDFDFC]">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6 min-h-[160px]">
-            <div className="max-w-lg relative pt-4">
-              <h2 className="font-syne font-extrabold text-4xl md:text-[2.75rem] mb-2 text-[#0F172A] tracking-tight leading-[1.1]">
-                Good afternoon, {firstName}.
-                <br/>
-                What's your next move?
-              </h2>
-              <Sun className="absolute top-2 right-4 md:-right-6 w-8 h-8 text-black" />
+      {/* Hero Header Card (Light Mode Premium SaaS Aesthetic) */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
+        {/* Subtle Decorative Light Pattern Accents */}
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-blue-50/60 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute right-32 -bottom-16 w-48 h-48 bg-amber-50/50 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <h1 className="font-syne font-extrabold text-3xl md:text-4xl text-slate-900 tracking-tight leading-tight">
+              Hello, {firstName}.
+            </h1>
+            <p className="text-sm md:text-base text-slate-500 font-medium max-w-xl">
+              Welcome back to your campus command center. Explore listings, track canteen & print requests, and connect with your peers.
+            </p>
+          </div>
+
+          {/* Mini Reputation Snapshot Card */}
+          <div className="flex items-center gap-4 bg-slate-50 border border-slate-200/80 rounded-2xl p-4 md:px-5 md:py-4 shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+              <Award className="w-6 h-6" />
             </div>
-            
-            <div className="absolute top-0 right-0 w-[45%] h-[120%] hidden md:block z-0">
-               <img src="/college.png" alt="Campus Building" className="w-full h-full object-cover object-center translate-y-[-10%] rounded-2xl" />
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Reputation Score
+              </p>
+              <div className="flex items-baseline gap-1.5 mt-0.5">
+                <span className="font-syne font-extrabold text-2xl text-slate-900">
+                  {repBalance}
+                </span>
+                <span className="text-xs font-semibold text-slate-500">pts</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* 4 Cards (Overlapping) */}
-        <div className="relative z-20 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-2 md:px-0">
-          {[
-            { icon: Store, title: 'Buy & Sell', status: 'All Colleges 🌐', path: '/student/buy-sell', bg: 'bg-blue-100 text-blue-600', color: 'text-blue-600', hover: 'hover:border-blue-300 hover:shadow-md hover:-translate-y-1' },
-            { icon: Coffee, title: 'Canteen', status: 'Your Campus Only 🏫', path: '/student/canteen', bg: 'bg-orange-100 text-orange-600', color: 'text-orange-600', hover: 'hover:border-orange-300 hover:shadow-md hover:-translate-y-1' },
-            { icon: Printer, title: 'Print Shop', status: 'Your Campus Only 🏫', path: '/student/print', bg: 'bg-emerald-100 text-emerald-600', color: 'text-emerald-600', hover: 'hover:border-emerald-300 hover:shadow-md hover:-translate-y-1', backdrop: 'bg-white/60 backdrop-blur-xl border border-white/80 shadow-sm' },
-            { icon: Users, title: 'Community', status: 'All Colleges 🌐', path: '/student/community', bg: 'bg-purple-100 text-purple-600', color: 'text-purple-600', hover: 'hover:border-purple-300 hover:shadow-md hover:-translate-y-1', backdrop: 'bg-white/60 backdrop-blur-xl border border-white/80 shadow-sm' },
-          ].map((mod, i) => (
-            <button
-              key={i}
-              onClick={() => navigate(mod.path)}
-              className={`module-card rounded-[2rem] p-4 md:p-5 text-left relative overflow-hidden transition-all duration-300 group focus:outline-none ${mod.backdrop || 'bg-white shadow-soft border border-black/5'} ${mod.hover}`}
-            >
-              <div className={`w-[52px] h-[52px] rounded-[1.25rem] flex items-center justify-center mb-5 ${mod.bg} transition-transform group-hover:scale-110`}>
-                 <mod.icon className={`w-[26px] h-[26px] ${mod.color}`} />
-              </div>
-              <h3 className="module-title font-syne font-extrabold text-[#0F172A] leading-tight mb-1.5 text-[22px]">
-                {mod.title}
-              </h3>
-              <p className="module-subtitle font-sans text-slate-500 font-medium tracking-wide text-xs">{mod.status}</p>
-            </button>
-          ))}
         </div>
       </div>
 
-      {/* Content Split Layout for Desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Recent Activity (Spans 2 columns on desktop) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="font-syne font-bold text-2xl tracking-tight text-[var(--text-primary)]">Recent Activity</h3>
-            <button onClick={() => navigate('/student/notifications')} className="font-sans text-xs uppercase font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] tracking-wider transition-colors flex items-center group">
-              View All <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+      {/* 4 Core Quick Service Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            title: 'Buy & Sell',
+            subtitle: 'Campus Marketplace',
+            badge: 'All Colleges',
+            path: '/student/buy-sell',
+            icon: Store,
+            iconClass: 'bg-blue-50 text-blue-600 border border-blue-100',
+          },
+          {
+            title: 'Canteen',
+            subtitle: 'Order Food & Drinks',
+            badge: 'Your Campus Only',
+            path: '/student/canteen',
+            icon: Coffee,
+            iconClass: 'bg-amber-50 text-amber-600 border border-amber-100',
+          },
+          {
+            title: 'Print Shop',
+            subtitle: 'Document Services',
+            badge: 'Your Campus Only',
+            path: '/student/print',
+            icon: Printer,
+            iconClass: 'bg-cyan-50 text-cyan-600 border border-cyan-100',
+          },
+          {
+            title: 'Community',
+            subtitle: 'Discussions & Posts',
+            badge: 'All Colleges',
+            path: '/student/community',
+            icon: Users,
+            iconClass: 'bg-purple-50 text-purple-600 border border-purple-100',
+          },
+        ].map((item, i) => {
+          const IconComponent = item.icon;
+          return (
+            <button
+              key={i}
+              onClick={() => navigate(item.path)}
+              className="bg-white border border-slate-200/80 rounded-2xl p-5 text-left flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-200 group min-h-[148px]"
+            >
+              <div className="flex items-center justify-between">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${item.iconClass} transition-transform group-hover:scale-105`}>
+                  <IconComponent className="w-5 h-5" />
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all">
+                  <ArrowUpRight className="w-4 h-4" />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h3 className="font-syne font-bold text-lg text-slate-900">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mb-2.5">
+                  {item.subtitle}
+                </p>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 border border-slate-200/70 text-slate-600">
+                  {item.badge}
+                </span>
+              </div>
             </button>
+          );
+        })}
+      </div>
+
+      {/* Main Content Split: Recent Activity & Quick Insights */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column: Recent Activity (7 columns) */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-syne font-bold text-xl text-slate-900">
+                Recent Activity
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Latest updates across your campus interactions
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs font-semibold text-slate-600">
+              <Activity className="w-3.5 h-3.5 text-slate-500" />
+              Live
+            </span>
           </div>
-          
-          <div className="space-y-3">
-            {isInviteLoading ? (
-              <div className="flex flex-col space-y-3">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <PostSkeleton key={`student-home-feed-skeleton-${index}`} />
-                ))}
+
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
+            {isInviteLoading && recentActivity.length === 0 ? (
+              <div className="space-y-4 py-2">
+                <PostSkeleton />
+                <PostSkeleton />
               </div>
             ) : recentActivity.length === 0 ? (
-              <div className="bg-[var(--bg)]/80  border border-black/10 rounded-[1.5rem] p-6 text-sm text-[var(--text-secondary)]">
-                Your recent campus activity will show up here once you start posting, ordering, or listing.
+              <div className="py-12 text-center space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <p className="font-syne font-bold text-base text-slate-900">No recent activity</p>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  Your campus activity including community discussions, canteen orders, and print requests will appear right here.
+                </p>
               </div>
-            ) : recentActivity.map((activity, i) => (
-              <div key={i} className="bg-[var(--bg)]/80  border border-black/10 hover:border-black/20 rounded-[1.5rem] p-4 flex items-center justify-between group transition-all duration-300 cursor-pointer hover:bg-[var(--bg-secondary)]">
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-12 rounded-full bg-[var(--bg-primary)]var(--yellow)] to-yellow-600/20" />
-                  <div>
-                    <span className="font-sans text-[10px] uppercase tracking-[2px] text-[var(--text-secondary)] font-bold mb-1 block">
-                      {activity.type}
-                    </span>
-                    <p className="activity-order-id font-syne font-semibold text-[var(--text-primary)] transition-colors">{activity.title}</p>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {recentActivity.map((act, index) => (
+                  <div
+                    key={index}
+                    className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4 hover:bg-slate-50/60 -mx-2 px-2 rounded-xl transition-colors"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className={`w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${getActivityIconBg(act.type)}`}>
+                        {getActivityIcon(act.type)}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-syne font-bold text-sm text-slate-900 truncate">
+                          {act.title}
+                        </h4>
+                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                          {act.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right flex-shrink-0 flex flex-col items-end">
+                      <span className="text-[11px] text-slate-400 font-medium mb-1">
+                        {act.time}
+                      </span>
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold capitalize ${getStatusBadgeStyle(act.status)}`}>
+                        {act.status}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <span className="activity-date text-xs text-[var(--text-secondary)] font-sans">{activity.time}</span>
-                  <Badge variant="outline" className={`status-badge text-[10px] px-2 py-0.5 rounded-xl border border-black/10 ${activity.status === 'completed' || activity.status === 'ready' || activity.status === 'sold' ? 'text-green-600 bg-green-50/50' : 'text-[var(--text-primary)] bg-[var(--bg-secondary)]'}`}>
-                    {activity.status}
-                  </Badge>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* Sidebar / Extra Widgets */}
-        <div className="space-y-6">
-          <div className="bg-[var(--bg)] border border-black/10 rounded-[2rem] overflow-hidden shadow-soft">
-            <div className="h-2 bg-[var(--yellow)]" />
-            <div className="p-5 space-y-4">
-              <div>
-                <h3 className="font-syne font-bold text-2xl text-[var(--text-primary)]">Your Invites ✉️</h3>
-                <p className="font-sans text-sm text-[var(--text-secondary)]">Share Campus Blink with friends</p>
-                <p className="font-sans text-xs font-bold uppercase tracking-[0.16em] text-[var(--yellow-dark)] mt-1">+20 Reputation when a friend joins</p>
-              </div>
-
-              {isInviteLoading ? (
-                <ListSkeleton rows={3} />
-              ) : availableCodes.length > 0 ? (
-                <div className="space-y-3">
-                  {availableCodes.map((item: any) => (
-                    <div key={item.id} className="rounded-2xl border border-[var(--yellow)]/30 bg-[#FFFBE8] p-4 space-y-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-syne font-extrabold text-[20px] tracking-[0.1em] text-[#A16207]">{item.code}</p>
-                        <button onClick={() => handleCopyInvite(item.code)} className="rounded-xl bg-[var(--bg)] border border-black/10 px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]">📋 Copy</button>
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="rounded-xl bg-[#16A34A]/10 border border-[#16A34A]/30 px-2.5 py-1 text-[11px] font-bold text-[var(--success-dark)] uppercase tracking-[0.15em]">Available</span>
-                        <button onClick={() => handleShareInvite(item.code)} className="rounded-xl bg-[var(--text-primary)] px-4 py-1.5 text-xs font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)]">Share</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4 rounded-2xl border border-black/10 bg-[var(--bg-primary)] p-4">
-                  <p className="font-sans text-sm text-[var(--text-primary)] font-bold">You have helped {usedCodesCount} friends join! 🎉</p>
-
-                  {cooldownRemaining > 0 ? (
-                    <>
-                      <p className="font-sans text-xs uppercase tracking-[0.16em] font-bold text-[var(--text-secondary)]">New invites available in:</p>
-                      <p className="font-syne font-extrabold text-3xl text-[#A16207]">{cooldownHours}:{cooldownMinutes}:{cooldownSeconds}</p>
-                      <div className="h-2 rounded-xl bg-black/10 overflow-hidden">
-                        <div
-                          className="h-full bg-[var(--yellow)] transition-[width] duration-1000"
-                          style={{ width: `${Math.max(0, Math.min(100, ((48 * 3600 - cooldownRemaining) / (48 * 3600)) * 100))}%` }}
-                        />
-                      </div>
-                    </>
-                  ) : null}
-
-                  {canRefreshNow ? (
-                    <button
-                      onClick={handleRefreshInvites}
-                      disabled={isRefreshingInvites}
-                      className="w-full rounded-xl bg-[var(--yellow)] px-4 py-2.5 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--yellow)]"
-                    >
-                      {isRefreshingInvites ? 'Generating...' : 'Generate New Invites'}
-                    </button>
-                  ) : null}
-
-                  {inviteData?.usedCodes?.length > 0 ? (
-                    <div className="space-y-2 border-t border-black/10 pt-3">
-                      {inviteData.usedCodes.slice(0, 3).map((usedItem: any) => (
-                        <div key={usedItem.id} className="flex items-center justify-between gap-3 text-sm">
-                          <span className="font-sans text-[var(--text-primary)] truncate">{usedItem?.usedByProfile?.name || 'A student'} joined</span>
-                          <span className="text-xs text-[var(--text-secondary)]">{new Date(usedItem.used_at).toLocaleDateString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-[var(--bg-primary)] border border-black/10 rounded-[2rem] p-6 relative overflow-hidden group hover:border-black/20 transition-colors shadow-soft">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--yellow)]/10 rounded-full blur-2xl" />
-            <h3 className="font-syne font-bold text-xl mb-4 relative z-10 flex items-center gap-2 text-[var(--text-primary)]">
-              <Zap className="w-5 h-5 text-[var(--yellow)]" /> 
+        {/* Right Column: Quick Insights & Actions Stack (5 columns) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Quick Actions Card */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
+            <h2 className="font-syne font-bold text-lg text-slate-900 mb-3">
               Quick Actions
-            </h3>
-            <div className="space-y-2 relative z-10">
-              <button onClick={() => navigate('/student/community?compose=1&type=notice')} className="w-full bg-[var(--bg-primary)] hover:bg-[var(--text-primary)] hover:text-white hover:scale-[1.02] border border-black/10 transition-all duration-300 rounded-2xl py-3 px-4 font-sans font-bold text-sm text-[var(--text-primary)] flex justify-between items-center group/btn shadow-sm">
-                Post a Notice
-                <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
+            </h2>
+            <div className="space-y-2.5">
+              <button
+                onClick={() => navigate('/student/community?compose=1&type=notice')}
+                className="w-full p-3.5 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
+              >
+                <span className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  Post a Notice
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
               </button>
-              <button onClick={() => navigate('/student/buy-sell?compose=1')} className="w-full bg-[var(--bg-primary)] hover:bg-[var(--text-primary)] hover:text-white hover:scale-[1.02] border border-black/10 transition-all duration-300 rounded-2xl py-3 px-4 font-sans font-bold text-sm text-[var(--text-primary)] flex justify-between items-center group/btn shadow-sm">
-                Sell an Item
-                <ChevronRight className="w-4 h-4 text-[var(--text-secondary)] group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
+
+              <button
+                onClick={() => navigate('/student/buy-sell?compose=1')}
+                className="w-full p-3.5 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
+              >
+                <span className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-slate-200/80 flex items-center justify-center text-slate-600 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
+                    <Store className="w-4 h-4" />
+                  </div>
+                  Sell an Item
+                </span>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>
 
-          {/* Reputation Mini-Card */}
-          <div className="bg-[linear-gradient(140deg,#121212_0%,#232323_54%,#2C2C2C_100%)] border border-black/30 shadow-medium rounded-[2rem] p-6 flex flex-col justify-between relative overflow-hidden">
-             <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(255,214,0,0.16),transparent_45%)]" />
-             <Star className="absolute -bottom-4 -right-4 w-24 h-24 text-white opacity-10 rotate-12" />
-             <div>
-               <p className="font-sans text-xs text-[#D1D1D1] uppercase tracking-widest font-bold mb-2">Your Reputation ⭐</p>
-               <div className="flex items-center gap-2 mb-2">
-                 <Star className="w-6 h-6 text-[var(--yellow)] animate-pulse" />
-                 <span className="font-syne font-extrabold text-3xl text-white">{repBalance}</span>
-               </div>
-               <p className="font-sans text-xs text-[#C6C6C6] max-w-[85%]">{repToTrusted > 0 ? `${repToTrusted} more Reputation to unlock Pay at Counter privilege!` : '300 Reputation = Trusted Member ⭐'}</p>
-             </div>
-             <button className="mt-4 font-sans text-xs uppercase font-bold text-white hover:text-[var(--yellow)] tracking-wider transition-colors flex items-center w-fit">
-               How to earn & use Reputation? <ArrowRight className="w-3 h-3 ml-1" />
-             </button>
+          {/* Your Invites Card */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs space-y-4">
+            <div>
+              <h2 className="font-syne font-bold text-lg text-slate-900">
+                Your Invites
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Share invite codes with verified campus friends
+              </p>
+            </div>
+
+            {isInviteLoading ? (
+              <ListSkeleton rows={2} />
+            ) : availableCodes.length > 0 ? (
+              <div className="space-y-3">
+                {availableCodes.slice(0, 2).map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-sm tracking-wider text-slate-900">
+                        {item.code}
+                      </span>
+                      <button
+                        onClick={() => handleCopyInvite(item.code)}
+                        className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-900 transition-colors"
+                        title="Copy code"
+                      >
+                        {copiedCode === item.code ? (
+                          <Check className="w-4 h-4 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200/80">
+                      <span className="text-[11px] font-medium text-slate-500">
+                        Ready to use
+                      </span>
+                      <button
+                        onClick={() => handleShareInvite(item.code)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        Share
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center space-y-3">
+                <p className="text-xs text-slate-600 font-medium">
+                  You have helped {usedCodesCount} friends join Campus Blink!
+                </p>
+                {cooldownRemaining > 0 ? (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                      New invites available in
+                    </p>
+                    <p className="font-mono font-bold text-sm text-slate-900 mt-1">
+                      {cooldownHours}:{cooldownMinutes}:{cooldownSeconds}
+                    </p>
+                  </div>
+                ) : canRefreshNow ? (
+                  <button
+                    onClick={handleRefreshInvites}
+                    disabled={isRefreshingInvites}
+                    className="w-full py-2 px-3 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition-colors"
+                  >
+                    {isRefreshingInvites ? 'Generating...' : 'Generate New Invites'}
+                  </button>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* Reputation Progress Card */}
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-5 md:p-6 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-syne font-bold text-lg text-slate-900">
+                Reputation Points
+              </h2>
+              <span className="text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full">
+                Active
+              </span>
+            </div>
+            <div className="flex items-baseline gap-2 mt-3">
+              <span className="font-syne font-extrabold text-3xl text-slate-900">
+                {repBalance}
+              </span>
+              <span className="text-xs text-slate-500 font-medium">
+                Campus Credits
+              </span>
+            </div>
+            <div className="h-2.5 w-full bg-slate-100 border border-slate-200/70 rounded-full overflow-hidden mt-3.5">
+              <div
+                className="h-full bg-blue-600 rounded-full transition-all duration-700"
+                style={{ width: `${Math.min(100, Math.max(5, (repBalance / 100) * 100))}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2.5">
+              {repToTrusted > 0
+                ? `${repToTrusted} more points to reach Trusted Campus Member status.`
+                : 'You have achieved Trusted Campus Member status!'}
+            </p>
           </div>
         </div>
-
       </div>
     </div>
   );
 };
+

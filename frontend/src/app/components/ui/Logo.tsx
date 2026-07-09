@@ -1,7 +1,7 @@
 import React from 'react';
 import { useThemeStore } from '../../../store/themeStore';
 
-export function Logo({ height = 40, className = '', alt = 'Campus Blink', ...rest }: any) {
+export function Logo({ height = 52, className = '', alt = 'Campus Blink', ...rest }: any) {
   const isDark = useThemeStore(s => s.isDark)
   const logoSrc = isDark ? '/logo2/white_transparent.png' : '/logo2/Blue_transparent.png?v=4'
 
@@ -23,7 +23,7 @@ export function Logo({ height = 40, className = '', alt = 'Campus Blink', ...res
   )
 }
 
-export function LogoIcon({ height = 36, className = '' }) {
+export function LogoIcon({ height = 44, className = '' }: any) {
   const isDark = useThemeStore(s => s.isDark)
   const logoSrc = isDark ? '/logo2/white_transparent.png' : '/logo2/Blue_transparent.png?v=4'
 
@@ -41,3 +41,4 @@ export function LogoIcon({ height = 36, className = '' }) {
     />
   )
 }
+

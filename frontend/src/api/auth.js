@@ -4,7 +4,6 @@ import { uploadImage } from '../lib/cloudinary';
 import { getFirstName } from '../lib/user';
 import { consumeInviteCodeOnSignup } from './invites';
 
-const ADMIN_OWNER_EMAIL = 'contactus.mayank@gmail.com';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 
 function normalizeName(value) {
@@ -415,7 +414,7 @@ export async function signIn(identifier, password) {
     }
 
     let normalizedStatus = String(profile?.status || 'active').toLowerCase();
-    const isAdminOwner = String(authData?.user?.email || '').toLowerCase() === ADMIN_OWNER_EMAIL;
+    const isAdminOwner = profile?.role === 'admin';
 
     // Recovery path: if owner account was accidentally restricted/banned, restore access.
     if (isAdminOwner && (normalizedStatus === 'restricted' || normalizedStatus === 'banned')) {

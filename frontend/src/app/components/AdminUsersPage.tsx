@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, Filter, Download, MoreVertical, Shield, ShieldAlert,
-  Ban, UserX, Mail, Zap, Edit3, Trash2, CheckCircle2, AlertTriangle, UserCheck, Loader2
+import {
+  Search,
+  Filter,
+  Download,
+  MoreVertical,
+  Shield,
+  ShieldAlert,
+  Ban,
+  UserX,
+  Edit3,
+  Trash2,
+  CheckCircle2,
+  Loader2,
+  Star,
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { getAllUsers, updateUserStatus, changeUserRole, permanentlyDeleteUser } from '../../api/admin';
+import {
+  getAllUsers,
+  updateUserStatus,
+  changeUserRole,
+  permanentlyDeleteUser,
+} from '../../api/admin';
 import { useAuthStore } from '../../store/authStore';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import toast from 'react-hot-toast';
@@ -13,7 +29,7 @@ import { supabase } from '../../lib/supabase';
 
 export const AdminUsersPage: React.FC = () => {
   const navigate = useNavigate();
-  const adminProfile = useAuthStore(state => state.profile);
+  const adminProfile = useAuthStore((state) => state.profile);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [users, setUsers] = useState<any[]>([]);
@@ -54,18 +70,24 @@ export const AdminUsersPage: React.FC = () => {
 
   const toggleSelectAll = () => {
     if (selectedUsers.length === users.length) setSelectedUsers([]);
-    else setSelectedUsers(users.map(u => u.id));
+    else setSelectedUsers(users.map((u) => u.id));
   };
 
   const toggleSelectUser = (id: string) => {
-    if (selectedUsers.includes(id)) setSelectedUsers(selectedUsers.filter(userId => userId !== id));
+    if (selectedUsers.includes(id))
+      setSelectedUsers(selectedUsers.filter((userId) => userId !== id));
     else setSelectedUsers([...selectedUsers, id]);
   };
 
   const handleUpdateStatus = async (userId: string, status: string, name: string) => {
     if (!adminProfile) return;
     const loadingToast = toast.loading(`Updating status for ${name}...`);
-    const { error } = await updateUserStatus(adminProfile.id, userId, status, `Admin action: ${status}`);
+    const { error } = await updateUserStatus(
+      adminProfile.id,
+      userId,
+      status,
+      `Admin action: ${status}`
+    );
     if (error) {
       toast.error(error.message, { id: loadingToast });
     } else {
@@ -90,300 +112,462 @@ export const AdminUsersPage: React.FC = () => {
 
   const handlePermanentDelete = async (userId: string, userName: string) => {
     if (!adminProfile) return;
-    const confirmed = window.confirm(`Are you absolutely sure you want to PERMANENTLY DELETE ${userName} from the entire database and Cloudinary?\n\nThis removes their account, profile data, auth record, and images. THIS CANNOT BE UNDONE.`);
+    const confirmed = window.confirm(
+      `Are you absolutely sure you want to PERMANENTLY DELETE ${userName} from the database and storage?\n\nThis removes their account, profile data, auth record, and images. THIS CANNOT BE UNDONE.`
+    );
     if (!confirmed) return;
-    
+
     const loadingToast = toast.loading(`Deleting ${userName}...`);
     const { error } = await permanentlyDeleteUser(adminProfile.id, userId);
-    
+
     if (error) {
       toast.error(error.message || 'Failed to permanently delete user', { id: loadingToast });
     } else {
-      toast.success(`${userName} has been permanently deleted.`, { id: loadingToast });
+      toast.success(`${userName} permanently deleted`, { id: loadingToast });
       fetchUsers();
     }
     setActiveDropdown(null);
   };
 
   const handleBulkRestrict = async () => {
-    if (!adminProfile?.id || !selectedUsers.length) return;
-    const confirmed = window.confirm(`${bulkMode === 'disable' ? 'Disable' : 'Enable'} ${bulkFeature} for ${selectedUsers.length} selected user(s)?`);
-    if (!confirmed) return;
-
-    const loadingToast = toast.loading('Applying restrictions...');
-    const { error } = await bulkUpdateUserRestrictions(adminProfile.id, selectedUsers, {
-      restrictedFeatures: [bulkFeature],
-      reason: bulkReason,
-      mode: bulkMode,
-    });
-
+    if (!adminProfile || selectedUsers.length === 0) return;
+    const loadingToast = toast.loading(`Applying bulk feature update...`);
+    const { error } = await bulkUpdateUserRestrictions(
+      selectedUsers,
+      bulkFeature,
+      bulkMode === 'disable',
+      adminProfile.id,
+      bulkReason || `Bulk ${bulkMode} via Admin Console`
+    );
     if (error) {
-      toast.error(error.message || 'Failed to apply restrictions', { id: loadingToast });
-      return;
+      toast.error('Bulk update failed', { id: loadingToast });
+    } else {
+      toast.success(`Successfully updated ${selectedUsers.length} users`, { id: loadingToast });
+      setSelectedUsers([]);
+      fetchUsers();
     }
-
-    toast.success(`Successfully ${bulkMode === 'disable' ? 'disabled' : 'enabled'} feature for selected users.`, { id: loadingToast });
-    setSelectedUsers([]);
-    setBulkReason('');
   };
 
   const RoleBadge = ({ role }: { role: string }) => {
-    const roles: Record<string, { color: string, label: string, icon: any }> = {
-      student: { color: 'bg-[#F0F9FF] text-[var(--accent)]', label: 'Student', icon: UserCheck },
-      canteen_owner: { color: 'bg-[var(--accent)]/20 text-[var(--accent)] border-[var(--accent)]/30', label: 'Canteen', icon: StoreIcon },
-      print_shop: { color: 'bg-[#FEF9C3] text-[var(--yellow-dark)] border-[var(--yellow)]/30', label: 'Print Shop', icon: PrinterIcon },
-      admin: { color: 'bg-[var(--yellow)] text-[var(--text-primary)] border-transparent font-black', label: 'Admin', icon: Shield },
+    const badges: Record<string, { bg: string; text: string; label: string }> = {
+      admin: { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-800', label: 'Super Admin' },
+      professor: { bg: 'bg-purple-50 border-purple-200', text: 'text-purple-700', label: 'Professor' },
+      canteen_owner: {
+        bg: 'bg-orange-50 border-orange-200',
+        text: 'text-orange-700',
+        label: 'Canteen Owner',
+      },
+      print_shop: {
+        bg: 'bg-blue-50 border-blue-200',
+        text: 'text-blue-700',
+        label: 'Print Shop',
+      },
+      student: {
+        bg: 'bg-slate-50 border-slate-200',
+        text: 'text-slate-700',
+        label: 'Student',
+      },
     };
-    const r = roles[role] || roles.student;
-    const Icon = r.icon;
+
+    const b = badges[role] || badges.student;
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border ${r.color}`}>
-        <Icon className="w-3 h-3" />
-        {r.label}
+      <span
+        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${b.bg} ${b.text}`}
+      >
+        {b.label}
       </span>
     );
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
-    const statuses: Record<string, { color: string, label: string }> = {
-      active: { color: 'bg-[var(--success-light)] text-[#16A34A]', label: 'Active' },
-      restricted: { color: 'bg-[#FEF9C3] text-[var(--yellow-dark)]', label: 'Restricted' },
-      banned: { color: 'bg-[#FEE2E2] text-[#DC2626]', label: 'Banned' },
+    const statuses: Record<string, { bg: string; text: string; label: string }> = {
+      active: {
+        bg: 'bg-emerald-50 border-emerald-200',
+        text: 'text-emerald-700',
+        label: 'Active',
+      },
+      restricted: {
+        bg: 'bg-amber-50 border-amber-200',
+        text: 'text-amber-700',
+        label: 'Restricted',
+      },
+      banned: {
+        bg: 'bg-rose-50 border-rose-200',
+        text: 'text-rose-700',
+        label: 'Banned',
+      },
     };
+
     const s = statuses[status] || statuses.active;
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${s.color}`}>
-         {status === 'active' && <span className="w-1.5 h-1.5 rounded-md bg-[#16A34A] mr-1" />}
-         {status === 'banned' && <span className="w-1.5 h-1.5 rounded-md bg-[#DC2626] mr-1" />}
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${s.bg} ${s.text}`}
+      >
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${
+            status === 'active'
+              ? 'bg-emerald-500'
+              : status === 'banned'
+              ? 'bg-rose-500'
+              : 'bg-amber-500'
+          }`}
+        />
         {s.label}
       </span>
     );
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      
-      {/* Top Bar */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-[var(--bg)] p-4 rounded-lg border border-black/[0.08]">
-        
-        {/* Search */}
+    <div className="space-y-6 animate-in fade-in duration-300 font-sans">
+      {/* Top Search and Filters Bar */}
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+        {/* Search Input */}
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] group-focus-within:text-[var(--yellow)] transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search name, email, college..." 
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+          <input
+            type="text"
+            placeholder="Search name, email, college, roll number..."
             value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-            className="w-full bg-[var(--bg-tertiary)] border border-black/10 rounded-lg py-2 pl-9 pr-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--yellow)]/50 focus:bg-[var(--bg-tertiary)] transition-colors"
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+            className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:bg-white transition-all shadow-2xs"
           />
         </div>
 
-        {/* Filters */}
+        {/* Role Pills & Export */}
         <div className="flex flex-wrap items-center gap-2">
-          {['all', 'student', 'canteen_owner', 'print_shop', 'admin'].map(pill => (
-            <button 
-              key={pill} 
-              onClick={() => { setFilterRole(pill); setPage(1); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-sans transition-colors capitalize ${filterRole === pill ? 'bg-[var(--yellow)] text-[var(--text-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-black/[0.08] hover:border-black/10'}`}
+          {['all', 'student', 'canteen_owner', 'print_shop', 'admin'].map((pill) => (
+            <button
+              key={pill}
+              type="button"
+              onClick={() => {
+                setFilterRole(pill);
+                setPage(1);
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all capitalize ${
+                filterRole === pill
+                  ? 'bg-amber-500 text-white shadow-2xs'
+                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80'
+              }`}
             >
               {pill.replace('_', ' ')}
             </button>
           ))}
-          <div className="h-6 w-px bg-[var(--bg-tertiary)] mx-2 hidden lg:block" />
-          <button className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-black/10 rounded-lg text-sm font-sans font-bold transition-colors">
-            <Download className="w-4 h-4" /> Export CSV
+          <div className="h-6 w-px bg-slate-200 mx-2 hidden lg:block" />
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-colors shadow-2xs"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Banner */}
       {selectedUsers.length > 0 && (
-        <div className="bg-[var(--yellow)]/10 border border-[var(--yellow)]/20 rounded-lg p-3 flex items-center justify-between animate-in slide-in-from-top-4">
-          <div className="flex items-center gap-3">
-            <span className="text-[#7C5C00] font-sans font-bold text-sm">
+        <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 animate-in slide-in-from-top-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-amber-900 font-bold text-xs">
               {selectedUsers.length} user{selectedUsers.length > 1 ? 's' : ''} selected
             </span>
-            <select value={bulkFeature} onChange={(event) => setBulkFeature(event.target.value)} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)]">
+            <select
+              value={bulkFeature}
+              onChange={(event) => setBulkFeature(event.target.value)}
+              className="rounded-xl border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900"
+            >
               {FEATURE_ACCESS_ITEMS.map((item) => (
-                <option key={item.key} value={item.key}>{item.label}</option>
+                <option key={item.key} value={item.key}>
+                  {item.label}
+                </option>
               ))}
             </select>
-            <select value={bulkMode} onChange={(event) => setBulkMode(event.target.value as 'disable' | 'enable')} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)]">
+            <select
+              value={bulkMode}
+              onChange={(event) => setBulkMode(event.target.value as 'disable' | 'enable')}
+              className="rounded-xl border border-amber-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900"
+            >
               <option value="disable">Disable</option>
               <option value="enable">Enable</option>
             </select>
-            <input value={bulkReason} onChange={(event) => setBulkReason(event.target.value)} placeholder="Reason (optional)" className="w-56 rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1.5 text-xs text-[var(--text-primary)]" />
+            <input
+              value={bulkReason}
+              onChange={(event) => setBulkReason(event.target.value)}
+              placeholder="Reason (optional)"
+              className="w-56 rounded-xl border border-amber-200 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400"
+            />
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleBulkRestrict} className="px-3 py-1.5 bg-[var(--yellow-light)] text-[#7C5C00] hover:bg-[#FFE993] rounded text-xs font-bold font-sans transition-colors flex items-center gap-1.5 border border-[var(--yellow)]/30">
-              <ShieldAlert className="w-3.5 h-3.5" /> {bulkMode === 'disable' ? 'Disable Selected' : 'Enable Selected'}
-            </button>
-            <button className="px-3 py-1.5 bg-[#FEE2E2] text-[#DC2626] hover:bg-[#DC2626]/30 rounded text-xs font-bold font-sans transition-colors flex items-center gap-1.5">
-              <Ban className="w-3.5 h-3.5" /> Ban Selected
+            <button
+              type="button"
+              onClick={handleBulkRestrict}
+              className="px-3.5 py-1.5 bg-amber-500 text-white hover:bg-amber-600 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
+            >
+              <ShieldAlert className="w-3.5 h-3.5" />
+              <span>{bulkMode === 'disable' ? 'Disable Selected' : 'Enable Selected'}</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Table Area */}
-      <div className="bg-[var(--bg)] border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
+      {/* Refined User Directory Table */}
+      <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] min-h-[420px]">
         {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[var(--yellow)]" />
+          <div className="flex h-72 items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
           </div>
         ) : (
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
-              <tr className="border-b border-black/[0.08] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-primary)] transition-colors duration-150">
-                <th className="p-4 w-12 text-center px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">
-                  <input 
-                    type="checkbox" 
-                    checked={selectedUsers.length === users.length && users.length > 0}
-                    onChange={toggleSelectAll}
-                    className="rounded bg-[var(--bg-primary)] border-black/10 text-[var(--yellow)] focus:ring-[var(--yellow)]/50" 
-                  />
-                </th>
-                <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">User</th>
-                <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Contact & College</th>
-                <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Role</th>
-                <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Reputation ⭐</th>
-                <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Status</th>
-                <th className="p-4 w-16 text-center text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black/[0.06] relative">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-black/[0.03] transition-colors group">
-                  <td className="p-4 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={selectedUsers.includes(user.id)}
-                      onChange={() => toggleSelectUser(user.id)}
-                      className="rounded bg-[var(--bg-primary)] border-black/10 text-[var(--yellow)] focus:ring-[var(--yellow)]/50" 
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-slate-50/70">
+                  <th className="py-3.5 px-4 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedUsers.length === users.length && users.length > 0}
+                      onChange={toggleSelectAll}
+                      className="rounded bg-white border-slate-300 text-amber-500 focus:ring-amber-500"
                     />
-                  </td>
-                  <td className="p-4 min-w-[200px]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[var(--text-primary)] flex items-center justify-center font-syne font-bold text-[var(--text-primary)] shrink-0 overflow-hidden">
-                        <img
-                          src={user.avatar_url || getAvatarDataUrl({ name: user.name, email: user.email, seed: user.id || user.username })}
-                          alt={user.name || 'User'}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-sans font-bold text-sm text-[var(--text-primary)]">{user.name || 'Unnamed'}</div>
-                        <div className="font-sans text-xs text-[var(--text-secondary)] font-medium">@{user.username || 'user'}</div>
-                        <div className="font-sans text-xs text-[var(--text-secondary)]">Joined {new Date(user.created_at).toLocaleDateString()}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                     <div className="font-sans text-sm text-[var(--text-primary)] mb-0.5">{user.email}</div>
-                     <div className="font-sans text-xs text-[var(--text-secondary)] font-bold">{user.college || 'No college'}</div>
-                     {user.role === 'professor' || user.requested_role === 'teacher' ? (
-                       user.staff_room_number ? <div className="font-sans text-xs text-[var(--text-secondary)]">Room: {user.staff_room_number}</div> : null
-                     ) : (
-                       <div className="font-sans text-xs text-[var(--text-secondary)]">
-                         {[user.study_year?.split(':')[0], user.branch].filter(Boolean).join(' • ')}
-                       </div>
-                     )}
-                  </td>
-                  <td className="p-4">
-                    <RoleBadge role={user.role || 'student'} />
-                  </td>
-                  <td className="p-4">
-                      <div className="font-syne font-bold text-sm text-[var(--yellow-dark)] flex items-center gap-1">
-                        ⭐ {(user.campus_credits || 0).toLocaleString()} Reputation
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <StatusBadge status={user.status || 'active'} />
-                  </td>
-                  <td className="p-4 text-center relative">
-                    <button 
-                      onClick={() => setActiveDropdown(activeDropdown === user.id ? null : user.id)}
-                      className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
-                    >
-                      <MoreVertical className="w-5 h-5" />
-                    </button>
-
-                    {/* Actions Dropdown */}
-                    {activeDropdown === user.id && (
-                      <div className="absolute right-[50px] top-4 w-48 bg-[var(--bg-tertiary)] border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100">
-                        <div className="px-3 py-2 border-b border-black/[0.08]">
-                          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">User</span>
+                  </th>
+                  <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    User Account
+                  </th>
+                  <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Contact &amp; College
+                  </th>
+                  <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Assigned Role
+                  </th>
+                  <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Reputation
+                  </th>
+                  <th className="py-3.5 px-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Account Status
+                  </th>
+                  <th className="py-3.5 px-4 w-16 text-center text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="hover:bg-slate-50/80 transition-colors group"
+                  >
+                    <td className="py-4 px-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => toggleSelectUser(user.id)}
+                        className="rounded bg-white border-slate-300 text-amber-500 focus:ring-amber-500"
+                      />
+                    </td>
+                    <td className="py-4 px-4 min-w-[220px]">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center font-syne font-bold text-slate-700 shrink-0 overflow-hidden border border-slate-200">
+                          <img
+                            src={
+                              user.avatar_url ||
+                              getAvatarDataUrl({
+                                name: user.name,
+                                email: user.email,
+                                seed: user.id || user.username,
+                              })
+                            }
+                            alt={user.name || 'User'}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        <button onClick={() => navigate(`/admin/users/${user.id}`)} className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-black/[0.03] flex items-center gap-2">
-                          <Edit3 className="w-4 h-4 text-[var(--yellow-dark)]" /> Open details
-                        </button>
-
-                        <div className="h-px bg-[var(--bg-tertiary)] my-1" />
-                        <div className="px-3 py-2 border-b border-black/[0.08]">
-                          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Manage Roles</span>
+                        <div>
+                          <div className="font-sans font-bold text-xs text-slate-900">
+                            {user.name || 'Unnamed'}
+                          </div>
+                          <div className="font-sans text-[11px] text-slate-500 font-medium mt-0.5">
+                            @{user.username || 'user'}
+                          </div>
+                          <div className="font-sans text-[10px] text-slate-400">
+                            Joined {new Date(user.created_at).toLocaleDateString()}
+                          </div>
                         </div>
-                        {['student', 'canteen_owner', 'print_shop', 'professor', 'admin'].map(r => (
-                          user.role !== r && (
-                            <button key={r} onClick={() => handleChangeRole(user.id, r, user.name)} className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-black/[0.03] flex items-center gap-2 capitalize">
-                              <ShieldAlert className="w-4 h-4 text-[var(--yellow)]" /> Make {r.replace('_', ' ')}
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="font-sans text-xs font-semibold text-slate-800">
+                        {user.email}
+                      </div>
+                      <div className="font-sans text-[11px] text-slate-500 font-bold mt-0.5">
+                        {user.college || 'No college'}
+                      </div>
+                      {user.role === 'professor' || user.requested_role === 'teacher' ? (
+                        user.staff_room_number ? (
+                          <div className="font-sans text-[10px] text-slate-400">
+                            Room: {user.staff_room_number}
+                          </div>
+                        ) : null
+                      ) : (
+                        <div className="font-sans text-[10px] text-slate-400">
+                          {[user.study_year?.split(':')[0], user.branch]
+                            .filter(Boolean)
+                            .join(' • ')}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-4 px-4">
+                      <RoleBadge role={user.role || 'student'} />
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="inline-flex items-center gap-1.5 rounded-xl bg-amber-50 border border-amber-100 px-2.5 py-1 text-xs font-bold text-amber-700">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                        <span>{(user.campus_credits || 0).toLocaleString()}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <StatusBadge status={user.status || 'active'} />
+                    </td>
+                    <td className="py-4 px-4 text-center relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveDropdown(activeDropdown === user.id ? null : user.id)
+                        }
+                        className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                        aria-label="Manage user actions"
+                      >
+                        <MoreVertical className="w-4.5 h-4.5" />
+                      </button>
+
+                      {/* Actions Dropdown */}
+                      {activeDropdown === user.id && (
+                        <div className="absolute right-12 top-4 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-30 py-1.5 font-sans text-xs overflow-hidden text-left animate-in zoom-in-95 duration-150">
+                          <div className="px-3.5 py-2 border-b border-slate-100">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Account Action
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/admin/users/${user.id}`)}
+                            className="w-full text-left px-4 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-semibold"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-amber-500" />
+                            <span>Open details</span>
+                          </button>
+
+                          <div className="h-px bg-slate-100 my-1" />
+                          <div className="px-3.5 py-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Change Role
+                            </span>
+                          </div>
+                          {['student', 'canteen_owner', 'print_shop', 'professor', 'admin'].map(
+                            (r) =>
+                              user.role !== r && (
+                                <button
+                                  key={r}
+                                  type="button"
+                                  onClick={() => handleChangeRole(user.id, r, user.name)}
+                                  className="w-full text-left px-4 py-1.5 text-slate-700 hover:bg-slate-50 flex items-center gap-2 capitalize font-medium"
+                                >
+                                  <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+                                  <span>Make {r.replace('_', ' ')}</span>
+                                </button>
+                              )
+                          )}
+
+                          <div className="h-px bg-slate-100 my-1" />
+                          <div className="px-3.5 py-1.5">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                              Moderation Status
+                            </span>
+                          </div>
+
+                          {user.status !== 'active' && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStatus(user.id, 'active', user.name)}
+                              className="w-full text-left px-4 py-2 text-emerald-600 hover:bg-emerald-50 flex items-center gap-2 font-bold"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Unban / Activate</span>
                             </button>
-                          )
-                        ))}
-                        
-                        <div className="h-px bg-[var(--bg-tertiary)] my-1" />
-                        <div className="px-3 py-2 border-b border-black/[0.08]">
-                          <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Manage Access</span>
+                          )}
+                          {user.status !== 'restricted' && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleUpdateStatus(user.id, 'restricted', user.name)
+                              }
+                              className="w-full text-left px-4 py-2 text-amber-700 hover:bg-amber-50 flex items-center gap-2 font-semibold"
+                            >
+                              <Ban className="w-3.5 h-3.5" />
+                              <span>Restrict Account</span>
+                            </button>
+                          )}
+                          {user.status !== 'banned' && (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateStatus(user.id, 'banned', user.name)}
+                              className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-bold"
+                            >
+                              <UserX className="w-3.5 h-3.5" />
+                              <span>Ban Account</span>
+                            </button>
+                          )}
+                          <div className="h-px bg-slate-100 my-1" />
+                          <button
+                            type="button"
+                            onClick={() => handlePermanentDelete(user.id, user.name)}
+                            className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-bold"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Permanently Delete</span>
+                          </button>
                         </div>
-                        
-                        {user.status !== 'active' && (
-                          <button onClick={() => handleUpdateStatus(user.id, 'active', user.name)} className="w-full text-left px-4 py-2 text-[#16A34A] hover:bg-[#16A34A]/10 flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4" /> Unban / Activate
-                          </button>
-                        )}
-                        {user.status !== 'restricted' && (
-                          <button onClick={() => handleUpdateStatus(user.id, 'restricted', user.name)} className="w-full text-left px-4 py-2 text-[var(--yellow)] hover:bg-[var(--yellow)]/10 flex items-center gap-2">
-                            <Ban className="w-4 h-4" /> Restrict Account
-                          </button>
-                        )}
-                        {user.status !== 'banned' && (
-                          <button onClick={() => handleUpdateStatus(user.id, 'banned', user.name)} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2 font-bold">
-                            <UserX className="w-4 h-4" /> Ban Account
-                          </button>
-                        )}
-                        <div className="h-px bg-[var(--bg-tertiary)] my-1" />
-                        <button onClick={() => handlePermanentDelete(user.id, user.name)} className="w-full text-left px-4 py-2 text-[#ff0000] hover:bg-[#ff0000]/10 flex items-center gap-2 font-black">
-                          <Trash2 className="w-4 h-4" /> Permanently Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-[var(--text-secondary)] font-sans">
-                    No users found matching your filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-16 text-center text-slate-400 text-xs font-semibold">
+                      No users found matching your search or role filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
-        
-        {/* Pagination mock */}
-        <div className="p-4 border-t border-black/[0.08] flex items-center justify-between text-sm font-sans text-[var(--text-secondary)]">
-          <span>Showing {users.length > 0 ? (page - 1) * 20 + 1 : 0}-{Math.min(page * 20, totalCount)} of {totalCount} users</span>
+
+        {/* Pagination Controls */}
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+          <span>
+            Showing {users.length > 0 ? (page - 1) * 20 + 1 : 0}-
+            {Math.min(page * 20, totalCount)} of {totalCount} users
+          </span>
           <div className="flex items-center gap-2">
-             <button disabled={page === 1} onClick={() => setPage(page-1)} className="px-3 py-1 rounded bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
-             <button disabled={page * 20 >= totalCount} onClick={() => setPage(page+1)} className="px-3 py-1 rounded bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+            <button
+              type="button"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-bold"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={page * 20 >= totalCount}
+              onClick={() => setPage(page + 1)}
+              className="px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed font-bold"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 };
-
-// SVG Mocks for roles lacking direct lucide matches without bleeding scope
-function StoreIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7"/></svg> }
-function PrinterIcon(props: any) { return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> }

@@ -193,71 +193,71 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
   };
 
   return (
-    <article className="border-b border-black/10 px-5 py-5 transition-colors hover:bg-black/[0.02]">
-      <div className="flex gap-3">
-        <div className="mt-1 h-12 w-12 shrink-0 overflow-hidden rounded-full border border-black/10 bg-[var(--bg-secondary)]">
-          {avatar ? <img loading="lazy" src={avatar} alt={displayName} className="h-full w-full rounded-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-sm font-bold text-[var(--text-primary)]">?</div>}
+    <article className="border-b border-slate-100 px-6 py-5 bg-white transition-colors hover:bg-slate-50/60">
+      <div className="flex gap-4">
+        <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200/80 bg-slate-50 shadow-2xs">
+          {avatar ? (
+            <img loading="lazy" src={avatar} alt={displayName} className="h-full w-full rounded-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-700 bg-slate-100">?</div>
+          )}
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                <span className="truncate font-bold text-[var(--text-primary)]">{displayName}</span>
-                <span className="text-[var(--text-secondary)]">@{handle}</span>
-                <span className="text-[var(--text-muted)]">·</span>
-                <span className="text-[var(--text-secondary)]">{formatRelativeTime(post.created_at)}</span>
+                <span className="truncate font-syne font-bold text-slate-900">{displayName}</span>
+                <span className="text-slate-500 font-medium">@{handle}</span>
+                <span className="text-slate-300">·</span>
+                <span className="text-xs text-slate-400">{formatRelativeTime(post.created_at)}</span>
                 {post.is_anonymous && (
-                  <>
-                    <span className="rounded-md bg-[#F1F1F1] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-secondary)]">Anonymous</span>
-                    <span
-                      title="Only you and admin can see this is yours"
-                      className="inline-flex items-center rounded-md border border-black/10 bg-[var(--bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--text-secondary)]"
-                    >
-                      🔒
-                    </span>
-                  </>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                    Anonymous 🔒
+                  </span>
                 )}
                 {post.author?.college && !post.is_anonymous && (
-                  <span className="rounded-md bg-[var(--yellow)]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-primary)]">
+                  <span className="rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
                     {post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}
                   </span>
                 )}
               </div>
-              {post.title && <h3 className="mt-2 text-lg font-bold leading-tight text-[var(--text-primary)]">{post.title}</h3>}
+              {post.title && <h3 className="mt-1.5 text-base font-bold text-slate-900">{post.title}</h3>}
             </div>
 
-            <button className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--text-secondary)] transition-colors hover:bg-black/5 hover:text-[var(--text-primary)]">
-              <MoreHorizontal className="h-4 w-4" />
+            <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700">
+              <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
-          <p className="community-post-content mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--text-primary)]">{post.content}</p>
+          <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-slate-800 font-normal">{post.content}</p>
 
           {images.length > 0 && (
             images.length === 1 ? (
-              <div className="mt-4 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--bg-secondary)]">
+              <div className="mt-3.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
                 <AdaptivePostImage
                   src={images[0]}
                   alt="Post attachment"
                   onClick={() => onOpenImage(images, 0)}
-                  className="w-full max-h-[620px] bg-[var(--bg-secondary)]"
+                  className="w-full max-h-[500px] bg-slate-50"
                   imgClassName="h-full w-full object-contain"
                 />
               </div>
             ) : (
-              <div className="mt-4 grid grid-cols-2 gap-1 overflow-hidden rounded-[24px] border border-black/10 bg-[var(--bg-secondary)]">
+              <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50">
                 {images.slice(0, 4).map((image, index) => (
                   <AdaptivePostImage
                     key={`${image}-${index}`}
                     src={image}
                     alt={`Post attachment ${index + 1}`}
                     onClick={() => onOpenImage(images, index)}
-                    className="bg-[var(--bg-tertiary)]"
+                    className="bg-slate-100"
                     imgClassName="h-full w-full object-contain"
                   >
                     {images.length > 4 && index === 3 ? (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-2xl font-extrabold text-white">+{images.length - 4}</div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">
+                        +{images.length - 4}
+                      </div>
                     ) : null}
                   </AdaptivePostImage>
                 ))}
@@ -265,27 +265,32 @@ function PostCard({ post, viewerProfile, onLike, onOpenImage }: { post: any; vie
             )
           )}
 
-          <div className="mt-4 flex max-w-xl items-center justify-between text-[var(--text-secondary)]">
+          <div className="mt-4 flex max-w-md items-center justify-between text-slate-500 pt-1">
             <button
               onClick={() => onLike(post.id, likedByMe)}
-              className={`group flex items-center gap-2 text-sm transition-colors ${likedByMe ? 'text-[var(--error)]' : 'hover:text-[var(--error)]'}`}
+              className={`group flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                likedByMe ? 'text-rose-600' : 'hover:text-rose-600'
+              }`}
             >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${likedByMe ? 'bg-[var(--error)]/10' : 'group-hover:bg-[var(--error)]/10'}`}>
-                <Heart className={`h-4 w-4 ${likedByMe ? 'fill-current' : ''}`} />
+              <span className={`flex h-8 px-2.5 items-center justify-center rounded-xl transition-all ${
+                likedByMe ? 'bg-rose-50 text-rose-600' : 'group-hover:bg-rose-50'
+              }`}>
+                <Heart className={`h-4 w-4 mr-1.5 ${likedByMe ? 'fill-current' : ''}`} strokeWidth={1.5} />
+                {post.likes_count || 0}
               </span>
-              <span>{post.likes_count || 0}</span>
             </button>
 
-            <button className="group flex items-center gap-2 text-sm transition-colors hover:text-[var(--text-primary)]">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-[var(--accent)]/10">
-                <MessageCircle className="h-4 w-4" />
+            <button className="group flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-blue-600">
+              <span className="flex h-8 px-2.5 items-center justify-center rounded-xl transition-all group-hover:bg-blue-50">
+                <MessageCircle className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
+                {post.comments_count || 0}
               </span>
-              <span>{post.comments_count || 0}</span>
             </button>
 
-            <button onClick={handleCopyPostLink} className="group flex items-center gap-2 text-sm transition-colors hover:text-[var(--text-primary)]">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-[var(--yellow)]/15">
-                <Link2 className="h-4 w-4" />
+            <button onClick={handleCopyPostLink} className="group flex items-center gap-1.5 text-xs font-medium transition-colors hover:text-slate-800">
+              <span className="flex h-8 px-2.5 items-center justify-center rounded-xl transition-all group-hover:bg-slate-100">
+                <Link2 className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
+                Share
               </span>
             </button>
           </div>
@@ -667,91 +672,109 @@ export const ProfilePage: React.FC = () => {
   const joinedOn = profile.created_at ? new Date(profile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' }) : '';
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] pb-24 text-[var(--text-primary)]">
-      <div className="w-full flex justify-center bg-[var(--bg)] min-h-screen text-[var(--text-primary)] pb-28">
-      {/* Main Feed Column */}
-      <div className="w-full max-w-[600px] border-x border-black/10 flex flex-col min-h-screen pb-10">
-        <div className="mb-4 flex items-center justify-between gap-3 px-1">
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 rounded-md bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)] shadow-sm border border-[var(--bg-secondary)] hover:bg-[var(--bg)]">
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
+    <div className="min-h-screen bg-slate-50 pb-24 text-slate-900 font-sans">
+      <div className="w-full flex justify-center min-h-screen pb-28">
+        {/* Main Feed Column */}
+        <div className="w-full max-w-[680px] bg-white border-x border-slate-200/80 shadow-xs flex flex-col min-h-screen pb-10">
+          {/* Sticky Top Header Bar */}
+          <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-100 px-6 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
+            </button>
+            <div>
+              <h1 className="font-syne font-bold text-base text-slate-900 leading-tight">{profile.name}</h1>
+              <p className="text-xs text-slate-500">{postsStat} {activeTab}</p>
+            </div>
+          </div>
+
           <div className="relative">
             <button
               type="button"
               onClick={() => setProfileMenuOpen((value) => !value)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--bg-secondary)] bg-[var(--bg)] text-[var(--text-primary)] shadow-sm hover:bg-[#F8F8F8]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition-all"
               aria-label="Open profile menu"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4" strokeWidth={1.8} />
             </button>
             {profileMenuOpen && (
               <>
                 <button type="button" aria-label="Close profile menu" className="fixed inset-0 z-40 cursor-default" onClick={() => setProfileMenuOpen(false)} />
-                <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-[var(--bg-secondary)] bg-[var(--bg)] shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)] hover:bg-[#F8F8F8]">
-                    <Settings className="h-4 w-4 text-[#6B7280]" /> Settings
+                <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    <Settings className="h-4 w-4 text-slate-400" /> Settings
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/notifications'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)] hover:bg-[#F8F8F8]">
-                    <Bell className="h-4 w-4 text-[#6B7280]" /> Notifications
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/notifications'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    <Bell className="h-4 w-4 text-slate-400" /> Notifications
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/password'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)] hover:bg-[#F8F8F8]">
-                    <Lock className="h-4 w-4 text-[#6B7280]" /> Password
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/password'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    <Lock className="h-4 w-4 text-slate-400" /> Password
                   </button>
-                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/feedback'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-[var(--text-primary)] hover:bg-[#F8F8F8]">
-                    <MessageCircle className="h-4 w-4 text-[#6B7280]" /> Feedback
+                  <button type="button" onClick={() => { setProfileMenuOpen(false); navigate('/student/settings/feedback'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    <MessageCircle className="h-4 w-4 text-slate-400" /> Feedback
                   </button>
                 </div>
               </>
             )}
           </div>
         </div>
-        <section className="w-full bg-[var(--bg)]">
-          <div className="group relative w-full overflow-hidden" style={{ aspectRatio: `${BANNER_WIDTH} / ${BANNER_HEIGHT}`, minHeight: '180px', maxHeight: '280px' }}>
+
+        <section className="w-full bg-white">
+          {/* Banner Container */}
+          <div className="group relative w-full overflow-hidden bg-slate-100" style={{ aspectRatio: `${BANNER_WIDTH} / ${BANNER_HEIGHT}`, minHeight: '180px', maxHeight: '250px' }}>
             {profile.cover_url && !removeCover ? (
               <img loading="lazy" src={coverPreview || profile.cover_url} alt="Profile banner" className="h-full w-full object-cover object-center transition-opacity duration-300" />
             ) : (
               <img loading="lazy" src={DEFAULT_BANNER_IMAGE_URL} alt="Default profile banner" className="h-full w-full object-cover object-center" />
             )}
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_40%,rgba(0,0,0,0.4)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60" />
             <button
               onClick={() => coverInputRef.current?.click()}
-              className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-[6px] bg-[var(--bg)]/90 px-3 py-1.5 text-[13px] font-medium text-[var(--text-primary)] opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+              className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-slate-800 shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-white"
             >
-              <Camera className="h-4 w-4" />
+              <Camera className="h-3.5 w-3.5" />
               Edit Cover
             </button>
             {profile.cover_url ? (
               <button
                 onClick={() => handleRemoveMedia('cover')}
-                className="absolute right-[132px] top-4 inline-flex items-center gap-2 rounded-[6px] bg-[var(--bg)]/90 px-3 py-1.5 text-[13px] font-medium text-[#DC2626] opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                className="absolute right-[134px] top-4 inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-rose-600 shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-rose-50"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
                 Remove
               </button>
             ) : null}
             <input ref={coverInputRef} type="file" accept="image/png,image/jpeg" onChange={handleBannerChange} className="hidden" />
           </div>
 
-          <div className={`relative mx-auto -mt-12 flex items-end justify-between px-4 md:px-8 ${visibleSocialLinks.length ? 'pb-14' : ''}`}>
-            <div className="group relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-white bg-[var(--bg)] shadow-[0_2px_8px_rgba(0,0,0,0.15)] md:h-28 md:w-28">
+          {/* Avatar & Action Buttons Row */}
+          <div className={`relative mx-auto -mt-14 flex items-end justify-between px-6 ${visibleSocialLinks.length ? 'pb-12' : ''}`}>
+            <div className="group relative h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-white shadow-md">
               <ProfilePictureInteract imageUrl={displayAvatar} alt={profile.name} className="h-full w-full">
-                <img loading="lazy" src={displayAvatar} alt={profile.name} className="h-full w-full rounded-full object-cover transition-transform duration-150 group-hover:scale-[1.02]" />
+                <img loading="lazy" src={displayAvatar} alt={profile.name} className="h-full w-full rounded-full object-cover transition-transform duration-150 group-hover:scale-[1.03]" />
               </ProfilePictureInteract>
               <button onClick={() => avatarInputRef.current?.click()} className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
                 <Camera className="h-5 w-5 text-white" />
               </button>
               {profile.avatar_url ? (
-                <button onClick={() => handleRemoveMedia('avatar')} className="absolute bottom-1 right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg)] text-[#DC2626] shadow-sm" title="Remove photo">
+                <button onClick={() => handleRemoveMedia('avatar')} className="absolute bottom-1 right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-rose-600 shadow-sm" title="Remove photo">
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               ) : null}
               <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1">
               <div className="relative flex flex-col items-end">
-                <div className="flex items-center gap-2">
-                  <button onClick={() => setIsEditModalOpen(true)} className="rounded-[6px] border border-black/10 bg-[var(--bg)] px-3.5 py-2 text-[13px] font-medium text-[var(--text-primary)] transition-colors duration-150 hover:bg-[var(--bg-secondary)]">
+                <div className="flex items-center gap-2.5">
+                  <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
+                  >
                     Edit Profile
                   </button>
                   <button
@@ -764,7 +787,7 @@ export const ProfilePage: React.FC = () => {
                         toast.error('Could not copy profile link.');
                       }
                     }}
-                    className="rounded-[6px] border border-transparent bg-transparent px-3.5 py-2 text-[13px] font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--bg)] hover:text-[var(--text-primary)]"
+                    className="rounded-xl border border-slate-200/80 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300"
                   >
                     Share Profile
                   </button>
@@ -774,83 +797,96 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mx-auto px-4 pt-3 md:px-8">
+          {/* User Info & Bio Section */}
+          <div className="mx-auto px-6 pt-4">
             <div className="animate-[fadeIn_0.3s_ease]">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className=" text-[22px] font-bold text-[var(--text-primary)] select-text">{profile.name}</h1>
-                <span className="inline-flex items-center rounded-[4px] bg-[#FEFCE8] px-2 py-0.5 text-[11px] font-medium uppercase tracking-[0.04em] text-[var(--yellow-dark)]">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="font-syne font-bold text-2xl text-slate-900 select-text leading-tight">{profile.name}</h1>
+                <span className="inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
                   <GraduationCap className="mr-1 h-3.5 w-3.5" />
                   MAIT
                 </span>
               </div>
 
-              <p className="mt-0.5 text-[14px] font-normal text-[var(--text-secondary)]">@{getDisplayHandle(profile.username, 'student')}</p>
+              <p className="mt-0.5 text-sm font-medium text-slate-500">@{getDisplayHandle(profile.username, 'student')}</p>
 
-              <p className="mt-2 max-w-[480px] whitespace-pre-wrap text-[14px] font-normal leading-[1.6] text-[var(--text-secondary)] select-text">
+              <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-slate-700 select-text">
                 {profile.bio || 'Set up your profile with a short intro, your links, and what you are known for on campus.'}
               </p>
 
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-[var(--text-secondary)]">
+              {/* College Tags & Metadata Strip */}
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
                 {profile.location ? (
-                  <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /><span>{profile.location}</span></div>
+                  <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-slate-400" /><span>{profile.location}</span></div>
                 ) : null}
                 {profile.website ? (
-                  <a href={`https://${displayWebsite}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition-colors hover:text-[var(--text-primary)]"><Link2 className="h-3.5 w-3.5" /><span>{displayWebsite}</span></a>
+                  <a href={`https://${displayWebsite}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition-colors text-blue-600 hover:underline"><Link2 className="h-3.5 w-3.5" /><span>{displayWebsite}</span></a>
                 ) : null}
-                {joinedOn ? <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /><span>Joined {joinedOn}</span></div> : null}
-                <div className="flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5" /><span>{profile.college || ONLY_COLLEGE}</span></div>
+                {joinedOn ? <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-slate-400" /><span>Joined {joinedOn}</span></div> : null}
+                <div className="flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5 text-slate-400" /><span>{profile.college || ONLY_COLLEGE}</span></div>
               </div>
 
-              <div className="mt-5 border-t border-white pt-5">
-                <div className="grid grid-cols-2 gap-y-4 md:flex md:items-center md:gap-0">
-                  <div className="pr-4 md:min-w-[120px]">
-                    <button className="text-left">
-                      <div className=" text-[20px] font-bold text-[var(--text-primary)]">{postsStat}</div>
-                      <div className="text-[13px] font-normal text-[var(--text-secondary)]">Posts</div>
-                    </button>
-                  </div>
-                  <div className="hidden h-10 w-px bg-[var(--border)] md:block" />
-                  <div className="pr-4 md:min-w-[120px] md:pl-5">
-                    <button onClick={() => setPeopleModal('followers')} className="text-left">
-                      <div className=" text-[20px] font-bold text-[var(--text-primary)]">{followersCount}</div>
-                      <div className="text-[13px] font-normal text-[var(--text-secondary)]">Followers</div>
-                    </button>
-                  </div>
-                  <div className="hidden h-10 w-px bg-[var(--border)] md:block" />
-                  <div className="pr-4 md:min-w-[120px] md:pl-5">
-                    <button onClick={() => setPeopleModal('following')} className="text-left">
-                      <div className=" text-[20px] font-bold text-[var(--text-primary)]">{followingCount}</div>
-                      <div className="text-[13px] font-normal text-[var(--text-secondary)]">Following</div>
-                    </button>
-                  </div>
-                  <div className="hidden h-10 w-px bg-[var(--border)] md:block" />
-                  <div className="md:min-w-[120px] md:pl-5">
-                    <div className=" text-[20px] font-bold text-[var(--yellow-dark)]">{profile.campus_credits || 0}</div>
-                    <div className="text-[13px] font-normal text-[var(--text-secondary)]">Reputation</div>
-                  </div>
+              {/* Stats Row: Posts, Followers, Following, Reputation */}
+              <div className="grid grid-cols-4 gap-3 my-6">
+                <div className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
+                  <div className="font-syne font-bold text-xl text-slate-900">{postsStat}</div>
+                  <div className="text-xs font-medium text-slate-500 mt-0.5">Posts</div>
                 </div>
 
-                <div className="mt-5 rounded-[8px] border border-[var(--yellow-light)] bg-[#FEFCE8] px-5 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2 text-[14px] font-semibold text-[var(--text-primary)]"><Star className="h-5 w-5 text-[var(--yellow-dark)]" />Your Reputation</div>
-                      <div className="mt-1  text-[24px] font-bold text-[var(--yellow-dark)]">{profile.campus_credits || 0}</div>
-                    </div>
-                    <button className="text-[13px] font-normal text-[var(--yellow-dark)] transition-colors hover:text-[var(--yellow-dark)]">How to earn {'>'}</button>
-                  </div>
+                <button
+                  onClick={() => setPeopleModal('followers')}
+                  className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                >
+                  <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followersCount}</div>
+                  <div className="text-xs font-medium text-slate-500 mt-0.5">Followers</div>
+                </button>
 
+                <button
+                  onClick={() => setPeopleModal('following')}
+                  className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
+                >
+                  <div className="font-syne font-bold text-xl text-slate-900 group-hover:text-blue-600 transition-colors">{followingCount}</div>
+                  <div className="text-xs font-medium text-slate-500 mt-0.5">Following</div>
+                </button>
+
+                <div className="bg-white rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100 text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
+                  <div className="font-syne font-bold text-xl text-amber-500">{profile.campus_credits || 0}</div>
+                  <div className="text-xs font-medium text-slate-500 mt-0.5">Reputation</div>
+                </div>
+              </div>
+
+              {/* Your Reputation Card with Soft Subtle Shadows */}
+              <div className="rounded-2xl bg-gradient-to-br from-white via-amber-50/30 to-amber-50/60 p-5 shadow-[0_4px_20px_rgba(245,158,11,0.08)] border border-amber-200/60 mb-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700">
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                      Your Reputation Score
+                    </div>
+                    <div className="mt-1 font-syne text-2xl font-bold text-slate-900">
+                      {profile.campus_credits || 0} <span className="text-xs font-semibold text-slate-500 ml-1">credits earned</span>
+                    </div>
+                  </div>
+                  <button className="text-xs font-semibold text-amber-700 bg-amber-100/70 hover:bg-amber-100 rounded-xl px-3.5 py-2 transition-colors shrink-0">
+                    How to earn →
+                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 border-b border-white px-4 md:px-8">
-            <div className="flex overflow-x-auto">
+          {/* Navigation Tabs: Posts, Replies, Likes */}
+          <div className="border-b border-slate-100 px-6 bg-white sticky top-14 z-20">
+            <div className="flex gap-6">
               {['posts', 'replies', 'likes'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`shrink-0 border-b-2 px-4 py-3 text-[14px] font-medium capitalize transition-colors duration-150 ${activeTab === tab ? 'border-b-[var(--text-primary)] text-[var(--text-primary)]' : 'border-b-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                  className={`relative py-3.5 text-sm font-semibold capitalize transition-all duration-150 ${
+                    activeTab === tab
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-slate-500 hover:text-slate-900 border-b-2 border-transparent'
+                  }`}
                 >
                   {tab}
                 </button>
@@ -858,30 +894,38 @@ export const ProfilePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-[var(--bg)] px-4 py-6 md:px-8">
+          {/* Content Feed Section */}
+          <div className="bg-white">
             <div className="min-h-[260px] transition-opacity duration-200">
               {isLoadingContent ? (
-                <div className="py-2">
+                <div className="py-6 px-6">
                   <ProfileSkeleton />
                 </div>
               ) : content.length > 0 ? (
-                <div className="divide-y divide-[var(--border)]">
+                <div className="divide-y divide-slate-100">
                   {content.map((item) => (
                     <div key={`${activeTab}-${item.id}`}>
-                      {activeTab === 'replies' && item.reply_content ? <div className="px-5 pt-5 text-sm text-[var(--text-secondary)]">Replied: "{item.reply_content}"</div> : null}
+                      {activeTab === 'replies' && item.reply_content ? (
+                        <div className="px-6 pt-4 text-xs font-medium text-slate-500 bg-slate-50/50">
+                          Replied: <span className="text-slate-700 italic">"{item.reply_content}"</span>
+                        </div>
+                      ) : null}
                       <PostCard post={item} viewerProfile={profile} onLike={handleLike} onOpenImage={(images, index) => setLightbox({ images, index })} />
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-16 text-center">
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-secondary)] text-[var(--border-strong)]">
+                <div className="py-20 text-center px-6">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-200/60 text-slate-400 shadow-2xs">
                     {activeTab === 'posts' ? <Star className="h-5 w-5" /> : activeTab === 'replies' ? <MessageCircle className="h-5 w-5" /> : <Heart className="h-5 w-5" />}
                   </div>
-                  <h3 className=" text-[16px] font-semibold text-[var(--text-primary)]">No {activeTab} yet</h3>
-                  <p className="mt-1 text-[14px] text-[var(--text-secondary)]">Your {activeTab} activity will appear here.</p>
+                  <h3 className="text-base font-bold text-slate-900">No {activeTab} yet</h3>
+                  <p className="mt-1 text-sm text-slate-500">Your {activeTab} activity will appear here.</p>
                   {activeTab === 'posts' ? (
-                    <button className="mt-4 rounded-[6px] border border-black/10 bg-[var(--bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]" onClick={() => navigate('/student/community')}>
+                    <button
+                      className="mt-5 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-50"
+                      onClick={() => navigate('/student/community')}
+                    >
                       Create a Post
                     </button>
                   ) : null}
@@ -915,81 +959,229 @@ export const ProfilePage: React.FC = () => {
       />
 
       {isEditModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 md:items-center md:p-4">
-          <div className="flex h-[100dvh] w-full flex-col bg-[var(--bg)] md:h-auto md:max-h-[92vh] md:max-w-[600px] md:rounded-[14px] md:shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
-            <div className="flex items-center justify-between border-b border-white px-5 py-4">
-              <h2 className=" text-[18px] font-semibold text-[var(--text-primary)]">Edit Profile</h2>
-              <button onClick={() => !isSaving && setIsEditModalOpen(false)} className="rounded-[6px] p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"><X className="h-4 w-4" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm p-4 font-sans">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+            {/* Sticky Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-4.5 backdrop-blur-md">
+              <h2 className="font-syne text-xl font-extrabold text-slate-900">Edit Profile</h2>
+              <button
+                onClick={() => !isSaving && setIsEditModalOpen(false)}
+                className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-5">
-              <div className="space-y-6">
-                <section className="space-y-4">
-                  <p className="text-[13px] font-medium text-[var(--text-primary)]">Basic Info</p>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">Full Name</span><input value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="w-full rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5 text-sm outline-none focus:border-black/20" /></label>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">Username</span><div className="flex items-center rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5"><span className="mr-1 text-sm text-[var(--text-secondary)]">@</span><input value={formData.username} onChange={(event) => setFormData({ ...formData, username: event.target.value.replace(/^@+/, '').replace(/\s+/g, '') })} className="w-full bg-transparent text-sm outline-none" /></div></label>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">Bio</span><textarea value={formData.bio} onChange={(event) => setFormData({ ...formData, bio: event.target.value })} rows={4} maxLength={160} className="w-full resize-none rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5 text-sm outline-none focus:border-black/20" /><span className="mt-1 block text-right text-[12px] text-[var(--text-secondary)]">{formData.bio.length}/160</span></label>
-                </section>
+            {/* Scrollable Form Sections with Breathable Padding */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+              {/* Basic Info Section */}
+              <section className="space-y-4">
+                <div className="border-b border-slate-100 pb-2">
+                  <h3 className="font-syne text-sm font-bold text-slate-900">Basic Info</h3>
+                  <p className="text-xs text-slate-500">Update your primary identity displayed across Campus Blink.</p>
+                </div>
 
-                <section className="space-y-4 border-t border-white pt-5">
-                  <p className="text-[13px] font-medium text-[var(--text-primary)]">Personal</p>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">Location</span><div className="flex items-center rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5"><MapPin className="mr-2 h-4 w-4 text-[var(--text-secondary)]" /><input value={formData.location} onChange={(event) => setFormData({ ...formData, location: event.target.value })} className="w-full bg-transparent text-sm outline-none" /></div></label>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">Website</span><div className="flex items-center rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5"><Link2 className="mr-2 h-4 w-4 text-[var(--text-secondary)]" /><input value={formData.website} onChange={(event) => setFormData({ ...formData, website: event.target.value })} className="w-full bg-transparent text-sm outline-none" /></div></label>
-                  <label className="block"><span className="mb-1 block text-[13px] font-medium text-[var(--text-primary)]">College</span><div className="flex items-center rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5"><GraduationCap className="mr-2 h-4 w-4 text-[var(--text-secondary)]" /><select value={formData.college} onChange={(event) => setFormData({ ...formData, college: event.target.value })} className="w-full bg-transparent text-sm outline-none"><option value={ONLY_COLLEGE}>{ONLY_COLLEGE}</option></select></div></label>
-                </section>
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Full Name
+                  </span>
+                  <input
+                    value={formData.name}
+                    onChange={(event) => setFormData({ ...formData, name: event.target.value })}
+                    className="w-full rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                    placeholder="Your Full Name"
+                  />
+                </label>
 
-                <section className="space-y-4 border-t border-white pt-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[13px] font-medium text-[var(--text-primary)]">Social Links</p>
-                      <p className="mt-1 text-[12px] text-[var(--text-secondary)]">Add up to {MAX_PROFILE_SOCIAL_LINKS} profile links.</p>
-                    </div>
-                    {socialLinks.length < MAX_PROFILE_SOCIAL_LINKS ? (
-                      <button
-                        type="button"
-                        onClick={() => setSocialLinks((current) => [...current, { platform: 'instagram', url: '' }])}
-                        className="inline-flex items-center gap-1 rounded-[6px] border border-white px-3 py-1.5 text-xs font-medium text-[var(--text-primary)]"
-                      >
-                        <Plus className="h-3.5 w-3.5" /> Add link
-                      </button>
-                    ) : null}
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Username
+                  </span>
+                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <span className="mr-1.5 font-semibold text-slate-400 text-sm">@</span>
+                    <input
+                      value={formData.username}
+                      onChange={(event) =>
+                        setFormData({
+                          ...formData,
+                          username: event.target.value.replace(/^@+/, '').replace(/\s+/g, ''),
+                        })
+                      }
+                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      placeholder="username"
+                    />
                   </div>
+                </label>
 
-                  <div className="space-y-3">
-                    {socialLinks.length ? socialLinks.map((item, index) => (
-                      <div key={`${item.platform}-${index}`} className="grid gap-2 md:grid-cols-[160px_minmax(0,1fr)_auto]">
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Bio
+                  </span>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
+                    rows={3}
+                    maxLength={160}
+                    className="w-full resize-none rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100 shadow-2xs"
+                    placeholder="Tell campus about yourself..."
+                  />
+                  <span className="mt-1.5 block text-right text-xs font-medium text-slate-400">
+                    {formData.bio.length} / 160
+                  </span>
+                </label>
+              </section>
+
+              {/* Personal Section */}
+              <section className="space-y-4">
+                <div className="border-b border-slate-100 pb-2">
+                  <h3 className="font-syne text-sm font-bold text-slate-900">Personal & College</h3>
+                  <p className="text-xs text-slate-500">Your campus affiliation and location details.</p>
+                </div>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Location
+                  </span>
+                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <MapPin className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                    <input
+                      value={formData.location}
+                      onChange={(event) => setFormData({ ...formData, location: event.target.value })}
+                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      placeholder="e.g. Rohini, Delhi"
+                    />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Website
+                  </span>
+                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <Link2 className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                    <input
+                      value={formData.website}
+                      onChange={(event) => setFormData({ ...formData, website: event.target.value })}
+                      className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400"
+                      placeholder="https://yourportfolio.com"
+                    />
+                  </div>
+                </label>
+
+                <label className="block">
+                  <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    College
+                  </span>
+                  <div className="flex items-center rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 transition-all focus-within:border-blue-600 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 shadow-2xs">
+                    <GraduationCap className="mr-2.5 h-4 w-4 text-slate-400 shrink-0" />
+                    <select
+                      value={formData.college}
+                      onChange={(event) => setFormData({ ...formData, college: event.target.value })}
+                      className="w-full bg-transparent text-sm font-medium text-slate-900 outline-none"
+                    >
+                      <option value={ONLY_COLLEGE}>{ONLY_COLLEGE}</option>
+                    </select>
+                  </div>
+                </label>
+              </section>
+
+              {/* Dynamic Social Links Section */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div>
+                    <h3 className="font-syne text-sm font-bold text-slate-900">Social Links</h3>
+                    <p className="text-xs text-slate-500">
+                      Add up to {MAX_PROFILE_SOCIAL_LINKS} external profiles.
+                    </p>
+                  </div>
+                  {socialLinks.length < MAX_PROFILE_SOCIAL_LINKS ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSocialLinks((current) => [...current, { platform: 'instagram', url: '' }])
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+                    >
+                      <Plus className="h-3.5 w-3.5" strokeWidth={2.2} /> Add link
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="space-y-3">
+                  {socialLinks.length ? (
+                    socialLinks.map((item, index) => (
+                      <div
+                        key={`${item.platform}-${index}`}
+                        className="grid gap-2 sm:grid-cols-[150px_minmax(0,1fr)_auto] items-center"
+                      >
                         <select
                           value={item.platform}
-                          onChange={(event) => setSocialLinks((current) => current.map((entry, entryIndex) => entryIndex === index ? { ...entry, platform: event.target.value } : entry))}
-                          className="rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5 text-sm outline-none"
+                          onChange={(event) =>
+                            setSocialLinks((current) =>
+                              current.map((entry, entryIndex) =>
+                                entryIndex === index ? { ...entry, platform: event.target.value } : entry,
+                              ),
+                            )
+                          }
+                          className="rounded-2xl border border-slate-200/80 bg-slate-50/60 px-3.5 py-3 text-xs font-semibold text-slate-800 outline-none transition-colors focus:border-blue-600 focus:bg-white"
                         >
-                          {SOCIAL_PLATFORM_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          {SOCIAL_PLATFORM_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
                         </select>
                         <input
                           value={item.url}
-                          onChange={(event) => setSocialLinks((current) => current.map((entry, entryIndex) => entryIndex === index ? { ...entry, url: event.target.value } : entry))}
-                          placeholder="Paste a full link or handle"
-                          className="rounded-[8px] border border-white bg-[var(--bg)] px-3 py-2.5 text-sm outline-none"
+                          onChange={(event) =>
+                            setSocialLinks((current) =>
+                              current.map((entry, entryIndex) =>
+                                entryIndex === index ? { ...entry, url: event.target.value } : entry,
+                              ),
+                            )
+                          }
+                          placeholder="Paste URL or handle..."
+                          className="rounded-2xl border border-slate-200/80 bg-slate-50/60 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white"
                         />
                         <button
                           type="button"
-                          onClick={() => setSocialLinks((current) => current.filter((_, entryIndex) => entryIndex !== index))}
-                          className="inline-flex items-center justify-center rounded-[8px] border border-[#F1CACA] px-3 text-[#DC2626]"
+                          onClick={() =>
+                            setSocialLinks((current) =>
+                              current.filter((_, entryIndex) => entryIndex !== index),
+                            )
+                          }
+                          className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 text-slate-400 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                    )) : (
-                      <p className="text-sm text-[var(--text-secondary)]">No extra links added yet.</p>
-                    )}
-                  </div>
-                </section>
-              </div>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 text-center">
+                      <p className="text-xs text-slate-500">No extra social links added yet.</p>
+                    </div>
+                  )}
+                </div>
+              </section>
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-white px-5 py-4">
-              <button onClick={() => !isSaving && setIsEditModalOpen(false)} className="rounded-[6px] border border-white bg-[var(--bg)] px-4 py-2 text-sm font-medium text-[var(--text-primary)]">Cancel</button>
-              <button onClick={handleSaveProfile} disabled={isSaving} className="rounded-[6px] bg-[var(--text-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#111111] disabled:opacity-60">{isSaving ? 'Saving...' : 'Save Changes'}</button>
+            {/* Sticky Footer */}
+            <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 border-t border-slate-100 bg-white/95 px-6 py-4 backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => !isSaving && setIsEditModalOpen(false)}
+                className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                disabled={isSaving}
+                className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-blue-700 disabled:opacity-60"
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
             </div>
           </div>
         </div>

@@ -504,6 +504,7 @@ export const SocietiesFeedPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("All");
   const [collegeFilter, setCollegeFilter] = useState("all");
+  const [societySearchQuery, setSocietySearchQuery] = useState("");
   const [allPosts, setAllPosts] = useState<any[]>([]);
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -815,48 +816,103 @@ export const SocietiesFeedPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-3 p-3 md:p-4">
-              {/* Societies Scroll */}
+            <div className="space-y-4 p-4 md:p-6 bg-slate-50">
+              {/* Search & Filter Bar for Societies */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs flex items-center justify-between gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search campus societies by name or domain..."
+                    value={societySearchQuery}
+                    onChange={(e) => setSocietySearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200/80 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Component-based Societies Grid */}
               {societiesList.length > 0 && (
-                <div className="mb-4 rounded-[14px] border border-black/10 bg-[var(--bg)] p-4">
-                  <h2 className="mb-3 text-[15px] font-extrabold text-[var(--text-primary)]">
-                    Campus Societies
-                  </h2>
-                  <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2 scroll-smooth">
-                    {societiesList.map((society) => (
-                      <div
-                        key={society.id}
-                        className="flex flex-col items-center gap-2 min-w-[76px] cursor-pointer group"
-                        onClick={() => {
-                          window.location.href = `/student/profile/${society.id}`;
-                        }}
-                      >
-                        <div 
-                          className="w-[68px] h-[68px] rounded-full border-2 p-0.5 flex items-center justify-center overflow-hidden bg-[#F5F5F7] group-hover:scale-105 transition-transform duration-200"
-                          style={{ borderColor: society.theme_color || 'var(--yellow)' }}
-                        >
-                          <div className="w-full h-full rounded-full overflow-hidden bg-[var(--bg)]">
-                            {society.avatar_url ? (
-                              <img
-                                src={society.avatar_url}
-                                alt={society.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div 
-                                className="text-xl font-bold flex items-center justify-center w-full h-full text-[var(--text-primary)]"
-                                style={{ backgroundColor: society.theme_color || 'var(--text-primary)' }}
-                              >
-                                {society.name.charAt(0).toUpperCase()}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-syne font-bold text-lg text-slate-900">
+                      Explore Campus Societies
+                    </h2>
+                    <span className="text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-full">
+                      {societiesList.length} Active
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {societiesList
+                      .filter((s) =>
+                        societySearchQuery.trim()
+                          ? s.name.toLowerCase().includes(societySearchQuery.toLowerCase()) ||
+                            (s.bio && s.bio.toLowerCase().includes(societySearchQuery.toLowerCase()))
+                          : true
+                      )
+                      .map((society) => {
+                        const isByte = society.name.toLowerCase().includes('byte');
+                        return (
+                          <div
+                            key={society.id}
+                            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-all flex flex-col justify-between"
+                          >
+                            <div>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  {isByte ? (
+                                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-rose-500 via-red-600 to-amber-500 p-0.5 shadow-md flex items-center justify-center shrink-0">
+                                      <div className="h-full w-full rounded-[14px] bg-red-600 flex items-center justify-center text-white font-syne font-extrabold text-xl tracking-tighter relative overflow-hidden">
+                                        <span>B</span>
+                                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-amber-300/30 rounded-full blur-xs" />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div
+                                      className="h-12 w-12 rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 flex items-center justify-center shrink-0"
+                                      style={{ borderColor: society.theme_color || '#e2e8f0' }}
+                                    >
+                                      {society.avatar_url ? (
+                                        <img
+                                          src={society.avatar_url}
+                                          alt={society.name}
+                                          className="h-full w-full object-cover"
+                                        />
+                                      ) : (
+                                        <span className="font-syne font-bold text-lg text-slate-800">
+                                          {society.name.charAt(0).toUpperCase()}
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+                                  <div className="min-w-0">
+                                    <h3 className="font-syne font-bold text-base text-slate-900 truncate">
+                                      {society.name}
+                                    </h3>
+                                    <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full inline-block mt-1">
+                                      Official Society
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
-                            )}
+
+                              <p className="mt-3 text-sm text-slate-600 leading-relaxed line-clamp-2">
+                                {society.bio || 'Exploring campus innovation through technology, collaboration, and development.'}
+                              </p>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                window.location.href = `/student/profile/${society.id}`;
+                              }}
+                              className="mt-4 w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 shadow-xs transition-colors text-center"
+                            >
+                              View and Join
+                            </button>
                           </div>
-                        </div>
-                        <span className="text-[11px] font-bold text-center leading-tight line-clamp-2 text-[var(--text-primary)]">
-                          {society.name}
-                        </span>
-                      </div>
-                    ))}
+                        );
+                      })}
                   </div>
                 </div>
               )}
@@ -933,11 +989,15 @@ export const SocietiesFeedPage: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="px-6 py-20 text-center">
-                  <h2 className="font-syne text-2xl font-extrabold text-[var(--text-primary)]">
+                <div className="my-8 rounded-2xl border border-slate-100 bg-white px-8 py-16 text-center shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col items-center">
+                  {/* Premium Vector Empty-State Illustration */}
+                  <div className="h-20 w-20 rounded-full bg-blue-50 border border-blue-100/80 flex items-center justify-center mb-4 text-blue-600 shadow-2xs">
+                    <MessageCircle className="h-9 w-9 stroke-[1.5]" />
+                  </div>
+                  <h2 className="font-syne text-xl font-extrabold text-slate-900">
                     Nothing here yet
                   </h2>
-                  <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                  <p className="mt-1.5 max-w-xs text-sm text-slate-500 leading-relaxed">
                     {activeTab === "Following"
                       ? "The people you follow haven't posted recently."
                       : "Be the first person to publish in this lane."}
@@ -947,17 +1007,27 @@ export const SocietiesFeedPage: React.FC = () => {
             </div>
           </section>
 
-          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-            <div className="rounded-[16px] border border-[#F4E7A6] bg-[linear-gradient(135deg,var(--yellow-light)_0%,var(--bg-primary)_78%)] p-4 shadow-[0_6px_20px_rgba(13,13,13,0.04)]">
-              <h2 className="font-syne text-[34px] font-extrabold leading-[0.95] text-[var(--text-primary)]">
-                Hello{" "}
-                {profile?.name?.split(" ")[0] ||
-                  profile?.full_name?.split(" ")[0] ||
-                  "Student"}
-              </h2>
-              <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                Share what is happening in your campus community.
-              </p>
+          <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start w-full">
+            {/* Welcome Card */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-50 shrink-0">
+                  <img
+                    src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id })}
+                    alt={profile?.name || "User"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="font-syne font-bold text-base text-slate-900 truncate">
+                    Hello{" "}
+                    {profile?.name?.split(" ")[0] ||
+                      profile?.full_name?.split(" ")[0] ||
+                      "Mayank"}
+                  </h2>
+                  <p className="text-xs text-slate-500">Share what is happening in your campus community.</p>
+                </div>
+              </div>
               <button
                 onClick={() => {
                   if (!profile) {
@@ -972,21 +1042,44 @@ export const SocietiesFeedPage: React.FC = () => {
                   }
                   setComposerExpanded(true);
                 }}
-                className="mt-4 inline-flex items-center gap-2 rounded-md bg-[var(--yellow)] text-[var(--text-primary)] transition-colors hover:bg-[var(--yellow)] hover:text-[var(--text-primary)]"
+                className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 shadow-xs transition-colors"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" strokeWidth={2.2} />
                 Create post
               </button>
             </div>
 
-            <div className="rounded-[16px] border border-[#EFE5BA] bg-[#FFFDF4] p-4 shadow-[0_6px_20px_rgba(13,13,13,0.04)]">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-secondary)]">
-                Filter by college
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+            {/* What's happening Card */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+              <h2 className="font-syne font-bold text-base text-slate-900 mb-3.5">What's happening</h2>
+              <div className="space-y-3.5">
+                <div className="cursor-pointer group">
+                  <p className="text-xs font-medium text-slate-400">Trending in Campus</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">#Hackathon2024</p>
+                    <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">Trending</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">2,543 posts</p>
+                </div>
+                <div className="border-t border-slate-100 pt-3 cursor-pointer group">
+                  <p className="text-xs font-medium text-slate-400">Technology · Trending</p>
+                  <p className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors mt-0.5">React 19</p>
+                  <p className="text-xs text-slate-500 mt-0.5">15K posts</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter by college Card */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+              <h2 className="font-syne font-bold text-base text-slate-900 mb-3">Filter by college</h2>
+              <div className="flex flex-wrap gap-1.5">
                 <button
                   onClick={() => setCollegeFilter("all")}
-                  className={`rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] ${collegeFilter === "all" ? "bg-[var(--yellow)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"}`}
+                  className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                    collegeFilter === "all"
+                      ? "bg-blue-600 text-white shadow-2xs"
+                      : "bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100"
+                  }`}
                 >
                   All
                 </button>
@@ -994,7 +1087,11 @@ export const SocietiesFeedPage: React.FC = () => {
                   <button
                     key={college}
                     onClick={() => setCollegeFilter(college)}
-                    className={`rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] ${collegeFilter === college ? "bg-[var(--yellow)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"}`}
+                    className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                      collegeFilter === college
+                        ? "bg-blue-600 text-white shadow-2xs"
+                        : "bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100"
+                    }`}
                   >
                     {college.includes("(MAIT)") ? "MAIT" : college}
                   </button>

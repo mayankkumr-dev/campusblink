@@ -25,9 +25,9 @@ export const AdminAccountsHub: React.FC = () => {
   const subTabs = {
     users: [
       { id: 'users', label: 'All Users' },
-      { id: 'banned', label: 'Banned' },
-      { id: 'roles', label: 'Roles' },
-      { id: 'invites', label: 'Invites' },
+      { id: 'banned', label: 'Banned Accounts' },
+      { id: 'roles', label: 'Role Permissions' },
+      { id: 'invites', label: 'Invitations' },
     ],
     professors: [
       { id: 'professors', label: 'All Professors' },
@@ -46,42 +46,65 @@ export const AdminAccountsHub: React.FC = () => {
   const activeSubTab = searchParams.get('subtab') || currentSubTabs[0]?.id || 'users';
 
   return (
-    <div className="space-y-4">
-      {/* Primary Scrollable Tabs */}
-      <div className="bg-[var(--bg)] p-2 rounded-lg border border-black/[0.08] flex items-center gap-2 overflow-x-auto hide-scrollbar sticky top-0 z-10 shadow-sm">
-        {tabs.map(tab => {
+    <div className="space-y-6 font-sans">
+      {/* Top Controls Bar */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">
+            Accounts &amp; Access Directory
+          </h2>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            Manage user roles, professor approvals, campus shops, and moderation policies
+          </p>
+        </div>
+      </div>
+
+      {/* Primary Scrollable Pills Container */}
+      <div className="bg-white p-1.5 rounded-2xl border border-slate-100 flex items-center gap-1.5 overflow-x-auto hide-scrollbar shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
-              onClick={() => setSearchParams({ tab: tab.id, subtab: subTabs[tab.id as keyof typeof subTabs][0].id })}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-bold whitespace-nowrap transition-all duration-200 ${
-                isActive 
-                  ? 'bg-[var(--yellow)] text-[var(--text)] shadow-sm' 
-                  : 'text-[var(--text-secondary)] hover:bg-black/5 hover:text-[var(--text)]'
+              type="button"
+              onClick={() =>
+                setSearchParams({
+                  tab: tab.id,
+                  subtab: subTabs[tab.id as keyof typeof subTabs][0].id,
+                })
+              }
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                isActive
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-[var(--text)]' : 'text-[var(--text-secondary)]'}`} />
-              {tab.label}
+              <Icon
+                className={`w-4 h-4 stroke-[2] ${
+                  isActive ? 'text-white' : 'text-slate-400'
+                }`}
+              />
+              <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Secondary Sub-Tabs */}
+      {/* Secondary Pill Sub-Tabs */}
       {currentSubTabs.length > 1 && (
-        <div className="flex border-b border-black/[0.08] mb-4 overflow-x-auto hide-scrollbar">
-          {currentSubTabs.map(subtab => {
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 overflow-x-auto hide-scrollbar">
+          {currentSubTabs.map((subtab) => {
             const isSubActive = activeSubTab === subtab.id;
             return (
               <button
                 key={subtab.id}
+                type="button"
                 onClick={() => setSearchParams({ tab: activeTab, subtab: subtab.id })}
-                className={`py-2 px-4 text-[13px] font-bold whitespace-nowrap border-b-2 transition-colors ${
-                  isSubActive 
-                    ? 'border-black text-[var(--text)]' 
-                    : 'border-transparent text-[var(--text-secondary)] hover:text-[var(--text)] hover:border-black/30'
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  isSubActive
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
                 }`}
               >
                 {subtab.label}
@@ -91,8 +114,8 @@ export const AdminAccountsHub: React.FC = () => {
         </div>
       )}
 
-      {/* Content Area */}
-      <div className="pt-2 pb-10">
+      {/* Dynamic Subpage Content Area */}
+      <div className="pt-1 pb-12">
         {activeSubTab === 'users' && <AdminUsersPage />}
         {activeSubTab === 'professors' && <AdminProfessorsPage />}
         {activeSubTab === 'professors_pending' && <AdminProfessorsPendingPage />}

@@ -5,6 +5,7 @@
  */
 
 import { useAuthStore } from '../store/authStore';
+import apiClient from './axios';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
@@ -26,6 +27,7 @@ class BackendAPI {
     try {
       const response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
+        credentials: 'include', // CRITICAL: Ensure browser attaches secure HttpOnly cookies
         headers,
       });
 
@@ -331,4 +333,5 @@ class BackendAPI {
   };
 }
 
+export { apiClient };
 export default new BackendAPI();

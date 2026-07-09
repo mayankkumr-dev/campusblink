@@ -382,11 +382,11 @@ export function BuySellPage() {
       {
         seller_id: profile.id,
         title: draft.title.trim(),
-        description: draft.description.trim(),
+        description: draft.description.trim() + (draft.location.trim() ? '\n\nLocation: ' + draft.location.trim() : ''),
         category: draft.category,
         condition: draft.condition,
         price: Number(draft.price),
-        location: draft.location.trim() || profile.college || 'On campus',
+        college: profile.college,
       },
       files
     );
@@ -406,16 +406,19 @@ export function BuySellPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(45,78,245,0.06)_0%,transparent_70%)] px-4 pt-4 pb-24 sm:px-6 md:pb-8 lg:px-8">
-      <div className="w-full space-y-6">
-        <section className="overflow-hidden rounded-[32px] border border-[var(--border)] bg-[var(--bg)] text-[var(--text)] shadow-[var(--shadow-md)]">
+    <div className="min-h-screen bg-slate-50 px-4 pt-6 pb-24 sm:px-6 lg:px-8 font-sans">
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Marketplace Header Card */}
+        <section className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
           <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.38fr_0.62fr] lg:px-10 lg:py-10">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-md bg-[var(--accent-light)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
+              <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-blue-600">
                 Campus Blink Marketplace
               </div>
-              <h1 className="mt-4 max-w-3xl text-4xl font-black tracking-tight text-[var(--text-primary)] sm:text-5xl">Buy smart, sell fast, campus-first.</h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-secondary)] sm:text-base">
+              <h1 className="mt-4 font-syne text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                Buy smart, sell fast, campus-first.
+              </h1>
+              <p className="mt-3.5 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
                 A clean campus marketplace for gadgets, books, furniture, and quick hostel pickups.
               </p>
 
@@ -429,171 +432,216 @@ export function BuySellPage() {
                     }
                     setShowComposer(true);
                   }}
-                  className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-5 py-3 text-sm font-black uppercase tracking-[0.15em] text-white hover:bg-[var(--accent-hover)]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-700"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" strokeWidth={2.2} />
                   Sell Now
                 </button>
                 <Link
                   to="/student/campus-exchange/messages"
-                  className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--bg)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-2)]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
                 >
-                  <MessageCircle className="h-4 w-4" />
+                  <MessageCircle className="h-4 w-4 text-slate-500" />
                   Messages
                 </Link>
                 <Link
                   to="/student/wishlist"
-                  className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--bg)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-2)]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
                 >
-                  <Heart className="h-4 w-4" />
+                  <Heart className="h-4 w-4 text-slate-500" />
                   Wishlist
                 </Link>
                 <Link
                   to="/student/buy-sell/manage"
-                  className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--bg)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-2)]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50"
                 >
                   Manage Listings
                 </Link>
               </div>
             </div>
 
+            {/* Active / Sold Stat Cards with Subtle Depth */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-2)] p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-3)]">Active listings</div>
-                <div className="mt-3 text-4xl font-black tracking-tight text-[var(--accent)]">{activeListingsCount}</div>
-                <div className="mt-2 text-sm text-[var(--text-2)]">Items currently live</div>
+              <div className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-blue-50/60 to-white p-5 shadow-[0_4px_16px_rgba(37,99,235,0.06)]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-blue-600">Active listings</div>
+                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-slate-900">{activeListingsCount}</div>
+                <div className="mt-1 text-xs font-medium text-slate-500">Items currently live on campus</div>
               </div>
-              <div className="rounded-[24px] border border-[var(--border)] bg-[var(--bg-2)] p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-3)]">Sold</div>
-                <div className="mt-3 text-4xl font-black tracking-tight text-[var(--text-primary)]">{soldListingsCount}</div>
-                <div className="mt-2 text-sm text-[var(--text-2)]">Listings closed successfully</div>
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Sold</div>
+                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-slate-900">{soldListingsCount}</div>
+                <div className="mt-1 text-xs font-medium text-slate-500">Listings closed successfully</div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="space-y-6">
-          <div className="space-y-6">
-            <MarketplaceSectionCard eyebrow="Discover" title="Fresh picks around you">
-              <div className="flex flex-col gap-4 lg:flex-row">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-3)]" />
-                  <input
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder=""
-                    className="w-full rounded-md border border-[var(--border)] bg-[var(--bg)] px-12 py-3.5 text-sm outline-none transition focus:border-[var(--accent)]"
-                  />
-                  {!searchTerm.trim() ? (
-                    <div className="pointer-events-none absolute left-12 top-1/2 -translate-y-1/2 text-sm">
-                      <span className="text-[var(--text-3)]">Search for </span>
-                      <span className={`text-[var(--accent)] transition-opacity duration-200 ${placeholderVisible ? 'opacity-100' : 'opacity-0'}`}>
-                        {placeholderWords[placeholderIndex]}
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="flex items-center gap-3 rounded-md border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm text-[var(--text-secondary)]">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  <select
-                    value={category}
-                    onChange={(event) => setCategory(event.target.value)}
-                    className="bg-transparent outline-none"
-                  >
-                    <option value="all">All categories</option>
-                    {MARKETPLACE_CATEGORIES.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+        {/* Streamlined Search Bar and Category Navigation */}
+        <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 max-w-xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search campus listings by item, hostel, or seller..."
+                className="w-full rounded-2xl border border-slate-200/80 bg-slate-50/70 pl-11 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              />
+            </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>Filter:</span>
+              </div>
+              <select
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 outline-none transition-colors hover:bg-slate-50"
+              >
+                <option value="all">All categories</option>
+                {MARKETPLACE_CATEGORIES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={() => setCategory('all')}
+              className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
+                category === 'all'
+                  ? 'bg-blue-600 text-white shadow-2xs'
+                  : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+              }`}
+            >
+              All
+            </button>
+            {MARKETPLACE_CATEGORIES.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setCategory(item)}
+                className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
+                  category === item
+                    ? 'bg-blue-600 text-white shadow-2xs'
+                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Elegant Component-Based Product Cards Grid */}
+        <section className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
+          {isLoading ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <ProductSkeleton key={`marketplace-product-skeleton-${index}`} />
+              ))}
+            </div>
+          ) : featuredListings.length ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredListings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="group overflow-hidden rounded-2xl border border-slate-100 bg-white p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                >
+                  <div>
+                    <Link to={`/student/buy-sell/${listing.id}`} className="block relative">
+                      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-slate-50">
+                        <ImageWithFallback
+                          src={getListingImage(listing)}
+                          alt={listing.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-slate-800 shadow-xs">
+                        {listing.condition}
+                      </span>
+                    </Link>
+
+                    <div className="pt-3.5 px-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <Link to={`/student/buy-sell/${listing.id}`}>
+                          <h3 className="font-syne font-bold text-sm text-slate-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                            {listing.title}
+                          </h3>
+                        </Link>
+                        <p className="font-syne text-base font-extrabold text-blue-600 shrink-0">
+                          {formatPrice(listing.price)}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500 line-clamp-1">
+                        {listing.category} · {formatMarketplaceTime(listing.created_at)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 px-1">
+                    <button
+                      onClick={() => handleToggleWishlist(listing.id)}
+                      className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${
+                        wishlistIds.includes(listing.id)
+                          ? 'text-rose-600'
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      <Heart
+                        className="h-3.5 w-3.5"
+                        fill={wishlistIds.includes(listing.id) ? 'currentColor' : 'none'}
+                      />
+                      {wishlistIds.includes(listing.id) ? 'Saved' : 'Save'}
+                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                      {profile?.id && profile.id !== listing.seller_id ? (
+                        <Link
+                          to="/student/campus-exchange/messages"
+                          className="rounded-xl border border-slate-200/80 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          Chat
+                        </Link>
+                      ) : null}
+                      <Link
+                        to={`/student/buy-sell/${listing.id}`}
+                        className="rounded-xl bg-slate-100 hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-900 transition-colors"
+                      >
+                        Details
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <MarketplaceEmptyState
+              title="No listings matched that search"
+              description="Try a broader keyword, switch categories, or post the first item in this niche."
+              action={
                 <button
                   type="button"
-                  onClick={() => setCategory('all')}
-                  className={`rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${category === 'all' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-3)] text-[var(--text-2)]'}`}
+                  onClick={() => {
+                    if (!isAllowed('listing_creation')) {
+                      toast.error('Listing creation is currently restricted for your account.');
+                      return;
+                    }
+                    setShowComposer(true);
+                  }}
+                  className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
                 >
-                  All
+                  Post a listing
                 </button>
-                {MARKETPLACE_CATEGORIES.map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setCategory(item)}
-                    className={`rounded-md px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] ${category === item ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-3)] text-[var(--text-2)]'}`}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </MarketplaceSectionCard>
-
-            <section className="rounded-[20px] border border-[var(--border)] bg-[var(--bg)] p-5 shadow-[var(--shadow-sm)]">
-              {isLoading ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {Array.from({ length: 8 }).map((_, index) => (
-                    <ProductSkeleton key={`marketplace-product-skeleton-${index}`} />
-                  ))}
-                </div>
-              ) : featuredListings.length ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {featuredListings.map((listing) => (
-                    <div key={listing.id} className="overflow-hidden rounded-[10px] border border-[var(--border)] bg-[var(--bg)] p-2.5">
-                          <Link to={`/student/buy-sell/${listing.id}`} className="block">
-                            <div className="aspect-[1/0.9] overflow-hidden rounded-[8px] bg-[var(--bg-3)]">
-                              <ImageWithFallback src={getListingImage(listing)} alt={listing.title} className="h-full w-full object-cover" />
-                            </div>
-                          </Link>
-                          <div className="pt-2.5">
-                            <div className="flex items-start justify-between gap-2">
-                              <p className="card-title listing-title line-clamp-2 text-[13px] font-semibold text-[var(--text-primary)]">{listing.title}</p>
-                              <p className="listing-price text-[13px] font-bold text-[var(--text-primary)]">{formatPrice(listing.price)}</p>
-                            </div>
-                            <p className="listing-category-badge mt-1 line-clamp-1 text-[11px] text-[var(--text-secondary)]">{listing.category} · {listing.condition}</p>
-                            <div className="mt-2 flex items-center justify-between gap-2">
-                              <button onClick={() => handleToggleWishlist(listing.id)} className={`text-[11px] font-medium ${wishlistIds.includes(listing.id) ? 'text-[var(--error)]' : 'text-[var(--text-secondary)]'}`}>{wishlistIds.includes(listing.id) ? '♥ Saved' : '♡ Save'}</button>
-                              <div className="flex items-center gap-1.5">
-                                {profile?.id && profile.id !== listing.seller_id ? (
-                                  <Link
-                                    to="/student/campus-exchange/messages"
-                                    className="rounded-full border border-[var(--border)] px-3 py-1 text-[11px] font-medium text-[var(--text-primary)] hover:bg-[var(--bg-2)]"
-                                  >
-                                    Chat
-                                  </Link>
-                                ) : null}
-                                <Link to={`/student/buy-sell/${listing.id}`} className="rounded-full border border-[var(--border)] px-3 py-1 text-[11px] font-medium text-[var(--text-primary)] hover:bg-[var(--bg-2)]">Open Listing</Link>
-                              </div>
-                            </div>
-                          </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <MarketplaceEmptyState
-                  title="No listings matched that search"
-                  description="Try a broader keyword, switch categories, or post the first item in this niche."
-                  action={
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!isAllowed('listing_creation')) {
-                          toast.error('Listing creation is currently restricted for your account.');
-                          return;
-                        }
-                        setShowComposer(true);
-                      }}
-                      className="rounded-md bg-[var(--accent)] px-5 py-3 text-sm font-black uppercase tracking-[0.18em] text-white hover:bg-[var(--accent-hover)]"
-                    >
-                      Post a listing
-                    </button>
-                  }
-                />
-              )}
-            </section>
-          </div>
+              }
+            />
+          )}
         </section>
       </div>
 

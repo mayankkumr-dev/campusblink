@@ -80,6 +80,26 @@ router.delete('/file', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'publicId required' });
     }
 
+    /**
+     * Ownership check:
+     * Cloudinary publicIds follow the structure: campus-blink/{folder}/{userId}/...
+     * Extract the userId segment (parts[2]) and verify whether it matches req.user.id
+     * or if the requesting user is an admin (req.profile.role === 'admin').
+     * Return 403 Forbidden if neither condition is met.
+     */
+    const parts = String(publicId).split('/');
+    let extractedUserId = null;
+    if (parts[0] === 'campus-blink' && parts.length >= 4) {
+      extractedUserId = parts[2];
+    }
+
+    const isOwner = extractedUserId && extractedUserId === req.user.id;
+    const isAdmin = req.profile?.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ error: 'You do not have permission to delete this file' });
+    }
+
     await cloudinaryService.deleteFile(publicId);
 
     res.json({ message: 'File deleted successfully' });

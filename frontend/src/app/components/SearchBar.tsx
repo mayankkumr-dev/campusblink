@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { X, Loader2, Search, Clock } from 'lucide-react';
+import { X, Loader2, Search, Clock, ArrowRight, User, FileText, Store } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { searchStudents, searchPosts, searchListings } from '../../api/search';
@@ -146,262 +146,328 @@ export const SearchSlidePanel: React.FC<SearchSlidePanelProps> = ({ isOpen, onCl
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Blurred Glassmorphism Backdrop Overlay */}
       <div
-        className={`fixed inset-0 z-[75] bg-black/30 backdrop-blur-[1px] transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[75] bg-slate-900/15 backdrop-blur-sm transition-all duration-300 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Slide-in Panel */}
+      {/* Sleek Light-Mode Slide-in Panel */}
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Search"
-        className={`fixed left-0 top-0 h-full z-[76] flex flex-col bg-[var(--bg-primary)] border-r border-black/[0.08] shadow-[6px_0_40px_rgba(0,0,0,0.14)] transition-transform duration-300 ease-in-out w-full md:w-[390px] ${
+        aria-label="Search Campus"
+        className={`fixed left-0 top-0 h-full z-[76] flex flex-col bg-white border-r border-slate-100 shadow-[0_16px_50px_rgba(0,0,0,0.08)] transition-transform duration-300 ease-in-out w-full md:w-[410px] ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Header */}
-        <div className="flex h-[70px] shrink-0 items-center justify-between px-6 border-b border-black/[0.06] bg-[var(--bg)]">
-          <h2 className="font-syne font-extrabold text-[22px] text-[var(--text-primary)] tracking-tight">Search</h2>
+        {/* Sticky Header */}
+        <div className="flex h-18 shrink-0 items-center justify-between px-6 border-b border-slate-100 bg-white">
+          <div>
+            <h2 className="font-syne font-extrabold text-xl text-slate-900 tracking-tight">
+              Search Campus
+            </h2>
+            <p className="text-[11px] font-medium text-slate-400">
+              Find students, posts, and marketplace items
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-secondary)] hover:bg-black/[0.06] hover:text-[var(--text-primary)] transition-colors"
-            aria-label="Close search"
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-200/70 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all shadow-2xs"
+            aria-label="Close search drawer"
           >
-            <X size={20} />
+            <X className="w-4 h-4 stroke-[1.75]" />
           </button>
         </div>
 
-        {/* Search Input */}
-        <div className="px-5 pt-4 pb-3 shrink-0">
+        {/* Softly Rounded Search Input */}
+        <div className="px-6 pt-4 pb-3 shrink-0 bg-white">
           <form onSubmit={handleSubmit} className="relative">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-            />
+            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 stroke-[1.75]" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => handleChange(e.target.value)}
-              placeholder="Search students, posts, listings..."
-              className="h-[44px] w-full rounded-[10px] border border-black/[0.08] bg-[var(--bg-2)] pl-10 pr-10 text-[14px] font-sans text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)] outline-none focus:border-[var(--accent)] focus:bg-[var(--bg)] transition-colors"
+              placeholder="Search people, posts, textbooks..."
+              className="h-11 w-full rounded-2xl border border-slate-200/80 bg-slate-50 pl-10.5 pr-10 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all shadow-2xs"
             />
             {query && (
               <button
                 type="button"
                 onClick={handleClearQuery}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#C8C6BE] text-white hover:bg-[var(--text-muted)] transition-colors"
-                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 hover:bg-slate-300 hover:text-slate-800 transition-colors"
+                aria-label="Clear search query"
               >
-                <X size={11} />
+                <X className="w-3.5 h-3.5 stroke-[2]" />
               </button>
             )}
           </form>
         </div>
 
-        {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto">
-
-          {/* Recent Searches */}
+        {/* Scrollable Search Content */}
+        <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+          {/* Recent Searches Section */}
           {showRecent && (
-            <div>
-              <div className="flex items-center justify-between px-5 pt-2 pb-1">
-                <p className="font-sans font-semibold text-[12px] uppercase tracking-[0.7px] text-[#ACACAC]">Recent</p>
+            <div className="py-2">
+              <div className="flex items-center justify-between px-6 pt-3 pb-2">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  Recent Searches
+                </span>
                 <button
                   type="button"
                   onClick={handleClearAll}
-                  className="font-sans text-[13px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  className="text-xs font-bold text-slate-500 hover:text-rose-600 transition-colors"
                 >
                   Clear all
                 </button>
               </div>
-              {recentSearches.map((term) => (
-                <div
-                  key={term}
-                  className="group flex items-center gap-3 px-5 py-[11px] cursor-pointer hover:bg-black/[0.035] transition-colors"
-                  onClick={() => handleRecentClick(term)}
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EDECEA]">
-                    <Clock size={16} className="text-[var(--text-secondary)]" />
-                  </div>
-                  <span className="flex-1 font-sans text-[14px] font-medium text-[var(--text-primary)] truncate">{term}</span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleRemoveRecent(e, term)}
-                    className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-full text-[var(--text-muted)] hover:bg-black/[0.06] hover:text-[var(--text-primary)] transition-all"
-                    aria-label={`Remove ${term} from recent`}
+              <div className="space-y-0.5">
+                {recentSearches.map((term) => (
+                  <div
+                    key={term}
+                    className="group flex items-center justify-between gap-3 px-6 py-2.5 cursor-pointer hover:bg-slate-50 transition-colors"
+                    onClick={() => handleRecentClick(term)}
                   >
-                    <X size={13} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Empty state - no query, no recent */}
-          {!query.trim() && !showRecent && (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EDECEA]">
-                <Search size={26} className="text-[#C0BDB7]" />
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 border border-slate-200/60 text-slate-500">
+                        <Clock className="w-4 h-4 stroke-[1.75]" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 truncate">
+                        {term}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveRecent(e, term)}
+                      className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-200/70 hover:text-slate-700 transition-all"
+                      aria-label={`Remove ${term} from recent searches`}
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[1.75]" />
+                    </button>
+                  </div>
+                ))}
               </div>
-              <p className="font-sans text-[14px] text-[var(--text-muted)]">Search for students, posts or listings</p>
             </div>
           )}
 
-          {/* Loading */}
+          {/* Empty State when No Query */}
+          {!query.trim() && !showRecent && (
+            <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 text-slate-400 mb-4 shadow-2xs">
+                <Search className="w-6 h-6 stroke-[1.5]" />
+              </div>
+              <p className="font-syne text-base font-bold text-slate-800">
+                Explore Your Campus
+              </p>
+              <p className="text-xs text-slate-500 font-medium max-w-[240px] mt-1 leading-relaxed">
+                Search across students, active community discussions, and verified marketplace listings.
+              </p>
+            </div>
+          )}
+
+          {/* Loading Spinner */}
           {isLoading && (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-[var(--yellow)]" />
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+              <span className="text-xs font-semibold text-slate-400">
+                Searching campus...
+              </span>
             </div>
           )}
 
-          {/* No results */}
+          {/* No Results Found */}
           {showEmpty && (
-            <div className="flex flex-col items-center justify-center py-16 gap-2 px-8 text-center">
-              <Search className="h-8 w-8 text-[#DDDCDA]" />
-              <p className="font-sans text-[14px] text-[var(--text-muted)]">No results for &apos;{query}&apos;</p>
+            <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 text-slate-400 mb-3">
+                <Search className="w-5 h-5 stroke-[1.5]" />
+              </div>
+              <p className="font-syne text-sm font-bold text-slate-800">
+                No results found
+              </p>
+              <p className="text-xs text-slate-500 font-medium mt-1">
+                We couldn&apos;t find anything matching &quot;{query}&quot;
+              </p>
             </div>
           )}
 
-          {/* Results */}
+          {/* Results List */}
           {!isLoading && hasAny && (
-            <>
-              {/* Students / People */}
+            <div className="pb-4">
+              {/* People Category */}
               {hasStudents && (
-                <div>
-                  <p className="px-5 pt-4 pb-1 font-sans font-semibold text-[11px] uppercase tracking-[0.7px] text-[#ACACAC]">
-                    People
-                  </p>
-                  {results.students.map((student) => {
-                    const avatar = student.avatar_url || getAvatarDataUrl({ name: student.name, seed: student.id });
-                    return (
-                      <div
-                        key={student.id}
-                        className="flex cursor-pointer items-center gap-3 px-5 py-[11px] hover:bg-black/[0.035] transition-colors"
-                        onClick={() => {
-                          if (query.trim()) addRecentSearch(query.trim());
-                          go(`/student/profile/${student.id}`);
-                        }}
-                      >
-                        <img
-                          src={avatar}
-                          alt={student.name}
-                          className="h-10 w-10 shrink-0 rounded-full object-cover border border-black/[0.06]"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-sans font-semibold text-[14px] text-[var(--text-primary)] leading-tight">
-                            {student.name}
-                          </p>
-                          <p className="truncate font-sans text-[12px] text-[var(--text-muted)] leading-tight">
-                            @{getDisplayHandle(student.username, 'student')}
-                            {student.college && (
-                              <span className="ml-1.5">
-                                · {student.college.includes('(MAIT)') ? 'MAIT' : student.college.split(' ').slice(-1)[0].replace(/[()]/g, '')}
-                              </span>
-                            )}
-                          </p>
+                <div className="py-2">
+                  <div className="px-6 pt-3 pb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                      People
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {results.students.length}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5">
+                    {results.students.map((student) => {
+                      const avatar =
+                        student.avatar_url ||
+                        getAvatarDataUrl({ name: student.name, seed: student.id });
+                      const collegeName = student.college
+                        ? student.college.includes('(MAIT)')
+                          ? 'MAIT'
+                          : student.college.split(' ').slice(-1)[0].replace(/[()]/g, '')
+                        : 'Student';
+
+                      return (
+                        <div
+                          key={student.id}
+                          className="flex items-center justify-between gap-3 px-6 py-3 hover:bg-slate-50/80 cursor-pointer transition-colors group"
+                          onClick={() => {
+                            if (query.trim()) addRecentSearch(query.trim());
+                            go(`/student/profile/${student.id}`);
+                          }}
+                        >
+                          <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                            <img
+                              src={avatar}
+                              alt={student.name}
+                              className="h-11 w-11 shrink-0 rounded-full object-cover border border-slate-200/80 shadow-2xs"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-syne font-bold text-sm text-slate-900 truncate group-hover:text-amber-600 transition-colors">
+                                {student.name}
+                              </p>
+                              <p className="text-xs text-slate-500 font-medium truncate mt-0.5">
+                                @{getDisplayHandle(student.username, 'student')}
+                                <span className="mx-1.5 text-slate-300">·</span>
+                                <span className="text-slate-600 font-semibold">{collegeName}</span>
+                              </p>
+                            </div>
+                          </div>
+                          {/* Sleek Soft-Fill Follow Button */}
+                          <FollowButton
+                            targetUserId={student.id}
+                            initialFollowing={Boolean(student.is_following)}
+                            size="sm"
+                            variant="soft"
+                            className="shrink-0"
+                          />
                         </div>
-                        <FollowButton
-                          targetUserId={student.id}
-                          initialFollowing={Boolean(student.is_following)}
-                          size="sm"
-                          className="ml-1 shrink-0"
-                        />
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* Posts */}
+              {/* Posts Category */}
               {hasPosts && (
-                <div className={hasStudents ? 'border-t border-black/[0.05] mt-1' : ''}>
-                  <p className="px-5 pt-4 pb-1 font-sans font-semibold text-[11px] uppercase tracking-[0.7px] text-[#ACACAC]">
-                    Posts
-                  </p>
-                  {results.posts.map((post) => {
-                    const avatar = post.author?.avatar_url || getAvatarDataUrl({ name: post.author?.name, seed: post.author?.id });
-                    return (
-                      <div
-                        key={post.id}
-                        className="flex cursor-pointer items-center gap-3 px-5 py-[10px] hover:bg-black/[0.035] transition-colors"
-                        onClick={() => {
-                          if (query.trim()) addRecentSearch(query.trim());
-                          go(`/community/${post.id}`);
-                        }}
-                      >
-                        <img
-                          src={avatar}
-                          alt={post.author?.name}
-                          className="h-9 w-9 shrink-0 rounded-full object-cover border border-black/[0.06]"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-sans font-semibold text-[13px] text-[var(--text-primary)] truncate leading-tight">
-                            {post.author?.name || 'Campus Student'}
-                          </p>
-                          <p className="font-sans text-[12px] text-[var(--text-secondary)] line-clamp-2 leading-snug">
-                            {post.title || post.content}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Listings */}
-              {hasListings && (
-                <div className={(hasStudents || hasPosts) ? 'border-t border-black/[0.05] mt-1' : ''}>
-                  <p className="px-5 pt-4 pb-1 font-sans font-semibold text-[11px] uppercase tracking-[0.7px] text-[#ACACAC]">
-                    Listings
-                  </p>
-                  {results.listings.map((listing) => {
-                    const thumbnail = Array.isArray(listing.images) && listing.images.length ? listing.images[0] : null;
-                    return (
-                      <div
-                        key={listing.id}
-                        className="flex cursor-pointer items-center gap-3 px-5 py-[10px] hover:bg-black/[0.035] transition-colors"
-                        onClick={() => {
-                          if (query.trim()) addRecentSearch(query.trim());
-                          go(`/student/buy-sell/${listing.id}`);
-                        }}
-                      >
-                        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-[6px] border border-black/[0.06] bg-[#EDECEA]">
-                          {thumbnail ? (
-                            <img loading="lazy" src={thumbnail} alt={listing.title} className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-[#C0BDB7] text-[10px]">No img</div>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-sans font-semibold text-[13px] text-[var(--text-primary)] leading-tight">
-                            {listing.title}
-                          </p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-syne font-semibold text-[13px] text-[var(--text-primary)]">
-                              ₹{Number(listing.price).toLocaleString()}
-                            </span>
-                            {listing.category && (
-                              <span className="rounded-md bg-[var(--bg-secondary)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.10em] text-[var(--text-secondary)]">
-                                {listing.category}
-                              </span>
-                            )}
+                <div className="py-2 border-t border-slate-100">
+                  <div className="px-6 pt-3 pb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                      Community Posts
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {results.posts.length}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5">
+                    {results.posts.map((post) => {
+                      const avatar =
+                        post.author?.avatar_url ||
+                        getAvatarDataUrl({ name: post.author?.name, seed: post.author?.id });
+                      return (
+                        <div
+                          key={post.id}
+                          className="flex items-start gap-3 px-6 py-3 hover:bg-slate-50/80 cursor-pointer transition-colors group"
+                          onClick={() => {
+                            if (query.trim()) addRecentSearch(query.trim());
+                            go(`/community/${post.id}`);
+                          }}
+                        >
+                          <img
+                            src={avatar}
+                            alt={post.author?.name}
+                            className="h-9 w-9 shrink-0 rounded-full object-cover border border-slate-200/80 mt-0.5"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-syne font-bold text-xs text-slate-900 truncate group-hover:text-amber-600 transition-colors">
+                              {post.author?.name || 'Campus Student'}
+                            </p>
+                            <p className="text-xs text-slate-600 font-medium line-clamp-2 mt-0.5 leading-snug">
+                              {post.title || post.content}
+                            </p>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
-              {/* View all */}
-              <div className="border-t border-black/[0.05] px-5 py-3 mt-1">
+              {/* Marketplace Listings Category */}
+              {hasListings && (
+                <div className="py-2 border-t border-slate-100">
+                  <div className="px-6 pt-3 pb-2 flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                      Marketplace Listings
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                      {results.listings.length}
+                    </span>
+                  </div>
+                  <div className="space-y-0.5">
+                    {results.listings.map((listing) => {
+                      const thumbnail =
+                        Array.isArray(listing.images) && listing.images.length
+                          ? listing.images[0]
+                          : null;
+                      return (
+                        <div
+                          key={listing.id}
+                          className="flex items-center gap-3.5 px-6 py-3 hover:bg-slate-50/80 cursor-pointer transition-colors group"
+                          onClick={() => {
+                            if (query.trim()) addRecentSearch(query.trim());
+                            go(`/student/buy-sell/${listing.id}`);
+                          }}
+                        >
+                          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50 flex items-center justify-center">
+                            {thumbnail ? (
+                              <img
+                                loading="lazy"
+                                src={thumbnail}
+                                alt={listing.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <Store className="w-4 h-4 text-slate-400" />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-syne font-bold text-sm text-slate-900 truncate group-hover:text-amber-600 transition-colors">
+                              {listing.title}
+                            </p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="font-syne font-extrabold text-xs text-slate-800">
+                                ₹{Number(listing.price).toLocaleString()}
+                              </span>
+                              {listing.category && (
+                                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                                  {listing.category}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Centered Subtle 'View All Results' Interactive Link */}
+              <div className="px-6 pt-6 pb-2 border-t border-slate-100 text-center">
                 <button
                   type="button"
                   onClick={() => {
@@ -410,12 +476,13 @@ export const SearchSlidePanel: React.FC<SearchSlidePanelProps> = ({ isOpen, onCl
                       go(`/student/search?q=${encodeURIComponent(query.trim())}`);
                     }
                   }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-[8px] py-2.5 text-[13px] font-semibold text-[var(--text-secondary)] hover:bg-black/[0.04] hover:text-[var(--text-primary)] transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold transition-all border border-slate-200/80 hover:border-amber-200/80 shadow-2xs group"
                 >
-                  View all results for &quot;{query}&quot;
+                  <span>View all results for &quot;{query}&quot;</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 transition-transform group-hover:translate-x-0.5" />
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>

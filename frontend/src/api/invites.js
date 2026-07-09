@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 import { sendPushNotification } from '../lib/pushNotifications';
 
 const INVITE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const OWNER_EMAIL = 'contactus.mayank@gmail.com';
+const OWNER_EMAILS = ['contactus.mayank@gmail.com', 'itsmayank@gmail.com'];
 
 function randomGroup() {
   return Array.from({ length: 4 }, () => INVITE_CHARS[Math.floor(Math.random() * INVITE_CHARS.length)]).join('');
@@ -436,7 +436,7 @@ export async function joinWaitlist(payload) {
 
 function isAdminProfile(profile) {
   const email = String(profile?.email || '').toLowerCase();
-  return profile?.role === 'admin' || email === OWNER_EMAIL;
+  return profile?.role === 'admin' || OWNER_EMAILS.includes(email);
 }
 
 function getExpiryValue(expiryOption) {

@@ -521,11 +521,11 @@ export const PrintPage: React.FC = () => {
             onDrop={handleDrop}
             className="flex flex-col items-center flex-shrink-0 cursor-pointer"
           >
-            <div className="w-[140px] h-[180px] md:w-[180px] md:h-[240px] bg-[var(--bg)] border border-[var(--text-primary)]/10 border-dashed rounded-lg shadow-soft relative flex flex-col items-center justify-center p-4 hover:border-[var(--yellow-dark)] transition-colors group">
-              <div className="w-10 h-10 rounded-full border border-[var(--yellow-dark)] flex items-center justify-center text-[var(--yellow-dark)] group-hover:bg-[var(--yellow-dark)]/5 transition-colors">
-                 <Plus className="w-5 h-5" />
+            <div className="w-[140px] h-[180px] md:w-[180px] md:h-[240px] bg-slate-50 border-2 border-slate-200 border-dashed rounded-2xl relative flex flex-col items-center justify-center p-4 hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-300 group">
+              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform duration-300">
+                 <Plus className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold text-[var(--yellow-dark)] mt-2">Add files</span>
+              <span className="text-[13px] font-bold text-slate-600 mt-4 group-hover:text-blue-600 transition-colors">Add files</span>
             </div>
           </div>
         </div>
@@ -567,29 +567,27 @@ export const PrintPage: React.FC = () => {
               <div className="flex gap-4">
                 <button 
                   onClick={() => setColorMode('bw')}
-                  className={`flex flex-col items-center w-[80px] p-2 rounded-lg transition-all ${colorMode === 'bw' ? 'border-2 border-[var(--yellow-dark)] bg-[var(--yellow-dark)]/5 shadow-sm' : 'border border-[var(--text-primary)]/10 bg-[var(--bg)] hover:border-[var(--yellow-dark)]/50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'bw' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-[var(--bg)] border border-[var(--text-primary)]/10 flex items-center justify-center mb-1 relative shadow-sm">
-                    {/* Interlocking B&W rings */}
-                    <div className="w-4 h-4 rounded-full border-[3px] border-black absolute -translate-x-1 mix-blend-multiply" />
-                    <div className="w-4 h-4 rounded-full border-[3px] border-gray-400 absolute translate-x-1 mix-blend-multiply" />
+                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm relative">
+                    <div className="w-4 h-4 rounded-full border-[3px] border-slate-700 absolute -translate-x-1 mix-blend-multiply" />
+                    <div className="w-4 h-4 rounded-full border-[3px] border-slate-400 absolute translate-x-1 mix-blend-multiply" />
                   </div>
-                  <span className="text-[11px] font-bold text-[var(--text-primary)]">B&W</span>
-                  <span className="text-[10px] text-[var(--text-secondary)]">₹{bwPrice}/page</span>
+                  <span className={`text-[12px] font-bold ${colorMode === 'bw' ? 'text-blue-700' : 'text-slate-700'}`}>B&W</span>
+                  <span className={`text-[10px] ${colorMode === 'bw' ? 'text-blue-500/80' : 'text-slate-400'}`}>₹{bwPrice}/page</span>
                 </button>
                 
                 <button 
                   onClick={() => setColorMode('color')}
-                  className={`flex flex-col items-center w-[80px] p-2 rounded-lg transition-all ${colorMode === 'color' ? 'border-2 border-[var(--yellow-dark)] bg-[var(--yellow-dark)]/5 shadow-sm' : 'border border-[var(--text-primary)]/10 bg-[var(--bg)] hover:border-[var(--yellow-dark)]/50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${colorMode === 'color' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-[var(--bg)] border border-[var(--text-primary)]/10 flex items-center justify-center mb-1 shadow-sm relative overflow-hidden">
-                    {/* Mock RGB circles icon */}
-                    <div className="w-4 h-4 rounded-full bg-[#FF0000] absolute -translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
-                    <div className="w-4 h-4 rounded-full bg-[#00FF00] absolute translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
-                    <div className="w-4 h-4 rounded-full bg-[#0000FF] absolute translate-y-1.5 mix-blend-multiply" />
+                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm relative overflow-hidden">
+                    <div className="w-4 h-4 rounded-full bg-[#FF4444] absolute -translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
+                    <div className="w-4 h-4 rounded-full bg-[#44FF44] absolute translate-x-1.5 -translate-y-1.5 mix-blend-multiply" />
+                    <div className="w-4 h-4 rounded-full bg-[#4444FF] absolute translate-y-1.5 mix-blend-multiply" />
                   </div>
-                  <span className="text-[11px] font-bold text-[var(--text-primary)]">Color</span>
-                  <span className="text-[10px] text-[var(--text-secondary)]">₹{colorPrice}/page</span>
+                  <span className={`text-[12px] font-bold ${colorMode === 'color' ? 'text-blue-700' : 'text-slate-700'}`}>Color</span>
+                  <span className={`text-[10px] ${colorMode === 'color' ? 'text-blue-500/80' : 'text-slate-400'}`}>₹{colorPrice}/page</span>
                 </button>
               </div>
             </div>
@@ -599,25 +597,25 @@ export const PrintPage: React.FC = () => {
               <h3 className="font-bold text-[var(--text-primary)] font-sans">Extra Options</h3>
               <p className="text-xs text-[var(--text-secondary)] font-sans mt-1 mb-4">Orientation, double-sided, and bindings</p>
               
-              <div className="flex gap-4 mb-4">
+              <div className="flex gap-4 mb-5">
                 <button 
                   onClick={() => setOrientation('portrait')}
-                  className={`flex flex-col items-center w-[80px] p-2 rounded-lg transition-all ${orientation === 'portrait' ? 'border-2 border-[var(--yellow-dark)] bg-[var(--yellow-dark)]/5 shadow-sm' : 'border border-[var(--text-primary)]/10 bg-[var(--bg)] hover:border-[var(--yellow-dark)]/50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'portrait' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
                 >
-                  <div className="w-10 h-10 rounded-md bg-[var(--bg)] border border-[var(--text-primary)]/10 flex items-center justify-center mb-2 shadow-sm">
-                    <div className="w-4 h-6 border-2 border-[var(--text-primary)] rounded-[2px]" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm">
+                    <div className="w-4 h-6 border-2 border-slate-400 rounded-sm" />
                   </div>
-                  <span className="text-[11px] font-bold text-[var(--text-primary)]">Portrait</span>
+                  <span className={`text-[12px] font-bold ${orientation === 'portrait' ? 'text-blue-700' : 'text-slate-700'}`}>Portrait</span>
                 </button>
                 
                 <button 
                   onClick={() => setOrientation('landscape')}
-                  className={`flex flex-col items-center w-[80px] p-2 rounded-lg transition-all ${orientation === 'landscape' ? 'border-2 border-[var(--yellow-dark)] bg-[var(--yellow-dark)]/5 shadow-sm' : 'border border-[var(--text-primary)]/10 bg-[var(--bg)] hover:border-[var(--yellow-dark)]/50'}`}
+                  className={`flex flex-col items-center w-[90px] p-3 rounded-2xl transition-all border-2 ${orientation === 'landscape' ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50'}`}
                 >
-                  <div className="w-10 h-10 rounded-md bg-[var(--bg)] border border-[var(--text-primary)]/10 flex items-center justify-center mb-2 shadow-sm">
-                     <div className="w-6 h-4 border-2 border-[var(--text-primary)] rounded-[2px]" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-2 shadow-sm">
+                     <div className="w-6 h-4 border-2 border-slate-400 rounded-sm" />
                   </div>
-                  <span className="text-[11px] font-bold text-[var(--text-primary)]">Landscape</span>
+                  <span className={`text-[12px] font-bold ${orientation === 'landscape' ? 'text-blue-700' : 'text-slate-700'}`}>Landscape</span>
                 </button>
               </div>
 
@@ -639,33 +637,28 @@ export const PrintPage: React.FC = () => {
          <div className="flex items-center justify-center mb-4 bg-[var(--bg)] p-3 rounded-lg border border-black/10">
            <span className="font-sans font-bold text-sm text-[var(--yellow-dark)]">Payment can be settled later while you test the print flow 🖨️</span>
           </div>
-          <div className={`p-4 rounded-lg border transition-all ${files.length > 0 ? 'border-[var(--yellow-dark)]/30 bg-[var(--yellow-dark)]/5' : 'border-[var(--text-primary)]/10 bg-transparent opacity-50'} flex flex-col sm:flex-row justify-between items-center sm:gap-0 gap-4`}>
-             <div className="flex items-center gap-4 w-full">
-               <div className="w-12 h-12 bg-[var(--bg)] rounded-lg shadow-soft border border-[var(--text-primary)]/5 flex items-center justify-center relative flex-shrink-0">
-                  <div className="w-6 h-7 border-2 border-[var(--yellow-dark)] rounded bg-[var(--bg)] absolute z-10 -translate-x-1 translate-y-1">
-                    <div className="w-full h-1/3 bg-[var(--yellow-dark)] opacity-20" />
-                  </div>
-                  <div className="w-6 h-7 border-2 border-[#E5E7EB] rounded bg-[var(--bg)] absolute z-0 translate-x-1 -translate-y-1" />
-               </div>
-               <div>
-                  <p className="font-syne font-semibold text-[var(--text-primary)]">
-                    {isAnalyzingInk ? 'Calculating pages...' : `Total ${files.reduce((acc, _, idx) => acc + ((inkAnalyses[idx]?.pageCount || mockedPagesPerFile) * copies), 0)} pages`}
-                  </p>
-                  <p className="font-syne font-extrabold text-[var(--text-primary)] text-lg">{isAnalyzingInk ? 'Calculating...' : `₹${calculateDisplayTotal()}`}</p>
-                  <p className="text-xs font-sans text-[var(--text-secondary)] mt-1">
-                    {isAnalyzingInk ? 'Analyzing light and dark pages from your PDF.' : 'Includes ink-density pricing from PDF analysis.'}
-                  </p>
-               </div>
-             </div>
-             
-             <button 
-               disabled={files.length === 0 || isSubmitting || !selectedShopId || isAnalyzingInk} 
-               onClick={handleCheckout}
-               className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[var(--yellow-dark)] hover:bg-[var(--yellow-dark)] text-white font-sans font-bold transition-all disabled:opacity-50 flex items-center justify-center shadow-md shadow-[var(--yellow-dark)]/30 whitespace-nowrap gap-2"
-             >
-               {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</> : isAnalyzingInk ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</> : 'Place Print Order'}
-             </button>
-          </div>
+{/* Floating Bottom Bar */}
+<div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] md:w-full max-w-[800px] bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_15px_50px_-12px_rgba(0,0,0,0.15)] border border-slate-100 p-4 md:p-5 flex flex-col sm:flex-row justify-between items-center gap-4 z-40">
+   <div className="flex items-center gap-4 w-full sm:w-auto">
+     <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center relative flex-shrink-0 shadow-sm">
+        <FileText className="w-6 h-6 text-slate-400" />
+     </div>
+     <div>
+        <p className="font-bold text-slate-500 text-[11px] uppercase tracking-wider mb-0.5">
+          {isAnalyzingInk ? 'Analyzing...' : `Total ${files.reduce((acc, _, idx) => acc + ((inkAnalyses[idx]?.pageCount || mockedPagesPerFile) * copies), 0)} pages`}
+        </p>
+        <p className="font-extrabold text-slate-900 text-2xl tracking-tight leading-none">{isAnalyzingInk ? '...' : `₹${calculateDisplayTotal()}`}</p>
+     </div>
+   </div>
+   
+   <button 
+     disabled={files.length === 0 || isSubmitting || !selectedShopId || isAnalyzingInk} 
+     onClick={handleCheckout}
+     className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all disabled:opacity-50 flex items-center justify-center shadow-[0_4px_15px_-3px_rgba(37,99,235,0.4)] hover:shadow-[0_8px_20px_-3px_rgba(37,99,235,0.5)] whitespace-nowrap gap-2 text-[15px]"
+   >
+     {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</> : isAnalyzingInk ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</> : 'Place Print Order'}
+   </button>
+</div>
 
         </div>
       </div>

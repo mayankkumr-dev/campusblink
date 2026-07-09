@@ -96,20 +96,29 @@ router.post('/users/society', authMiddleware, adminOnlyMiddleware, async (req, r
 // Get all users with filters
 router.get('/users', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
-    const { role, college_id, page = 1, limit = 50 } = req.query;
-    const offset = (page - 1) * limit;
+    const { role, college_id, status, searchTerm, page = 1, limit = 50 } = req.query;
 
     const filters = {};
-    if (role) filters.role = role;
+    if (role && role !== 'all') filters.role = role;
     if (college_id) filters.college_id = college_id;
+    if (status && status !== 'all') filters.status = status;
+    if (searchTerm) filters.searchTerm = searchTerm;
 
-    const users = await supabaseService.getAllUsers(filters);
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit, 10) || 50);
+
+    const result = await supabaseService.getAllUsers({
+      filters,
+      page: pageNum,
+      limit: limitNum,
+    });
 
     res.json({
-      users: users.slice(offset, offset + limit),
-      total: users.length,
-      page,
-      limit,
+      data: result.data,
+      users: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
     });
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -132,7 +141,18 @@ router.patch('/users/:id', authMiddleware, adminOnlyMiddleware, async (req, res)
       .from('profiles')
       .update(updates)
       .eq('id', id)
-      .select()
+      // Explicit column list for admin user update result:
+      // id: Unique user identifier
+      // name: User display name
+      // email: User contact email address
+      // username: Unique handle
+      // role: User authorization role
+      // status: Account activity status
+      // professor_status: Verification status for professor accounts
+      // campus_credits: Campus credit balance
+      // created_at: Account registration timestamp
+      // college: Affiliated institution name
+      .select('id, name, email, username, role, status, professor_status, campus_credits, created_at, college')
       .single();
 
     if (error) {
@@ -227,7 +247,12 @@ router.post('/professors/:id/approve', authMiddleware, adminOnlyMiddleware, asyn
 // Reject professor
 router.post('/professors/:id/reject', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
-    const { id, reason } = req.body;
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Professor ID required' });
+    }
 
     if (!reason) {
       return res.status(400).json({ error: 'Rejection reason required' });

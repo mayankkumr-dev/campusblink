@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const adminOnlyMiddleware = require('../middleware/adminOnly');
@@ -88,8 +89,24 @@ router.post('/verification', authMiddleware, async (req, res) => {
   try {
     const user = req.user;
 
+    // Generate secure verification token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    const { error: insertError } = await supabaseAdmin
+      .from('email_verification_tokens')
+      .insert({
+        user_id: user.id,
+        token,
+        expires_at: expiresAt,
+      });
+
+    if (insertError) {
+      return res.status(500).json({ error: `Failed to store verification token: ${insertError.message}` });
+    }
+
     // Generate verification link
-    const verificationLink = `${process.env.FRONTEND_URL}/auth/verify?token=${user.id}`;
+    const verificationLink = `${process.env.FRONTEND_URL || 'https://campusblink.me'}/auth/verify?token=${token}`;
 
     await emailService.sendVerificationEmail(user.email, verificationLink);
 

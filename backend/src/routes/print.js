@@ -18,7 +18,7 @@ router.post('/orders', authMiddleware, async (req, res) => {
     const isProfessor = req.profile?.role === 'professor';
 
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
+      .from('print_orders')
       .insert({
         user_id: userId,
         print_shop_id,
@@ -27,10 +27,9 @@ router.post('/orders', authMiddleware, async (req, res) => {
         total_amount,
         delivery_type,
         notes,
-        order_type: 'print',
         status: 'pending',
-        payment_status: isProfessor && req.body.payLater ? 'pending' : 'pending',
-        priority: isProfessor && delivery_type === 'delivery',
+        payment_status: isProfessor && req.body.payLater ? 'deferred' : 'prepaid',
+        priority: isProfessor ? true : false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -60,11 +59,33 @@ router.patch('/orders/:id/status', authMiddleware, printShopOnlyMiddleware, asyn
       return res.status(400).json({ error: 'Status required' });
     }
 
+    // First fetch the order and verify it belongs to the authenticated owner's shop
+    const { data: existingOrder, error: fetchError } = await supabaseAdmin
+      .from('print_orders')
+      .select('id, print_shop_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingOrder) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Verify that req.user.id is the registered owner of the shop being accessed
+    const { data: shop, error: shopError } = await supabaseAdmin
+      .from('print_shops')
+      .select('id, owner_id')
+      .eq('id', existingOrder.print_shop_id)
+      .eq('owner_id', req.user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return res.status(403).json({ error: 'You do not own this shop' });
+    }
+
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
+      .from('print_orders')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .eq('order_type', 'print')
       .select()
       .single();
 
@@ -85,11 +106,22 @@ router.get('/orders/shop/:shopId', authMiddleware, printShopOnlyMiddleware, asyn
     const { shopId } = req.params;
     const { status, limit = 50, offset = 0 } = req.query;
 
+    // Verify that req.user.id is the registered owner of the shop being accessed
+    const { data: shop, error: shopError } = await supabaseAdmin
+      .from('print_shops')
+      .select('id, owner_id')
+      .eq('id', shopId)
+      .eq('owner_id', req.user.id)
+      .single();
+
+    if (shopError || !shop) {
+      return res.status(403).json({ error: 'You do not own this shop' });
+    }
+
     let query = supabaseAdmin
-      .from('orders')
+      .from('print_orders')
       .select('*')
-      .eq('print_shop_id', shopId)
-      .eq('order_type', 'print');
+      .eq('print_shop_id', shopId);
 
     // Prioritize delivery orders
     query = query.order('priority', { ascending: false });

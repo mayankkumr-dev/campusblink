@@ -1,5 +1,6 @@
-@import "tailwindcss";
 @import './fonts.css';
+@import "tailwindcss";
+@import './theme.css';
 
 @theme {
   --color-bg-primary: var(--bg-primary);

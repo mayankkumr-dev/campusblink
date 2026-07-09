@@ -1,7 +1,8 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router';
+import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { ProfessorLayout } from './ProfessorLayout';
+import { PageSkeleton } from './ui/PageSkeleton';
 
 export const ProfessorProtectedLayout: React.FC = () => {
   const location = useLocation();
@@ -10,12 +11,9 @@ export const ProfessorProtectedLayout: React.FC = () => {
   const isLoading = useAuthStore((state) => state.isLoading);
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
-  if (!hasHydrated || isLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex items-center justify-center">
-        <div className="text-sm font-sans text-[var(--text-secondary)]">Loading...</div>
-      </div>
-    );
+  // Loading skeleton state while profile is being fetched
+  if (!hasHydrated || isLoading || (user && !profile)) {
+    return <PageSkeleton />;
   }
 
   if (!user || !profile) {
@@ -38,22 +36,27 @@ export const ProfessorProtectedLayout: React.FC = () => {
     return <Navigate to="/account-restricted?status=banned" replace />;
   }
 
-  // If Admin, bypass pending/rejected checks
+  // Admins bypass professor_status check
   if (profile.role === 'admin') {
     return <ProfessorLayout />;
   }
 
-  // Pending professor
   const profStatus = String(profile.professor_status || 'pending').toLowerCase();
-  
+
+  // (1) If profile.professor_status === 'pending'
   if (profStatus === 'pending') {
-    return <Navigate to="/professor/pending" replace />;
+    return <Navigate replace to="/professor/pending" />;
   }
 
-  // Rejected professor
+  // (2) If profile.professor_status === 'rejected'
   if (profStatus === 'rejected') {
-    return <Navigate to="/professor/rejected" replace />;
+    return <Navigate replace to="/professor/rejected" />;
   }
 
-  return <ProfessorLayout />;
+  // (3) Only if professor_status === 'approved' render layout containing <Outlet/>
+  if (profStatus === 'approved') {
+    return <ProfessorLayout />;
+  }
+
+  return <Navigate replace to="/professor/pending" />;
 };

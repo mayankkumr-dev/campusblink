@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import { Link, Outlet, NavLink, useNavigate, useLocation } from 'react-router';
 import { 
-  Home, Users, Ban, ShieldAlert, Store, ShoppingBag, UtensilsCrossed, PlusCircle,
-  Printer, FileText, ShoppingCart, Flag, MessageSquare, Send, Mail, History,
-  LayoutTemplate, Zap, DollarSign, TrendingUp, Settings, Megaphone, Wrench,
-  FileSignature, Download, Bell, Search, Menu, X, ChevronDown, LogOut, Ticket,
-  GraduationCap, Clock
+  Home, Users, ShoppingBag, ShoppingCart, Flag, MessageSquare, Mail, History,
+  LayoutTemplate, DollarSign, Settings, Megaphone, Wrench,
+  FileSignature, Download, Bell, Search, Menu, LogOut, UserCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { AdminGlobalSearch } from './AdminGlobalSearch';
 import { ThemeAwareLogo } from './ThemeAwareLogo';
-import { ThemeToggle } from './ui/ThemeToggle';
 
-const NavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
+const NavItem = ({
+  to,
+  icon: Icon,
+  label,
+  exact = false,
+  onNavigate,
+  badgeCount,
+}: {
+  to: string;
+  icon: any;
+  label: string;
+  exact?: boolean;
+  onNavigate: () => void;
+  badgeCount?: number;
+}) => {
   const location = useLocation();
   const isActive = exact
     ? location.pathname === to
@@ -23,18 +34,23 @@ const NavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount 
     <NavLink
       to={to}
       onClick={onNavigate}
-      className={`flex items-center justify-between h-[36px] px-[12px] mx-[8px] my-[2px] rounded-md transition-colors font-sans text-[14px] font-medium ${
+      className={`group flex items-center justify-between px-3.5 py-2.5 my-0.5 rounded-2xl transition-all font-sans text-xs font-semibold ${
         isActive
-          ? 'bg-[var(--accent-light)] text-[var(--accent)] font-semibold'
-          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
+          ? 'bg-amber-500 text-white shadow-2xs'
+          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
       }`}
     >
-      <div className="flex items-center gap-[10px]">
-        <Icon size={16} className={isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
-        {label}
+      <div className="flex items-center gap-3">
+        <Icon
+          size={16}
+          className={`stroke-[1.8] transition-colors ${
+            isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'
+          }`}
+        />
+        <span>{label}</span>
       </div>
       {badgeCount !== undefined && badgeCount > 0 && (
-        <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full bg-[#DC2626] text-white text-[10px] font-bold">
+        <span className="flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
           {badgeCount}
         </span>
       )}
@@ -43,7 +59,7 @@ const NavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount 
 };
 
 const SectionLabel = ({ label }: { label: string }) => (
-  <div className="py-[20px] px-4 pb-[8px] font-sans font-medium text-[11px] text-[var(--text-muted)] uppercase tracking-[1px]">
+  <div className="pt-5 pb-1.5 px-3.5 font-sans font-bold text-[10px] text-slate-400 uppercase tracking-widest">
     {label}
   </div>
 );
@@ -68,10 +84,15 @@ export const AdminLayout: React.FC = () => {
 
     fetchCount();
 
-    const channel = supabase.channel('admin_professors_badge')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.professor' }, () => {
-        fetchCount();
-      })
+    const channel = supabase
+      .channel('admin_professors_badge')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.professor' },
+        () => {
+          fetchCount();
+        }
+      )
       .subscribe();
 
     return () => {
@@ -81,153 +102,276 @@ export const AdminLayout: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    // TODO: implement real auth logout
     navigate('/student/home');
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)] border-r border-black/10 text-[var(--text-primary)] overflow-hidden">
+    <div className="flex flex-col h-full bg-white border-r border-slate-100 text-slate-900 overflow-hidden shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
       {/* Logo Area */}
-          <div className="h-[60px] border-b border-black/10 flex items-center justify-between px-4 pl-4 shrink-0 overflow-hidden">
-        <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
-            <ThemeAwareLogo variant="white" alt="Campus Blink Admin" className="h-24 w-auto object-contain dark-preserve" />
+      <div className="h-20 border-b border-slate-100 flex items-center justify-between px-6 shrink-0 overflow-hidden">
+        <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center">
+          <ThemeAwareLogo
+            height={48}
+            alt="Campus Blink Admin"
+            className="h-12 w-auto object-contain"
+          />
         </Link>
       </div>
 
       {/* Nav Scroll Area */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar py-4 px-3">
-        
+      <div className="flex-1 overflow-y-auto hide-scrollbar py-4 px-3.5">
         <SectionLabel label="Overview" />
-        <NavItem to="/admin" icon={Home} label="Dashboard" exact onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin"
+          icon={Home}
+          label="Dashboard"
+          exact
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Accounts & Management" />
-        <NavItem to="/admin/accounts" icon={Users} label="Accounts Hub" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/accounts"
+          icon={Users}
+          label="Accounts Hub"
+          onNavigate={() => setIsMobileOpen(false)}
+          badgeCount={pendingProfsCount > 0 ? pendingProfsCount : undefined}
+        />
 
         <SectionLabel label="Shop Operations" />
-        <NavItem to="/admin/orders" icon={ShoppingBag} label="Operations Hub" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/orders"
+          icon={ShoppingBag}
+          label="Operations Hub"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Marketplace" />
-        <NavItem to="/admin/marketplace" exact icon={ShoppingCart} label="All Listings" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/marketplace/reported" icon={Flag} label="Reported Listings" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/marketplace"
+          exact
+          icon={ShoppingCart}
+          label="All Listings"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/marketplace/reported"
+          icon={Flag}
+          label="Reported Listings"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
-        <SectionLabel label="Community" />
-        <NavItem to="/admin/community-hub" icon={MessageSquare} label="Community Hub" onNavigate={() => setIsMobileOpen(false)} />
+        <SectionLabel label="Community & Notices" />
+        <NavItem
+          to="/admin/community-hub"
+          icon={MessageSquare}
+          label="Community Hub"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/notice-admins"
+          icon={UserCheck}
+          label="Notice Admins Access"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/notices"
+          icon={Megaphone}
+          label="Compose Notice"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Email Center" />
-        <NavItem to="/admin/email/compose" icon={Mail} label="Compose Email" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/email/history" icon={History} label="Email History" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/email/templates" icon={LayoutTemplate} label="Templates" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/email/compose"
+          icon={Mail}
+          label="Compose Email"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/email/history"
+          icon={History}
+          label="Email History"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/email/templates"
+          icon={LayoutTemplate}
+          label="Templates"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Finance" />
-        <NavItem to="/admin/finance/revenue" icon={DollarSign} label="Revenue" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/finance/revenue"
+          icon={DollarSign}
+          label="Revenue"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Platform" />
-        <NavItem to="/admin/settings" icon={Settings} label="Settings" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/feedback" icon={MessageSquare} label="App Feedback" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/announcements" icon={Megaphone} label="Announcements" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/contact-issues" icon={Wrench} label="Contact Issues" onNavigate={() => setIsMobileOpen(false)} />
+        <NavItem
+          to="/admin/settings"
+          icon={Settings}
+          label="Settings"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/feedback"
+          icon={MessageSquare}
+          label="App Feedback"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/announcements"
+          icon={Megaphone}
+          label="Announcements"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/contact-issues"
+          icon={Wrench}
+          label="Contact Issues"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
 
         <SectionLabel label="Legal & Audit" />
-        <NavItem to="/admin/legal" exact icon={FileSignature} label="Terms Editor" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/legal/export" icon={Download} label="Data Export" onNavigate={() => setIsMobileOpen(false)} />
-        <NavItem to="/admin/audit" icon={History} label="Audit Log" onNavigate={() => setIsMobileOpen(false)} />
-
+        <NavItem
+          to="/admin/legal"
+          exact
+          icon={FileSignature}
+          label="Terms Editor"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/legal/export"
+          icon={Download}
+          label="Data Export"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
+        <NavItem
+          to="/admin/audit"
+          icon={History}
+          label="Audit Log"
+          onNavigate={() => setIsMobileOpen(false)}
+        />
       </div>
 
       {/* Admin Profile Bottom Area */}
-      <div className="p-4 border-t border-black/[0.08] shrink-0 bg-[var(--bg-primary)]">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center text-[var(--yellow)] font-syne font-bold border border-black/10">
+      <div className="p-4 border-t border-slate-100 shrink-0 bg-slate-50/70">
+        <div className="flex items-center gap-3 mb-3.5">
+          <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-syne font-extrabold text-sm border border-amber-200">
             A
           </div>
-          <div className="flex-1 overflow-hidden">
-            <h4 className="font-sans font-bold text-sm text-[var(--text-primary)] truncate">Admin User</h4>
-            <span className="inline-flex items-center px-2 border border-[var(--yellow)]/30 bg-[var(--yellow)]/10 text-[var(--yellow)] text-[10px] uppercase font-bold tracking-wider rounded-sm mt-0.5">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-sans font-bold text-xs text-slate-900 truncate">
+              Admin Console
+            </h4>
+            <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[9px] uppercase font-bold text-emerald-700 mt-0.5">
               Super Admin
             </span>
           </div>
         </div>
-        <button onClick={handleLogout} className="w-full flex items-center gap-[10px] h-[36px] px-[12px] rounded-md text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] transition-colors duration-150">
-          <LogOut size={16} className="text-[var(--text-muted)]" />
-          <span className="text-[14px] leading-none mb-[-1px] font-medium">Log out</span>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 h-9 px-3 rounded-xl text-rose-600 bg-white border border-rose-200 hover:bg-rose-50 transition-colors font-bold text-xs shadow-2xs"
+        >
+          <LogOut size={14} />
+          <span>Exit Console</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-dvh flex flex-col md:flex-row font-sans bg-[var(--bg-primary)] text-[var(--text-primary)]">
+    <div className="min-h-dvh flex flex-col md:flex-row font-sans bg-slate-50 text-slate-900">
       {/* Mobile Header / Hamburger */}
-      <div className="md:hidden flex items-center justify-between h-16 px-4 bg-[var(--bg)] border-b border-black/[0.08] sticky top-0 z-50 safe-area-top select-none">
+      <div className="md:hidden flex items-center justify-between h-16 px-4 bg-white border-b border-slate-100 sticky top-0 z-50 safe-area-top select-none shadow-2xs">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
-          <div className="h-16 overflow-hidden flex items-center">
-            <ThemeAwareLogo variant="white" alt="Campus Blink" className="h-24 w-auto object-contain dark-preserve" />
-          </div>
+          <ThemeAwareLogo height={40} alt="Campus Blink" className="h-10 w-auto object-contain" />
         </Link>
-        <button onClick={() => setIsMobileOpen(true)} className="p-2 text-[var(--text-primary)]">
-          <Menu className="w-6 h-6" />
+        <button
+          type="button"
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 text-slate-700 rounded-xl hover:bg-slate-50"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5" />
         </button>
       </div>
 
       {/* Mobile Drawer Overlay */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/60 " onClick={() => setIsMobileOpen(false)} />
-          <div className="absolute top-0 left-0 bottom-0 w-[85vw] max-w-[300px] transform transition-transform duration-300 safe-area-top safe-area-bottom">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-xs"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <div className="absolute top-0 left-0 bottom-0 w-[82vw] max-w-[280px] transform transition-transform duration-300 safe-area-top safe-area-bottom">
             {sidebarContent}
           </div>
         </div>
       )}
 
       {/* Desktop Sidebar */}
-      <div className="hidden md:block w-[240px] fixed top-0 bottom-0 left-0 z-40 select-none">
+      <div className="hidden md:block w-64 fixed top-0 bottom-0 left-0 z-40 select-none">
         {sidebarContent}
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-[240px] flex flex-col min-h-dvh bg-[var(--bg-primary)]">
-        
+      <div className="flex-1 md:ml-64 flex flex-col min-h-dvh bg-slate-50">
         {/* Header */}
-        <header className="h-16 bg-[var(--bg)] border-b border-black/[0.08] flex items-center justify-between px-4 md:px-6 shrink-0 sticky top-0 z-30">
-          <h1 className="font-syne font-bold text-base md:text-xl text-[var(--text-primary)] capitalize truncate max-w-[42vw] md:max-w-none">
-            {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
-          </h1>
-          
+        <header className="h-20 bg-white/90 backdrop-blur-md border-b border-slate-100 flex items-center justify-between px-6 lg:px-10 shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-2">
+            <h1 className="font-syne font-extrabold text-lg md:text-2xl text-slate-900 capitalize tracking-tight truncate">
+              {location.pathname.split('/').pop()?.replace('-', ' ') || 'Dashboard'}
+            </h1>
+          </div>
+
           <div className="flex-1 max-w-md mx-8 hidden lg:block">
-            <div className="relative group cursor-pointer" onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--yellow)] transition-colors" />
-              <div
-                className="w-full flex items-center justify-between bg-[var(--bg-tertiary)] border border-black/10 rounded-md py-2 pl-10 pr-4 text-sm text-[var(--text-secondary)] group-hover:border-[var(--yellow)]/50 transition-colors"
-              >
-                <span>Search users, orders, posts...</span>
-                <span className="flex items-center justify-center p-1 rounded bg-black/5 text-[10px] font-bold text-[var(--text-secondary)] px-1.5 border border-black/10">
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
+            >
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
+              <div className="w-full flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl py-2.5 pl-10 pr-3.5 text-xs text-slate-600 group-hover:border-amber-400 group-hover:bg-white transition-all">
+                <span>Search administrative logs, users, orders...</span>
+                <span className="flex items-center justify-center rounded-lg bg-white px-2 py-0.5 text-[10px] font-bold text-slate-500 border border-slate-200 shadow-2xs">
                   Cmd+K
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 md:gap-6">
-            <ThemeToggle />
-            <button onClick={() => navigate('/admin/alerts')} className="relative text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#DC2626] rounded-md border-2 border-white" />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/alerts')}
+              className="relative rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-600 transition-colors hover:bg-slate-50"
+              aria-label="Admin Notifications"
+            >
+              <Bell className="w-4.5 h-4.5 stroke-[2]" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full" />
             </button>
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center text-xs font-syne font-bold text-[var(--text-primary)] border border-black/10 group-hover:border-[var(--yellow)]/50 transition-colors">
+
+            <div className="flex items-center gap-3 pl-2 border-l border-slate-100">
+              <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xs font-syne font-bold shadow-xs">
                 A
               </div>
-              <ChevronDown className="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors" />
+              <div className="hidden xl:block">
+                <p className="text-xs font-bold text-slate-900 leading-tight">Super Admin</p>
+                <p className="text-[10px] text-slate-400 font-medium">Enterprise Backend</p>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-3 md:p-8 safe-area-bottom">
+        <main className="flex-1 p-4 sm:p-6 lg:p-10 safe-area-bottom">
           <AdminGlobalSearch />
           <Outlet />
         </main>
-
       </div>
     </div>
   );

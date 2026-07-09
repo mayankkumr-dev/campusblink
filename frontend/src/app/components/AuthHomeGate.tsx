@@ -3,14 +3,15 @@ import { Navigate, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { LandingPage } from './LandingPage';
 
-function resolveHomePath(role?: string | null) {
+function resolveHomePath(role?: string | null, email?: string | null) {
+  if (email?.toLowerCase() === 'contactus.mayank@gmail.com') return '/admin';
   const normalizedRole = String(role || '').toLowerCase();
 
-  if (normalizedRole === 'professor') return '/professor';
   if (normalizedRole === 'admin') return '/admin';
+  if (normalizedRole === 'professor') return '/professor';
   if (normalizedRole === 'canteen_owner') return '/canteen-dashboard';
   if (normalizedRole === 'print_shop') return '/print-dashboard';
-  return '/student';
+  return '/student/home';
 }
 
 export const AuthHomeGate: React.FC = () => {
@@ -22,7 +23,7 @@ export const AuthHomeGate: React.FC = () => {
   useEffect(() => {
     if (isLoading) return;
     if (user && profile) {
-      navigate(resolveHomePath(profile.role), { replace: true });
+      navigate(resolveHomePath(profile.role, user.email || profile.email), { replace: true });
     }
   }, [isLoading, navigate, profile, user]);
 
@@ -31,7 +32,7 @@ export const AuthHomeGate: React.FC = () => {
   }
 
   if (user && profile) {
-    return <Navigate to={resolveHomePath(profile.role)} replace />;
+    return <Navigate to={resolveHomePath(profile.role, user.email || profile.email)} replace />;
   }
 
   return <LandingPage />;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { StudentLayout } from './StudentLayout';
+import { PageSkeleton } from './ui/PageSkeleton';
 
 export const ProtectedRoute: React.FC = () => {
   const location = useLocation();
@@ -11,11 +12,7 @@ export const ProtectedRoute: React.FC = () => {
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
   if (!hasHydrated || isLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex items-center justify-center">
-        <div className="text-sm font-sans text-[var(--text-secondary)]">Loading...</div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   if (!user || !profile) {

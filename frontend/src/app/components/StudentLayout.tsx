@@ -10,6 +10,8 @@ import { SearchSlidePanel } from './SearchBar';
 import { AlertSlidePanel } from './AlertSlidePanel';
 import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { ThemeAwareLogo } from './ThemeAwareLogo';
+import { FeatureErrorBoundary } from './FeatureErrorBoundary';
+import { DashboardSidebar } from './DashboardSidebar';
 
 function getFeatureKeyFromPath(pathname: string) {
   if (pathname.startsWith('/student/search')) return 'search';
@@ -33,17 +35,6 @@ export const StudentLayout: React.FC = () => {
   const [searchPanelOpen, setSearchPanelOpen] = useState(false);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const { disabledFeatures } = useFeatureAccess(profile);
-
-  useEffect(() => {
-    // Role protection
-    if (profile && !['student', 'user', '', 'admin'].includes(profile.role || '')) {
-      const role = profile.role;
-      if (role === 'admin') navigate('/admin');
-      else if (role === 'canteen_owner') navigate('/canteen-dashboard');
-      else if (role === 'print_shop') navigate('/print-dashboard');
-      else navigate('/professor');
-    }
-  }, [profile, navigate]);
 
   useNotifications(profile?.id);
   useMyOrderStatus(profile?.id);
@@ -144,77 +135,15 @@ export const StudentLayout: React.FC = () => {
       </header>
 
       {/* Sidebar - Desktop only */}
-      <nav className={`hidden md:flex fixed top-0 left-0 h-dvh bg-sidebar-bg border-r border-border-subtle z-[40] flex-col transition-[transform,width] duration-200 select-none ${isChatSection ? 'w-[260px] md:w-[92px]' : 'w-[260px]'}`}>
-        <div className="h-[70px] border-b border-border-subtle flex items-center px-4 shrink-0 overflow-hidden">
-          <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
-            <ThemeAwareLogo loading="lazy" alt="Campus Blink" className={`w-auto object-contain transition-all duration-200 ${isChatSection ? 'h-24 md:h-16' : 'h-24'}`} />
-          </Link>
-        </div>
-
-        <div className={`py-[20px] px-4 pb-[8px] ${isChatSection ? 'hidden md:block' : ''}`}>
-          <span className={`font-sans font-bold text-[12px] text-text-secondary uppercase tracking-[1px] ${isChatSection ? 'md:hidden' : ''}`}>Main Navigation</span>
-        </div>
-
-        <div className="flex flex-col flex-1 overflow-y-auto w-full hide-scrollbar pb-4">
-          {visibleNavItems.map((item) => {
-            const isSearchItem = item.feature === 'search';
-            const isAlertItem = item.feature === 'alerts';
-            const isActive = isSearchItem ? searchPanelOpen : isAlertItem ? notificationPanelOpen : location.pathname.startsWith(item.path);
-            const Icon = item.icon;
-            const isProfileItem = item.path === '/student/profile';
-
-            if (isSearchItem || isAlertItem) {
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  onClick={() => { if (isSearchItem) setSearchPanelOpen(true); if (isAlertItem) setNotificationPanelOpen(true); }}
-                  className={`flex items-center h-[48px] mx-[8px] my-[2px] rounded-md transition-colors duration-150 w-[calc(100%-16px)] ${isChatSection ? 'gap-[12px] px-[14px] md:justify-center md:px-0' : 'gap-[12px] px-[14px]'} ${isActive ? 'bg-sidebar-active-bg text-sidebar-active-text font-bold' : 'text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text'}`}
-                >
-                  <div className="relative">
-                    <Icon size={20} className={isActive ? 'text-sidebar-active-text' : 'text-sidebar-text'} />
-                    {Number(item.badge || 0) > 0 && (
-                      <span className="absolute -top-[4px] -right-[4px] h-[6px] w-[6px] rounded-full bg-[#DC2626]" />
-                    )}
-                  </div>
-                  <span className={`text-[16px] leading-none mb-[-1px] whitespace-nowrap ${isChatSection ? 'md:hidden' : ''}`}>{item.label}</span>
-                </button>
-              );
-            }
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={`flex items-center h-[48px] mx-[8px] my-[2px] rounded-md transition-colors duration-150 ${isChatSection ? 'gap-[12px] px-[14px] md:justify-center md:px-0' : 'gap-[12px] px-[14px]'} ${isActive ? 'bg-sidebar-active-bg text-sidebar-active-text font-bold' : 'text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text'}`}
-              >
-                <div className="relative">
-                  {isProfileItem && profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="profile" className="h-6 w-6 rounded-full object-cover" />
-                  ) : (
-                    <Icon size={20} className={isActive ? 'text-sidebar-active-text' : 'text-sidebar-text'} />
-                  )}
-                  {Number(item.badge || 0) > 0 && (
-                    <span className="absolute -top-[4px] -right-[4px] h-[6px] w-[6px] rounded-full bg-[#DC2626]" />
-                  )}
-                </div>
-                <span className={`text-[16px] leading-none mb-[-1px] whitespace-nowrap ${isChatSection ? 'md:hidden' : ''}`}>{item.label}</span>
-              </NavLink>
-            );
-          })}
-        </div>
-
-        {/* Desktop-only Settings button at bottom */}
-        <div className="hidden md:flex border-t border-border-subtle pt-3 px-2">
-          <NavLink
-            to="/student/settings"
-            className={`flex items-center h-[48px] mx-[8px] my-[2px] rounded-md transition-colors duration-150 w-[calc(100%-16px)] gap-[12px] px-[14px] ${location.pathname.startsWith('/student/settings') ? 'bg-sidebar-active-bg text-sidebar-active-text font-bold' : 'text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-hover-text'}`}
-          >
-            <Settings size={20} className={location.pathname.startsWith('/student/settings') ? 'text-sidebar-active-text' : 'text-sidebar-text'} />
-            <span className="text-[16px] leading-none mb-[-1px] whitespace-nowrap">Settings</span>
-          </NavLink>
-        </div>
-      </nav>
+      <div className="hidden md:block">
+        <DashboardSidebar
+          profile={profile}
+          unreadCount={unreadCount}
+          onOpenSearch={() => setSearchPanelOpen(true)}
+          onOpenAlerts={() => setNotificationPanelOpen(true)}
+          isChatSection={isChatSection}
+        />
+      </div>
 
       {/* Main Content */}
       <main className={`flex-1 flex flex-col w-full h-full pt-[60px] md:pt-0 overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
@@ -248,7 +177,9 @@ export const StudentLayout: React.FC = () => {
               </div>
             </div>
           ) : (
-            <Outlet />
+            <FeatureErrorBoundary featureName="Student Section">
+              <Outlet />
+            </FeatureErrorBoundary>
           )}
         </div>
         </div>

@@ -52,7 +52,7 @@ export const ProfessorLayout: React.FC = () => {
   useEffect(() => {
     // Role protection
     if (profile && profile.role !== 'professor' && profile.role !== 'admin') {
-      navigate('/student');
+      navigate('/student/home');
     }
   }, [profile, navigate]);
 
@@ -73,9 +73,9 @@ export const ProfessorLayout: React.FC = () => {
   ];
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[var(--bg-primary)] border-r border-black/10 text-[var(--text-primary)] overflow-hidden">
+    <div className="flex flex-col h-full bg-white border-r border-slate-100 text-slate-900 overflow-hidden">
       {/* Logo */}
-      <div className="h-[60px] border-b border-black/10 flex items-center px-4 shrink-0 overflow-hidden">
+      <div className="h-[60px] border-b border-slate-100 flex items-center px-4 shrink-0 overflow-hidden">
         <Link to="/professor/home" className="no-underline cursor-pointer">
           <ThemeAwareLogo alt="Campus Blink" className="h-24 w-auto object-contain" />
         </Link>
@@ -108,7 +108,7 @@ export const ProfessorLayout: React.FC = () => {
       </div>
 
       {/* Profile */}
-      <div className="p-4 border-t border-black/10 shrink-0 bg-[var(--bg-primary)]">
+      <div className="p-4 border-t border-slate-100 shrink-0 bg-white">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-md bg-[#FEF9C3] flex items-center justify-center text-[var(--yellow-dark)] font-syne font-bold text-sm border border-[#F59E0B]/30">
             {firstName.charAt(0).toUpperCase()}
@@ -134,9 +134,9 @@ export const ProfessorLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-[var(--bg-primary)] flex flex-col md:flex-row font-sans text-[var(--text-primary)]">
+    <div className="min-h-dvh bg-slate-50 flex flex-col md:flex-row font-sans text-slate-900">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between h-14 px-4 bg-[var(--bg)] border-b border-black/10 sticky top-0 z-50 safe-area-top select-none">
+      <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white border-b border-slate-100 sticky top-0 z-50 safe-area-top select-none">
         <Link to="/professor/home" className="no-underline cursor-pointer">
           <div className="h-14 overflow-hidden flex items-center">
             <ThemeAwareLogo alt="Campus Blink" className="h-24 w-auto object-contain" />
@@ -144,7 +144,7 @@ export const ProfessorLayout: React.FC = () => {
         </Link>
         <div className="flex items-center gap-2">
           <ProfessorBadge size="sm" />
-          <button onClick={() => setIsMobileOpen(true)} className="p-2 text-[var(--text-primary)]">
+          <button onClick={() => setIsMobileOpen(true)} className="p-2 text-slate-800">
             <Menu className="w-5 h-5" />
           </button>
         </div>
@@ -166,7 +166,7 @@ export const ProfessorLayout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 md:ml-[240px] flex flex-col min-h-dvh bg-[var(--bg-primary)]">
+      <div className="flex-1 md:ml-[240px] flex flex-col min-h-dvh bg-slate-50">
         <main className="flex-1 p-4 md:p-8 safe-area-bottom">
           <Outlet />
         </main>

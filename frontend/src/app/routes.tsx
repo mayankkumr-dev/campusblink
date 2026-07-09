@@ -55,6 +55,12 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'reset-password',
+        lazy: async () => ({
+          Component: (await import('./components/ResetPasswordPage')).ResetPasswordPage,
+        }),
+      },
+      {
         path: 'account-restricted',
         lazy: async () => ({
           Component: (await import('./components/AccountRestrictedPage')).AccountRestrictedPage,
@@ -103,9 +109,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => ({
-              Component: (await import('./components/StudentDashboard')).StudentDashboard,
-            }),
+            element: <Navigate to="/student/home" replace />,
           },
           {
             path: 'home',
@@ -280,6 +284,18 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'notices',
+            lazy: async () => ({
+              Component: (await import('./components/NoticesPage')).NoticesPage,
+            }),
+          },
+          {
+            path: 'notices/admin',
+            lazy: async () => ({
+              Component: (await import('./components/NoticeAdminPage')).NoticeAdminPage,
+            }),
+          },
+          {
             path: 'search',
             lazy: async () => ({
               Component: (await import('./components/SearchPage')).SearchPage,
@@ -423,6 +439,18 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                path: 'notices',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNoticesPage')).AdminNoticesPage,
+                }),
+              },
+              {
+                path: 'notice-admins',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNoticeManagementPage')).AdminNoticeManagementPage,
+                }),
+              },
+              {
                 path: 'users',
                 lazy: async () => ({
                   Component: (await import('./components/AdminUsersPage')).AdminUsersPage,
@@ -470,16 +498,16 @@ export const router = createBrowserRouter([
                   Component: (await import('./components/AdminUserDetailPage')).AdminUserDetailPage,
                 }),
               },
+              /*
+               * NOTE: In React Router v7, static route paths must be defined BEFORE
+               * dynamic parameter routes (e.g. :shopId) sharing the same prefix.
+               * Otherwise, dynamic routes shadow static segments, causing requests
+               * like "/admin/canteen/orders" to match "canteen/:shopId" with shopId="orders".
+               */
               {
                 path: 'canteen',
                 lazy: async () => ({
                   Component: (await import('./components/AdminCanteensPage')).AdminCanteensPage,
-                }),
-              },
-              {
-                path: 'canteen/:shopId',
-                lazy: async () => ({
-                  Component: (await import('./components/AdminCanteenSchedulePage')).AdminCanteenSchedulePage,
                 }),
               },
               {
@@ -495,21 +523,27 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                path: 'canteen/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenSchedulePage')).AdminCanteenSchedulePage,
+                }),
+              },
+              {
                 path: 'print',
                 lazy: async () => ({
                   Component: (await import('./components/AdminPrintShopsPage')).AdminPrintShopsPage,
                 }),
               },
               {
-                path: 'print/:shopId',
-                lazy: async () => ({
-                  Component: (await import('./components/AdminPrintSchedulePage')).AdminPrintSchedulePage,
-                }),
-              },
-              {
                 path: 'print/orders',
                 lazy: async () => ({
                   Component: (await import('./components/AdminPrintOrdersPage')).AdminPrintOrdersPage,
+                }),
+              },
+              {
+                path: 'print/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintSchedulePage')).AdminPrintSchedulePage,
                 }),
               },
               {

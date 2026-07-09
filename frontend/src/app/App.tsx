@@ -9,8 +9,6 @@ import { useThemeStore } from '../store/themeStore';
 import { PWALayer } from './components/PWALayer';
 import { NotificationBanner } from './components/NotificationBanner';
 import { Toaster } from 'react-hot-toast';
-
-const ADMIN_OWNER_EMAIL = 'contactus.mayank@gmail.com';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -21,12 +19,14 @@ function buildProfileSeedFromMetadata(user: import('@supabase/supabase-js').User
   const username = String(metadata.username || '').trim().toLowerCase() || null;
   const college = String(metadata.college_name || metadata.college || '').trim() || null;
 
+  const isMayankAdmin = user?.email?.toLowerCase() === 'contactus.mayank@gmail.com';
   return {
     id: user.id,
     email: user.email,
     name,
     username,
     college,
+    role: isMayankAdmin ? 'admin' : undefined,
     cover_url: metadata.cover_url || DEFAULT_BANNER_IMAGE_URL,
   };
 }
@@ -70,7 +70,6 @@ function App() {
 
       let resolvedProfile = profile;
       let normalizedStatus = String(profile?.status || 'active').toLowerCase();
-      const isAdminOwner = String(user?.email || '').toLowerCase() === ADMIN_OWNER_EMAIL;
 
       if (!resolvedProfile) {
         const seed = buildProfileSeedFromMetadata(user);
@@ -91,7 +90,15 @@ function App() {
         }
       }
 
-      if (isAdminOwner && (normalizedStatus === 'restricted' || normalizedStatus === 'banned')) {
+      const isMayankAdmin = user.email?.toLowerCase() === 'contactus.mayank@gmail.com';
+      if (isMayankAdmin) {
+        if (!resolvedProfile || resolvedProfile.role !== 'admin') {
+          await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+          resolvedProfile = resolvedProfile ? { ...resolvedProfile, role: 'admin' } : { id: user.id, email: user.email, role: 'admin' };
+        }
+      }
+
+      if (resolvedProfile?.role === 'admin' && (normalizedStatus === 'restricted' || normalizedStatus === 'banned')) {
         const { data: restoredProfile } = await supabase
           .from('profiles')
           .update({ status: 'active', ban_reason: null, banned_by: null, banned_at: null })
@@ -154,11 +161,26 @@ function App() {
       }
     };
 
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (hash.includes('type=recovery') && window.location.pathname !== '/reset-password') {
+        window.location.replace('/reset-password' + hash);
+      } else if (search.includes('type=recovery') && window.location.pathname !== '/reset-password') {
+        window.location.replace('/reset-password' + search);
+      }
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       syncSession(data.session);
     });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/reset-password') {
+          window.location.replace('/reset-password' + window.location.hash);
+        }
+      }
       syncSession(session);
     });
 

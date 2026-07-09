@@ -10,29 +10,34 @@ interface FollowButtonProps {
   initialFollowing?: boolean;
   onChange?: (nextFollowing: boolean, counts?: { followers_count?: number; following_count?: number }) => void;
   size?: 'sm' | 'md';
-  variant?: 'primary' | 'ghost' | 'inline';
+  variant?: 'primary' | 'ghost' | 'inline' | 'soft';
   className?: string;
 }
 
 const SIZE_CLASSES = {
-  sm: 'h-8 px-3 text-[12px]',
-  md: 'h-10 px-4 text-[13px]',
+  sm: 'h-8 px-3.5 text-xs rounded-xl',
+  md: 'h-9.5 px-4 text-xs rounded-xl',
 };
 
 const VARIANT_CLASSES = {
   primary: {
-    idle: 'border border-[var(--text-primary)] bg-[var(--text-primary)] text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)] hover:border-[var(--yellow)]',
-    active: 'border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg)] hover:text-[var(--text-primary)]',
+    idle: 'border border-slate-200 bg-slate-900 text-white hover:bg-amber-500 hover:border-amber-500 shadow-2xs',
+    active: 'border border-slate-200 bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200',
   },
   ghost: {
-    idle: 'border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]',
-    active: 'border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg)] hover:text-[var(--text-primary)]',
+    idle: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs',
+    active: 'border border-slate-200 bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600',
   },
   inline: {
-    idle: 'border border-[var(--border)] bg-[var(--bg)] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]',
-    active: 'border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text-primary)]',
+    idle: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+    active: 'border border-slate-200 bg-slate-100 text-slate-500 hover:bg-slate-200',
+  },
+  soft: {
+    idle: 'border border-slate-200/90 bg-slate-100 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-slate-700 shadow-2xs font-bold',
+    active: 'border border-emerald-200/80 bg-emerald-50 text-emerald-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 font-bold',
   },
 };
+
 
 export const FollowButton: React.FC<FollowButtonProps> = ({
   targetUserId,
