@@ -337,10 +337,10 @@ export const PrintDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-dvh bg-surface text-text-primary font-sans overflow-hidden">
+    <div className="flex h-dvh bg-surface dark:bg-shop-bg-surface text-text-primary dark:text-shop-text-primary font-sans overflow-hidden">
       {/* Sleek Light-Mode Sidebar */}
-      <aside className="hidden md:flex w-64 bg-surface border-r border-border-subtle flex-col relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-        <div className="h-20 flex items-center px-6 border-b border-border-subtle">
+      <aside className="hidden md:flex w-64 bg-surface dark:bg-shop-bg-surface border-r border-border-subtle dark:border-shop-border-subtle flex-col relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-none">
+        <div className="h-20 flex items-center px-6 border-b border-border-subtle dark:border-shop-border-subtle">
           <Link
             to={user ? '/student/home' : '/'}
             className="no-underline cursor-pointer flex items-center transition-transform hover:scale-105"
@@ -363,32 +363,32 @@ export const PrintDashboardPage: React.FC = () => {
                 onClick={() => setActiveView(item.label)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${
                   isActive
-                    ? 'bg-amber-500 text-white font-bold shadow-xs'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium'
+                    ? 'bg-amber-500 dark:bg-shop-accent text-white font-bold shadow-xs dark:shadow-none'
+                    : 'text-text-secondary dark:text-shop-text-secondary hover:text-text-primary dark:hover:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover font-medium'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-text-secondary/70'}`} />
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-text-secondary/70 dark:text-shop-text-secondary'}`} />
                 <span className="text-sm tracking-wide">{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="p-5 border-t border-border-subtle bg-background">
+        <div className="p-5 border-t border-border-subtle dark:border-shop-border-subtle bg-background dark:bg-shop-bg-surface-raised">
           <div className="flex items-center gap-3.5 mb-5">
             {shop?.logo_url ? (
               <img
                 src={shop.logo_url}
                 alt="Shop Logo"
-                className="w-11 h-11 rounded-2xl border border-border-subtle object-cover"
+                className="w-11 h-11 rounded-2xl border border-border-subtle dark:border-shop-border-subtle object-cover"
               />
             ) : (
-              <div className="w-11 h-11 rounded-2xl bg-accent-amber-soft border border-accent-amber-soft text-accent-amber flex items-center justify-center font-syne font-bold text-base">
+              <div className="w-11 h-11 rounded-2xl bg-accent-amber-soft dark:bg-amber-900/20 border border-accent-amber-soft dark:border-amber-900/30 text-accent-amber flex items-center justify-center font-syne font-bold text-base">
                 {shop?.name?.charAt(0) || 'P'}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-syne font-bold text-sm text-text-primary leading-tight truncate">
+              <p className="font-syne font-bold text-sm text-text-primary dark:text-shop-text-primary leading-tight truncate">
                 {shop?.name || 'My Print Shop'}
               </p>
               <p
@@ -409,7 +409,7 @@ export const PrintDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/login')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-accent-red bg-surface border border-rose-200 hover:bg-rose-50 transition-colors font-bold text-xs shadow-2xs"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-accent-red bg-surface dark:bg-shop-bg-surface border border-rose-200 dark:border-red-900/30 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors font-bold text-xs shadow-2xs dark:shadow-none"
           >
             <LogOut className="w-3.5 h-3.5" /> Logout Dashboard
           </button>
@@ -417,15 +417,15 @@ export const PrintDashboardPage: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full w-full relative z-10 bg-surface">
+      <main className="flex-1 flex flex-col h-full w-full relative z-10 bg-surface dark:bg-shop-bg-surface">
         {/* Header */}
-        <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-border-subtle bg-white/90 px-6 backdrop-blur-md lg:px-10">
+        <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-border-subtle dark:border-shop-border-subtle bg-white/90 dark:bg-shop-bg-surface/90 px-6 backdrop-blur-md lg:px-10">
           <div className="flex items-center gap-3.5 min-w-0">
-            <h1 className="font-syne text-2xl font-extrabold tracking-tight text-text-primary md:text-3xl">
+            <h1 className="font-syne text-2xl font-extrabold tracking-tight text-text-primary dark:text-shop-text-primary md:text-3xl">
               {activeView}
             </h1>
             {activeView === 'Live Orders' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white shadow-2xs">
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 dark:bg-shop-accent px-3 py-1 text-xs font-bold text-white shadow-2xs dark:shadow-none">
                 {newOrdersList.length} New
               </span>
             )}
@@ -433,15 +433,15 @@ export const PrintDashboardPage: React.FC = () => {
 
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/70" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/70 dark:text-shop-text-tertiary" />
               <input
                 placeholder="Search print jobs or students..."
-                className="w-72 rounded-2xl border border-border-subtle bg-surface py-2 pl-10 pr-4 text-xs text-text-primary placeholder:text-slate-400 focus:border-amber-500 focus:bg-surface focus:outline-none transition-all"
+                className="w-72 rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface-raised py-2 pl-10 pr-4 text-xs text-text-primary dark:text-shop-text-primary placeholder:text-slate-400 dark:placeholder:text-shop-text-tertiary focus:border-amber-500 dark:focus:border-shop-accent focus:bg-surface dark:focus:bg-shop-bg-surface focus:outline-none transition-all"
               />
             </div>
             <button
               type="button"
-              className="relative rounded-2xl border border-border-subtle bg-surface p-2.5 text-text-secondary transition-colors hover:bg-surface-elevated"
+              className="relative rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-2.5 text-text-secondary dark:text-shop-text-secondary transition-colors hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary"
               aria-label="Notifications"
             >
               <Bell className="h-4.5 w-4.5 stroke-[2]" />
@@ -453,11 +453,11 @@ export const PrintDashboardPage: React.FC = () => {
         </header>
 
         {/* Mobile View Selector */}
-        <div className="md:hidden px-4 py-3 border-b border-border-subtle bg-surface">
+        <div className="md:hidden px-4 py-3 border-b border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
           <select
             value={activeView}
             onChange={(e) => setActiveView(e.target.value)}
-            className="w-full bg-surface border border-border-subtle rounded-xl px-3.5 py-2.5 text-xs font-semibold text-text-primary"
+            className="w-full bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle rounded-xl px-3.5 py-2.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary"
           >
             {navItems.map((item) => (
               <option key={item.label} value={item.label}>
@@ -471,16 +471,16 @@ export const PrintDashboardPage: React.FC = () => {
         <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-10 pb-24 md:pb-10">
           <FeatureErrorBoundary featureName="Print Shop Dashboard">
             {/* Global Status Banner */}
-            <div className="mx-auto mb-8 max-w-7xl rounded-3xl border border-border-subtle bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+            <div className="mx-auto mb-8 max-w-7xl rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-amber-soft border border-amber-200/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-amber-soft dark:bg-amber-900/20 border border-amber-200/80 dark:border-amber-900/30 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber">
                     Live Shop Status
                   </span>
-                  <h2 className="mt-2.5 font-syne text-2xl sm:text-3xl font-extrabold text-text-primary">
+                  <h2 className="mt-2.5 font-syne text-2xl sm:text-3xl font-extrabold text-text-primary dark:text-shop-text-primary">
                     {shop?.is_open_now ? 'Accepting print jobs' : 'Currently closed'}
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-text-secondary">
+                  <p className="mt-1 text-xs sm:text-sm text-text-secondary dark:text-shop-text-secondary">
                     {shop?.shop_status_reason ||
                       'Automated shop schedule controls availability unless manually overridden.'}
                   </p>
@@ -490,21 +490,21 @@ export const PrintDashboardPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleOverride('open')}
-                    className="rounded-xl border border-emerald-200 bg-accent-green/15 px-4 py-2.5 text-xs font-bold text-accent-green shadow-2xs transition-all hover:bg-emerald-100"
+                    className="rounded-xl border border-emerald-200 dark:border-emerald-900/30 bg-accent-green/15 dark:bg-emerald-900/20 px-4 py-2.5 text-xs font-bold text-accent-green shadow-2xs dark:shadow-none transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
                   >
                     Force open
                   </button>
                   <button
                     type="button"
                     onClick={() => handleOverride('closed')}
-                    className="rounded-xl border border-rose-200 bg-accent-red/15 px-4 py-2.5 text-xs font-bold text-accent-red shadow-2xs transition-all hover:bg-rose-100"
+                    className="rounded-xl border border-rose-200 dark:border-red-900/30 bg-accent-red/15 dark:bg-red-900/20 px-4 py-2.5 text-xs font-bold text-accent-red shadow-2xs dark:shadow-none transition-all hover:bg-rose-100 dark:hover:bg-red-900/40"
                   >
                     Force closed
                   </button>
                   <button
                     type="button"
                     onClick={() => handleOverride(null)}
-                    className="rounded-xl border border-border-subtle bg-surface px-4 py-2.5 text-xs font-bold text-text-primary transition-all hover:bg-surface-elevated"
+                    className="rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-4 py-2.5 text-xs font-bold text-text-primary dark:text-shop-text-primary transition-all hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover"
                   >
                     Use schedule
                   </button>
@@ -524,7 +524,7 @@ export const PrintDashboardPage: React.FC = () => {
                       className="space-y-6 order-2"
                     >
                       <div className="flex items-center justify-between">
-                        <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary sm:text-2xl flex items-center gap-2.5">
+                        <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary dark:text-shop-text-primary sm:text-2xl flex items-center gap-2.5">
                           <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
                           Printing & Ready for Pickup
                         </h2>
@@ -543,18 +543,18 @@ export const PrintDashboardPage: React.FC = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                               >
-                                <div className="rounded-3xl border border-border-subtle bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-                                  <div className="p-4 border-b border-border-subtle bg-amber-50/60 flex justify-between items-center">
-                                    <span className="font-syne font-extrabold text-base text-text-primary">
+                                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:hover:border-shop-border-strong">
+                                  <div className="p-4 border-b border-border-subtle dark:border-shop-border-subtle bg-amber-50/60 dark:bg-amber-900/20 flex justify-between items-center">
+                                    <span className="font-syne font-extrabold text-base text-text-primary dark:text-shop-text-primary">
                                       #{order.id.slice(0, 6)}
                                     </span>
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-bold text-white shadow-2xs">
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500 dark:bg-shop-accent px-2.5 py-0.5 text-[11px] font-bold text-white shadow-2xs dark:shadow-none">
                                       Ready for Pickup
                                     </span>
                                   </div>
 
                                   <div className="p-4 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl border border-border-subtle overflow-hidden shrink-0">
+                                    <div className="w-10 h-10 rounded-2xl border border-border-subtle dark:border-shop-border-subtle overflow-hidden shrink-0">
                                       <img
                                         src={
                                           getStudentProfile(order).avatar_url ||
@@ -568,17 +568,17 @@ export const PrintDashboardPage: React.FC = () => {
                                       />
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="font-bold text-xs text-text-primary truncate">
+                                      <p className="font-bold text-xs text-text-primary dark:text-shop-text-primary truncate">
                                         {getStudentProfile(order).name || 'Student'}
                                       </p>
-                                      <p className="text-[11px] text-text-secondary font-medium mt-0.5">
+                                      <p className="text-[11px] text-text-secondary dark:text-shop-text-secondary font-medium mt-0.5">
                                         {order.pages} Pages • ₹{order.total_price}
                                         {inkMeta?.ink_multiplier
                                           ? ` • Ink x${Number(inkMeta.ink_multiplier).toFixed(2)}`
                                           : ''}
                                       </p>
                                       {order.is_delivery_order && (
-                                        <span className="inline-flex mt-1 items-center gap-1 rounded-md bg-accent-green/15 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-accent-green">
+                                        <span className="inline-flex mt-1 items-center gap-1 rounded-md bg-accent-green/15 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/30 px-2 py-0.5 text-[10px] font-bold text-accent-green">
                                           🚀 Room: {order.delivery_room_number || 'Delivery'}
                                         </span>
                                       )}
@@ -590,7 +590,7 @@ export const PrintDashboardPage: React.FC = () => {
                                       <button
                                         type="button"
                                         onClick={() => openPreview(order)}
-                                        className="w-full rounded-xl border border-border-subtle bg-surface py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors"
+                                        className="w-full rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface py-2 text-xs font-bold text-text-primary dark:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover transition-colors"
                                       >
                                         Preview & Print
                                       </button>
@@ -598,7 +598,7 @@ export const PrintDashboardPage: React.FC = () => {
                                     <button
                                       type="button"
                                       onClick={() => handleDismissReady(order.id)}
-                                      className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                      className="w-full rounded-xl bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs dark:shadow-none"
                                     >
                                       <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Mark Collected
                                     </button>
@@ -619,18 +619,18 @@ export const PrintDashboardPage: React.FC = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                               >
-                                <div className="rounded-3xl border border-border-subtle bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-                                  <div className="p-4 border-b border-border-subtle bg-surface flex justify-between items-center">
-                                    <span className="font-syne font-extrabold text-base text-text-primary">
+                                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:hover:border-shop-border-strong">
+                                  <div className="p-4 border-b border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface flex justify-between items-center">
+                                    <span className="font-syne font-extrabold text-base text-text-primary dark:text-shop-text-primary">
                                       #{order.id.slice(0, 6)}
                                     </span>
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft bg-accent-amber-soft px-2.5 py-0.5 text-[11px] font-bold text-accent-amber">
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-2.5 py-0.5 text-[11px] font-bold text-accent-amber">
                                       <Printer className="w-3 h-3" /> Printing
                                     </span>
                                   </div>
 
                                   <div className="p-4 flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl border border-border-subtle overflow-hidden shrink-0">
+                                    <div className="w-10 h-10 rounded-2xl border border-border-subtle dark:border-shop-border-subtle overflow-hidden shrink-0">
                                       <img
                                         src={
                                           getStudentProfile(order).avatar_url ||
@@ -644,17 +644,17 @@ export const PrintDashboardPage: React.FC = () => {
                                       />
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="font-bold text-xs text-text-primary truncate">
+                                      <p className="font-bold text-xs text-text-primary dark:text-shop-text-primary truncate">
                                         {getStudentProfile(order).name || 'Student'}
                                       </p>
-                                      <p className="text-[11px] text-text-secondary font-medium mt-0.5">
+                                      <p className="text-[11px] text-text-secondary dark:text-shop-text-secondary font-medium mt-0.5">
                                         {order.file_name?.slice(0, 16)}... • ₹{order.total_price}
                                         {inkMeta?.ink_multiplier
                                           ? ` • Ink x${Number(inkMeta.ink_multiplier).toFixed(2)}`
                                           : ''}
                                       </p>
                                       {order.is_delivery_order && (
-                                        <span className="inline-flex mt-1 items-center gap-1 rounded-md bg-accent-amber-soft border border-accent-amber-soft px-2 py-0.5 text-[10px] font-bold text-accent-amber">
+                                        <span className="inline-flex mt-1 items-center gap-1 rounded-md bg-accent-amber-soft dark:bg-amber-900/20 border border-accent-amber-soft dark:border-amber-900/30 px-2 py-0.5 text-[10px] font-bold text-accent-amber">
                                           🚀 Room: {order.delivery_room_number || 'Delivery'}
                                         </span>
                                       )}
@@ -666,7 +666,7 @@ export const PrintDashboardPage: React.FC = () => {
                                       <button
                                         type="button"
                                         onClick={() => openPreview(order)}
-                                        className="w-full rounded-xl border border-border-subtle bg-surface py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors"
+                                        className="w-full rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface py-2 text-xs font-bold text-text-primary dark:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover transition-colors"
                                       >
                                         Preview & Print
                                       </button>
@@ -674,7 +674,7 @@ export const PrintDashboardPage: React.FC = () => {
                                     <button
                                       type="button"
                                       onClick={() => handleMarkReady(order.id)}
-                                      className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                      className="w-full rounded-xl bg-amber-500 dark:bg-shop-accent hover:bg-amber-600 dark:hover:bg-amber-500 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-2xs dark:shadow-none focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-shop-accent"
                                     >
                                       <Check className="w-3.5 h-3.5 stroke-[2.5]" /> Mark Ready
                                     </button>
@@ -704,14 +704,14 @@ export const PrintDashboardPage: React.FC = () => {
                   </div>
 
                   {newOrdersList.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center rounded-3xl border border-border-subtle bg-surface px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-surface border border-border-subtle text-text-secondary/70 shadow-2xs">
+                    <div className="flex flex-col items-center justify-center rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)] dark:shadow-none">
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle text-text-secondary/70 dark:text-shop-text-tertiary shadow-2xs dark:shadow-none">
                         <Printer className="h-6 w-6 stroke-[1.5]" />
                       </div>
-                      <h3 className="font-syne text-base font-bold text-text-primary">
+                      <h3 className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
                         No incoming print jobs
                       </h3>
-                      <p className="mt-1 text-xs text-text-secondary max-w-sm">
+                      <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary max-w-sm">
                         You are caught up! When students submit print requests, documents will arrive here instantly.
                       </p>
                     </div>
@@ -734,14 +734,14 @@ export const PrintDashboardPage: React.FC = () => {
                               exit={{ opacity: 0, scale: 0.95 }}
                               layout
                             >
-                              <div className="rounded-3xl border border-border-subtle bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+                              <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface flex flex-col overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:hover:border-shop-border-strong">
                                 {/* Card Header */}
-                                <div className="p-5 border-b border-border-subtle bg-surface-elevated flex justify-between items-center">
-                                  <span className="font-syne font-extrabold text-lg text-text-primary">
+                                <div className="p-5 border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised flex justify-between items-center">
+                                  <span className="font-syne font-extrabold text-lg text-text-primary dark:text-shop-text-primary">
                                     #{order.id.slice(0, 6)}
                                   </span>
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-surface border border-border-subtle px-2.5 py-1 text-[11px] font-semibold text-text-secondary shadow-2xs">
-                                    <Clock className="w-3 h-3 text-text-secondary/70" />
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle px-2.5 py-1 text-[11px] font-semibold text-text-secondary dark:text-shop-text-secondary shadow-2xs dark:shadow-none">
+                                    <Clock className="w-3 h-3 text-text-secondary/70 dark:text-shop-text-tertiary" />
                                     {new Date(order.created_at).toLocaleTimeString([], {
                                       hour: '2-digit',
                                       minute: '2-digit',
@@ -750,8 +750,8 @@ export const PrintDashboardPage: React.FC = () => {
                                 </div>
 
                                 {/* Student Info */}
-                                <div className="p-5 pb-4 border-b border-border-subtle flex items-center gap-3.5">
-                                  <div className="w-12 h-12 rounded-2xl border border-border-subtle overflow-hidden shrink-0 shadow-2xs">
+                                <div className="p-5 pb-4 border-b border-border-subtle dark:border-shop-border-subtle flex items-center gap-3.5">
+                                  <div className="w-12 h-12 rounded-2xl border border-border-subtle dark:border-shop-border-subtle overflow-hidden shrink-0 shadow-2xs dark:shadow-none">
                                     <img
                                       src={
                                         getStudentProfile(order).avatar_url ||
@@ -765,14 +765,14 @@ export const PrintDashboardPage: React.FC = () => {
                                     />
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <p className="font-bold text-sm text-text-primary truncate">
+                                    <p className="font-bold text-sm text-text-primary dark:text-shop-text-primary truncate">
                                       {getStudentProfile(order).name || 'Student'}
                                     </p>
-                                    <p className="text-xs text-text-secondary font-mono mt-0.5">
+                                    <p className="text-xs text-text-secondary dark:text-shop-text-secondary font-mono mt-0.5">
                                       {order.student_id?.slice(0, 8)}
                                     </p>
                                     {order.is_delivery_order && (
-                                      <span className="inline-flex mt-1.5 items-center gap-1 rounded-md bg-accent-amber-soft border border-accent-amber-soft px-2 py-0.5 text-[10px] font-bold text-accent-amber">
+                                      <span className="inline-flex mt-1.5 items-center gap-1 rounded-md bg-accent-amber-soft dark:bg-amber-900/20 border border-accent-amber-soft dark:border-amber-900/30 px-2 py-0.5 text-[10px] font-bold text-accent-amber">
                                         🚀 Delivery: {order.delivery_room_number || 'Room'}
                                       </span>
                                     )}
@@ -781,32 +781,32 @@ export const PrintDashboardPage: React.FC = () => {
 
                                 {/* Print Specifications Breathable Grid */}
                                 <div className="p-5 flex-1 space-y-4">
-                                  <div className="rounded-2xl border border-border-subtle bg-surface-elevated p-3.5">
-                                    <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary/70">
+                                  <div className="rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised p-3.5">
+                                    <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
                                       Document File
                                     </p>
-                                    <p className="text-xs font-bold text-text-primary break-all mt-1">
+                                    <p className="text-xs font-bold text-text-primary dark:text-shop-text-primary break-all mt-1">
                                       {order.file_name}
                                     </p>
                                   </div>
 
                                   <div className="grid grid-cols-2 gap-3">
                                     {/* Quantity */}
-                                    <div className="rounded-2xl border border-border-subtle bg-surface p-3 shadow-2xs">
-                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70">
+                                    <div className="rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3 shadow-2xs dark:shadow-none">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
                                         Quantity
                                       </p>
-                                      <p className="mt-1 text-xs font-extrabold text-text-primary">
+                                      <p className="mt-1 text-xs font-extrabold text-text-primary dark:text-shop-text-primary">
                                         {order.copies}x{' '}
-                                        <span className="font-medium text-text-secondary">
+                                        <span className="font-medium text-text-secondary dark:text-shop-text-secondary">
                                           ({order.pages} pages)
                                         </span>
                                       </p>
                                     </div>
 
                                     {/* Color Mode */}
-                                    <div className="rounded-2xl border border-border-subtle bg-surface p-3 shadow-2xs">
-                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70">
+                                    <div className="rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3 shadow-2xs dark:shadow-none">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
                                         Color Mode
                                       </p>
                                       <div className="mt-1 flex items-center gap-1.5">
@@ -815,14 +815,14 @@ export const PrintDashboardPage: React.FC = () => {
                                             <span className="h-2 w-2 rounded-full bg-rose-500" />
                                             <span className="h-2 w-2 rounded-full bg-accent-green" />
                                             <span className="h-2 w-2 rounded-full bg-blue-500" />
-                                            <span className="text-xs font-bold text-text-primary ml-1">
+                                            <span className="text-xs font-bold text-text-primary dark:text-shop-text-primary ml-1">
                                               Full Color
                                             </span>
                                           </>
                                         ) : (
                                           <>
                                             <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
-                                            <span className="text-xs font-bold text-text-primary">
+                                            <span className="text-xs font-bold text-text-primary dark:text-shop-text-primary">
                                               B&amp;W
                                             </span>
                                           </>
@@ -831,21 +831,21 @@ export const PrintDashboardPage: React.FC = () => {
                                     </div>
 
                                     {/* Orientation */}
-                                    <div className="rounded-2xl border border-border-subtle bg-surface p-3 shadow-2xs">
-                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70">
+                                    <div className="rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3 shadow-2xs dark:shadow-none">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
                                         Orientation
                                       </p>
-                                      <p className="mt-1 text-xs font-bold capitalize text-text-primary">
+                                      <p className="mt-1 text-xs font-bold capitalize text-text-primary dark:text-shop-text-primary">
                                         {orderOrientation}
                                       </p>
                                     </div>
 
                                     {/* Add-ons */}
-                                    <div className="rounded-2xl border border-border-subtle bg-surface p-3 shadow-2xs">
-                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70">
+                                    <div className="rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3 shadow-2xs dark:shadow-none">
+                                      <p className="text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
                                         Add-ons
                                       </p>
-                                      <p className="mt-1 text-xs font-bold text-text-primary">
+                                      <p className="mt-1 text-xs font-bold text-text-primary dark:text-shop-text-primary">
                                         {order.is_double_sided ? 'Double Sided' : 'Single Sided'}
                                         {order.has_binding ? ' + Binding' : ''}
                                       </p>
@@ -853,28 +853,28 @@ export const PrintDashboardPage: React.FC = () => {
                                   </div>
 
                                   {inkMeta && (
-                                    <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-3">
+                                    <div className="rounded-2xl border border-amber-100 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-900/20 p-3">
                                       <p className="text-[10px] font-bold uppercase tracking-wider text-accent-amber mb-1.5">
                                         Ink Analysis
                                       </p>
                                       <div className="grid grid-cols-3 gap-2 text-xs">
                                         <div>
-                                          <p className="text-text-secondary text-[10px]">Coverage</p>
-                                          <p className="font-bold text-text-primary">
+                                          <p className="text-text-secondary dark:text-shop-text-secondary text-[10px]">Coverage</p>
+                                          <p className="font-bold text-text-primary dark:text-shop-text-primary">
                                             {averageDarkPercent != null
                                               ? `${averageDarkPercent}%`
                                               : 'N/A'}
                                           </p>
                                         </div>
                                         <div>
-                                          <p className="text-text-secondary text-[10px]">Complexity</p>
-                                          <p className="font-bold text-text-primary capitalize">
+                                          <p className="text-text-secondary dark:text-shop-text-secondary text-[10px]">Complexity</p>
+                                          <p className="font-bold text-text-primary dark:text-shop-text-primary capitalize">
                                             {inkMeta.complexity || 'N/A'}
                                           </p>
                                         </div>
                                         <div>
-                                          <p className="text-text-secondary text-[10px]">Multiplier</p>
-                                          <p className="font-bold text-text-primary">
+                                          <p className="text-text-secondary dark:text-shop-text-secondary text-[10px]">Multiplier</p>
+                                          <p className="font-bold text-text-primary dark:text-shop-text-primary">
                                             x{Number(inkMeta.ink_multiplier || 1).toFixed(2)}
                                           </p>
                                         </div>
@@ -883,7 +883,7 @@ export const PrintDashboardPage: React.FC = () => {
                                   )}
 
                                   {/* Download / Preview Links */}
-                                  <div className="pt-2 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2">
+                                  <div className="pt-2 border-t border-border-subtle dark:border-shop-border-subtle flex flex-wrap items-center justify-between gap-2">
                                     {order.file_url ? (
                                       <>
                                         <a
@@ -898,7 +898,7 @@ export const PrintDashboardPage: React.FC = () => {
                                           <button
                                             type="button"
                                             onClick={() => openPreview(order)}
-                                            className="text-xs font-bold text-text-primary hover:text-text-primary underline underline-offset-4"
+                                            className="text-xs font-bold text-text-primary dark:text-shop-text-primary hover:text-text-primary dark:hover:text-shop-text-primary underline underline-offset-4"
                                           >
                                             Preview Document
                                           </button>
@@ -913,12 +913,12 @@ export const PrintDashboardPage: React.FC = () => {
                                 </div>
 
                                 {/* Card Footer & Action Buttons */}
-                                <div className="p-5 bg-surface-elevated border-t border-border-subtle flex flex-col gap-3.5">
+                                <div className="p-5 bg-surface-elevated dark:bg-shop-bg-surface-raised border-t border-border-subtle dark:border-shop-border-subtle flex flex-col gap-3.5">
                                   <div className="flex justify-between items-end">
-                                    <span className="text-[11px] text-text-secondary font-bold uppercase tracking-wider">
+                                    <span className="text-[11px] text-text-secondary dark:text-shop-text-secondary font-bold uppercase tracking-wider">
                                       Total Amount
                                     </span>
-                                    <span className="font-syne font-extrabold text-2xl text-text-primary">
+                                    <span className="font-syne font-extrabold text-2xl text-text-primary dark:text-shop-text-primary">
                                       ₹{order.total_price}
                                     </span>
                                   </div>
@@ -927,14 +927,14 @@ export const PrintDashboardPage: React.FC = () => {
                                     <button
                                       type="button"
                                       onClick={() => handleRejectClick(order)}
-                                      className="rounded-xl border border-rose-200 bg-surface py-2.5 text-xs font-bold text-accent-red hover:bg-rose-50 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                                      className="rounded-xl border border-rose-200 dark:border-red-900/30 bg-surface dark:bg-shop-bg-surface py-2.5 text-xs font-bold text-accent-red hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center gap-1.5 shadow-2xs dark:shadow-none"
                                     >
                                       <X className="w-4 h-4 stroke-[2.2]" /> Reject
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => handleAccept(order.id)}
-                                      className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                                      className="rounded-xl bg-amber-500 dark:bg-shop-accent hover:bg-amber-600 dark:hover:bg-amber-500 text-white py-2.5 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs dark:shadow-none focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-shop-accent"
                                     >
                                       <Check className="w-4 h-4 stroke-[2.5]" /> Accept
                                     </button>
@@ -953,13 +953,13 @@ export const PrintDashboardPage: React.FC = () => {
 
             {activeView === 'Order History' && (
               <div className="mx-auto max-w-7xl">
-                <div className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+                <div className="overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
                   {historyOrders.length === 0 ? (
                     <div className="px-6 py-24 text-center">
-                      <p className="font-syne text-base font-bold text-text-primary">
+                      <p className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
                         No print order history available yet
                       </p>
-                      <p className="mt-1 text-xs text-text-secondary">
+                      <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary">
                         Past completed, reordered, and cancelled print jobs will be recorded here.
                       </p>
                     </div>
@@ -967,7 +967,7 @@ export const PrintDashboardPage: React.FC = () => {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left font-sans">
                         <thead>
-                          <tr className="border-b border-border-subtle bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                          <tr className="border-b border-border-subtle dark:border-shop-border-subtle bg-slate-50/80 dark:bg-slate-800/50 text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
                             <th className="px-6 py-4">Date</th>
                             <th className="px-6 py-4">Student</th>
                             <th className="px-6 py-4">Order ID</th>
@@ -977,54 +977,54 @@ export const PrintDashboardPage: React.FC = () => {
                             <th className="px-6 py-4 text-center">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                           {historyOrders.map((order, i) => (
                             <tr
                               key={i}
-                              className="transition-colors hover:bg-slate-50/60"
+                              className="transition-colors hover:bg-slate-50/60 dark:hover:bg-shop-bg-surface-hover"
                             >
-                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-semibold text-text-primary">
+                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary">
                                 {new Date(order.created_at).toLocaleDateString([], {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
                                 })}
                               </td>
-                              <td className="px-6 py-4.5 text-xs font-bold text-text-primary">
+                              <td className="px-6 py-4.5 text-xs font-bold text-text-primary dark:text-shop-text-primary">
                                 {getStudentProfile(order).name || 'Student'}
                               </td>
-                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-mono text-text-secondary">
+                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-mono text-text-secondary dark:text-shop-text-secondary">
                                 #{order.id.slice(0, 6)}
                               </td>
-                              <td className="px-6 py-4.5 text-xs font-semibold text-text-primary max-w-xs truncate">
+                              <td className="px-6 py-4.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary max-w-xs truncate">
                                 {order.file_name}
                               </td>
                               <td className="whitespace-nowrap px-6 py-4.5">
                                 {order.status === 'collected' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-accent-green/15 px-3 py-1 text-[11px] font-bold text-accent-green">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/30 bg-accent-green/15 dark:bg-emerald-900/20 px-3 py-1 text-[11px] font-bold text-accent-green">
                                     Completed
                                   </span>
                                 ) : order.status === 'reorder_requested' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft bg-accent-amber-soft px-3 py-1 text-[11px] font-bold text-accent-amber">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-3 py-1 text-[11px] font-bold text-accent-amber">
                                     Reorder Sent
                                   </span>
                                 ) : order.status === 'reorder_completed' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-blue-soft bg-accent-blue-soft px-3 py-1 text-[11px] font-bold text-blue-700">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft dark:bg-blue-900/20 px-3 py-1 text-[11px] font-bold text-blue-700 dark:text-blue-400">
                                     Reordered
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-accent-red/15 px-3 py-1 text-[11px] font-bold text-accent-red">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 dark:border-red-900/30 bg-accent-red/15 dark:bg-red-900/20 px-3 py-1 text-[11px] font-bold text-accent-red">
                                     Cancelled
                                   </span>
                                 )}
                               </td>
-                              <td className="whitespace-nowrap px-6 py-4.5 text-right font-syne text-sm font-extrabold text-text-primary">
+                              <td className="whitespace-nowrap px-6 py-4.5 text-right font-syne text-sm font-extrabold text-text-primary dark:text-shop-text-primary">
                                 {order.status === 'collected' ||
                                 order.status === 'reorder_requested' ||
                                 order.status === 'reorder_completed' ? (
                                   `₹${order.total_price}`
                                 ) : (
-                                  <span className="text-text-secondary/70 line-through">
+                                  <span className="text-text-secondary/70 dark:text-shop-text-tertiary line-through">
                                     ₹{order.total_price}
                                   </span>
                                 )}
@@ -1034,7 +1034,7 @@ export const PrintDashboardPage: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleRequestReorder(order)}
-                                    className="inline-flex items-center gap-1.5 rounded-xl border border-accent-amber-soft bg-accent-amber-soft px-3.5 py-1.5 text-xs font-bold text-accent-amber transition-colors hover:bg-amber-100"
+                                    className="inline-flex items-center gap-1.5 rounded-xl border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-3.5 py-1.5 text-xs font-bold text-accent-amber transition-colors hover:bg-amber-100 dark:hover:bg-amber-900/40"
                                   >
                                     <RotateCcw className="h-3 w-3" /> Request Reorder
                                   </button>
@@ -1045,7 +1045,7 @@ export const PrintDashboardPage: React.FC = () => {
                                   </span>
                                 )}
                                 {order.status === 'reorder_completed' && (
-                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent-blue">
+                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent-blue dark:text-blue-400">
                                     <Check className="h-3.5 w-3.5" /> Reordered
                                   </span>
                                 )}
@@ -1061,19 +1061,88 @@ export const PrintDashboardPage: React.FC = () => {
             )}
 
             {activeView === 'Settings' && (
-              <div className="mx-auto max-w-3xl rounded-3xl border border-border-subtle bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft border border-amber-100 text-accent-amber shadow-2xs">
-                  <Settings className="h-9 w-9 stroke-[1.8]" />
+              <div className="mx-auto max-w-3xl space-y-6">
+                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 text-accent-amber shadow-2xs dark:shadow-none">
+                    <Settings className="h-9 w-9 stroke-[1.8]" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft dark:bg-amber-900/20 border border-accent-amber-soft dark:border-amber-900/30 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber mb-3">
+                    Under Active Development
+                  </span>
+                  <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary dark:text-shop-text-primary">
+                    Print Shop Preferences &amp; Hardware Configuration
+                  </h2>
+                  <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary dark:text-shop-text-secondary leading-relaxed">
+                    Advanced automated color profiling, ink usage metrics, default print pricing tiers, and direct printer queue integrations are currently being refined. Use the Live Shop Status controls above to manage immediate shop availability.
+                  </p>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft border border-accent-amber-soft px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber mb-3">
-                  Under Active Development
-                </span>
-                <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary">
-                  Print Shop Preferences &amp; Hardware Configuration
-                </h2>
-                <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary leading-relaxed">
-                  Advanced automated color profiling, ink usage metrics, default print pricing tiers, and direct printer queue integrations are currently being refined. Use the Live Shop Status controls above to manage immediate shop availability.
-                </p>
+                
+                {/* Reusing ShopSettingsPanel from canteen for appearance but customizing it is easy */}
+                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none overflow-hidden">
+                   <div className="p-6 border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised flex items-center gap-3">
+                     <div className="h-10 w-10 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                     </div>
+                     <div>
+                       <h3 className="font-syne font-bold text-lg text-text-primary dark:text-shop-text-primary">
+                         Appearance
+                       </h3>
+                       <p className="text-xs text-text-secondary dark:text-shop-text-secondary">
+                         Customize how Campus Blink looks on this device.
+                       </p>
+                     </div>
+                   </div>
+                   <div className="p-6 bg-surface dark:bg-shop-bg-surface">
+                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                       {[
+                         { id: 'light', label: 'Light Mode', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> },
+                         { id: 'dark', label: 'Dark Mode', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> },
+                         { id: 'system', label: 'System', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
+                       ].map((themeOpt) => {
+                         // Safely access document for theme switching
+                         const isSelected = typeof document !== 'undefined' ? 
+                           (themeOpt.id === 'system' ? !localStorage.theme : localStorage.theme === themeOpt.id)
+                           : themeOpt.id === 'light';
+                           
+                         return (
+                           <button
+                             type="button"
+                             key={themeOpt.id}
+                             onClick={() => {
+                               if (themeOpt.id === 'system') {
+                                 localStorage.removeItem('theme');
+                                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                                   document.documentElement.classList.add('dark');
+                                 } else {
+                                   document.documentElement.classList.remove('dark');
+                                 }
+                               } else {
+                                 localStorage.theme = themeOpt.id;
+                                 if (themeOpt.id === 'dark') {
+                                   document.documentElement.classList.add('dark');
+                                 } else {
+                                   document.documentElement.classList.remove('dark');
+                                 }
+                               }
+                               // Force re-render just to update the UI
+                               setActiveView('Settings');
+                             }}
+                             className={`flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 transition-all ${
+                               isSelected
+                                 ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                                 : 'border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface text-text-secondary dark:text-shop-text-secondary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary'
+                             }`}
+                           >
+                             <div className={`${isSelected ? 'text-amber-500' : 'text-slate-400 dark:text-slate-500'}`}>
+                               {themeOpt.icon}
+                             </div>
+                             <span className="font-bold text-sm">{themeOpt.label}</span>
+                           </button>
+                         );
+                       })}
+                     </div>
+                   </div>
+                </div>
               </div>
             )}
           </FeatureErrorBoundary>
@@ -1084,85 +1153,85 @@ export const PrintDashboardPage: React.FC = () => {
       <AnimatePresence>
         {rejectModal.isOpen && rejectModal.order && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setRejectModal({ isOpen: false, order: null })}
-              className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
-            >
-              <div className="border-b border-border-subtle bg-surface-elevated p-6 flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-red/15 text-accent-red border border-rose-100 shadow-2xs">
-                  <AlertCircle className="h-5 w-5 stroke-[2.2]" />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setRejectModal({ isOpen: false, order: null })}
+                className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)] dark:shadow-none"
+              >
+                <div className="border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised p-6 flex items-start gap-3.5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-red/15 dark:bg-red-900/20 text-accent-red border border-rose-100 dark:border-red-900/30 shadow-2xs dark:shadow-none">
+                    <AlertCircle className="h-5 w-5 stroke-[2.2]" />
+                  </div>
+                  <div>
+                    <h3 className="font-syne text-xl font-bold text-text-primary dark:text-shop-text-primary">
+                      Reject Print Job #{rejectModal.order.id.slice(0, 6)}
+                    </h3>
+                    <p className="text-xs text-text-secondary dark:text-shop-text-secondary">
+                      Select or enter a reason for cancelling this print request.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-syne text-xl font-bold text-text-primary">
-                    Reject Print Job #{rejectModal.order.id.slice(0, 6)}
-                  </h3>
-                  <p className="text-xs text-text-secondary">
-                    Select or enter a reason for cancelling this print request.
-                  </p>
-                </div>
-              </div>
 
-              <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
-                  Quick Rejection Reasons
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {rejectReasons.map((reason, idx) => (
-                    <button
-                      type="button"
-                      key={idx}
-                      onClick={() => {
-                        setSelectedReason(reason);
-                        setCustomReason('');
+                <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-tertiary">
+                    Quick Rejection Reasons
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {rejectReasons.map((reason, idx) => (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={() => {
+                          setSelectedReason(reason);
+                          setCustomReason('');
+                        }}
+                        className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+                          selectedReason === reason
+                            ? 'bg-accent-red/15 dark:bg-red-900/20 border border-rose-200 dark:border-red-900/30 text-accent-red shadow-2xs dark:shadow-none'
+                            : 'bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle text-text-secondary dark:text-shop-text-secondary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary'
+                        }`}
+                      >
+                        {reason}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="pt-2">
+                    <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-tertiary">
+                      <MessageSquare className="h-3.5 w-3.5" /> Or write a custom message
+                    </p>
+                    <textarea
+                      value={customReason}
+                      onChange={(e) => {
+                        setCustomReason(e.target.value);
+                        if (e.target.value) setSelectedReason('');
                       }}
-                      className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-                        selectedReason === reason
-                          ? 'bg-accent-red/15 border border-rose-200 text-accent-red shadow-2xs'
-                          : 'bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
-                      }`}
-                    >
-                      {reason}
-                    </button>
-                  ))}
+                      placeholder='e.g. "Sorry, our color printer is undergoing maintenance..."'
+                      className="w-full rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3.5 text-xs text-text-primary dark:text-shop-text-primary placeholder:text-slate-400 dark:placeholder:text-shop-text-tertiary focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-900/40 min-h-[90px] resize-none"
+                    />
+                  </div>
                 </div>
-                <div className="pt-2">
-                  <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-secondary">
-                    <MessageSquare className="h-3.5 w-3.5" /> Or write a custom message
-                  </p>
-                  <textarea
-                    value={customReason}
-                    onChange={(e) => {
-                      setCustomReason(e.target.value);
-                      if (e.target.value) setSelectedReason('');
-                    }}
-                    placeholder='e.g. "Sorry, our color printer is undergoing maintenance..."'
-                    className="w-full rounded-xl border border-border-subtle bg-surface p-3.5 text-xs text-text-primary placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 min-h-[90px] resize-none"
-                  />
-                </div>
-              </div>
 
-              <div className="flex items-center justify-end gap-2.5 border-t border-border-subtle bg-surface-elevated p-5">
-                <button
-                  type="button"
-                  onClick={() => setRejectModal({ isOpen: false, order: null })}
-                  className="rounded-xl px-5 py-2.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary"
-                >
-                  Cancel
-                </button>
+                <div className="flex items-center justify-end gap-2.5 border-t border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised p-5">
+                  <button
+                    type="button"
+                    onClick={() => setRejectModal({ isOpen: false, order: null })}
+                    className="rounded-xl px-5 py-2.5 text-xs font-semibold text-text-secondary dark:text-shop-text-secondary transition-colors hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary"
+                  >
+                    Cancel
+                  </button>
                 <button
                   type="button"
                   onClick={confirmReject}
                   disabled={!selectedReason && !customReason}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-rose-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs dark:shadow-none transition-colors hover:bg-rose-700 disabled:opacity-50"
                 >
                   <X className="h-4 w-4 stroke-[2.5]" /> Confirm Rejection
                 </button>
@@ -1175,26 +1244,26 @@ export const PrintDashboardPage: React.FC = () => {
       {/* PDF Preview Modal */}
       <AnimatePresence>
         {previewModal.isOpen && previewModal.order && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 p-4 sm:p-6 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setPreviewModal({ isOpen: false, order: null })}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 16, scale: 0.98 }}
-              className="relative z-10 w-full max-w-6xl h-[88vh] bg-surface rounded-3xl border border-border-subtle shadow-[0_20px_60px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-5xl h-[85vh] bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle rounded-3xl shadow-2xl flex flex-col overflow-hidden"
             >
-              <div className="px-6 py-4 border-b border-border-subtle bg-surface-elevated flex items-center justify-between gap-3">
+              <div className="px-6 py-4 border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-syne font-bold text-base text-text-primary truncate">
+                  <p className="font-syne font-bold text-base text-text-primary dark:text-shop-text-primary truncate">
                     {previewModal.order.file_name || 'Document Preview'}
                   </p>
-                  <p className="text-xs text-text-secondary">
+                  <p className="text-xs text-text-secondary dark:text-shop-text-secondary">
                     Order #{previewModal.order.id?.slice(0, 6)} •{' '}
                     {getStudentProfile(previewModal.order).name || 'Student'}
                   </p>
@@ -1207,7 +1276,7 @@ export const PrintDashboardPage: React.FC = () => {
                         setPreviewMode((prev) => (prev === 'direct' ? 'gview' : 'direct'));
                         setPreviewLoadError(false);
                       }}
-                      className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors shadow-2xs"
+                      className="rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-4 py-2 text-xs font-bold text-text-primary dark:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover transition-colors shadow-2xs dark:shadow-none"
                     >
                       {previewMode === 'direct' ? 'Use Alternate Viewer' : 'Use Direct Viewer'}
                     </button>
@@ -1215,14 +1284,14 @@ export const PrintDashboardPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handlePrintFromPreview}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 transition-colors shadow-2xs"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 dark:bg-shop-accent px-4 py-2 text-xs font-bold text-white hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors shadow-2xs dark:shadow-none"
                   >
                     <Printer className="w-3.5 h-3.5" /> Print
                   </button>
                   <button
                     type="button"
                     onClick={() => setPreviewModal({ isOpen: false, order: null })}
-                    className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors shadow-2xs"
+                    className="rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-4 py-2 text-xs font-bold text-text-primary dark:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover transition-colors shadow-2xs dark:shadow-none"
                   >
                     Close
                   </button>
@@ -1230,38 +1299,27 @@ export const PrintDashboardPage: React.FC = () => {
               </div>
 
               {isPdfOrder(previewModal.order) ? (
-                <div className="w-full h-full relative bg-surface-elevated">
+                <div className="w-full h-full relative bg-surface-elevated dark:bg-shop-bg-surface-raised">
                   {previewResolving && (
-                    <div className="absolute inset-0 z-20 bg-white/90 flex items-center justify-center">
-                      <div className="flex items-center gap-2 text-text-primary font-bold text-sm">
+                    <div className="absolute inset-0 z-20 bg-white/90 dark:bg-shop-bg-surface-raised/90 flex items-center justify-center">
+                      <div className="flex items-center gap-2 text-text-primary dark:text-shop-text-primary font-bold text-sm">
                         <Loader2 className="w-5 h-5 animate-spin text-accent-amber" /> Preparing secure file link...
                       </div>
                     </div>
                   )}
 
-                  {previewMode === 'direct' ? (
-                    <iframe
-                      id="pdf-preview-frame"
-                      title="PDF Preview"
-                      src={getPdfPreviewSrc(previewFileUrl, 'direct')}
-                      className="w-full h-full border-0"
-                      onLoad={() => setPreviewLoadError(false)}
-                      onError={() => setPreviewLoadError(true)}
-                    />
-                  ) : (
-                    <iframe
-                      id="pdf-preview-frame"
-                      title="PDF Preview"
-                      src={getPdfPreviewSrc(previewFileUrl)}
-                      className="w-full h-full border-0"
-                      onLoad={() => setPreviewLoadError(false)}
-                      onError={() => setPreviewLoadError(true)}
-                    />
-                  )}
+                  <iframe
+                    id="pdf-preview-frame"
+                    title="PDF Preview"
+                    src={getPdfPreviewSrc(previewFileUrl, previewMode === 'direct' ? 'direct' : undefined)}
+                    className="w-full h-full border-0"
+                    onLoad={() => setPreviewLoadError(false)}
+                    onError={() => setPreviewLoadError(true)}
+                  />
 
                   {previewLoadError && !previewResolving && (
-                    <div className="absolute inset-0 bg-white/95 flex flex-col items-center justify-center gap-3 p-6 text-center">
-                      <p className="text-text-primary font-bold text-sm">
+                    <div className="absolute inset-0 bg-white/95 dark:bg-shop-bg-surface-raised/95 flex flex-col items-center justify-center gap-3 p-6 text-center">
+                      <p className="text-text-primary dark:text-shop-text-primary font-bold text-sm">
                         Failed to load PDF document in inline viewer.
                       </p>
                       <div className="flex items-center gap-3">
@@ -1271,34 +1329,40 @@ export const PrintDashboardPage: React.FC = () => {
                             setPreviewMode('gview');
                             setPreviewLoadError(false);
                           }}
-                          className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-bold text-text-primary hover:bg-surface-elevated"
+                          className="rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-4 py-2 text-xs font-bold text-text-primary dark:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover transition-colors shadow-2xs dark:shadow-none"
                         >
                           Try Alternate Viewer
                         </button>
                         <a
-                          href={normalizeRemoteFileUrl(previewFileUrl || '')}
+                          href={previewFileUrl || normalizeRemoteFileUrl(previewModal.order.file_url)}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white hover:bg-amber-600"
+                          className="rounded-xl bg-accent-amber-soft dark:bg-amber-900/20 px-4 py-2 text-xs font-bold text-accent-amber hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                         >
-                          Open In New Tab
+                          Open in New Tab
                         </a>
                       </div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center gap-4 p-8 text-center bg-surface">
-                  <p className="text-text-primary font-bold text-sm">
-                    This file cannot be previewed inline.
+                <div className="flex-1 flex flex-col items-center justify-center p-8 bg-surface-elevated dark:bg-shop-bg-surface-raised text-center">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle shadow-2xs dark:shadow-none text-text-secondary/70 dark:text-shop-text-tertiary">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                  <p className="font-syne font-bold text-base text-text-primary dark:text-shop-text-primary mb-1">
+                    Preview not supported
+                  </p>
+                  <p className="text-xs text-text-secondary dark:text-shop-text-secondary max-w-sm mb-4">
+                    Direct preview is only available for PDF documents. Please download the file to view it.
                   </p>
                   <a
-                    href={normalizeRemoteFileUrl(previewFileUrl || previewModal.order.file_url)}
+                    href={normalizeRemoteFileUrl(previewModal.order.file_url)}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-xl border border-border-subtle bg-surface px-5 py-2.5 text-xs font-bold text-text-primary hover:bg-surface-elevated transition-colors shadow-2xs"
+                    className="rounded-xl bg-amber-500 dark:bg-shop-accent hover:bg-amber-600 dark:hover:bg-amber-500 px-4 py-2.5 text-xs font-bold text-white transition-colors shadow-2xs dark:shadow-none flex items-center justify-center gap-2"
                   >
-                    Open In New Tab
+                    <Download className="w-3.5 h-3.5" /> Download File
                   </a>
                 </div>
               )}

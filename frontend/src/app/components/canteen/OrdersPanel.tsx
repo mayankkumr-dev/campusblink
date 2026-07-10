@@ -103,7 +103,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
             className="space-y-6 order-2"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary sm:text-2xl flex items-center gap-2.5">
+              <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary dark:text-shop-text-primary sm:text-2xl flex items-center gap-2.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
                 In Process & Ready for Pickup
               </h2>
@@ -153,24 +153,24 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
       {/* Incoming Requests Section */}
       <div className="space-y-6 order-1">
         <div className="flex items-center justify-between">
-          <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary sm:text-2xl flex items-center gap-2.5">
+          <h2 className="font-syne text-xl font-extrabold tracking-tight text-text-primary dark:text-shop-text-primary sm:text-2xl flex items-center gap-2.5">
             <span className="h-2.5 w-2.5 rounded-full bg-blue-600 animate-pulse" />
             Incoming Requests
           </h2>
           {newOrdersList.length > 0 && (
-            <span className="rounded-full bg-accent-blue-soft px-3 py-1 text-xs font-bold text-blue-700 border border-accent-blue-soft">
+            <span className="rounded-full bg-accent-blue-soft dark:bg-blue-900/30 px-3 py-1 text-xs font-bold text-blue-700 dark:text-blue-400 border border-accent-blue-soft dark:border-blue-900/40">
               {newOrdersList.length} Pending
             </span>
           )}
         </div>
 
         {newOrdersList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-border-subtle bg-surface px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-surface border border-border-subtle text-text-secondary/70 shadow-2xs">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-6 py-20 text-center shadow-[0_2px_16px_rgba(0,0,0,0.02)] dark:shadow-none">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle text-text-secondary/70 dark:text-shop-text-tertiary shadow-2xs dark:shadow-none">
               <UtensilsCrossed className="h-6 w-6 stroke-[1.5]" />
             </div>
-            <h3 className="font-syne text-base font-bold text-text-primary">No incoming orders</h3>
-            <p className="mt-1 text-xs text-text-secondary max-w-sm">
+            <h3 className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">No incoming orders</h3>
+            <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary max-w-sm">
               You are caught up! When students place orders from the campus menu, they will appear here instantly.
             </p>
           </div>
@@ -207,30 +207,30 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setRejectModal({ isOpen: false, order: null })}
-              className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/30 dark:bg-slate-900/60 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+              className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
             >
-              <div className="border-b border-border-subtle bg-surface-elevated p-6 flex items-start gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-red/15 text-accent-red border border-rose-100 shadow-2xs">
+              <div className="border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised p-6 flex items-start gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent-red/15 text-accent-red border border-rose-100 dark:border-red-900/30 shadow-2xs dark:shadow-none">
                   <AlertCircle className="h-5 w-5 stroke-[2.2]" />
                 </div>
                 <div>
-                  <h3 className="font-syne text-xl font-bold text-text-primary">
+                  <h3 className="font-syne text-xl font-bold text-text-primary dark:text-shop-text-primary">
                     Reject Order #{rejectModal.order.id.slice(0, 6)}
                   </h3>
-                  <p className="text-xs text-text-secondary">
-                    Notify <strong className="text-text-primary">{rejectModal.order.profiles?.name}</strong> about the reason for cancellation.
+                  <p className="text-xs text-text-secondary dark:text-shop-text-secondary">
+                    Notify <strong className="text-text-primary dark:text-shop-text-primary">{rejectModal.order.profiles?.name}</strong> about the reason for cancellation.
                   </p>
                 </div>
               </div>
 
               <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
                   Select a Quick Reason
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -242,10 +242,10 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                         setSelectedReason(reason);
                         setCustomReason('');
                       }}
-                      className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+                      className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-red ${
                         selectedReason === reason
-                          ? 'bg-accent-red/15 border border-rose-200 text-accent-red shadow-2xs'
-                          : 'bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
+                          ? 'bg-accent-red/15 border border-rose-200 dark:border-red-900/30 text-accent-red shadow-2xs dark:shadow-none'
+                          : 'bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle text-text-secondary dark:text-shop-text-secondary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary'
                       }`}
                     >
                       {reason}
@@ -253,7 +253,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                   ))}
                 </div>
                 <div className="pt-2">
-                  <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                  <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
                     <MessageSquare className="h-3.5 w-3.5" /> Or write a custom message
                   </p>
                   <textarea
@@ -265,16 +265,16 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                     placeholder={`e.g. "Sorry ${
                       rejectModal.order.profiles?.name?.split(' ')[0] || 'Student'
                     }, the kitchen just ran out of this item..."`}
-                    className="w-full rounded-xl border border-border-subtle bg-surface p-3.5 text-xs text-text-primary placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 min-h-[90px] resize-none"
+                    className="w-full rounded-xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-3.5 text-xs text-text-primary dark:text-shop-text-primary placeholder:text-slate-400 dark:placeholder:text-shop-text-tertiary focus:border-rose-500 dark:focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-red-500/20 min-h-[90px] resize-none"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 border-t border-border-subtle bg-surface-elevated p-5">
+              <div className="flex items-center justify-end gap-2.5 border-t border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised p-5">
                 <button
                   type="button"
                   onClick={() => setRejectModal({ isOpen: false, order: null })}
-                  className="rounded-xl px-5 py-2.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary"
+                  className="rounded-xl px-5 py-2.5 text-xs font-semibold text-text-secondary dark:text-shop-text-secondary transition-colors hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover hover:text-text-primary dark:hover:text-shop-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                 >
                   Cancel
                 </button>
@@ -282,7 +282,7 @@ export const OrdersPanel: React.FC<OrdersPanelProps> = ({ shopId, orders, setOrd
                   type="button"
                   onClick={confirmReject}
                   disabled={!selectedReason && !customReason}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-rose-700 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs dark:shadow-none transition-colors hover:bg-rose-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                 >
                   <X className="h-4 w-4 stroke-[2.5]" /> Confirm Rejection
                 </button>

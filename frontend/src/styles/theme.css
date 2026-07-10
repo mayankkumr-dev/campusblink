@@ -66,6 +66,20 @@
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
 
+  /* Remap standard tailwind colors to dark semantic variables to fix hover states and hardcoded utilities natively */
+  --color-white: var(--bg-surface);
+  --color-slate-50: var(--bg-surface-elevated);
+  --color-slate-100: var(--bg-surface-elevated);
+  --color-slate-200: var(--border-subtle);
+  --color-slate-300: var(--border-2);
+  --color-slate-400: var(--text-placeholder);
+  --color-slate-500: var(--text-secondary);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-primary);
+  --color-slate-800: var(--text-primary);
+  --color-slate-900: var(--text-primary);
+  --color-black: var(--text-inverse);
+
   /* Professor specific dark mode tokens */
   --prof-bg-base: #0D0F14;
   --prof-bg-surface: #171A21;
@@ -100,6 +114,19 @@
   --admin-accent: #F5A524;
   --admin-accent-soft-bg: rgba(245,165,36,0.14);
 
+  /* Shop specific dark mode tokens */
+  --shop-bg-base: #0D0F14;
+  --shop-bg-surface: #171A21;
+  --shop-bg-surface-raised: #1F232C;
+  --shop-bg-surface-hover: #262B36;
+  --shop-bg-surface-active: #2D3340;
+  --shop-border-subtle: #262A33;
+  --shop-border-strong: #363C48;
+  --shop-text-primary: #F2F3F5;
+  --shop-text-secondary: #9AA0AC;
+  --shop-text-tertiary: #6B7280;
+  --shop-accent: #F5A524;
+  --shop-accent-soft-bg: rgba(245,165,36,0.14);
 
   scrollbar-color: #27272A #101113;
 }

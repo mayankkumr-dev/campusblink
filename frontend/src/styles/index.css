@@ -65,6 +65,19 @@
   --color-admin-text-tertiary: var(--admin-text-tertiary);
   --color-admin-accent: var(--admin-accent);
   --color-admin-accent-soft-bg: var(--admin-accent-soft-bg);
+
+  --color-shop-bg-base: var(--shop-bg-base);
+  --color-shop-bg-surface: var(--shop-bg-surface);
+  --color-shop-bg-surface-raised: var(--shop-bg-surface-raised);
+  --color-shop-bg-surface-hover: var(--shop-bg-surface-hover);
+  --color-shop-bg-surface-active: var(--shop-bg-surface-active);
+  --color-shop-border-subtle: var(--shop-border-subtle);
+  --color-shop-border-strong: var(--shop-border-strong);
+  --color-shop-text-primary: var(--shop-text-primary);
+  --color-shop-text-secondary: var(--shop-text-secondary);
+  --color-shop-text-tertiary: var(--shop-text-tertiary);
+  --color-shop-accent: var(--shop-accent);
+  --color-shop-accent-soft-bg: var(--shop-accent-soft-bg);
 }
 
 @layer base {

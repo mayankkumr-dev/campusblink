@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from './ui/badge';
-import { LayoutGrid, ShoppingBag, Coffee, Settings, LogOut, RotateCcw, Check } from 'lucide-react';
+import { LayoutGrid, ShoppingBag, Coffee, Settings, LogOut, RotateCcw, Check, Moon, Sun, Monitor } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
+import { useTheme } from 'next-themes';
 import { supabase } from '../../lib/supabase';
 import { getMenuItems, getShopOrders, requestCanteenReorder, updateCanteenShopAvailability } from '../../api/canteen';
 import { useShopStatus } from '../../hooks/useRealtime';
@@ -23,6 +24,7 @@ export const CanteenDashboardPage: React.FC = () => {
   const [activeView, setActiveView] = useState('Live Orders');
   const profile = useAuthStore(state => state.profile);
   const user = useAuthStore(state => state.user);
+  const { theme, setTheme } = useTheme();
 
   const [shop, setShop] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
@@ -88,7 +90,7 @@ export const CanteenDashboardPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] px-4 py-8">
+      <div className="min-h-screen bg-[var(--bg-primary)] dark:bg-shop-bg-base px-4 py-8">
         <div className="mx-auto w-full max-w-6xl space-y-4">
           <ListSkeleton rows={5} />
         </div>
@@ -97,10 +99,10 @@ export const CanteenDashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-dvh bg-surface text-text-primary font-sans overflow-hidden">
-      {/* Sleek Light-Mode Sidebar */}
-      <aside className="hidden md:flex w-64 bg-surface border-r border-border-subtle flex-col relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-        <div className="h-20 flex items-center px-6 border-b border-border-subtle">
+    <div className="flex h-dvh bg-surface dark:bg-shop-bg-base text-text-primary dark:text-shop-text-primary font-sans overflow-hidden">
+      {/* Sleek Light/Dark-Mode Sidebar */}
+      <aside className="hidden md:flex w-64 bg-surface dark:bg-shop-bg-surface border-r border-border-subtle dark:border-shop-border-subtle flex-col relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-none">
+        <div className="h-20 flex items-center px-6 border-b border-border-subtle dark:border-shop-border-subtle">
           <Link
             to={user ? '/student/home' : '/'}
             className="no-underline cursor-pointer flex items-center transition-transform hover:scale-105"
@@ -123,24 +125,24 @@ export const CanteenDashboardPage: React.FC = () => {
                 onClick={() => setActiveView(item.label)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${
                   isActive
-                    ? 'bg-amber-500 text-white font-bold shadow-xs'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated font-medium'
-                }`}
+                    ? 'bg-amber-500 dark:bg-shop-accent text-white font-bold shadow-xs dark:shadow-none'
+                    : 'text-text-secondary dark:text-shop-text-secondary hover:text-text-primary dark:hover:text-shop-text-primary hover:bg-surface-elevated dark:hover:bg-shop-bg-surface-hover font-medium'
+                } focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-shop-accent`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-text-secondary/70'}`} />
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-text-secondary/70 dark:text-shop-text-tertiary'}`} />
                 <span className="text-sm tracking-wide">{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="p-5 border-t border-border-subtle bg-background">
+        <div className="p-5 border-t border-border-subtle dark:border-shop-border-subtle bg-background dark:bg-shop-bg-surface-raised">
           <div className="flex items-center gap-3.5 mb-5">
             {shop?.logo_url ? (
               <img
                 src={shop.logo_url}
                 alt="Shop Logo"
-                className="w-11 h-11 rounded-2xl border border-border-subtle object-cover"
+                className="w-11 h-11 rounded-2xl border border-border-subtle dark:border-shop-border-subtle object-cover"
               />
             ) : (
               <div className="w-11 h-11 rounded-2xl bg-accent-amber-soft border border-accent-amber-soft text-accent-amber flex items-center justify-center font-syne font-bold text-base">
@@ -148,7 +150,7 @@ export const CanteenDashboardPage: React.FC = () => {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-syne font-bold text-sm text-text-primary leading-tight truncate">
+              <p className="font-syne font-bold text-sm text-text-primary dark:text-shop-text-primary leading-tight truncate">
                 {shop?.name || 'My Canteen'}
               </p>
               <p
@@ -169,7 +171,7 @@ export const CanteenDashboardPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/login')}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-accent-red bg-surface border border-rose-200 hover:bg-rose-50 transition-colors font-bold text-xs shadow-2xs"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-accent-red bg-surface dark:bg-shop-bg-surface border border-rose-200 dark:border-red-900/30 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors font-bold text-xs shadow-2xs dark:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-red"
           >
             <LogOut className="w-3.5 h-3.5" /> Logout Dashboard
           </button>
@@ -177,15 +179,15 @@ export const CanteenDashboardPage: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full w-full relative z-10 bg-surface">
+      <main className="flex-1 flex flex-col h-full w-full relative z-10 bg-surface dark:bg-shop-bg-base">
         <CanteenStatsHeader activeView={activeView} newOrdersCount={newOrdersList.length} />
 
         {/* Mobile Navigation Selector */}
-        <div className="md:hidden px-4 py-3 border-b border-border-subtle bg-surface">
+        <div className="md:hidden px-4 py-3 border-b border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
           <select
             value={activeView}
             onChange={(e) => setActiveView(e.target.value)}
-            className="w-full bg-surface border border-border-subtle rounded-xl px-3.5 py-2.5 text-xs font-semibold text-text-primary"
+            className="w-full bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle rounded-xl px-3.5 py-2.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary focus:outline-none focus:border-amber-500 dark:focus:border-shop-accent focus:ring-1 focus:ring-amber-500 dark:focus:ring-shop-accent"
           >
             {navItems.map((item) => (
               <option key={item.label} value={item.label}>
@@ -206,13 +208,13 @@ export const CanteenDashboardPage: React.FC = () => {
 
             {activeView === 'Order History' && (
               <div className="mx-auto max-w-7xl">
-                <div className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
+                <div className="overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
                   {historyOrders.length === 0 ? (
                     <div className="px-6 py-24 text-center">
-                      <p className="font-syne text-base font-bold text-text-primary">
+                      <p className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
                         No order history available yet
                       </p>
-                      <p className="mt-1 text-xs text-text-secondary">
+                      <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary">
                         Past completed, reordered, and cancelled canteen orders will be recorded here.
                       </p>
                     </div>
@@ -220,7 +222,7 @@ export const CanteenDashboardPage: React.FC = () => {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left font-sans">
                         <thead>
-                          <tr className="border-b border-border-subtle bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-text-secondary">
+                          <tr className="border-b border-border-subtle dark:border-shop-border-subtle bg-slate-50/80 dark:bg-shop-bg-surface-raised text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
                             <th className="px-6 py-4">Date</th>
                             <th className="px-6 py-4">Student</th>
                             <th className="px-6 py-4">Order ID</th>
@@ -230,26 +232,26 @@ export const CanteenDashboardPage: React.FC = () => {
                             <th className="px-6 py-4 text-center">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-100 dark:divide-shop-border-subtle">
                           {historyOrders.map((order, i) => (
                             <tr
                               key={i}
-                              className="transition-colors hover:bg-slate-50/60"
+                              className="transition-colors hover:bg-slate-50/60 dark:hover:bg-shop-bg-surface-hover"
                             >
-                              <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-text-primary">
+                              <td className="whitespace-nowrap px-6 py-4 text-xs font-semibold text-text-primary dark:text-shop-text-primary">
                                 {new Date(order.created_at).toLocaleDateString([], {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
                                 })}
                               </td>
-                              <td className="px-6 py-4 text-xs font-bold text-text-primary">
+                              <td className="px-6 py-4 text-xs font-bold text-text-primary dark:text-shop-text-primary">
                                 {order.profiles?.name || 'Student'}
                               </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-xs font-mono text-text-secondary">
+                              <td className="whitespace-nowrap px-6 py-4 text-xs font-mono text-text-secondary dark:text-shop-text-secondary">
                                 #{order.id.slice(0, 6)}
                               </td>
-                              <td className="px-6 py-4 text-xs text-text-secondary max-w-xs">
+                              <td className="px-6 py-4 text-xs text-text-secondary dark:text-shop-text-secondary max-w-xs">
                                 <div className="truncate">
                                   {order.items
                                     ?.map((item: any) => `${item.qty}x ${item.name}`)
@@ -258,28 +260,28 @@ export const CanteenDashboardPage: React.FC = () => {
                               </td>
                               <td className="whitespace-nowrap px-6 py-4">
                                 {order.status === 'completed' || order.status === 'picked_up' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-accent-green/15 px-3 py-1 text-[11px] font-bold text-accent-green">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/30 bg-accent-green/15 px-3 py-1 text-[11px] font-bold text-accent-green">
                                     Completed
                                   </span>
                                 ) : order.status === 'reorder_requested' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft bg-accent-amber-soft px-3 py-1 text-[11px] font-bold text-accent-amber">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft px-3 py-1 text-[11px] font-bold text-accent-amber">
                                     Reorder Sent
                                   </span>
                                 ) : order.status === 'reorder_completed' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-blue-soft bg-accent-blue-soft px-3 py-1 text-[11px] font-bold text-blue-700">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft px-3 py-1 text-[11px] font-bold text-blue-700 dark:text-blue-400">
                                     Reordered
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-accent-red/15 px-3 py-1 text-[11px] font-bold text-accent-red">
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 dark:border-red-900/30 bg-accent-red/15 px-3 py-1 text-[11px] font-bold text-accent-red">
                                     Rejected
                                   </span>
                                 )}
                               </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-right font-syne text-sm font-extrabold text-text-primary">
+                              <td className="whitespace-nowrap px-6 py-4 text-right font-syne text-sm font-extrabold text-text-primary dark:text-shop-text-primary">
                                 {order.status === 'completed' || order.status === 'picked_up' ? (
                                   `₹${order.total}`
                                 ) : (
-                                  <span className="text-text-secondary/70 line-through">
+                                  <span className="text-text-secondary/70 dark:text-shop-text-tertiary line-through">
                                     ₹{order.total}
                                   </span>
                                 )}
@@ -289,7 +291,7 @@ export const CanteenDashboardPage: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleRequestReorder(order)}
-                                    className="inline-flex items-center gap-1.5 rounded-xl border border-accent-amber-soft bg-accent-amber-soft px-3.5 py-1.5 text-xs font-bold text-accent-amber transition-colors hover:bg-amber-100"
+                                    className="inline-flex items-center gap-1.5 rounded-xl border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-3.5 py-1.5 text-xs font-bold text-accent-amber transition-colors hover:bg-amber-100 dark:hover:bg-amber-900/40 focus:outline-none focus:ring-2 focus:ring-accent-amber dark:focus:ring-shop-accent"
                                   >
                                     <RotateCcw className="h-3 w-3" /> Request Reorder
                                   </button>
@@ -300,7 +302,7 @@ export const CanteenDashboardPage: React.FC = () => {
                                   </span>
                                 )}
                                 {order.status === 'reorder_completed' && (
-                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent-blue">
+                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400">
                                     <Check className="h-3.5 w-3.5" /> Reordered
                                   </span>
                                 )}
@@ -324,19 +326,60 @@ export const CanteenDashboardPage: React.FC = () => {
             )}
 
             {activeView === 'Settings' && (
-              <div className="mx-auto max-w-3xl rounded-3xl border border-border-subtle bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)]">
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft border border-amber-100 text-accent-amber shadow-2xs">
-                  <Settings className="h-9 w-9 stroke-[1.8]" />
+              <div className="space-y-6 mx-auto max-w-3xl">
+                {/* Appearance Panel */}
+                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-amber-500 dark:text-shop-accent shadow-2xs dark:shadow-none">
+                      {theme === 'dark' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
+                    </div>
+                    <div>
+                      <h2 className="font-syne text-xl font-extrabold text-text-primary dark:text-shop-text-primary">
+                        Appearance
+                      </h2>
+                      <p className="mt-1 text-sm text-text-secondary dark:text-shop-text-secondary">
+                        Choose how your canteen dashboard looks.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex rounded-xl border border-border-subtle dark:border-shop-border-strong bg-background dark:bg-shop-bg-surface-raised p-1 self-start md:self-auto">
+                    {[
+                      { id: 'light', label: 'Light', icon: Sun },
+                      { id: 'dark', label: 'Dark', icon: Moon },
+                      { id: 'system', label: 'System', icon: Monitor },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setTheme(t.id)}
+                        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold capitalize transition-colors ${
+                          theme === t.id
+                            ? 'bg-amber-500 dark:bg-shop-accent text-white shadow-sm dark:shadow-none'
+                            : 'text-text-secondary dark:text-shop-text-secondary hover:text-text-primary dark:hover:text-shop-text-primary'
+                        } focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-shop-accent`}
+                      >
+                        <t.icon className="h-4 w-4" />
+                        <span className="hidden sm:inline">{t.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft border border-accent-amber-soft px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber mb-3">
-                  Under Active Development
-                </span>
-                <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary">
-                  Shop Preferences & Operating Configuration
-                </h2>
-                <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary leading-relaxed">
-                  Advanced shop notifications, payout account settings, and automated shift scheduling are currently being fine-tuned. Use the Live Shop Status toggle at the top to manage immediate availability.
-                </p>
+
+                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-accent-amber dark:text-shop-accent shadow-2xs dark:shadow-none">
+                    <Settings className="h-9 w-9 stroke-[1.8]" />
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-accent-amber-soft dark:border-shop-accent/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber dark:text-shop-accent mb-3">
+                    Under Active Development
+                  </span>
+                  <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary dark:text-shop-text-primary">
+                    Shop Preferences & Operating Configuration
+                  </h2>
+                  <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary dark:text-shop-text-secondary leading-relaxed">
+                    Advanced shop notifications, payout account settings, and automated shift scheduling are currently being fine-tuned. Use the Live Shop Status toggle at the top to manage immediate availability.
+                  </p>
+                </div>
               </div>
             )}
           </FeatureErrorBoundary>
