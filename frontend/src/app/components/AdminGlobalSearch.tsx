@@ -129,10 +129,10 @@ export const AdminGlobalSearch: React.FC = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'user': return <User className="w-4 h-4 text-[var(--accent)]" />;
+      case 'user': return <User className="w-4 h-4 text-amber-500" />;
       case 'order': return <ShoppingBag className="w-4 h-4 text-accent-green" />;
-      case 'post': return <MessageSquare className="w-4 h-4 text-[var(--yellow)]" />;
-      default: return <Search className="w-4 h-4 text-[var(--text-secondary)]" />;
+      case 'post': return <MessageSquare className="w-4 h-4 text-amber-500" />;
+      default: return <Search className="w-4 h-4 text-slate-500" />;
     }
   };
 
@@ -150,18 +150,18 @@ export const AdminGlobalSearch: React.FC = () => {
       />
       
       {/* Search Modal */}
-      <div className="relative w-full max-w-xl bg-[var(--bg)] rounded-xl shadow-2xl overflow-hidden border border-black/10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden border border-black/10 animate-in zoom-in-95 duration-200">
         <div className="flex items-center px-4 py-3 border-b border-black/[0.08]">
-          <Search className="w-5 h-5 text-[var(--text-muted)] mr-3 shrink-0" />
+          <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search users, orders, posts... (Cmd+K)"
-            className="flex-1 bg-transparent border-none outline-none text-base text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-sans"
+            className="flex-1 bg-transparent border-none outline-none text-base text-slate-900 placeholder:text-slate-400 font-sans"
           />
-          <div className="flex items-center justify-center p-1 rounded bg-[var(--bg-tertiary)] border border-black/10 text-[10px] font-bold text-[var(--text-secondary)] px-2 shrink-0">
+          <div className="flex items-center justify-center p-1 rounded bg-slate-100 border border-black/10 text-[10px] font-bold text-slate-500 px-2 shrink-0">
             ESC
           </div>
         </div>
@@ -170,36 +170,36 @@ export const AdminGlobalSearch: React.FC = () => {
         <div className="max-h-[60vh] overflow-y-auto">
           {isLoading ? (
             <div className="p-8 flex justify-center items-center">
-              <Loader2 className="w-6 h-6 animate-spin text-[var(--yellow)]" />
+              <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
             </div>
           ) : results.length > 0 ? (
             <div className="py-2">
-              <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+              <div className="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-500">
                 Results
               </div>
               {results.map((result) => (
                 <button
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleSelect(result.url)}
-                  className="w-full flex items-center px-4 py-3 hover:bg-[var(--bg-tertiary)] transition-colors text-left"
+                  className="w-full flex items-center px-4 py-3 hover:bg-slate-100 transition-colors text-left"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[var(--bg-primary)] border border-black/[0.08] flex items-center justify-center mr-4 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 border border-black/[0.08] flex items-center justify-center mr-4 shrink-0">
                     {getIcon(result.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-[var(--text-primary)] truncate">{result.title}</div>
-                    <div className="text-xs text-[var(--text-secondary)] truncate mt-0.5">{result.subtitle}</div>
+                    <div className="text-sm font-bold text-slate-900 truncate">{result.title}</div>
+                    <div className="text-xs text-slate-500 truncate mt-0.5">{result.subtitle}</div>
                   </div>
                 </button>
               ))}
             </div>
           ) : query.length >= 2 ? (
-            <div className="p-8 text-center text-[var(--text-secondary)]">
-              <AlertCircle className="w-8 h-8 text-[var(--text-muted)] mx-auto mb-3" />
+            <div className="p-8 text-center text-slate-500">
+              <AlertCircle className="w-8 h-8 text-slate-400 mx-auto mb-3" />
               <p className="text-sm font-medium">No results found for "{query}"</p>
             </div>
           ) : (
-            <div className="p-8 text-center text-[var(--text-muted)]">
+            <div className="p-8 text-center text-slate-400">
               <p className="text-sm">Type at least 2 characters to search</p>
             </div>
           )}

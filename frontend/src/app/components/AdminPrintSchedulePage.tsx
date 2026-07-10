@@ -71,18 +71,18 @@ export const AdminPrintSchedulePage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-[var(--yellow)]" /></div>;
+    return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-amber-500" /></div>;
   }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <button onClick={() => navigate('/admin/accounts?tab=print')} className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]">
+      <button onClick={() => navigate('/admin/accounts?tab=print')} className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-100">
         <ArrowLeft className="h-4 w-4" /> Back to print shops
       </button>
 
-      <div className="rounded-lg border border-black/[0.08] bg-[var(--bg)] p-6">
-        <h1 className="font-syne text-2xl font-bold text-[var(--text-primary)]">{shop?.name || 'Print shop'} schedule</h1>
-        <p className="mt-1 text-sm text-[var(--text-secondary)]">Control opening hours, realtime open status, and force overrides.</p>
+      <div className="rounded-lg border border-black/[0.08] bg-white p-6">
+        <h1 className="font-syne text-2xl font-bold text-slate-900">{shop?.name || 'Print shop'} schedule</h1>
+        <p className="mt-1 text-sm text-slate-500">Control opening hours, realtime open status, and force overrides.</p>
 
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {[
@@ -90,7 +90,7 @@ export const AdminPrintSchedulePage: React.FC = () => {
             { key: 'open', label: 'Force open' },
             { key: 'closed', label: 'Force closed' },
           ].map((item) => (
-            <button key={String(item.key)} onClick={() => void setManualOverride(item.key)} className={`rounded-lg border px-4 py-3 text-sm font-bold ${override === item.key ? 'border-[var(--yellow)] bg-[var(--yellow-light)] text-[#7C5C00]' : 'border-black/10 bg-[var(--bg-primary)] text-[var(--text-primary)]'}`}>
+            <button key={String(item.key)} onClick={() => void setManualOverride(item.key)} className={`rounded-lg border px-4 py-3 text-sm font-bold ${override === item.key ? 'border-amber-400 bg-[#FEF3C7] text-[#7C5C00]' : 'border-black/10 bg-slate-50 text-slate-900'}`}>
               {item.label}
             </button>
           ))}
@@ -98,20 +98,20 @@ export const AdminPrintSchedulePage: React.FC = () => {
 
         <div className="mt-6 space-y-3">
           {DAYS.map(([key, label]) => (
-            <div key={key} className="grid items-center gap-3 rounded-lg border border-black/10 bg-[var(--bg-primary)] p-4 md:grid-cols-[160px_120px_1fr_1fr]">
-              <div className="font-bold text-[var(--text-primary)]">{label}</div>
-              <label className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+            <div key={key} className="grid items-center gap-3 rounded-lg border border-black/10 bg-slate-50 p-4 md:grid-cols-[160px_120px_1fr_1fr]">
+              <div className="font-bold text-slate-900">{label}</div>
+              <label className="inline-flex items-center gap-2 text-sm text-slate-500">
                 <input type="checkbox" checked={schedule[key]?.enabled} onChange={(event) => setSchedule((current) => ({ ...current, [key]: { ...current[key], enabled: event.target.checked } }))} />
                 Enabled
               </label>
-              <input type="time" value={schedule[key]?.open || '09:00'} onChange={(event) => setSchedule((current) => ({ ...current, [key]: { ...current[key], open: event.target.value } }))} className="rounded-lg border border-black/10 bg-[var(--bg)] px-3 py-2 text-sm" />
-              <input type="time" value={schedule[key]?.close || '18:00'} onChange={(event) => setSchedule((current) => ({ ...current, [key]: { ...current[key], close: event.target.value } }))} className="rounded-lg border border-black/10 bg-[var(--bg)] px-3 py-2 text-sm" />
+              <input type="time" value={schedule[key]?.open || '09:00'} onChange={(event) => setSchedule((current) => ({ ...current, [key]: { ...current[key], open: event.target.value } }))} className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm" />
+              <input type="time" value={schedule[key]?.close || '18:00'} onChange={(event) => setSchedule((current) => ({ ...current, [key]: { ...current[key], close: event.target.value } }))} className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm" />
             </div>
           ))}
         </div>
 
         <div className="mt-6 flex justify-end">
-          <button onClick={saveSchedule} disabled={isSaving} className="rounded-lg bg-[var(--text-primary)] px-5 py-2.5 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)] disabled:opacity-60">
+          <button onClick={saveSchedule} disabled={isSaving} className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-bold text-white hover:bg-amber-500 hover:text-slate-900 disabled:opacity-60">
             {isSaving ? 'Saving...' : 'Save schedule'}
           </button>
         </div>

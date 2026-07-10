@@ -1,100 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ListFilter, ShieldAlert, AlertTriangle, Loader2 } from 'lucide-react';
+import { Search, ShieldAlert, RefreshCw, Loader2, Download } from 'lucide-react';
 import { getAuditLogs } from '../../api/admin';
+import toast from 'react-hot-toast';
+
+const ACTION_DANGER_KEYS = ['BAN', 'SUSPEND', 'DELETE', 'REJECT', 'REVOKE'];
 
 export const AdminAuditPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
+  useEffect(() => { fetchLogs(); }, []);
 
-  const fetchLogs = async () => {
-    setIsLoading(true);
+  const fetchLogs = async (silent = false) => {
+    if (silent) setIsRefreshing(true);
+    else setIsLoading(true);
+
     const { data } = await getAuditLogs();
     if (data) setLogs(data);
+
     setIsLoading(false);
+    setIsRefreshing(false);
   };
 
   const filteredLogs = logs.filter(log => {
-    const searchStr = `${log.action} ${log.target_type} ${log.target_id} ${log.details} ${log.admin_user?.name}`.toLowerCase();
-    return searchStr.includes(searchTerm.toLowerCase());
+    const q = searchTerm.toLowerCase();
+    return `${log.action} ${log.target_type} ${log.target_id} ${log.admin_user?.name || ''}`.toLowerCase().includes(q);
   });
 
+  const handleExport = () => {
+    if (filteredLogs.length === 0) { toast.error('No logs to export'); return; }
+    const header = ['Timestamp', 'Admin', 'Action', 'Target Type', 'Target ID', 'IP'];
+    const rows = filteredLogs.map(l => [
+      new Date(l.created_at).toLocaleString(),
+      l.admin_user?.name || 'Unknown',
+      l.action,
+      l.target_type || '',
+      l.target_id || '',
+      l.ip_address || 'System',
+    ]);
+    const csv = [header, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `audit-log-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    toast.success('Audit log exported');
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      
-      <div className="bg-[#DC2626]/10 border border-[var(--error)]/30 rounded-lg p-4 flex items-start gap-4 mb-6">
-         <ShieldAlert className="w-6 h-6 text-[#DC2626] shrink-0 mt-0.5" />
-         <div>
-           <h3 className="font-syne font-bold text-[#DC2626] mb-1">Immutable Audit Trail</h3>
-           <p className="font-sans text-sm text-[var(--text-primary)]/80">Every administrative action is permanently logged here. This log cannot be modified or deleted. Used for security and compliance audits.</p>
-         </div>
-      </div>
+    <div className="space-y-5">
 
-      {/* Controllers */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-[var(--bg)] p-4 rounded-lg border border-black/[0.08]">
-        <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] group-focus-within:text-[var(--yellow)] transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search action, admin, or target..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[var(--bg-tertiary)] border border-black/10 rounded-lg py-2 pl-9 pr-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--yellow)]/50 transition-colors"
-          />
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50">
+            <ShieldAlert className="h-4.5 w-4.5 text-rose-600" />
+          </div>
+          <div>
+            <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">Audit Log</h2>
+            <p className="text-xs text-slate-500">Immutable record of all administrative actions · Read-only</p>
+          </div>
         </div>
-
-        <button onClick={fetchLogs} className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-tertiary)] text-[var(--text-primary)] border border-black/10 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors text-sm font-bold">
-          <ListFilter className="w-4 h-4" /> Refresh Logs
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fetchLogs(true)}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+          >
+            <RefreshCw size={12} className={isRefreshing ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+          >
+            <Download size={12} />
+            Export CSV
+          </button>
+        </div>
       </div>
 
-      {/* Log Table */}
-      <div className="bg-[var(--bg)] border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
+      {/* Immutability notice */}
+      <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 shadow-sm">
+        <ShieldAlert className="h-4.5 w-4.5 text-rose-600 shrink-0 mt-0.5" />
+        <p className="text-sm text-rose-800">
+          <strong>Immutable Audit Trail:</strong> Every administrative action is permanently logged here.
+          This log cannot be modified or deleted and is used for security and compliance audits.
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input
+          type="text"
+          placeholder="Search by action, admin name, or target ID…"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all shadow-sm"
+        />
+      </div>
+
+      {/* Table */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[var(--yellow)]" />
+            <Loader2 className="h-7 w-7 animate-spin text-amber-500" />
           </div>
         ) : (
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
-            <tr className="border-b border-black/[0.08] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-primary)] transition-colors duration-150">
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Timestamp</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Admin Name</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Action Perfomed</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Target Resource</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans font-mono px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">IP Address</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/[0.06]">
-            {filteredLogs.map(log => (
-               <tr key={log.id} className="hover:bg-black/[0.03] transition-colors">
-                  <td className="p-4 font-mono text-xs text-[var(--text-secondary)]">{new Date(log.created_at).toLocaleString()}</td>
-                  <td className="p-4 font-sans font-bold text-sm text-[var(--text-primary)]">{log.admin_user?.name || 'Unknown Admin'}</td>
-                  <td className="p-4">
-                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${log.action.includes('BAN') || log.action.includes('SUSPEND') || log.action.includes('DELETE') ? 'bg-[#FEE2E2] text-[#DC2626]' : 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}>
-                       {log.action}
-                     </span>
-                  </td>
-                  <td className="p-4 font-sans text-sm text-[var(--text-secondary)]">{log.target_type} ({log.target_id.substring(0,6)}...) {log.details}</td>
-                  <td className="p-4 font-mono text-xs text-[var(--text-muted)]">{log.ip_address || 'System'}</td>
-               </tr>
-            ))}
-            {filteredLogs.length === 0 && (
-              <tr>
-                <td colSpan={5} className="p-8 text-center text-[var(--text-secondary)] font-sans">
-                  No audit logs found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-slate-50 border-b border-slate-100">
+                <tr>
+                  {['Timestamp', 'Admin', 'Action Performed', 'Target Resource', 'IP Address'].map(h => (
+                    <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredLogs.length > 0 ? (
+                  filteredLogs.map(log => {
+                    const isDangerous = ACTION_DANGER_KEYS.some(k => (log.action || '').includes(k));
+                    return (
+                      <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-[11px] text-slate-400 whitespace-nowrap">
+                          {new Date(log.created_at).toLocaleString()}
+                        </td>
+                        <td className="px-5 py-3.5 font-semibold text-slate-800">
+                          {log.admin_user?.name || 'Unknown Admin'}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            isDangerous
+                              ? 'border-rose-200 bg-rose-50 text-rose-700'
+                              : 'border-slate-200 bg-slate-50 text-slate-600'
+                          }`}>
+                            {log.action}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-[12px] text-slate-500">
+                          {log.target_type && <span className="font-medium text-slate-700 mr-1">{log.target_type}</span>}
+                          {log.target_id && <span className="font-mono text-[11px]">({log.target_id.substring(0, 8)}…)</span>}
+                        </td>
+                        <td className="px-5 py-3.5 font-mono text-[11px] text-slate-400">
+                          {log.ip_address || 'System'}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-14 text-center text-sm text-slate-400">
+                      <ShieldAlert className="h-8 w-8 text-slate-200 mx-auto mb-3" />
+                      {searchTerm ? 'No logs match the search.' : 'No audit logs found.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {!isLoading && filteredLogs.length > 0 && (
+          <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
+            <p className="text-[11px] text-slate-400">
+              Showing {filteredLogs.length.toLocaleString()} of {logs.length.toLocaleString()} total entries
+            </p>
+          </div>
         )}
       </div>
-
     </div>
   );
 };

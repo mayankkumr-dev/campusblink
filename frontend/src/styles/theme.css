@@ -86,8 +86,84 @@
   --prof-accent-red: #F87171;
   --prof-accent-indigo: #818CF8;
 
+  /* Admin specific dark mode tokens */
+  --admin-bg-base: #0D0F14;
+  --admin-bg-surface: #171A21;
+  --admin-bg-surface-raised: #1F232C;
+  --admin-bg-surface-hover: #262B36;
+  --admin-bg-surface-active: #2D3340;
+  --admin-border-subtle: #262A33;
+  --admin-border-strong: #363C48;
+  --admin-text-primary: #F2F3F5;
+  --admin-text-secondary: #9AA0AC;
+  --admin-text-tertiary: #6B7280;
+  --admin-accent: #F5A524;
+  --admin-accent-soft-bg: rgba(245,165,36,0.14);
+
+
   scrollbar-color: #27272A #101113;
 }
+
+.dark .admin-theme {
+  --bg-background: var(--admin-bg-base);
+  --bg-surface: var(--admin-bg-surface);
+  --bg-surface-elevated: var(--admin-bg-surface-raised);
+  --border-subtle: var(--admin-border-subtle);
+  --border-strong: var(--admin-border-strong);
+  --text-primary: var(--admin-text-primary);
+  --text-secondary: var(--admin-text-secondary);
+  --text-tertiary: var(--admin-text-tertiary);
+  --text-placeholder: var(--admin-text-tertiary);
+  
+  --accent-blue: var(--admin-accent);
+  --accent-blue-soft: var(--admin-accent-soft-bg);
+  --accent-amber: var(--admin-accent);
+  --accent-amber-soft: var(--admin-accent-soft-bg);
+  
+  --border: var(--admin-border-subtle);
+  --border-2: var(--admin-border-strong);
+  
+  /* Legacy aliases mapping */
+  --bg-primary: var(--admin-bg-base);
+  --bg-secondary: var(--admin-bg-surface);
+  --bg-tertiary: var(--admin-bg-surface-raised);
+  --text-muted: var(--admin-text-secondary);
+  --midnight-blue: var(--admin-accent);
+  --midnight-blue-soft: var(--admin-accent-soft-bg);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Admin Hardcoded Utility Overrides for Dark Mode
+   Instead of rewriting 20+ pages of hardcoded Tailwind 
+   classes, we remap the underlying color variables dynamically.
+   This preserves all hover and group-hover states naturally.
+───────────────────────────────────────────────────────── */
+.dark .admin-theme {
+  --color-white: var(--admin-bg-surface);
+  --color-slate-50: var(--admin-bg-surface-raised);
+  --color-slate-100: var(--admin-bg-surface-hover);
+  --color-slate-200: var(--admin-border-subtle);
+  --color-slate-300: var(--admin-border-strong);
+  --color-slate-400: var(--admin-text-tertiary);
+  --color-slate-500: var(--admin-text-secondary);
+  --color-slate-600: var(--admin-text-secondary);
+  --color-slate-700: var(--admin-text-primary);
+  --color-slate-800: var(--admin-text-primary);
+  --color-slate-900: var(--admin-text-primary);
+}
+
+/* Arbitrary values that cannot be variable-remapped */
+.dark .admin-theme .border-\[rgba\(15\,23\,42\,0\.08\)\],
+.dark .admin-theme .border-black\/\[0\.08\],
+.dark .admin-theme .border-black\/10 { 
+  border-color: var(--admin-border-subtle) !important; 
+}
+
+.dark .admin-theme .shadow-sm,
+.dark .admin-theme .shadow-\[0_1px_4px_rgba\(15\,23\,42\,0\.04\)\] { 
+  box-shadow: none !important; 
+}
+
 
 .dark ::-webkit-scrollbar-track {
   background: var(--bg-background);

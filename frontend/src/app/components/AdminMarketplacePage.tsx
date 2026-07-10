@@ -105,11 +105,11 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
     const normalizedStatus = status || 'active';
     const badges: any = {
       'active': 'bg-accent-green/15 text-accent-green',
-      'sold': 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]',
+      'sold': 'bg-slate-100 text-slate-900',
       'disabled': 'bg-[#FEE2E2] text-[#DC2626]'
     };
     return (
-       <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${badges[normalizedStatus] || 'bg-[var(--bg-tertiary)] text-[var(--text-primary)]'}`}>
+       <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${badges[normalizedStatus] || 'bg-slate-100 text-slate-900'}`}>
          {normalizedStatus === 'active' && <span className="w-1.5 h-1.5 rounded-md bg-[#16A34A] mr-1" />}
          {normalizedStatus}
        </span>
@@ -119,21 +119,21 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {title && (
-        <div className="bg-[var(--bg)] border border-black/[0.08] rounded-lg p-4">
-          <h2 className="font-syne font-bold text-xl text-[var(--text-primary)]">{title}</h2>
+        <div className="bg-white border border-black/[0.08] rounded-lg p-4">
+          <h2 className="font-syne font-bold text-xl text-slate-900">{title}</h2>
         </div>
       )}
       
       {/* Top Bar */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-[var(--bg)] p-4 rounded-lg border border-black/[0.08]">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white p-4 rounded-lg border border-black/[0.08]">
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] group-focus-within:text-[var(--yellow)] transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
           <input 
             type="text" 
             placeholder="Search listings, sellers, keywords..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[var(--bg-tertiary)] border border-black/10 rounded-lg py-2 pl-9 pr-4 text-sm text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--yellow)]/50 focus:bg-[var(--bg-tertiary)] transition-colors"
+            className="w-full bg-slate-100 border border-black/10 rounded-lg py-2 pl-9 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400/50 focus:bg-slate-100 transition-colors"
           />
         </div>
 
@@ -141,8 +141,8 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
           {['All', 'Active', 'Sold', 'Reported', 'Disabled'].map(pill => (
             <button 
               key={pill} 
-              onClick={() => setFilterStatus(pill)}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider font-sans transition-colors ${filterStatus === pill ? 'bg-[var(--yellow)] text-[var(--text-primary)]' : pill === 'Reported' && filterStatus === 'Reported' ? 'bg-[#DC2626] text-[var(--text-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-black/[0.08] hover:border-black/10'}`}
+              onClick={() => setFilterStatus(pill as 'All' | 'Active' | 'Sold' | 'Reported' | 'Disabled')}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider font-sans transition-colors ${filterStatus === pill ? 'bg-amber-500 text-slate-900' : pill === 'Reported' && filterStatus === 'Reported' ? 'bg-[#DC2626] text-slate-900' : 'bg-slate-100 text-slate-500 hover:text-slate-900 border border-black/[0.08] hover:border-black/10'}`}
             >
               {pill}
             </button>
@@ -150,7 +150,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
           <select
             value={collegeFilter}
             onChange={(e) => setCollegeFilter(e.target.value)}
-            className="ml-2 bg-[var(--bg-tertiary)] border border-black/10 rounded-lg py-1.5 px-2 text-[11px] text-[var(--text-primary)] font-bold uppercase tracking-wider"
+            className="ml-2 bg-slate-100 border border-black/10 rounded-lg py-1.5 px-2 text-[11px] text-slate-900 font-bold uppercase tracking-wider"
           >
             <option value="all">All Colleges</option>
             {collegeOptions.map((college) => (
@@ -163,20 +163,20 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
       </div>
 
       {/* Table Area */}
-      <div className="bg-[var(--bg)] border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
+      <div className="bg-white border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[var(--yellow)]" />
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
           </div>
         ) : (
         <table className="w-full text-left border-collapse">
-          <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
-            <tr className="border-b border-black/[0.08] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-primary)] transition-colors duration-150">
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Listing Title</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Seller Details</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Price</th>
-              <th className="p-4 text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Status / Health</th>
-              <th className="p-4 w-16 text-center text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Actions</th>
+          <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
+            <tr className="border-b border-black/[0.08] bg-slate-100 hover:bg-slate-50 transition-colors duration-150">
+              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Listing Title</th>
+              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Seller Details</th>
+              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Price</th>
+              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Status / Health</th>
+              <th className="p-4 w-16 text-center text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/[0.06] relative">
@@ -184,7 +184,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
               <tr key={listing.id} className="hover:bg-black/[0.03] transition-colors group">
                 <td className="p-4 min-w-[250px] max-w-sm">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--text-primary)] flex items-center justify-center font-syne font-bold text-2xl text-[var(--text-primary)] border border-black/[0.08] shrink-0 shadow-inner overflow-hidden">
+                    <div className="w-12 h-12 rounded-lg bg-slate-900 flex items-center justify-center font-syne font-bold text-2xl text-slate-900 border border-black/[0.08] shrink-0 shadow-inner overflow-hidden">
                       {listing.images && listing.images.length > 0 ? (
                         <img loading="lazy" src={listing.images[0]} className="w-full h-full object-cover" />
                       ) : (
@@ -192,14 +192,14 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                       )}
                     </div>
                     <div className="min-w-0">
-                      <div className="font-sans font-bold text-sm text-[var(--text-primary)] mb-0.5 truncate pr-4">{listing.title}</div>
-                      <div className="font-sans text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">ID: {listing.id} • {new Date(listing.created_at).toLocaleDateString()}</div>
+                      <div className="font-sans font-bold text-sm text-slate-900 mb-0.5 truncate pr-4">{listing.title}</div>
+                      <div className="font-sans text-[10px] text-slate-500 uppercase tracking-wider">ID: {listing.id} • {new Date(listing.created_at).toLocaleDateString()}</div>
                     </div>
                   </div>
                 </td>
                 <td className="p-4">
-                   <div className="font-sans text-sm text-[var(--text-primary)] font-medium mb-0.5">{listing.seller?.name || 'Unknown User'}</div>
-                   <div className="font-sans text-xs text-[var(--text-secondary)]">{listing.seller?.email || 'No email'}</div>
+                   <div className="font-sans text-sm text-slate-900 font-medium mb-0.5">{listing.seller?.name || 'Unknown User'}</div>
+                   <div className="font-sans text-xs text-slate-500">{listing.seller?.email || 'No email'}</div>
                 </td>
                 <td className="p-4">
                   <div className="font-syne font-bold text-xl text-accent-green">₹{listing.price}</div>
@@ -209,27 +209,27 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                 </td>
                 <td className="p-4 text-center relative">
                    <div className="flex items-center gap-2 justify-center">
-                     <button title="View Live Post" className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent)] hover:bg-[var(--accent)]/10 transition-colors">
+                     <button title="View Live Post" className="p-1.5 rounded-lg text-slate-500 hover:text-amber-500 hover:bg-amber-500/10 transition-colors">
                        <ExternalLink className="w-4 h-4" />
                      </button>
                      <button 
                         onClick={() => setActiveDropdown(activeDropdown === listing.id ? null : listing.id)}
-                        className="p-1.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors text-xs font-bold font-sans flex items-center gap-1"
+                        className="p-1.5 rounded-lg bg-slate-100 text-slate-900 hover:bg-slate-100 transition-colors text-xs font-bold font-sans flex items-center gap-1"
                      >
-                        Mod <ShieldAlert className="w-3.5 h-3.5 text-[var(--yellow)]" />
+                        Mod <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
                      </button>
                    </div>
 
                   {/* Moderation Dropdown */}
                   {activeDropdown === listing.id && (
-                    <div className="absolute right-4 top-12 w-48 bg-[var(--bg-tertiary)] border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100 text-left">
+                    <div className="absolute right-4 top-12 w-48 bg-slate-100 border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100 text-left">
                       
                       <div className="px-3 py-2 border-b border-black/[0.08]">
-                         <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">Danger Zone</span>
+                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Danger Zone</span>
                       </div>
                       
                       {!listing.is_sold && !listing.is_admin_disabled && (
-                        <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'sold')} className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-black/[0.03] flex items-center gap-2">
+                        <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'sold')} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-accent-green" /> Mark as Sold
                         </button>
                       )}
@@ -244,7 +244,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                         </button>
                       )}
                       
-                      <div className="h-px bg-[var(--bg-tertiary)] my-1" />
+                      <div className="h-px bg-slate-100 my-1" />
 
                       <button onClick={() => handleDelete(listing.id, listing.title)} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2 font-bold">
                         <Trash2 className="w-4 h-4" /> Delete Permanently
@@ -257,7 +257,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
             ))}
             {filteredListings.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-[var(--text-secondary)] font-sans">
+                <td colSpan={5} className="p-8 text-center text-slate-500 font-sans">
                   No listings found matching your filters.
                 </td>
               </tr>

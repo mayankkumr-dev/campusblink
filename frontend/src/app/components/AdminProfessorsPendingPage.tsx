@@ -75,41 +75,41 @@ export const AdminProfessorsPendingPage: React.FC = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)]">Pending Professor Requests</h1>
+          <h1 className="font-syne font-extrabold text-2xl text-slate-900">Pending Professor Requests</h1>
         </div>
-        <span className="px-3 py-1 rounded-md bg-[#FEF9C3] text-[var(--yellow-dark)] text-sm font-bold border border-[#F59E0B]/30">
+        <span className="px-3 py-1 rounded-md bg-[#FEF9C3] text-[#92400E] text-sm font-bold border border-[#F59E0B]/30">
           {professors.length} pending
         </span>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--yellow-dark)]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
         </div>
       ) : professors.length === 0 ? (
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-12 text-center flex flex-col items-center">
-          <User className="w-10 h-10 text-[var(--border)] mb-4" />
-          <p className="font-syne font-semibold text-lg text-[var(--text-primary)] mb-1">No pending professor requests</p>
-          <p className="font-sans text-sm text-[var(--text-secondary)]">New requests will appear here</p>
+        <div className="bg-white border border-[rgba(15,23,42,0.08)] rounded-lg p-12 text-center flex flex-col items-center">
+          <User className="w-10 h-10 text-[rgba(15,23,42,0.08)] mb-4" />
+          <p className="font-syne font-semibold text-lg text-slate-900 mb-1">No pending professor requests</p>
+          <p className="font-sans text-sm text-slate-500">New requests will appear here</p>
         </div>
       ) : (
         <div className="space-y-4">
           {professors.map(prof => {
             const avatar = prof.avatar_url || getAvatarDataUrl({ name: prof.name, seed: prof.id });
             return (
-              <div key={prof.id} className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-5">
+              <div key={prof.id} className="bg-white border border-[rgba(15,23,42,0.08)] rounded-lg p-5">
                 <div className="flex items-start gap-4">
-                  <img loading="lazy" src={avatar} alt={prof.name} className="h-12 w-12 rounded-full object-cover border border-[var(--border)]" />
+                  <img loading="lazy" src={avatar} alt={prof.name} className="h-12 w-12 rounded-full object-cover border border-[rgba(15,23,42,0.08)]" />
                   <div className="flex-1">
-                    <h3 className="font-syne font-semibold text-base text-[var(--text-primary)]">{prof.name} <span className="font-sans text-sm text-[var(--text-secondary)] font-medium ml-2">@{prof.username}</span></h3>
+                    <h3 className="font-syne font-semibold text-base text-slate-900">{prof.name} <span className="font-sans text-sm text-slate-500 font-medium ml-2">@{prof.username}</span></h3>
                     <div className="flex flex-col gap-1 mt-1">
-                      <span className="font-sans text-sm text-[var(--text-secondary)]">{prof.email}</span>
-                      <span className="font-sans text-sm text-[var(--text-primary)]">Staff Room: {prof.staff_room_number || 'N/A'}</span>
+                      <span className="font-sans text-sm text-slate-500">{prof.email}</span>
+                      <span className="font-sans text-sm text-slate-900">Staff Room: {prof.staff_room_number || 'N/A'}</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="px-2 py-0.5 roundedbg-[#FEF9C3] bg-[#FEF9C3] text-[var(--yellow-dark)] text-xs font-bold border border-[#F59E0B]/30 rounded-md">
+                        <span className="px-2 py-0.5 roundedbg-[#FEF9C3] bg-[#FEF9C3] text-[#92400E] text-xs font-bold border border-[#F59E0B]/30 rounded-md">
                           {prof.colleges?.name || prof.college || 'N/A'}
                         </span>
-                        <span className="font-sans text-xs text-[var(--text-secondary)]">Applied {formatTimeAgo(prof.created_at)}</span>
+                        <span className="font-sans text-xs text-slate-500">Applied {formatTimeAgo(prof.created_at)}</span>
                       </div>
                     </div>
                   </div>
@@ -139,27 +139,27 @@ export const AdminProfessorsPendingPage: React.FC = () => {
       {/* Reject Modal */}
       {rejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-md rounded-lg border border-[var(--border)] bg-[var(--bg)] p-5 shadow-lg">
-            <h3 className="font-syne font-bold text-lg text-[var(--text-primary)] mb-1">Reject Professor Application</h3>
-            <p className="text-sm text-[var(--text-secondary)] mb-4">Rejecting <strong>{rejectModal.name}</strong>'s application</p>
-            <label className="text-sm font-medium text-[var(--text-primary)]">
+          <div className="w-full max-w-md rounded-lg border border-[rgba(15,23,42,0.08)] bg-white p-5 shadow-lg">
+            <h3 className="font-syne font-bold text-lg text-slate-900 mb-1">Reject Professor Application</h3>
+            <p className="text-sm text-slate-500 mb-4">Rejecting <strong>{rejectModal.name}</strong>'s application</p>
+            <label className="text-sm font-medium text-slate-900">
               Reason for rejection (required)
               <textarea
                 value={rejectReason}
                 onChange={e => setRejectReason(e.target.value)}
                 rows={3}
                 placeholder="Provide a reason..."
-                className="w-full mt-1 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] px-3 py-2 text-sm resize-none focus:outline-none focus:border-[#DC2626]"
+                className="w-full mt-1 rounded-md border border-[rgba(15,23,42,0.08)] bg-slate-50 px-3 py-2 text-sm resize-none focus:outline-none focus:border-[#DC2626]"
               />
             </label>
             <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="h-9 px-4 rounded-md border border-[var(--border)] text-sm font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]">
+              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="h-9 px-4 rounded-md border border-[rgba(15,23,42,0.08)] text-sm font-bold text-slate-500 hover:bg-slate-50">
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={actingOn === rejectModal.id}
-                className="h-9 px-4 rounded-md bg-[#DC2626] text-white text-sm font-bold hover:bg-[var(--error-dark)] transition-colors disabled:opacity-50"
+                className="h-9 px-4 rounded-md bg-[#DC2626] text-white text-sm font-bold hover:bg-rose-700 transition-colors disabled:opacity-50"
               >
                 {actingOn === rejectModal.id ? 'Rejecting...' : 'Reject'}
               </button>

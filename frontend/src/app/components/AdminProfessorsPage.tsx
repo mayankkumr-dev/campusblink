@@ -19,7 +19,7 @@ const FEATURES = [
 
 const STATUS_BADGE: Record<string, string> = {
   approved: 'bg-accent-green/15 text-accent-green',
-  pending: 'bg-[#FEF9C3] text-[var(--yellow-dark)]',
+  pending: 'bg-[#FEF9C3] text-[#92400E]',
   rejected: 'bg-[#FEE2E2] text-accent-red',
 };
 
@@ -107,41 +107,41 @@ export const AdminProfessorsPage: React.FC = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 transition-colors">
         <div>
-          <h1 className="font-syne font-extrabold text-2xl text-[var(--text-primary)]">All Professors</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Manage professor accounts and feature access</p>
+          <h1 className="font-syne font-extrabold text-2xl text-text-primary transition-colors">All Professors</h1>
+          <p className="text-sm text-text-secondary mt-1 transition-colors">Manage professor accounts and feature access</p>
         </div>
-        <span className="px-3 py-1 rounded-md bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm font-bold">
+        <span className="px-3 py-1 rounded-md bg-surface-elevated text-text-secondary text-sm font-bold transition-colors">
           {professors.length} total
         </span>
       </div>
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary transition-colors" />
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name, email, room, college..."
-          className="w-full h-10 pl-10 pr-4 rounded-md border border-[var(--border)] bg-[var(--bg)] text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--yellow-dark)]"
+          className="w-full h-10 pl-10 pr-4 rounded-md border border-border-subtle bg-surface text-sm text-text-primary focus:outline-none focus:border-[#92400E] transition-colors"
         />
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--yellow-dark)]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg p-8 text-center">
-          <GraduationCap className="w-10 h-10 text-[var(--border)] mx-auto mb-3" />
-          <p className="text-sm text-[var(--text-secondary)]">No professors found.</p>
+        <div className="bg-surface border border-border-subtle rounded-lg p-8 text-center transition-colors">
+          <GraduationCap className="w-10 h-10 text-border-subtle mx-auto mb-3 transition-colors" />
+          <p className="text-sm text-text-secondary transition-colors">No professors found.</p>
         </div>
       ) : (
-        <div className="bg-[var(--bg)] border border-[var(--border)] rounded-lg overflow-hidden">
+        <div className="bg-surface border border-border-subtle rounded-lg overflow-hidden transition-colors">
           {/* Table Header */}
-          <div className="hidden md:grid md:grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr] gap-2 px-5 py-3 border-b border-[var(--border)] bg-[var(--bg-primary)] text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+          <div className="hidden md:grid md:grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr] gap-2 px-5 py-3 border-b border-border-subtle bg-surface-elevated text-xs font-bold text-text-secondary uppercase tracking-wider transition-colors">
             <span>Name</span>
             <span>Email</span>
             <span>Room</span>
@@ -157,19 +157,19 @@ export const AdminProfessorsPage: React.FC = () => {
             const status = String(prof.professor_status || 'pending').toLowerCase();
 
             return (
-              <div key={prof.id} className="border-b border-[var(--border)] last:border-b-0">
+              <div key={prof.id} className="border-b border-border-subtle last:border-b-0 transition-colors">
                 <div
                   onClick={() => toggleExpand(prof.id)}
-                  className="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr] gap-2 px-5 py-3 cursor-pointer hover:bg-[var(--bg-primary)] transition-colors items-center"
+                  className="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr] gap-2 px-5 py-3 cursor-pointer hover:bg-surface-elevated transition-colors items-center"
                 >
                   <div className="flex items-center gap-3">
-                    <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                    <img loading="lazy" src={avatar} alt={prof.name} className="h-8 w-8 rounded-full object-cover border border-[var(--border)]" />
-                    <span className="font-bold text-sm text-[var(--text-primary)]">{prof.name}</span>
+                    <ChevronDown className={`w-4 h-4 text-text-tertiary transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <img loading="lazy" src={avatar} alt={prof.name} className="h-8 w-8 rounded-full object-cover border border-border-subtle transition-colors" />
+                    <span className="font-bold text-sm text-text-primary transition-colors">{prof.name}</span>
                   </div>
-                  <span className="text-sm text-[var(--text-secondary)] truncate">{prof.email}</span>
-                  <span className="text-sm text-[var(--text-secondary)]">{prof.staff_room_number || '—'}</span>
-                  <span className="text-sm text-[var(--text-secondary)] truncate">{prof.college || '—'}</span>
+                  <span className="text-sm text-text-secondary truncate transition-colors">{prof.email}</span>
+                  <span className="text-sm text-text-secondary transition-colors">{prof.staff_room_number || '—'}</span>
+                  <span className="text-sm text-text-secondary truncate transition-colors">{prof.college || '—'}</span>
                   <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase w-fit ${STATUS_BADGE[status] || STATUS_BADGE.pending}`}>
                     {status}
                   </span>
@@ -197,8 +197,8 @@ export const AdminProfessorsPage: React.FC = () => {
 
                 {/* Expanded Detail */}
                 {isExpanded && (
-                  <div className="px-5 pb-4 pt-1 bg-[var(--bg-primary)] border-t border-[var(--border)]">
-                    <h4 className="font-bold text-sm text-[var(--text-primary)] mb-3">Feature Access</h4>
+                  <div className="px-5 pb-4 pt-1 bg-surface-elevated border-t border-border-subtle transition-colors">
+                    <h4 className="font-bold text-sm text-text-primary mb-3 transition-colors">Feature Access</h4>
                     <div className="space-y-2">
                       {FEATURES.map(f => {
                         const featureRow = profFeatures.find(pf => pf.feature === f.key);
@@ -207,21 +207,21 @@ export const AdminProfessorsPage: React.FC = () => {
                         const isToggling = togglingFeature === `${prof.id}-${f.key}`;
 
                         return (
-                          <div key={f.key} className={`flex items-center justify-between p-3 rounded-md border ${isLocked ? 'bg-[var(--bg-secondary)] border-[var(--border)] opacity-60' : 'bg-[var(--bg)] border-[var(--border)]'}`}>
+                          <div key={f.key} className={`flex items-center justify-between p-3 rounded-md border transition-colors ${isLocked ? 'bg-surface-elevated border-border-subtle opacity-60' : 'bg-surface border-border-subtle'}`}>
                             <div>
-                              <span className="text-sm font-bold text-[var(--text-primary)]">{f.label}</span>
-                              <p className="text-xs text-[var(--text-secondary)]">{f.desc}</p>
+                              <span className="text-sm font-bold text-text-primary transition-colors">{f.label}</span>
+                              <p className="text-xs text-text-secondary transition-colors">{f.desc}</p>
                               {isLocked && <p className="text-xs text-[#DC2626] font-medium mt-0.5">Permanently disabled for professors</p>}
                             </div>
                             <button
                               onClick={() => !isLocked && handleToggleFeature(prof.id, f.key, isEnabled)}
                               disabled={isLocked || isToggling}
                               className={`relative w-12 h-6 rounded-md transition-colors ${
-                                isLocked ? 'bg-[var(--border)] cursor-not-allowed' :
-                                isEnabled ? 'bg-[#22C55E]' : 'bg-[var(--border)]'
+                                isLocked ? 'bg-border-subtle cursor-not-allowed' :
+                                isEnabled ? 'bg-[#22C55E]' : 'bg-border-strong'
                               }`}
                             >
-                              <div className={`absolute top-0.5 w-5 h-5 bg-[var(--bg)] rounded-sm shadow transition-transform ${
+                              <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-sm shadow transition-transform ${
                                 isEnabled && !isLocked ? 'translate-x-6' : 'translate-x-0.5'
                               }`} />
                             </button>

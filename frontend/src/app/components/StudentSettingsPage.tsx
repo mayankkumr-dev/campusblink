@@ -12,6 +12,11 @@ export const StudentSettingsPage: React.FC = () => {
   const profile = useAuthStore((state) => state.profile);
   const isNoticeAdmin = Boolean(profile?.is_notice_admin) || profile?.role === 'admin';
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     const toastId = toast.loading('Logging you out...');
@@ -87,18 +92,23 @@ export const StudentSettingsPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex p-1 bg-surface-elevated rounded-xl border border-border-subtle self-start md:self-auto shrink-0 w-full md:w-auto mt-2 md:mt-0">
-                {['light', 'dark', 'system'].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTheme(t)}
-                    className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-lg capitalize transition-colors \${
-                      theme === t ? 'bg-accent-blue text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
+              <div className="flex p-1 bg-slate-100 dark:bg-surface-elevated rounded-xl border border-slate-200 dark:border-border-subtle self-start md:self-auto shrink-0 w-full md:w-auto mt-2 md:mt-0 transition-colors">
+                {['light', 'dark', 'system'].map((t) => {
+                  const isActive = mounted && theme === t;
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setTheme(t)}
+                      className={`flex-1 md:flex-none px-4 py-2 text-sm font-medium rounded-lg capitalize transition-colors ${
+                        isActive 
+                          ? 'bg-accent-blue text-white shadow-sm' 
+                          : 'text-slate-500 hover:text-slate-900 dark:text-text-secondary dark:hover:text-text-primary hover:bg-slate-200/50 dark:hover:bg-transparent'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

@@ -34,7 +34,7 @@ export const AdminSocietiesPage = () => {
     name: '',
     username: '',
     college: user?.college || '',
-    theme_color: 'var(--text-primary)',
+    theme_color: '#0F172A',
     bio: '',
   });
 
@@ -42,7 +42,7 @@ export const AdminSocietiesPage = () => {
     name: '',
     username: '',
     college: '',
-    theme_color: 'var(--text-primary)',
+    theme_color: '#0F172A',
     bio: '',
     avatar_url: '',
   });
@@ -70,7 +70,7 @@ export const AdminSocietiesPage = () => {
       name: society.name || '',
       username: society.username || '',
       college: society.college || '',
-      theme_color: society.theme_color || 'var(--text-primary)',
+      theme_color: society.theme_color || '#0F172A',
       bio: society.bio || '',
       avatar_url: society.avatar_url || '',
     });
@@ -143,7 +143,7 @@ export const AdminSocietiesPage = () => {
         name: '',
         username: '',
         college: user?.college || '',
-        theme_color: 'var(--text-primary)',
+        theme_color: '#0F172A',
         bio: '',
       });
       await fetchSocieties();
@@ -159,12 +159,12 @@ export const AdminSocietiesPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Societies</h2>
-          <p className="text-sm text-[var(--text-secondary)]">Manage student societies and organizations</p>
+          <h2 className="text-xl font-bold text-slate-900">Societies</h2>
+          <p className="text-sm text-slate-500">Manage student societies and organizations</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 bg-[var(--text-primary)] text-white px-4 py-2 rounded-xl font-semibold hover:bg-black/80 transition-colors"
+          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl font-semibold hover:bg-black/80 transition-colors"
         >
           <Plus className="w-4 h-4" />
           Create Society
@@ -172,18 +172,18 @@ export const AdminSocietiesPage = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-[var(--text-secondary)]">Loading societies...</div>
+        <div className="text-center py-12 text-slate-500">Loading societies...</div>
       ) : societies.length === 0 ? (
-        <div className="text-center py-12 bg-[var(--bg)] rounded-xl border border-black/[0.08]">
-          <Building2 className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-3" />
-          <h3 className="font-semibold text-[var(--text-primary)]">No Societies Found</h3>
-          <p className="text-sm text-[var(--text-secondary)]">Create your first society account to get started.</p>
+        <div className="text-center py-12 bg-white rounded-xl border border-black/[0.08]">
+          <Building2 className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+          <h3 className="font-semibold text-slate-900">No Societies Found</h3>
+          <p className="text-sm text-slate-500">Create your first society account to get started.</p>
         </div>
       ) : (
-        <div className="bg-[var(--bg)] rounded-xl border border-black/[0.08] overflow-hidden">
+        <div className="bg-white rounded-xl border border-black/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#F5F5F7] border-b border-black/[0.08] text-[var(--text-secondary)]">
+              <thead className="bg-[#F5F5F7] border-b border-black/[0.08] text-slate-500">
                 <tr>
                   <th className="px-4 py-3 font-medium">Society</th>
                   <th className="px-4 py-3 font-medium">Username</th>
@@ -202,28 +202,28 @@ export const AdminSocietiesPage = () => {
                           {society.avatar_url ? (
                             <img src={society.avatar_url} alt={society.name} className="w-full h-full object-cover" />
                           ) : (
-                            <Building2 className="w-4 h-4 text-[var(--text-secondary)]" />
+                            <Building2 className="w-4 h-4 text-slate-500" />
                           )}
                         </div>
-                        <span className="font-medium text-[var(--text-primary)]">{society.name}</span>
+                        <span className="font-medium text-slate-900">{society.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">@{society.username}</td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">{society.email}</td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] truncate max-w-[150px]">{society.college}</td>
+                    <td className="px-4 py-3 text-slate-500">@{society.username}</td>
+                    <td className="px-4 py-3 text-slate-500">{society.email}</td>
+                    <td className="px-4 py-3 text-slate-500 truncate max-w-[150px]">{society.college}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div
                           className="w-4 h-4 rounded-full border border-black/[0.08]"
-                          style={{ backgroundColor: society.theme_color || 'var(--text-primary)' }}
+                          style={{ backgroundColor: society.theme_color || '#0F172A' }}
                         />
-                        <span className="text-[var(--text-secondary)]">{society.theme_color || 'var(--text-primary)'}</span>
+                        <span className="text-slate-500">{society.theme_color || '#0F172A'}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => openEditModal(society)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-[var(--bg)] px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[#F5F5F7]"
+                        className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-[#F5F5F7]"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         Edit
@@ -239,37 +239,37 @@ export const AdminSocietiesPage = () => {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-[var(--bg)] rounded-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
             <div className="p-4 border-b border-black/[0.08] flex justify-between items-center">
               <h3 className="font-semibold text-lg">Create Society Account</h3>
-              <button onClick={() => setShowCreateModal(false)} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+              <button onClick={() => setShowCreateModal(false)} className="text-slate-500 hover:text-slate-900 transition-colors">
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleCreateSociety} className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Society Name</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Society Name</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Building2 className="h-4 w-4 text-[var(--text-secondary)]" />
+                    <Building2 className="h-4 w-4 text-slate-500" />
                   </div>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="e.g. Computer Science Club"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Username</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Username</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-[var(--text-secondary)]" />
+                    <User className="h-4 w-4 text-slate-500" />
                   </div>
                   <input
                     type="text"
@@ -278,34 +278,34 @@ export const AdminSocietiesPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })
                     }
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="cs_club"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Email</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Email</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 text-[var(--text-secondary)]" />
+                    <Mail className="h-4 w-4 text-slate-500" />
                   </div>
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="society@college.edu"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Password</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 text-[var(--text-secondary)]" />
+                    <Lock className="h-4 w-4 text-slate-500" />
                   </div>
                   <input
                     type="password"
@@ -313,14 +313,14 @@ export const AdminSocietiesPage = () => {
                     minLength={6}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="Min. 6 characters"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Brand Theme Color</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Brand Theme Color</label>
                 <div className="relative flex items-center gap-3">
                   <input
                     type="color"
@@ -330,25 +330,25 @@ export const AdminSocietiesPage = () => {
                   />
                   <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <Palette className="h-4 w-4 text-[var(--text-secondary)]" />
+                      <Palette className="h-4 w-4 text-slate-500" />
                     </div>
                     <input
                       type="text"
                       value={formData.theme_color}
                       onChange={(e) => setFormData({ ...formData, theme_color: e.target.value.toUpperCase() })}
-                      className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all uppercase"
-                      placeholder="var(--text-primary)"
+                      className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
+                      placeholder="#0F172A"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Bio (Optional)</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Bio (Optional)</label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all resize-none h-20"
+                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-20"
                   placeholder="Short description of the society..."
                 />
               </div>
@@ -357,7 +357,7 @@ export const AdminSocietiesPage = () => {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="w-full bg-[var(--text-primary)] text-white py-3 rounded-xl font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
+                  className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
                 >
                   {creating ? 'Creating...' : 'Create Society'}
                 </button>
@@ -369,28 +369,28 @@ export const AdminSocietiesPage = () => {
 
       {showEditModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-[var(--bg)] rounded-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
             <div className="p-4 border-b border-black/[0.08] flex justify-between items-center">
               <h3 className="font-semibold text-lg">Edit Society</h3>
-              <button onClick={closeEditModal} className="text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors">
+              <button onClick={closeEditModal} className="text-slate-500 hover:text-slate-900 transition-colors">
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleUpdateSociety} className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Society Name</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Society Name</label>
                 <input
                   type="text"
                   required
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Username</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Username</label>
                 <input
                   type="text"
                   required
@@ -398,22 +398,22 @@ export const AdminSocietiesPage = () => {
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_@]/g, '') })
                   }
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">College</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">College</label>
                 <input
                   type="text"
                   value={editFormData.college}
                   onChange={(e) => setEditFormData({ ...editFormData, college: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all"
+                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Theme Color</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Theme Color</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
@@ -425,24 +425,24 @@ export const AdminSocietiesPage = () => {
                     type="text"
                     value={editFormData.theme_color}
                     onChange={(e) => setEditFormData({ ...editFormData, theme_color: e.target.value.toUpperCase() })}
-                    className="flex-1 px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all uppercase"
-                    placeholder="var(--text-primary)"
+                    className="flex-1 px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
+                    placeholder="#0F172A"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Bio (About)</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Bio (About)</label>
                 <textarea
                   value={editFormData.bio}
                   onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-[var(--yellow)] outline-none transition-all resize-none h-24"
+                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-24"
                   placeholder="Short description of the society..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Society Avatar</label>
+                <label className="block text-sm font-medium text-slate-900 mb-1">Society Avatar</label>
                 <div className="mt-2 flex items-center gap-3">
                   {(editFormData.avatar_url || imageFile) && (
                     <img
@@ -459,7 +459,7 @@ export const AdminSocietiesPage = () => {
                         setImageFile(e.target.files[0]);
                       }
                     }}
-                    className="text-sm text-[var(--text-secondary)]"
+                    className="text-sm text-slate-500"
                   />
                 </div>
               </div>
@@ -468,7 +468,7 @@ export const AdminSocietiesPage = () => {
                 <button
                   type="submit"
                   disabled={updating}
-                  className="w-full bg-[var(--text-primary)] text-white py-3 rounded-xl font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
+                  className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-black/80 transition-colors disabled:opacity-50"
                 >
                   {updating ? 'Saving...' : 'Save Changes'}
                 </button>

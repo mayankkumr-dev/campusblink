@@ -56,36 +56,36 @@ export const AdminInviteWaitlistPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="font-syne text-3xl font-extrabold text-[var(--text-primary)]">Waitlist</h1>
-          <p className="font-sans text-sm text-[var(--text-secondary)]">Review waitlist entries and issue invite codes.</p>
+          <h1 className="font-syne text-3xl font-extrabold text-slate-900">Waitlist</h1>
+          <p className="font-sans text-sm text-slate-500">Review waitlist entries and issue invite codes.</p>
         </div>
         <button
           onClick={() => navigate('/admin/accounts?tab=invites')}
-          className="rounded-md border border-black/10 bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] inline-flex items-center gap-2"
+          className="rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-50 inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
       </div>
 
-      <div className="overflow-auto rounded-lg border border-black/10 bg-[var(--bg)] shadow-sm">
+      <div className="overflow-auto rounded-lg border border-black/10 bg-white shadow-sm">
         <table className="min-w-full text-sm">
-          <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
+          <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
             <tr>
-              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Name</th>
-              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Email</th>
-              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">College</th>
-              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Joined waitlist</th>
-              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Status</th>
-              <th className="px-3 py-2 text-right px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Actions</th>
+              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Name</th>
+              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Email</th>
+              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">College</th>
+              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Joined waitlist</th>
+              <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Status</th>
+              <th className="px-3 py-2 text-right px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="border-t border-black/10">
-                <td className="px-3 py-2 font-bold text-[var(--text-primary)]">{row.name}</td>
-                <td className="px-3 py-2 text-[var(--text-primary)]">{row.email}</td>
-                <td className="px-3 py-2 text-[var(--text-secondary)]">{row.college || '-'}</td>
-                <td className="px-3 py-2 text-[var(--text-secondary)]">{new Date(row.created_at).toLocaleDateString()}</td>
+                <td className="px-3 py-2 font-bold text-slate-900">{row.name}</td>
+                <td className="px-3 py-2 text-slate-900">{row.email}</td>
+                <td className="px-3 py-2 text-slate-500">{row.college || '-'}</td>
+                <td className="px-3 py-2 text-slate-500">{new Date(row.created_at).toLocaleDateString()}</td>
                 <td className="px-3 py-2">
                   <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${row.is_invited ? 'bg-accent-green/15 text-accent-green' : 'bg-[#FEF9C3] text-[#A16207]'}`}>
                     {row.is_invited ? 'Invited' : 'Waiting'}
@@ -95,7 +95,7 @@ export const AdminInviteWaitlistPage: React.FC = () => {
                   <button
                     onClick={() => handleSendInvite(row.id)}
                     disabled={sendingId === row.id}
-                    className="rounded-md bg-[var(--text-primary)] px-3 py-1.5 text-xs font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)] disabled:opacity-60"
+                    className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-500 hover:text-slate-900 disabled:opacity-60"
                   >
                     {sendingId === row.id ? 'Sending...' : 'Send Invite Code'}
                   </button>
@@ -104,7 +104,7 @@ export const AdminInviteWaitlistPage: React.FC = () => {
             ))}
             {!isLoading && rows.length === 0 ? (
               <tr>
-                <td className="px-3 py-6 text-center text-sm text-[var(--text-secondary)]" colSpan={6}>No waitlist entries yet.</td>
+                <td className="px-3 py-6 text-center text-sm text-slate-500" colSpan={6}>No waitlist entries yet.</td>
               </tr>
             ) : null}
           </tbody>

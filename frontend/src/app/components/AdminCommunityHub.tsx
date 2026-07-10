@@ -6,43 +6,52 @@ import { AdminCommunityNoticePage } from './AdminCommunityNoticePage';
 import { AdminFinanceCreditsPage } from './AdminFinanceCreditsPage';
 import { MessageSquare, Flag, Send, Zap } from 'lucide-react';
 
+const tabs = [
+  { id: 'posts', label: 'All Posts', icon: MessageSquare },
+  { id: 'reported', label: 'Reported Posts', icon: Flag },
+  { id: 'notice', label: 'Post Notice', icon: Send },
+  { id: 'reputation', label: 'Reputation System', icon: Zap },
+] as const;
+
 export const AdminCommunityHub: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'posts';
 
-  const tabs = [
-    { id: 'posts', label: 'All Posts', icon: MessageSquare },
-    { id: 'reported', label: 'Reported Posts', icon: Flag },
-    { id: 'notice', label: 'Post Notice', icon: Send },
-    { id: 'reputation', label: 'System Reputation', icon: Zap },
-  ] as const;
-
   return (
-    <div className="space-y-4">
-      {/* Scrollable Tabs */}
-      <div className="bg-[var(--bg)] p-2 rounded-lg border border-black/[0.08] flex items-center gap-2 overflow-x-auto hide-scrollbar sticky top-0 z-10 shadow-sm">
+    <div className="space-y-5">
+      {/* Header */}
+      <div>
+        <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">Community Hub</h2>
+        <p className="text-sm text-slate-500 mt-0.5">
+          Manage community posts, reported content, campus notices and reputation
+        </p>
+      </div>
+
+      {/* Primary Tab Navigation */}
+      <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-2xl p-1.5 overflow-x-auto hide-scrollbar shadow-sm">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setSearchParams({ tab: tab.id })}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-bold whitespace-nowrap transition-all duration-200 ${
-                isActive 
-                  ? 'bg-[var(--yellow)] text-[var(--text)] shadow-sm' 
-                  : 'text-[var(--text-secondary)] hover:bg-black/5 hover:text-[var(--text)]'
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all duration-150 ${
+                isActive
+                  ? 'bg-amber-500 text-white shadow-sm shadow-amber-200'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-[var(--text)]' : 'text-[var(--text-secondary)]'}`} />
+              <Icon className={`h-3.5 w-3.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
               {tab.label}
             </button>
           );
         })}
       </div>
 
-      {/* Content Area */}
-      <div className="pt-2 pb-10">
+      {/* Content */}
+      <div className="pb-10">
         {activeTab === 'posts' && <AdminCommunityPage />}
         {activeTab === 'reported' && <AdminCommunityReportedPage />}
         {activeTab === 'notice' && <AdminCommunityNoticePage />}

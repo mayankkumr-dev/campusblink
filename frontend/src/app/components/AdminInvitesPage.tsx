@@ -219,12 +219,12 @@ export const AdminInvitesPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="font-syne text-3xl font-extrabold text-[var(--text-primary)]">Invite Codes</h1>
-          <p className="font-sans text-sm text-[var(--text-secondary)]">Manage invite access and monitor conversion.</p>
+          <h1 className="font-syne text-3xl font-extrabold text-slate-900">Invite Codes</h1>
+          <p className="font-sans text-sm text-slate-500">Manage invite access and monitor conversion.</p>
         </div>
         <button
           onClick={() => navigate('/admin/invites/waitlist')}
-          className="rounded-md border border-black/10 bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+          className="rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-bold text-slate-900 hover:bg-slate-50"
         >
           View Waitlist
         </button>
@@ -237,29 +237,29 @@ export const AdminInvitesPage: React.FC = () => {
           { label: 'Total codes pending', value: stats.pendingCodes },
           { label: 'Total users via invite', value: stats.invitedUsers },
         ].map((item) => (
-          <div key={item.label} className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 shadow-sm">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">{item.label}</p>
-            <p className="mt-3 font-syne text-4xl font-extrabold text-[var(--text-primary)]">{item.value}</p>
+          <div key={item.label} className="rounded-lg border border-black/10 bg-white p-5 shadow-sm">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">{item.label}</p>
+            <p className="mt-3 font-syne text-4xl font-extrabold text-slate-900">{item.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 space-y-4 shadow-sm">
-          <h2 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">Generate Codes For User</h2>
+        <div className="rounded-lg border border-black/10 bg-white p-5 space-y-4 shadow-sm">
+          <h2 className="font-syne text-xl font-extrabold text-slate-900">Generate Codes For User</h2>
           <div className="space-y-3">
             <label className="block">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Search user</span>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Search user</span>
               <input
                 value={targetUserTerm}
                 onChange={(event) => setTargetUserTerm(event.target.value)}
                 placeholder="Search by name or email"
-                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
               />
             </label>
 
             {targetUsers.length > 0 ? (
-              <div className="max-h-44 overflow-auto rounded-lg border border-black/10 bg-[var(--bg-primary)] p-2 space-y-1">
+              <div className="max-h-44 overflow-auto rounded-lg border border-black/10 bg-slate-50 p-2 space-y-1">
                 {targetUsers.map((user) => (
                   <button
                     key={user.id}
@@ -268,10 +268,10 @@ export const AdminInvitesPage: React.FC = () => {
                       setTargetUserTerm(user.email || user.name || '');
                       setTargetUsers([]);
                     }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-[var(--bg)]"
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white"
                   >
-                    <p className="font-bold text-[var(--text-primary)]">{user.name || 'Unnamed user'}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{user.email}</p>
+                    <p className="font-bold text-slate-900">{user.name || 'Unnamed user'}</p>
+                    <p className="text-xs text-slate-500">{user.email}</p>
                   </button>
                 ))}
               </div>
@@ -279,22 +279,22 @@ export const AdminInvitesPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Number of codes</span>
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Number of codes</span>
                 <input
                   value={userCodeCount}
                   onChange={(event) => setUserCodeCount(Math.max(1, Math.min(100, Number(event.target.value || 1))))}
                   type="number"
                   min={1}
                   max={100}
-                  className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+                  className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
                 />
               </label>
               <label className="block">
-                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Expiry</span>
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Expiry</span>
                 <select
                   value={userExpiry}
                   onChange={(event) => setUserExpiry(event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+                  className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
                 >
                   {EXPIRY_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -305,32 +305,32 @@ export const AdminInvitesPage: React.FC = () => {
 
             <button
               onClick={handleGenerateForUser}
-              className="w-full rounded-md bg-[var(--text-primary)] px-4 py-2.5 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)]"
+              className="w-full rounded-md bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-500 hover:text-slate-900"
             >
               Generate Codes For User
             </button>
           </div>
         </div>
 
-        <div className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 space-y-4 shadow-sm">
-          <h2 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">Bulk Generate Codes</h2>
+        <div className="rounded-lg border border-black/10 bg-white p-5 space-y-4 shadow-sm">
+          <h2 className="font-syne text-xl font-extrabold text-slate-900">Bulk Generate Codes</h2>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Number of codes</span>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Number of codes</span>
               <input
                 value={bulkCount}
                 onChange={(event) => setBulkCount(Math.max(1, Number(event.target.value || 1)))}
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
               />
             </label>
             <label className="block">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Expiry</span>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Expiry</span>
               <select
                 value={bulkExpiry}
                 onChange={(event) => setBulkExpiry(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+                className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
               >
                 {EXPIRY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -340,34 +340,34 @@ export const AdminInvitesPage: React.FC = () => {
           </div>
 
           <label className="block">
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Purpose / Note</span>
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Purpose / Note</span>
             <input
               value={bulkNote}
               onChange={(event) => setBulkNote(event.target.value)}
               placeholder="MAIT orientation day"
-              className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-[var(--yellow)]"
+              className="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-amber-400"
             />
           </label>
 
           <button
             onClick={handleGenerateBulk}
-            className="w-full rounded-md bg-[var(--yellow)] px-4 py-2.5 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--yellow)]"
+            className="w-full rounded-md bg-amber-500 px-4 py-2.5 text-sm font-bold text-slate-900 hover:bg-slate-900 hover:text-amber-500"
           >
             Generate Bulk Codes
           </button>
 
           {generatedCodes.length > 0 ? (
-            <div className="rounded-lg border border-black/10 bg-[var(--bg-primary)] p-3 space-y-2">
+            <div className="rounded-lg border border-black/10 bg-slate-50 p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--text-secondary)]">Generated</p>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Generated</p>
                 <div className="flex items-center gap-2">
-                  <button onClick={copyAllGenerated} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1 text-xs font-bold">Copy All</button>
-                  <button onClick={exportCsv} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1 text-xs font-bold">Export CSV</button>
+                  <button onClick={copyAllGenerated} className="rounded-md border border-black/10 bg-white px-3 py-1 text-xs font-bold">Copy All</button>
+                  <button onClick={exportCsv} className="rounded-md border border-black/10 bg-white px-3 py-1 text-xs font-bold">Export CSV</button>
                 </div>
               </div>
               <div className="max-h-32 overflow-auto space-y-1">
                 {generatedCodes.map((code) => (
-                  <div key={code} className="rounded-lg bg-[var(--bg)] px-3 py-1.5 text-sm font-bold tracking-[0.12em] text-[var(--text-primary)]">{code}</div>
+                  <div key={code} className="rounded-lg bg-white px-3 py-1.5 text-sm font-bold tracking-[0.12em] text-slate-900">{code}</div>
                 ))}
               </div>
             </div>
@@ -376,12 +376,12 @@ export const AdminInvitesPage: React.FC = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 shadow-sm lg:col-span-2">
+        <div className="rounded-lg border border-black/10 bg-white p-5 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between gap-3 mb-4">
-            <h2 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">All Codes</h2>
+            <h2 className="font-syne text-xl font-extrabold text-slate-900">All Codes</h2>
             <div className="flex items-center gap-2">
-              <button onClick={loadData} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1"><RefreshCw className="h-3.5 w-3.5" /> Refresh</button>
-              <button onClick={exportCsv} className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1"><Download className="h-3.5 w-3.5" /> CSV</button>
+              <button onClick={loadData} className="rounded-md border border-black/10 bg-white px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1"><RefreshCw className="h-3.5 w-3.5" /> Refresh</button>
+              <button onClick={exportCsv} className="rounded-md border border-black/10 bg-white px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1"><Download className="h-3.5 w-3.5" /> CSV</button>
             </div>
           </div>
 
@@ -391,34 +391,34 @@ export const AdminInvitesPage: React.FC = () => {
                 <button
                   key={item}
                   onClick={() => setFilter(item as any)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] ${filter === item ? 'bg-[var(--text-primary)] text-white' : 'bg-[var(--bg-primary)] text-[var(--text-secondary)] border border-black/10'}`}
+                  className={`rounded-md px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] ${filter === item ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-500 border border-black/10'}`}
                 >
                   {item}
                 </button>
               ))}
             </div>
             <label className="relative block w-full md:w-72">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-secondary)]" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search code or user"
-                className="w-full rounded-md border border-black/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-[var(--yellow)]"
+                className="w-full rounded-md border border-black/10 py-2 pl-9 pr-3 text-sm outline-none focus:border-amber-400"
               />
             </label>
           </div>
 
           <div className="overflow-auto rounded-lg border border-black/10">
             <table className="min-w-full text-sm">
-              <thead className="bg-[var(--bg-secondary)] h-[40px] border-b border-[var(--border)]">
+              <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
                 <tr>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Code</th>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Created By</th>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Used By</th>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Status</th>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Created</th>
-                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Expires</th>
-                  <th className="px-3 py-2 text-right px-4 text-left font-sans font-semibold text-[12px] text-[var(--text-muted)] uppercase tracking-[0.6px]">Actions</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Code</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Created By</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Used By</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Status</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Created</th>
+                  <th className="px-3 py-2 text-left px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Expires</th>
+                  <th className="px-3 py-2 text-right px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -447,14 +447,14 @@ export const AdminInvitesPage: React.FC = () => {
                                 toast.error('Could not copy code.');
                               }
                             }}
-                            className="rounded-md border border-black/10 bg-[var(--bg)] px-3 py-1 text-xs font-bold"
+                            className="rounded-md border border-black/10 bg-white px-3 py-1 text-xs font-bold"
                           >
                             Copy
                           </button>
                           {!row.is_used ? (
                             <button
                               onClick={() => handleRevoke(row.id)}
-                              className="rounded-md border border-[var(--error-dark)]/30 bg-accent-red/15 px-3 py-1 text-xs font-bold text-accent-red"
+                              className="rounded-md border border-rose-200 bg-accent-red/15 px-3 py-1 text-xs font-bold text-accent-red"
                             >
                               Revoke
                             </button>
@@ -466,7 +466,7 @@ export const AdminInvitesPage: React.FC = () => {
                 })}
                 {!isLoading && codes.length === 0 ? (
                   <tr>
-                    <td className="px-3 py-5 text-center text-sm text-[var(--text-secondary)]" colSpan={7}>No invite codes found.</td>
+                    <td className="px-3 py-5 text-center text-sm text-slate-500" colSpan={7}>No invite codes found.</td>
                   </tr>
                 ) : null}
               </tbody>
@@ -475,37 +475,37 @@ export const AdminInvitesPage: React.FC = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 shadow-sm">
-            <h3 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">Invite Analytics</h3>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">Conversion rate: <span className="font-bold text-[var(--text-primary)]">{conversionRate}%</span></p>
+          <div className="rounded-lg border border-black/10 bg-white p-5 shadow-sm">
+            <h3 className="font-syne text-xl font-extrabold text-slate-900">Invite Analytics</h3>
+            <p className="mt-2 text-sm text-slate-500">Conversion rate: <span className="font-bold text-slate-900">{conversionRate}%</span></p>
             <div className="mt-4 space-y-2">
               {invitesPerDay.length > 0 ? invitesPerDay.map((item) => {
                 const max = Math.max(...invitesPerDay.map((entry) => entry.count));
                 const width = max > 0 ? (item.count / max) * 100 : 0;
                 return (
                   <div key={item.day}>
-                    <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] mb-1"><span>{item.day}</span><span>{item.count}</span></div>
+                    <div className="flex items-center justify-between text-xs text-slate-500 mb-1"><span>{item.day}</span><span>{item.count}</span></div>
                     <div className="h-2 rounded-md bg-black/10">
-                      <div className="h-full rounded-md bg-[var(--yellow)]" style={{ width: `${width}%` }} />
+                      <div className="h-full rounded-md bg-amber-500" style={{ width: `${width}%` }} />
                     </div>
                   </div>
                 );
-              }) : <p className="text-sm text-[var(--text-secondary)]">No invite activity yet.</p>}
+              }) : <p className="text-sm text-slate-500">No invite activity yet.</p>}
             </div>
           </div>
 
-          <div className="rounded-lg border border-black/10 bg-[var(--bg)] p-5 shadow-sm">
-            <h3 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">Top Inviters</h3>
+          <div className="rounded-lg border border-black/10 bg-white p-5 shadow-sm">
+            <h3 className="font-syne text-xl font-extrabold text-slate-900">Top Inviters</h3>
             <div className="mt-4 space-y-2">
               {topInviters.length > 0 ? topInviters.map((item) => (
-                <div key={item.id} className="rounded-lg border border-black/10 bg-[var(--bg-primary)] px-3 py-2.5 flex items-center justify-between">
+                <div key={item.id} className="rounded-lg border border-black/10 bg-slate-50 px-3 py-2.5 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">{item.name}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">{item.email}</p>
+                    <p className="text-sm font-bold text-slate-900">{item.name}</p>
+                    <p className="text-xs text-slate-500">{item.email}</p>
                   </div>
                   <p className="font-syne text-xl font-extrabold text-[#A16207]">{item.count}</p>
                 </div>
-              )) : <p className="text-sm text-[var(--text-secondary)]">No successful invites yet.</p>}
+              )) : <p className="text-sm text-slate-500">No successful invites yet.</p>}
             </div>
           </div>
         </div>

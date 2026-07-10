@@ -52,6 +52,19 @@
   --color-prof-accent-amber: var(--prof-accent-amber);
   --color-prof-accent-red: var(--prof-accent-red);
   --color-prof-accent-indigo: var(--prof-accent-indigo);
+
+  --color-admin-bg-base: var(--admin-bg-base);
+  --color-admin-bg-surface: var(--admin-bg-surface);
+  --color-admin-bg-surface-raised: var(--admin-bg-surface-raised);
+  --color-admin-bg-surface-hover: var(--admin-bg-surface-hover);
+  --color-admin-bg-surface-active: var(--admin-bg-surface-active);
+  --color-admin-border-subtle: var(--admin-border-subtle);
+  --color-admin-border-strong: var(--admin-border-strong);
+  --color-admin-text-primary: var(--admin-text-primary);
+  --color-admin-text-secondary: var(--admin-text-secondary);
+  --color-admin-text-tertiary: var(--admin-text-tertiary);
+  --color-admin-accent: var(--admin-accent);
+  --color-admin-accent-soft-bg: var(--admin-accent-soft-bg);
 }
 
 @layer base {
