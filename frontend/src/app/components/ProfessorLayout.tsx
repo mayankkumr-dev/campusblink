@@ -84,7 +84,7 @@ export const ProfessorLayout: React.FC = () => {
       {/* Logo */}
       <div className="h-20 flex items-center justify-center shrink-0 pt-2">
         <Link to="/professor/home" className="no-underline cursor-pointer block transform hover:scale-105 transition-transform">
-          <ThemeAwareLogo alt="Campus Blink" className="h-28 w-auto object-contain" />
+          <ThemeAwareLogo alt="Campus Blink" className="h-8 w-auto object-contain" />
         </Link>
       </div>
 
@@ -157,7 +157,7 @@ export const ProfessorLayout: React.FC = () => {
       <div className="md:hidden flex items-center justify-between h-16 px-5 bg-white dark:bg-prof-bg-surface dark:border-b dark:border-prof-border-subtle shadow-sm dark:shadow-none sticky top-0 z-50 safe-area-top select-none">
         <Link to="/professor/home" className="no-underline cursor-pointer">
           <div className="h-14 overflow-hidden flex items-center pt-1">
-            <ThemeAwareLogo alt="Campus Blink" className="h-24 w-auto object-contain" />
+            <ThemeAwareLogo alt="Campus Blink" className="h-7 w-auto object-contain" />
           </div>
         </Link>
         <div className="flex items-center gap-3">
@@ -185,7 +185,7 @@ export const ProfessorLayout: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 md:ml-[304px] flex flex-col min-h-dvh">
-        <main className="flex-1 safe-area-bottom">
+        <main className="flex-1 mb-[calc(72px+env(safe-area-inset-bottom))] md:mb-0">
           <Outlet />
         </main>
       </div>
@@ -193,8 +193,8 @@ export const ProfessorLayout: React.FC = () => {
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
       <PushPermissionBanner />
 
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-prof-bg-surface/90 backdrop-blur-md border-t border-gray-100 dark:border-prof-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-around h-[72px] z-40 safe-area-bottom select-none pb-2">
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] flex items-center justify-around h-[calc(72px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] z-50 select-none">
         {navItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.to

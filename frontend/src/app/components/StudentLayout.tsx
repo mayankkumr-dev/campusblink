@@ -104,7 +104,7 @@ export const StudentLayout: React.FC = () => {
       <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-black/10 bg-[var(--bg)] px-4 md:hidden select-none">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
           <div className="h-16 overflow-hidden flex items-center">
-            <ThemeAwareLogo loading="lazy" alt="Campus Blink" className="h-24 w-auto object-contain" />
+            <ThemeAwareLogo loading="lazy" alt="Campus Blink" className="h-7 w-auto object-contain" />
           </div>
         </Link>
         <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export const StudentLayout: React.FC = () => {
       {/* Main Content */}
       <main className={`flex-1 flex flex-col w-full h-full pt-[60px] md:pt-0 overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
         {/* Scrollable main content */}
-        <div className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <div className="flex-1 overflow-y-auto mb-[calc(5rem+env(safe-area-inset-bottom))] md:mb-0">
         {activeAnnouncement && (
           <div className="m-6 rounded-lg px-4 py-4 border border-[var(--border)] bg-[var(--bg-primary)] shadow-soft">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -184,7 +184,7 @@ export const StudentLayout: React.FC = () => {
       </main>
 
       {/* Fixed Bottom Navigation - Mobile */}
-      <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-50 grid h-20 w-full grid-cols-5 border-t border-black/10 bg-[var(--bg)] px-1 md:hidden select-none">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 grid h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] w-full grid-cols-5 border-t border-black/10 bg-white px-1 md:hidden select-none shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path || '');

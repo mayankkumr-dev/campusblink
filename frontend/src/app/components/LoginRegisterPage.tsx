@@ -714,7 +714,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-6 md:p-12 relative z-10">
           <div className="flex justify-center mb-8">
             <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[85px] w-auto object-contain shrink-0" />
+              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-10 w-auto object-contain shrink-0" />
             </Link>
           </div>
 
@@ -767,7 +767,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-6 md:p-12 relative z-10">
           <div className="flex justify-center mb-8">
             <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[85px] w-auto object-contain shrink-0" />
+              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-10 w-auto object-contain shrink-0" />
             </Link>
           </div>
 
@@ -912,7 +912,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-5 md:p-8 lg:px-9 lg:py-7 relative z-10 overflow-y-auto">
         <div className="flex justify-center mb-4 lg:mb-3">
           <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-            <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[68px] w-auto object-contain shrink-0" />
+            <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-9 w-auto object-contain shrink-0" />
           </Link>
         </div>
 

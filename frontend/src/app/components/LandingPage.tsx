@@ -152,8 +152,8 @@ export const LandingPage: React.FC = () => {
             <ThemeAwareLogo
               alt="Campus Blink"
               loading="eager"
-              height={56}
-              className="h-12 md:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+              height={34}
+              className="h-8 md:h-9 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </Link>
 

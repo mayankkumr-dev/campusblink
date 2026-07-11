@@ -178,7 +178,7 @@ export const PWALayer: React.FC = () => {
       )}
 
       {showInstallBanner && !inStandalone && deferredPrompt && (
-        <div className="fixed bottom-4 left-4 right-4 z-[120] rounded-lg border border-black/10 bg-[var(--bg)]/95 p-4 shadow-strong ">
+        <div className="fixed left-4 right-4 z-[120] rounded-lg border border-black/10 bg-white p-4 shadow-strong bottom-[calc(5rem+env(safe-area-inset-bottom)+1rem)] md:bottom-4">
           <div className="flex items-center gap-3">
             <ThemeAwareLogo alt="Campus Blink" className="h-10 w-10 rounded-lg" />
             <div className="min-w-0 flex-1">
@@ -196,7 +196,7 @@ export const PWALayer: React.FC = () => {
       )}
 
       {showIOSBanner && !inStandalone && (
-        <div className="fixed bottom-4 left-4 right-4 z-[120] rounded-lg border border-black/10 bg-[var(--bg)] p-4 shadow-strong">
+        <div className="fixed left-4 right-4 z-[120] rounded-lg border border-black/10 bg-white p-4 shadow-strong bottom-[calc(5rem+env(safe-area-inset-bottom)+1rem)] md:bottom-4">
           <div className="flex items-start gap-3">
             <Download className="mt-1 h-5 w-5 text-[var(--text-primary)]" />
             <div className="min-w-0 flex-1">
@@ -212,7 +212,7 @@ export const PWALayer: React.FC = () => {
 
       {showNotificationPrompt && (
         <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/35 p-4 md:items-center">
-          <div className="w-full max-w-md rounded-lg bg-[var(--bg)] p-5 shadow-strong">
+          <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-strong">
             <div className="mb-3 flex items-center gap-2">
               <ThemeAwareLogo alt="Campus Blink" className="h-5 w-5 rounded-md object-contain" />
               <h3 className="text-base font-extrabold text-[var(--text-primary)]">Get notified when your order is ready?</h3>

@@ -110,7 +110,7 @@ export const CanteenDashboardPage: React.FC = () => {
             <ThemeAwareLogo
               alt="Campus Blink"
               loading="eager"
-              className="h-12 w-auto object-contain"
+              className="h-8 w-auto object-contain"
             />
           </Link>
         </div>
