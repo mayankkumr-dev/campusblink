@@ -36,6 +36,9 @@
   --bg-tertiary: var(--bg-surface-elevated);
   --text-muted: var(--text-secondary);
   --border-strong: var(--border-2);
+  --yellow: var(--accent-amber);
+  --yellow-light: var(--accent-amber-soft);
+  
   /* Shop specific light mode tokens */
   --shop-bg-base: #F8FAFC;
   --shop-bg-surface: #FFFFFF;
@@ -90,6 +93,8 @@
   --color-slate-800: var(--text-primary);
   --color-slate-900: var(--text-primary);
   --color-black: var(--text-inverse);
+  --yellow: var(--accent-amber);
+  --yellow-light: var(--accent-amber-soft);
 
   /* Professor specific dark mode tokens */
   --prof-bg-base: #0D0F14;
