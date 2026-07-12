@@ -15,47 +15,80 @@ export const AuthCallbackPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
+    let mounted = true;
+
     const finalize = async () => {
-      const query = new URLSearchParams(location.search);
-      const tokenHash = query.get('token_hash');
-      const type = (query.get('type') as 'signup' | 'recovery' | 'magiclink' | 'invite' | 'email_change') || 'signup';
+      try {
+        const query = new URLSearchParams(location.search);
+        const tokenHash = query.get('token_hash');
+        const code = query.get('code');
+        const type = (query.get('type') as 'signup' | 'recovery' | 'magiclink' | 'invite' | 'email_change') || 'signup';
 
-      if (!tokenHash) {
-        // No token — possibly a stale or malformed link. Redirect to login.
-        navigate('/login', { replace: true });
-        return;
-      }
+        // Check if there is an error in the URL (e.g. ?error=access_denied&error_description=...)
+        const errorDescription = query.get('error_description');
+        if (errorDescription) {
+          if (mounted) {
+            setErrorMessage(errorDescription);
+            setState('error');
+          }
+          return;
+        }
 
-      const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+        // If a PKCE code is provided, exchange it for a session
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } 
+        // If a token_hash is provided, verify the OTP directly
+        else if (tokenHash) {
+          const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+          if (error) throw error;
+        }
+        // If there's an access_token in the URL hash, Supabase client automatically handles it.
+        // We just need to check if we now have a session.
+        else if (location.hash.includes('access_token')) {
+          // Wait briefly for Supabase to parse the hash and set the session
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error || !session) {
+            throw new Error('Failed to extract session from URL.');
+          }
+        } 
+        else {
+          // No token, no code, no hash — invalid callback URL.
+          if (mounted) navigate('/login', { replace: true });
+          return;
+        }
 
-      if (error) {
-        const msg = String(error?.message || '').toLowerCase();
-        if (msg.includes('expired') || msg.includes('invalid')) {
+        if (type === 'recovery') {
+          // Password reset flow — redirect to reset-password page to set new password
+          if (mounted) navigate('/reset-password', { replace: true });
+          return;
+        }
+
+        // Email verified — clear pending email key so login doesn't re-show post-signup screen
+        localStorage.removeItem(VERIFY_EMAIL_KEY);
+        if (mounted) {
+          setState('success');
+          setTimeout(() => {
+            if (mounted) navigate('/login?verified=1', { replace: true });
+          }, 2000);
+        }
+      } catch (err: any) {
+        if (!mounted) return;
+        const msg = String(err?.message || '').toLowerCase();
+        if (msg.includes('expired') || msg.includes('invalid') || msg.includes('flow state not found')) {
           setErrorMessage('This verification link has expired or was already used. Please request a new one from the sign-in page.');
         } else {
           setErrorMessage('Something went wrong verifying your email. Try clicking the link again or request a new one.');
         }
         setState('error');
-        return;
       }
-
-      if (type === 'recovery') {
-        // Password reset flow — redirect to reset-password page to set new password
-        navigate('/reset-password', { replace: true });
-        return;
-      }
-
-      // Email verified — clear pending email key so login doesn't re-show post-signup screen
-      localStorage.removeItem(VERIFY_EMAIL_KEY);
-      setState('success');
-
-      setTimeout(() => {
-        navigate('/login?verified=1', { replace: true });
-      }, 2000);
     };
 
     finalize();
-  }, []);
+    return () => { mounted = false; };
+  }, [location.search, location.hash, navigate]);
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center gap-8 text-[var(--text-primary)] font-sans px-6">
