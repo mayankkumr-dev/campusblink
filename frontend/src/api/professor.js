@@ -351,11 +351,31 @@ async function getAuthHeader() {
   return {};
 }
 
+const HEROKU_API_URL = 'https://campus-blink-api-server-b8fe7246b471.herokuapp.com';
+
+async function fetchWithScheduleFallback(endpoint, options = {}) {
+  const primaryUrl = import.meta.env.VITE_BACKEND_URL || (
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3000'
+      : HEROKU_API_URL
+  );
+
+  try {
+    const res = await fetch(`${primaryUrl}${endpoint}`, options);
+    return res;
+  } catch (err) {
+    if (primaryUrl !== HEROKU_API_URL) {
+      console.warn(`Local backend unreachable at ${primaryUrl}, falling back to Heroku API`);
+      return await fetch(`${HEROKU_API_URL}${endpoint}`, options);
+    }
+    throw err;
+  }
+}
+
 export async function getProfessorSchedule() {
   try {
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const authHeaders = await getAuthHeader();
-    const res = await fetch(`${API_URL}/api/professor/schedule`, {
+    const res = await fetchWithScheduleFallback('/api/professor/schedule', {
       credentials: 'include',
       headers: { ...authHeaders },
     });
@@ -382,9 +402,8 @@ export async function saveProfessorSchedule(schedule) {
     if (Array.isArray(schedule)) {
       localStorage.setItem('prof_parsed_schedule', JSON.stringify(schedule));
     }
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const authHeaders = await getAuthHeader();
-    const res = await fetch(`${API_URL}/api/professor/schedule`, {
+    const res = await fetchWithScheduleFallback('/api/professor/schedule', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', ...authHeaders },
       credentials: 'include',
@@ -400,14 +419,31 @@ export async function saveProfessorSchedule(schedule) {
   return { data: schedule, error: null };
 }
 
+export async function deleteProfessorSchedule() {
+  try {
+    localStorage.removeItem('prof_parsed_schedule');
+    const authHeaders = await getAuthHeader();
+    const res = await fetchWithScheduleFallback('/api/professor/schedule', {
+      method: 'DELETE',
+      headers: { ...authHeaders },
+      credentials: 'include',
+    });
+    if (res.ok) {
+      return { success: true, error: null };
+    }
+  } catch (err) {
+    console.error('Error deleting schedule:', err);
+  }
+  return { success: true, error: null };
+}
+
 export async function uploadProfessorScheduleFile(file) {
   try {
-    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
     const authHeaders = await getAuthHeader();
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetch(`${API_URL}/api/professor/schedule/upload`, {
+    const res = await fetchWithScheduleFallback('/api/professor/schedule/upload', {
       method: 'POST',
       credentials: 'include',
       headers: {

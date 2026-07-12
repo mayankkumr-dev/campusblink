@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import { supabase } from '../../lib/supabase';
 import { signOut } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
-import { uploadProfessorScheduleFile, getProfessorSchedule, saveProfessorSchedule } from '../../api/professor';
+import { uploadProfessorScheduleFile, getProfessorSchedule, saveProfessorSchedule, deleteProfessorSchedule } from '../../api/professor';
 
 export const ProfessorSettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -127,6 +127,18 @@ export const ProfessorSettingsPage: React.FC = () => {
       });
       toast.success('Timetable saved successfully!');
     }
+  };
+
+  const handleDeleteSchedule = async () => {
+    if (!window.confirm('Are you sure you want to delete your saved schedule?')) return;
+    const toastId = toast.loading('Deleting schedule...');
+    await deleteProfessorSchedule();
+    setManualSlots([]);
+    setParsedScheduleInfo(null);
+    setSelectedFile(null);
+    setUploadingStep(0);
+    localStorage.removeItem('prof_parsed_schedule');
+    toast.success('Schedule deleted successfully!', { id: toastId });
   };
 
   const handleScheduleUpload = async (file: File) => {
@@ -337,13 +349,22 @@ export const ProfessorSettingsPage: React.FC = () => {
                                 <p className="text-xs text-gray-500 dark:text-prof-text-secondary">{parsedScheduleInfo.metadata?.filename} • {parsedScheduleInfo.metadata?.totalClasses || 17} Classes Extracted</p>
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => { setUploadingStep(0); setSelectedFile(null); }}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
-                            >
-                              <RefreshCw className="w-3.5 h-3.5" /> Re-upload
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => { setUploadingStep(0); setSelectedFile(null); }}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5" /> Re-upload
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleDeleteSchedule}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                              </button>
+                            </div>
                           </div>
 
                           <div className="flex flex-wrap gap-2 pt-2">
@@ -393,15 +414,26 @@ export const ProfessorSettingsPage: React.FC = () => {
                             Add or edit schedule slots manually without invented full forms ({manualSlots.length} slots).
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={handleSaveManualSchedule}
-                          disabled={savingManual}
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
-                        >
-                          {savingManual ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                          Save Schedule
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {manualSlots.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleDeleteSchedule}
+                              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/40 text-xs font-bold transition-all"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Delete Schedule
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleSaveManualSchedule}
+                            disabled={savingManual}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                          >
+                            {savingManual ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                            Save Schedule
+                          </button>
+                        </div>
                       </div>
 
                       {/* Add Slot Form */}
