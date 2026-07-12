@@ -340,3 +340,95 @@ export async function reapproveProfessor(adminId, professorId) {
     return { data: null, error };
   }
 }
+
+async function getAuthHeader() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      return { Authorization: `Bearer ${session.access_token}` };
+    }
+  } catch (_) {}
+  return {};
+}
+
+export async function getProfessorSchedule() {
+  try {
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const authHeaders = await getAuthHeader();
+    const res = await fetch(`${API_URL}/api/professor/schedule`, {
+      credentials: 'include',
+      headers: { ...authHeaders },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json.schedule)) {
+        localStorage.setItem('prof_parsed_schedule', JSON.stringify(json.schedule));
+        return { data: json.schedule, error: null };
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching professor schedule:', err);
+  }
+  // Local cache fallback
+  try {
+    const cached = localStorage.getItem('prof_parsed_schedule');
+    if (cached) return { data: JSON.parse(cached), error: null };
+  } catch (_) {}
+  return { data: [], error: null };
+}
+
+export async function saveProfessorSchedule(schedule) {
+  try {
+    if (Array.isArray(schedule)) {
+      localStorage.setItem('prof_parsed_schedule', JSON.stringify(schedule));
+    }
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const authHeaders = await getAuthHeader();
+    const res = await fetch(`${API_URL}/api/professor/schedule`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+      credentials: 'include',
+      body: JSON.stringify({ schedule }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      return { data: json.schedule || schedule, error: null };
+    }
+  } catch (err) {
+    console.error('Error saving schedule:', err);
+  }
+  return { data: schedule, error: null };
+}
+
+export async function uploadProfessorScheduleFile(file) {
+  try {
+    const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const authHeaders = await getAuthHeader();
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_URL}/api/professor/schedule/upload`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        ...authHeaders,
+      },
+      body: formData,
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.error || 'Failed to parse timetable upload');
+    }
+
+    if (Array.isArray(json.schedule)) {
+      localStorage.setItem('prof_parsed_schedule', JSON.stringify(json.schedule));
+    }
+
+    return { data: json, error: null };
+  } catch (err) {
+    console.error('Upload schedule error:', err);
+    return { data: null, error: err };
+  }
+}
+

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { Bell, Home, MoreHorizontal, Search, Store, User, Users, Star, Settings, UtensilsCrossed, Printer, Building2 } from 'lucide-react';
+import { Bell, Home, MoreHorizontal, Search, Store, User, Users, Star, Settings, UtensilsCrossed, Printer, Building2, ClipboardCheck } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';

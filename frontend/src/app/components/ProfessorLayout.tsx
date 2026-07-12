@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, NavLink, useNavigate, useLocation } from 'react-router';
-import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings } from 'lucide-react';
+import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings, ClipboardCheck } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
 import { ProfessorBadge } from './ProfessorBadge';
@@ -70,6 +70,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const navItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
+    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
     { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },

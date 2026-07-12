@@ -21,8 +21,15 @@ const uploadRoutes = require('./routes/uploads');
 const pushRoutes = require('./routes/push');
 const usersRoutes = require('./routes/users');
 const feedRoutes = require('./routes/feed');
+const attendanceRoutes = require('./routes/attendance');
+const http = require('http');
+const { initSocket } = require('./config/socket');
+const { connectDB } = require('./config/db');
 
 const app = express();
+const server = http.createServer(app);
+const io = initSocket(server);
+app.set('io', io);
 
 // Trust proxy
 app.set('trust proxy', 1);
@@ -99,6 +106,7 @@ app.use('/api/print', generalLimiter, printRoutes);
 app.use('/api/uploads', generalLimiter, uploadRoutes);
 app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
+app.use('/api/attendance', generalLimiter, attendanceRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -131,7 +139,9 @@ validateStartupSecrets();
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+connectDB().catch(err => console.error('[Startup] MongoDB connection check error:', err.message));
+
+server.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   if (process.env.NODE_ENV !== 'production') {
@@ -147,4 +157,4 @@ app.listen(PORT, () => {
   });
 });
 
-module.exports = app;
+module.exports = { app, server, io };

@@ -19,6 +19,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  ClipboardCheck,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 

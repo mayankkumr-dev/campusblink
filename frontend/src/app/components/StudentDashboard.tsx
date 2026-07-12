@@ -14,7 +14,8 @@ import {
   Award,
   Share2,
   Clock,
-  ExternalLink
+  ExternalLink,
+  WifiOff
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
@@ -35,6 +36,18 @@ export const StudentDashboard: React.FC = () => {
   const [isRefreshingInvites, setIsRefreshingInvites] = useState(false);
   const [clockNow, setClockNow] = useState(Date.now());
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const firstName = useMemo(() => getFirstName(profile?.name, 'Student'), [profile?.name]);
   const repBalance = Number(profile?.campus_credits ?? 0);
@@ -200,7 +213,27 @@ export const StudentDashboard: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-background min-h-full">
-
+      {/* Offline Status Banner */}
+      {isOffline && (
+        <div className="bg-amber-500/15 dark:bg-amber-950/50 border border-amber-400/50 dark:border-amber-700/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm transition-all">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <WifiOff className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-amber-950 dark:text-amber-200 font-syne">
+                You are currently offline
+              </p>
+              <p className="text-xs text-amber-800/90 dark:text-amber-300/80 font-medium">
+                Campus Blink is running in offline mode. Cached features are available and new actions will sync automatically when your connection is restored.
+              </p>
+            </div>
+          </div>
+          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-white shadow-xs self-start sm:self-auto shrink-0">
+            Offline Mode
+          </span>
+        </div>
+      )}
 
       {/* Hero Header Card (Light Mode Premium SaaS Aesthetic) */}
       <div className="md:bg-surface md:border md:border-border-subtle md:rounded-3xl max-md:bg-white max-md:border-none max-md:rounded-[24px] max-md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8 shadow-xs relative overflow-hidden">
