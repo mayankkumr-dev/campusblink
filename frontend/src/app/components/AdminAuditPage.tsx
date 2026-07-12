@@ -56,7 +56,7 @@ export const AdminAuditPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50">
-            <ShieldAlert className="h-4.5 w-4.5 text-rose-600" />
+            <ShieldAlert className="h-4.5 w-4.5 text-rose-600 dark:text-rose-400 transition-colors" />
           </div>
           <div>
             <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">Audit Log</h2>
@@ -86,7 +86,7 @@ export const AdminAuditPage: React.FC = () => {
 
       {/* Immutability notice */}
       <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3.5 shadow-sm">
-        <ShieldAlert className="h-4.5 w-4.5 text-rose-600 shrink-0 mt-0.5" />
+        <ShieldAlert className="h-4.5 w-4.5 text-rose-600 shrink-0 mt-0.5 dark:text-rose-400 transition-colors" />
         <p className="text-sm text-rose-800">
           <strong>Immutable Audit Trail:</strong> Every administrative action is permanently logged here.
           This log cannot be modified or deleted and is used for security and compliance audits.
@@ -109,7 +109,7 @@ export const AdminAuditPage: React.FC = () => {
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-7 w-7 animate-spin text-amber-500" />
+            <Loader2 className="h-7 w-7 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
           </div>
         ) : (
           <div className="overflow-x-auto">

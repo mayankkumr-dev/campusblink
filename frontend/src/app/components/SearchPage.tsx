@@ -187,7 +187,7 @@ export const SearchPage: React.FC = () => {
         {/* No query state */}
         {!activeQuery && !isLoading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-[var(--text-muted)]">
-            <Search className="h-10 w-10 text-[var(--border)]" />
+            <Search className="h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
             <p className="font-sans text-[15px]">Search for students, posts, or listings</p>
           </div>
         )}
@@ -195,7 +195,7 @@ export const SearchPage: React.FC = () => {
         {/* Zero results */}
         {activeQuery && !isLoading && totalCount === 0 && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-[var(--text-muted)]">
-            <Search className="h-10 w-10 text-[var(--border)]" />
+            <Search className="h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
             <p className="font-sans text-[15px]">No results for &apos;{activeQuery}&apos;</p>
           </div>
         )}

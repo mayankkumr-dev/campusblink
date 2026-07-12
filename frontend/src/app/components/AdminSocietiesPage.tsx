@@ -175,7 +175,7 @@ export const AdminSocietiesPage = () => {
         <div className="text-center py-12 text-slate-500">Loading societies...</div>
       ) : societies.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-black/[0.08]">
-          <Building2 className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+          <Building2 className="w-12 h-12 text-slate-500 mx-auto mb-3 dark:text-slate-400 transition-colors" />
           <h3 className="font-semibold text-slate-900">No Societies Found</h3>
           <p className="text-sm text-slate-500">Create your first society account to get started.</p>
         </div>
@@ -202,7 +202,7 @@ export const AdminSocietiesPage = () => {
                           {society.avatar_url ? (
                             <img src={society.avatar_url} alt={society.name} className="w-full h-full object-cover" />
                           ) : (
-                            <Building2 className="w-4 h-4 text-slate-500" />
+                            <Building2 className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" />
                           )}
                         </div>
                         <span className="font-medium text-slate-900">{society.name}</span>
@@ -252,7 +252,7 @@ export const AdminSocietiesPage = () => {
                 <label className="block text-sm font-medium text-slate-900 mb-1">Society Name</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Building2 className="h-4 w-4 text-slate-500" />
+                    <Building2 className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
                   </div>
                   <input
                     type="text"
@@ -269,7 +269,7 @@ export const AdminSocietiesPage = () => {
                 <label className="block text-sm font-medium text-slate-900 mb-1">Username</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-slate-500" />
+                    <User className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
                   </div>
                   <input
                     type="text"
@@ -288,7 +288,7 @@ export const AdminSocietiesPage = () => {
                 <label className="block text-sm font-medium text-slate-900 mb-1">Email</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Mail className="h-4 w-4 text-slate-500" />
+                    <Mail className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
                   </div>
                   <input
                     type="email"
@@ -305,7 +305,7 @@ export const AdminSocietiesPage = () => {
                 <label className="block text-sm font-medium text-slate-900 mb-1">Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <Lock className="h-4 w-4 text-slate-500" />
+                    <Lock className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
                   </div>
                   <input
                     type="password"
@@ -330,7 +330,7 @@ export const AdminSocietiesPage = () => {
                   />
                   <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <Palette className="h-4 w-4 text-slate-500" />
+                      <Palette className="h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
                     </div>
                     <input
                       type="text"

@@ -165,7 +165,7 @@ export const AdminPrintShopsPage: React.FC = () => {
       {/* Top Bar */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white p-4 rounded-lg border border-black/[0.08]">
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors dark:text-slate-400" />
           <input 
             type="text" 
             placeholder="Search print shop or owner..." 
@@ -199,7 +199,7 @@ export const AdminPrintShopsPage: React.FC = () => {
       <div className="bg-white border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
           </div>
         ) : (
         <table className="w-full text-left border-collapse">
@@ -253,13 +253,13 @@ export const AdminPrintShopsPage: React.FC = () => {
                     <div className="absolute right-[50px] top-4 w-56 bg-slate-100 border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100">
                       
                       <button onClick={() => { navigate(`/admin/print/${shop.id}`); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Eye className="w-4 h-4 text-slate-500" /> Schedule & Status
+                        <Eye className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Schedule & Status
                       </button>
                       <button onClick={() => handleOpenEdit(shop)} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Edit3 className="w-4 h-4 text-slate-500" /> Edit Details
+                        <Edit3 className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Edit Details
                       </button>
                       <button onClick={() => { navigate(`/admin/print/orders?shop=${shop.id}`); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-amber-500" /> Print Orders
+                        <FileText className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" /> Print Orders
                       </button>
                       <button className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
                         <Package className="w-4 h-4 text-accent-green" /> Manage Stationery
@@ -268,7 +268,7 @@ export const AdminPrintShopsPage: React.FC = () => {
                       <div className="h-px bg-slate-100 my-1" />
                       
                       <button className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-amber-500" /> Contact Owner
+                        <Mail className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" /> Contact Owner
                       </button>
                       
                       {!shop.is_active ? (

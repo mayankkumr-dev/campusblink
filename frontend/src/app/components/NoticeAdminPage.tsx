@@ -69,7 +69,7 @@ function isPinnedAndActive(notice: any): boolean {
 }
 
 function getFileIcon(type: string) {
-  if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-violet-600" />;
+  if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-violet-600 dark:text-violet-400 transition-colors" />;
   return <FileText className="w-4 h-4 text-accent-red" />;
 }
 

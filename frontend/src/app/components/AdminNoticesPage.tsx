@@ -69,7 +69,7 @@ function isPinnedAndActive(notice: any): boolean {
 }
 
 function getFileIcon(type: string) {
-  if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-violet-600" />;
+  if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-violet-600 dark:text-violet-400 transition-colors" />;
   return <FileText className="w-4 h-4 text-accent-red" />;
 }
 
@@ -162,13 +162,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading 
 
   return (
     <div className="space-y-3">
+      {/* ── DESKTOP VIEWPORT ── */}
       <div
         onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative rounded-2xl border-2 border-dashed p-6 flex flex-col items-center gap-2 cursor-pointer transition-all ${
+        className={`hidden md:flex relative rounded-2xl border-2 border-dashed p-6 flex-col items-center gap-2 cursor-pointer transition-all ${
           dragging ? 'border-amber-400 bg-accent-amber-soft' : 'border-border-subtle bg-slate-50/60 hover:border-amber-300 hover:bg-amber-50/40'
         }`}
       >
@@ -179,13 +180,29 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading 
         <p className="text-[11px] text-text-secondary font-medium text-center">
           PDFs, images, Word, Excel — up to 25 MB each
         </p>
-        <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES} onChange={handleFileInput} className="sr-only" />
         {uploading && (
           <div className="absolute inset-0 bg-white/70 rounded-2xl flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-accent-amber" />
           </div>
         )}
       </div>
+
+      {/* ── MOBILE VIEWPORT ── */}
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        className={`md:hidden relative w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover p-3 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm dark:shadow-none ${uploading ? 'opacity-70 pointer-events-none' : ''}`}
+      >
+        {uploading ? (
+          <Loader2 className="w-4 h-4 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
+        ) : (
+          <UploadCloud className="w-4 h-4 text-slate-500 dark:text-admin-text-secondary" />
+        )}
+        <span className="text-[11px] font-bold text-slate-700 dark:text-admin-text-primary uppercase tracking-wider transition-colors">
+          {uploading ? 'Uploading...' : 'Choose File'}
+        </span>
+      </div>
+      
+      <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES} onChange={handleFileInput} className="sr-only" />
 
       {files.length > 0 && (
         <div className="space-y-2">
@@ -462,16 +479,16 @@ export const AdminNoticesPage: React.FC = () => {
                     <label className="block text-[11px] font-bold text-text-primary uppercase tracking-wider mb-2">
                       Target Audience
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex md:flex-wrap gap-2 overflow-x-auto hide-scrollbar pb-1 -mx-2 px-2 md:mx-0 md:px-0">
                       {YEAR_OPTIONS.map((opt) => (
                         <button
                           type="button"
                           key={opt.value}
                           onClick={() => setTargetYear(opt.value)}
-                          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all ${
+                          className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[11px] md:text-xs font-bold transition-all shadow-sm ${
                             targetYear === opt.value
                               ? 'ring-2 ring-amber-500 ring-offset-1 ' + opt.color
-                              : 'bg-surface border-border-subtle text-text-secondary hover:border-slate-300'
+                              : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
                           }`}
                         >
                           <Users className="w-3.5 h-3.5" />
@@ -489,17 +506,33 @@ export const AdminNoticesPage: React.FC = () => {
                     <FileUploader files={files} onChange={setFiles} uploading={isUploading} />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || isUploading}
-                    className="w-full h-11 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
-                    ) : (
-                      <><Megaphone className="w-4 h-4" /> Publish Notice</>
-                    )}
-                  </button>
+                  {/* Action Dock (Desktop inline, Mobile sticky bottom) */}
+                  <div className="md:block hidden">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || isUploading}
+                      className="w-full h-11 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
+                      ) : (
+                        <><Megaphone className="w-4 h-4" /> Publish Notice</>
+                      )}
+                    </button>
+                  </div>
+                  <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-admin-bg-base/95 backdrop-blur-md border-t border-slate-100 dark:border-admin-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-none z-40 pb-safe transition-colors">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || isUploading}
+                      className="w-full h-12 rounded-xl bg-amber-500 active:bg-amber-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-200/50 disabled:opacity-60"
+                    >
+                      {isSubmitting ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
+                      ) : (
+                        <><Megaphone className="w-4 h-4" /> Publish Notice</>
+                      )}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -516,17 +549,17 @@ export const AdminNoticesPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="divide-y divide-slate-100 overflow-y-auto max-h-[calc(100vh-280px)] hide-scrollbar">
+                <div className="flex md:block flex-row overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-3 p-4 md:p-0 md:divide-y md:divide-slate-100 dark:md:divide-admin-border-subtle md:max-h-[calc(100vh-280px)] md:overflow-y-auto hide-scrollbar -mx-4 md:mx-0 transition-colors">
                   {isLoadingNotices && (
-                    <div className="flex items-center justify-center py-20">
+                    <div className="flex items-center justify-center py-10 md:py-20 w-full shrink-0 snap-center">
                       <Loader2 className="w-5 h-5 animate-spin text-accent-amber" />
                     </div>
                   )}
 
                   {!isLoadingNotices && notices.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                      <Megaphone className="w-8 h-8 text-text-placeholder mb-3 stroke-[1.5]" />
-                      <p className="text-sm font-bold text-text-primary">No notices yet</p>
+                    <div className="flex flex-col items-center justify-center py-10 md:py-16 text-center px-6 w-full shrink-0 snap-center border border-slate-100 dark:border-admin-border-subtle rounded-2xl md:border-0 md:rounded-none transition-colors">
+                      <Megaphone className="w-8 h-8 text-slate-300 dark:text-admin-text-tertiary mb-3 stroke-[1.5] transition-colors" />
+                      <p className="text-sm font-bold text-slate-900 dark:text-admin-text-primary transition-colors">No notices yet</p>
                     </div>
                   )}
 
@@ -535,114 +568,114 @@ export const AdminNoticesPage: React.FC = () => {
                     const isActionLoading = actionLoadingId === notice.id;
 
                     return (
-                      <div key={notice.id} className={`p-5 transition-colors ${notice.is_deleted ? 'bg-surface' : 'hover:bg-slate-50/50'}`}>
-                        <div className="flex items-start justify-between gap-3">
+                      <div key={notice.id} className={`w-[85vw] md:w-auto shrink-0 snap-center rounded-2xl md:rounded-none border border-slate-100 dark:border-admin-border-subtle md:border-0 p-4 md:p-5 transition-colors shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none bg-white dark:bg-admin-bg-surface ${notice.is_deleted ? 'md:bg-surface opacity-80' : 'md:hover:bg-slate-50/50'}`}>
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 h-full">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
-                              {pinActive && <Pin className="w-3 h-3 text-accent-amber fill-amber-600 shrink-0" />}
+                              {pinActive && <Pin className="w-3 h-3 text-amber-500 fill-amber-500 shrink-0 dark:text-amber-400 transition-colors" />}
                               {notice.is_deleted && (
-                                <span className="px-2 py-0.5 rounded-full bg-accent-red/15 text-accent-red text-[10px] font-bold border border-rose-200">
-                                  DELETED (placeholder visible)
+                                <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 text-[9px] font-extrabold uppercase tracking-wider">
+                                  Deleted
                                 </span>
                               )}
-                              <h3 className={`font-syne text-sm font-bold leading-snug truncate ${notice.is_deleted ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
+                              <h3 className={`font-syne text-[13px] md:text-sm font-bold leading-snug line-clamp-2 transition-colors ${notice.is_deleted ? 'line-through text-slate-400 dark:text-admin-text-tertiary' : 'text-slate-900 dark:text-admin-text-primary'}`}>
                                 {notice.title}
                               </h3>
                             </div>
 
                             {!notice.is_deleted && (
-                              <p className="text-xs text-text-secondary font-medium line-clamp-2 mt-0.5">
+                              <p className="text-[11px] md:text-xs text-slate-500 font-medium line-clamp-2 mt-1 mb-2">
                                 {notice.content}
                               </p>
                             )}
 
-                            <div className="flex items-center gap-3 mt-2">
-                              <div className="flex items-center gap-1 text-[10px] text-text-secondary font-medium">
+                            <div className="flex items-center gap-2 flex-wrap mt-auto pt-2">
+                              <div className="flex items-center gap-1 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
                                 <Calendar className="w-3 h-3" />
                                 {formatDate(notice.created_at)}
                               </div>
-                              <span className="px-2 py-0.5 rounded-full bg-surface-elevated text-text-secondary text-[10px] font-bold">
+                              <span className="px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 text-[9px] font-extrabold uppercase tracking-wider border border-slate-100">
                                 {yearLabel(notice.target_year)}
                               </span>
                               {pinActive && notice.pin_expires_at && (
-                                <span className="px-2 py-0.5 rounded-full bg-accent-amber-soft text-accent-amber text-[10px] font-bold border border-amber-100">
+                                <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[9px] font-extrabold uppercase tracking-wider border border-amber-100">
                                   <Clock className="w-2.5 h-2.5 inline mr-0.5" />
-                                  Expires {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                  Exp {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                                 </span>
                               )}
                             </div>
 
-                            {/* Author & Deleter visibility (for Admins) */}
-                            <div className="mt-2.5 p-2 rounded-xl bg-surface-elevated/80 border border-border-subtle text-[10px] font-medium text-text-secondary flex flex-col gap-1">
-                                <div className="flex items-center gap-1.5">
-                                  <User className="w-3 h-3 text-text-secondary/70" />
-                                  <span className="font-bold text-text-primary">Sent by:</span> {notice.author?.name || notice.author?.email || 'Unknown'}
+                            {/* Author & Deleter visibility */}
+                            <div className="mt-3 p-2 rounded-xl bg-slate-50/50 border border-slate-100 text-[9px] font-semibold text-slate-500 flex flex-col gap-1 uppercase tracking-wider">
+                                <div className="flex items-center gap-1.5 truncate">
+                                  <User className="w-3 h-3 text-slate-400" />
+                                  <span className="font-extrabold text-slate-700">By:</span> {notice.author?.name || notice.author?.email || 'Unknown'}
                                 </div>
                                 {notice.is_deleted && notice.deleted_by && (
-                                  <div className="flex items-center gap-1.5 text-accent-red">
-                                    <Trash2 className="w-3 h-3 text-accent-red" />
-                                    <span className="font-bold">Deleted by:</span> {notice.deleted_by?.name || notice.deleted_by?.email || 'Unknown'}
+                                  <div className="flex items-center gap-1.5 text-rose-500 truncate">
+                                    <Trash2 className="w-3 h-3" />
+                                    <span className="font-extrabold">Del:</span> {notice.deleted_by?.name || notice.deleted_by?.email || 'Unknown'}
                                   </div>
                                 )}
                               </div>
                           </div>
 
                           {/* Actions */}
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            {/* Pin / Unpin button — opens modal for pin */}
+                          <div className="flex items-center gap-2 shrink-0 md:flex-col pt-3 border-t border-slate-100 dark:border-admin-border-subtle md:pt-0 md:border-0 mt-3 md:mt-0 transition-colors">
+                            {/* Pin / Unpin button */}
                             {!notice.is_deleted && (
                               <button
                                 type="button"
                                 title={pinActive ? 'Unpin notice' : 'Pin notice (set duration)'}
                                 onClick={() => handlePinClick(notice)}
                                 disabled={isActionLoading}
-                                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 ${
-                                  pinActive ? 'bg-accent-amber-soft text-accent-amber hover:bg-amber-100' : 'bg-surface-elevated text-text-secondary hover:bg-border-subtle'
+                                className={`flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1 ${
+                                  pinActive ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'
                                 }`}
                               >
                                 {isActionLoading ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 ) : pinActive ? (
-                                  <PinOff className="w-3.5 h-3.5" />
+                                  <><PinOff className="w-3.5 h-3.5" /><span className="md:hidden">Unpin</span></>
                                 ) : (
-                                  <Pin className="w-3.5 h-3.5" />
+                                  <><Pin className="w-3.5 h-3.5" /><span className="md:hidden">Pin</span></>
                                 )}
                               </button>
                             )}
 
-                            {/* Soft delete / Restore (notice admin) */}
+                            {/* Soft delete / Restore */}
                             <button
                               type="button"
                               title={notice.is_deleted ? 'Restore notice' : 'Soft-delete (shows placeholder)'}
                               onClick={() => handleSoftDelete(notice)}
                               disabled={isActionLoading}
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 ${
+                              className={`flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1 ${
                                 notice.is_deleted
-                                  ? 'bg-accent-green/15 text-accent-green hover:bg-emerald-100'
-                                  : 'bg-surface-elevated text-text-secondary hover:bg-rose-50 hover:text-rose-600'
+                                  ? 'bg-emerald-50 text-emerald-600'
+                                  : 'bg-slate-50 text-slate-500 hover:text-rose-600 hover:bg-rose-50'
                               }`}
                             >
                               {isActionLoading ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                               ) : notice.is_deleted ? (
-                                <RotateCcw className="w-3.5 h-3.5" />
+                                <><RotateCcw className="w-3.5 h-3.5" /><span className="md:hidden">Restore</span></>
                               ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <><Trash2 className="w-3.5 h-3.5" /><span className="md:hidden">Delete</span></>
                               )}
                             </button>
 
-                            {/* Hard remove — platform admin only */}
+                            {/* Hard remove */}
                             <button
                                 type="button"
-                                title="Permanently remove — hides deletion placeholder too"
+                                title="Permanently remove"
                                 onClick={() => handleHardRemove(notice.id)}
                                 disabled={isActionLoading}
-                                className="w-8 h-8 rounded-lg bg-accent-red/15 text-accent-red hover:bg-rose-100 flex items-center justify-center transition-colors disabled:opacity-50"
+                                className="flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1"
                               >
                                 {isActionLoading ? (
                                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 ) : (
-                                  <X className="w-3.5 h-3.5" />
+                                  <><X className="w-3.5 h-3.5" /><span className="md:hidden">Remove</span></>
                                 )}
                               </button>
                           </div>

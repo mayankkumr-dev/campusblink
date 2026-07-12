@@ -176,7 +176,7 @@ export const StudentDashboard: React.FC = () => {
       case 'Community':
         return <Users className="w-5 h-5 text-accent-purple" />;
       case 'Print':
-        return <Printer className="w-5 h-5 text-cyan-600" />;
+        return <Printer className="w-5 h-5 text-cyan-600 dark:text-cyan-400 transition-colors" />;
       case 'Canteen':
         return <Coffee className="w-5 h-5 text-accent-amber" />;
       default:
@@ -353,7 +353,7 @@ export const StudentDashboard: React.FC = () => {
               </p>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full max-md:bg-slate-50 md:bg-surface-elevated md:border md:border-border-subtle text-xs font-semibold text-slate-500">
-              <Activity className="w-3.5 h-3.5 text-slate-500" />
+              <Activity className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-colors" />
               Live
             </span>
           </div>

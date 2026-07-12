@@ -17,6 +17,9 @@ import {
   ShopSettingsPanel,
   OrdersPanel,
   MenuEditorPanel,
+  MobileOrdersDashboard,
+  MobileOrderHistoryList,
+  MobileMenuManagement,
 } from './canteen';
 
 export const CanteenDashboardPage: React.FC = () => {
@@ -87,6 +90,12 @@ export const CanteenDashboardPage: React.FC = () => {
 
   const newOrdersList = orders.filter(o => o.status === 'placed').sort((a,b) => (b.is_delivery_order ? 1 : 0) - (a.is_delivery_order ? 1 : 0));
   const historyOrders = orders.filter(o => ['completed', 'cancelled', 'picked_up', 'reorder_requested', 'reorder_completed'].includes(o.status));
+
+  const isOpen = Boolean(shop?.is_open_now || shop?.is_active);
+  const handleToggleShopStatus = async () => {
+    const nextState = isOpen ? 'closed' : 'open';
+    await handleOverride(nextState);
+  };
 
   if (isLoading) {
     return (
@@ -180,38 +189,40 @@ export const CanteenDashboardPage: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-full w-full relative z-10 bg-surface dark:bg-shop-bg-base">
-        <CanteenStatsHeader activeView={activeView} newOrdersCount={newOrdersList.length} />
-
-        {/* Mobile Navigation Selector */}
-        <div className="md:hidden px-4 py-3 border-b border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
-          <select
-            value={activeView}
-            onChange={(e) => setActiveView(e.target.value)}
-            className="w-full bg-surface dark:bg-shop-bg-surface border border-border-subtle dark:border-shop-border-subtle rounded-xl px-3.5 py-2.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary focus:outline-none focus:border-amber-500 dark:focus:border-shop-accent focus:ring-1 focus:ring-amber-500 dark:focus:ring-shop-accent"
-          >
-            {navItems.map((item) => (
-              <option key={item.label} value={item.label}>
-                {item.label}
-              </option>
-            ))}
-          </select>
+        <div className="hidden md:block">
+          <CanteenStatsHeader activeView={activeView} newOrdersCount={newOrdersList.length} />
         </div>
 
         {/* Content View Area */}
-        <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-10 pb-24 md:pb-10">
+        <div className="flex-1 overflow-auto p-0 md:p-6 lg:p-10 pb-20 md:pb-10">
           <FeatureErrorBoundary featureName="Canteen Dashboard">
-            <ShopSettingsPanel shop={shop} onOverride={handleOverride} />
+            <div className="hidden md:block">
+              <ShopSettingsPanel shop={shop} onOverride={handleOverride} />
+            </div>
 
             {activeView === 'Live Orders' && (
-              <OrdersPanel shopId={shop?.id} orders={orders} setOrders={setOrders} />
+              <>
+                <div className="hidden md:block">
+                  <OrdersPanel shopId={shop?.id} orders={orders} setOrders={setOrders} />
+                </div>
+                <div className="md:hidden">
+                  <MobileOrdersDashboard
+                    shop={shop}
+                    onOverride={handleOverride}
+                    orders={orders}
+                    setOrders={setOrders}
+                  />
+                </div>
+              </>
             )}
 
             {activeView === 'Order History' && (
-              <div className="mx-auto max-w-7xl">
-                <div className="overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
-                  {historyOrders.length === 0 ? (
-                    <div className="px-6 py-24 text-center">
-                      <p className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
+              <>
+                <div className="hidden md:block mx-auto max-w-7xl">
+                  <div className="overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
+                    {historyOrders.length === 0 ? (
+                      <div className="px-6 py-24 text-center">
+                        <p className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
                         No order history available yet
                       </p>
                       <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary">
@@ -315,75 +326,219 @@ export const CanteenDashboardPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              <div className="md:hidden">
+                <MobileOrderHistoryList
+                  historyOrders={historyOrders}
+                  onRequestReorder={handleRequestReorder}
+                />
+              </div>
+            </>
             )}
 
             {activeView === 'Menu Management' && (
-              <MenuEditorPanel
-                shop={shop}
-                menuItems={menuItems}
-                setMenuItems={setMenuItems}
-              />
+              <>
+                <div className="hidden md:block">
+                  <MenuEditorPanel
+                    shop={shop}
+                    menuItems={menuItems}
+                    setMenuItems={setMenuItems}
+                  />
+                </div>
+                <div className="md:hidden">
+                  <MobileMenuManagement
+                    shop={shop}
+                    menuItems={menuItems}
+                    setMenuItems={setMenuItems}
+                  />
+                </div>
+              </>
             )}
 
             {activeView === 'Settings' && (
-              <div className="space-y-6 mx-auto max-w-3xl">
-                {/* Appearance Panel */}
-                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-amber-500 dark:text-shop-accent shadow-2xs dark:shadow-none">
-                      {theme === 'dark' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
+              <>
+                {/* Desktop Settings View */}
+                <div className="hidden md:block space-y-6 mx-auto max-w-3xl">
+                  {/* Appearance Panel */}
+                  <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-amber-500 dark:text-shop-accent shadow-2xs dark:shadow-none">
+                        {theme === 'dark' ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
+                      </div>
+                      <div>
+                        <h2 className="font-syne text-xl font-extrabold text-text-primary dark:text-shop-text-primary">
+                          Appearance
+                        </h2>
+                        <p className="mt-1 text-sm text-text-secondary dark:text-shop-text-secondary">
+                          Choose how your canteen dashboard looks.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="font-syne text-xl font-extrabold text-text-primary dark:text-shop-text-primary">
-                        Appearance
-                      </h2>
-                      <p className="mt-1 text-sm text-text-secondary dark:text-shop-text-secondary">
-                        Choose how your canteen dashboard looks.
-                      </p>
+                    
+                    <div className="flex rounded-xl border border-border-subtle dark:border-shop-border-strong bg-background dark:bg-shop-bg-surface-raised p-1 self-start md:self-auto">
+                      {[
+                        { id: 'light', label: 'Light', icon: Sun },
+                        { id: 'dark', label: 'Dark', icon: Moon },
+                        { id: 'system', label: 'System', icon: Monitor },
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setTheme(t.id)}
+                          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold capitalize transition-colors ${
+                            theme === t.id
+                              ? 'bg-amber-500 dark:bg-shop-accent text-white shadow-sm dark:shadow-none'
+                              : 'text-text-secondary dark:text-shop-text-secondary hover:text-text-primary dark:hover:text-shop-text-primary'
+                          } focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-shop-accent`}
+                        >
+                          <t.icon className="h-4 w-4" />
+                          <span className="inline">{t.label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  
-                  <div className="flex rounded-xl border border-border-subtle dark:border-shop-border-strong bg-background dark:bg-shop-bg-surface-raised p-1 self-start md:self-auto">
-                    {[
-                      { id: 'light', label: 'Light', icon: Sun },
-                      { id: 'dark', label: 'Dark', icon: Moon },
-                      { id: 'system', label: 'System', icon: Monitor },
-                    ].map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => setTheme(t.id)}
-                        className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold capitalize transition-colors ${
-                          theme === t.id
-                            ? 'bg-amber-500 dark:bg-shop-accent text-white shadow-sm dark:shadow-none'
-                            : 'text-text-secondary dark:text-shop-text-secondary hover:text-text-primary dark:hover:text-shop-text-primary'
-                        } focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-shop-accent`}
-                      >
-                        <t.icon className="h-4 w-4" />
-                        <span className="hidden sm:inline">{t.label}</span>
-                      </button>
-                    ))}
+
+                  <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
+                    <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-accent-amber dark:text-shop-accent shadow-2xs dark:shadow-none">
+                      <Settings className="h-9 w-9 stroke-[1.8]" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-accent-amber-soft dark:border-shop-accent/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber dark:text-shop-accent mb-3">
+                      Under Active Development
+                    </span>
+                    <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary dark:text-shop-text-primary">
+                      Shop Preferences & Operating Configuration
+                    </h2>
+                    <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary dark:text-shop-text-secondary leading-relaxed">
+                      Advanced shop notifications, payout account settings, and automated shift scheduling are currently being fine-tuned. Use the Live Shop Status toggle at the top to manage immediate availability.
+                    </p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-12 sm:p-16 text-center shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
-                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-amber-100 dark:border-shop-accent/20 text-accent-amber dark:text-shop-accent shadow-2xs dark:shadow-none">
-                    <Settings className="h-9 w-9 stroke-[1.8]" />
+                {/* Mobile Settings View (Touched flush to top) */}
+                <div className="md:hidden flex flex-col min-h-dvh bg-[#FAFAFA] dark:bg-shop-bg-base pb-28">
+                  <header className="sticky top-0 z-40 bg-white/95 dark:bg-shop-bg-surface/95 backdrop-blur-md shadow-[0_2px_15px_rgba(0,0,0,0.04)] dark:shadow-none border-b border-gray-100 dark:border-shop-border-subtle px-4 pt-3.5 pb-3 flex items-center justify-between">
+                    <div>
+                      <h1 className="font-syne text-xl font-extrabold text-gray-900 dark:text-shop-text-primary tracking-tight">
+                        Canteen Settings
+                      </h1>
+                      <p className="text-[11px] font-semibold text-gray-400 dark:text-shop-text-secondary mt-0.5">
+                        Preferences & Operating Configuration
+                      </p>
+                    </div>
+
+                    <div
+                      onClick={handleToggleShopStatus}
+                      className={`cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full transition-all active:scale-95 ${
+                        isOpen
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40'
+                          : 'bg-gray-100 dark:bg-shop-bg-surface-raised text-gray-600 dark:text-shop-text-secondary border border-transparent dark:border-shop-border-subtle'
+                      }`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          isOpen ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'
+                        }`}
+                      />
+                      <span className="text-xs font-bold font-syne">
+                        {isOpen ? 'Accepting Orders' : 'Closed'}
+                      </span>
+                    </div>
+                  </header>
+
+                  <div className="p-4 space-y-4">
+                    {/* Appearance Switcher Card */}
+                    <div className="rounded-3xl bg-white dark:bg-shop-bg-surface p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none border border-gray-100 dark:border-shop-border-subtle">
+                      <div className="mb-4">
+                        <h3 className="font-syne font-bold text-base text-gray-900 dark:text-shop-text-primary">
+                          Appearance
+                        </h3>
+                        <p className="text-xs text-gray-400 dark:text-shop-text-secondary">
+                          Customize how Canteen Dashboard looks on your device.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { id: 'light', label: 'Light Mode' },
+                          { id: 'dark', label: 'Dark Mode' },
+                          { id: 'system', label: 'System' },
+                        ].map((t) => (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setTheme(t.id)}
+                            className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl border-2 font-syne text-xs font-bold transition-all ${
+                              theme === t.id
+                                ? 'border-amber-500 bg-amber-50/60 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
+                                : 'border-gray-100 dark:border-shop-border-subtle bg-gray-50 dark:bg-shop-bg-surface-raised text-gray-600 dark:text-shop-text-secondary'
+                            }`}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Hardware / Active Shop Profile */}
+                    <div className="rounded-3xl bg-white dark:bg-shop-bg-surface p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none border border-gray-100 dark:border-shop-border-subtle flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-shop-text-secondary">
+                          Active Canteen
+                        </p>
+                        <p className="font-syne font-extrabold text-base text-gray-900 dark:text-shop-text-primary mt-0.5">
+                          {shop?.name || 'Campus Canteen'}
+                        </p>
+                      </div>
+
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-syne font-bold text-xs">
+                        Active
+                      </span>
+                    </div>
                   </div>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-amber-soft dark:bg-shop-accent-soft-bg border border-accent-amber-soft dark:border-shop-accent/20 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent-amber dark:text-shop-accent mb-3">
-                    Under Active Development
-                  </span>
-                  <h2 className="font-syne text-2xl sm:text-3xl font-extrabold text-text-primary dark:text-shop-text-primary">
-                    Shop Preferences & Operating Configuration
-                  </h2>
-                  <p className="mx-auto mt-2.5 max-w-md text-xs sm:text-sm text-text-secondary dark:text-shop-text-secondary leading-relaxed">
-                    Advanced shop notifications, payout account settings, and automated shift scheduling are currently being fine-tuned. Use the Live Shop Status toggle at the top to manage immediate availability.
-                  </p>
                 </div>
-              </div>
+              </>
             )}
           </FeatureErrorBoundary>
         </div>
+
+        {/* Sleek Mobile Bottom Navigation Bar (Light & Dark Mode supported) */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-shop-bg-surface border-t border-gray-100 dark:border-shop-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.04)] dark:shadow-none h-[calc(64px+env(safe-area-inset-bottom,8px))] pb-[env(safe-area-inset-bottom,8px)] z-50 flex items-center justify-around px-1 select-none">
+          {navItems.map((item) => {
+            const isActive = activeView === item.label;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setActiveView(item.label)}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-none"
+              >
+                <div
+                  className={`relative flex items-center justify-center px-3.5 py-1 rounded-2xl transition-all duration-300 ${
+                    isActive
+                      ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-400 dark:text-shop-text-tertiary'
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label === 'Live Orders' && newOrdersList.length > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-shop-bg-surface" />
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-[10px] tracking-tight transition-colors ${
+                    isActive
+                      ? 'font-bold text-blue-600 dark:text-blue-400'
+                      : 'font-medium text-gray-400 dark:text-shop-text-secondary'
+                  }`}
+                >
+                  {item.label === 'Menu Management' ? 'Menu' : item.label === 'Order History' ? 'History' : item.label}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+
       </main>
     </div>
   );

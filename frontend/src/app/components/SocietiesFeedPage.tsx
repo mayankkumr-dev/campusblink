@@ -974,7 +974,7 @@ export const SocietiesFeedPage: React.FC = () => {
                 />
               ) : activeTab === "Following" && noFollows ? (
                 <div className="px-6 py-16 text-center">
-                  <Users className="mx-auto mb-3 h-10 w-10 text-[var(--border)]" />
+                  <Users className="mx-auto mb-3 h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
                   <h2 className="font-syne text-xl font-extrabold text-[var(--text-primary)]">
                     Follow students to see their posts
                   </h2>

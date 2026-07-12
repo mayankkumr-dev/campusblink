@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Clock, LayoutTemplate, Send, Mail, Users, User, ChevronDown, CheckCircle2, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Clock, LayoutTemplate, Send, Mail, Users, User, ChevronDown, CheckCircle2, AlertCircle, Loader2, RefreshCw, ArrowRight } from 'lucide-react';
 import { getAllUsers } from '../../api/admin';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
@@ -247,51 +247,55 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50">
-          <Mail className="h-4.5 w-4.5 text-blue-600" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 dark:bg-admin-accent-soft-bg transition-colors">
+          <Mail className="h-4.5 w-4.5 text-blue-600 dark:text-admin-accent transition-colors" />
         </div>
         <div>
-          <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary tracking-tight transition-colors">
             {title || 'Email Center'}
           </h2>
-          <p className="text-sm text-slate-500">Send emails to platform users and manage templates</p>
+          <p className="text-sm text-slate-500 dark:text-admin-text-secondary transition-colors">Send emails to platform users and manage templates</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-2xl p-1.5 shadow-sm w-fit">
+      <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur-md pt-2 pb-2 -mx-4 px-4 md:static md:bg-white dark:md:bg-admin-bg-surface md:border md:border-slate-200 dark:md:border-admin-border-subtle md:rounded-2xl md:p-1.5 md:shadow-sm dark:md:shadow-none md:w-fit md:mx-0 flex md:items-center gap-1.5 overflow-x-auto hide-scrollbar transition-colors">
         {tabConfig.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             type="button"
             onClick={() => setActiveTab(id)}
-            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold transition-all ${
+            className={`shrink-0 inline-flex items-center gap-2 px-4 py-3 md:py-2 text-[13px] font-semibold transition-all relative ${
               activeTab === id
-                ? 'bg-amber-500 text-white shadow-sm shadow-amber-200'
-                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                ? 'text-amber-600 dark:text-amber-500 md:bg-amber-500 dark:md:bg-admin-accent md:text-white dark:md:text-admin-bg-surface-elevated md:rounded-xl md:shadow-sm md:shadow-amber-200 dark:md:shadow-none'
+                : 'text-slate-500 dark:text-admin-text-secondary hover:text-slate-800 dark:hover:text-admin-text-primary md:rounded-xl md:hover:bg-slate-100 dark:md:hover:bg-admin-bg-surface-hover'
             }`}
           >
             <Icon className="h-3.5 w-3.5" />
             {label}
+            {/* Mobile Underline Indicator */}
+            {activeTab === id && (
+              <div className="md:hidden absolute bottom-0 left-4 right-4 h-[3px] bg-amber-500 rounded-t-full" />
+            )}
           </button>
         ))}
       </div>
 
       {/* ─── COMPOSE TAB ───────────────────────────────── */}
       {activeTab === 'compose' && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100">
-            <h3 className="font-semibold text-slate-900">New Email</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Send a custom email to individual users or groups</p>
+        <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+          <div className="px-6 py-4 border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
+            <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">New Email</h3>
+            <p className="text-xs text-slate-400 dark:text-admin-text-tertiary mt-0.5 transition-colors">Send a custom email to individual users or groups</p>
           </div>
 
           <div className="p-6 space-y-5">
             {/* Recipient Type */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-admin-text-secondary uppercase tracking-wider mb-2 transition-colors">
                 Recipient Type
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              <div className="flex md:grid md:grid-cols-3 lg:grid-cols-5 gap-2 overflow-x-auto hide-scrollbar pb-1 -mx-2 px-2 md:mx-0 md:px-0">
                 {[
                   { id: 'individual', label: 'Individual', icon: User },
                   { id: 'all_students', label: 'All Students', icon: Users },
@@ -303,10 +307,10 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
                     key={id}
                     type="button"
                     onClick={() => setRecipientType(id as any)}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-[11px] font-semibold transition-all ${
+                    className={`shrink-0 flex items-center md:flex-col md:items-center gap-1.5 rounded-full md:rounded-xl border px-4 py-2 md:p-3 text-[11px] font-semibold transition-all shadow-sm md:shadow-none ${
                       recipientType === id
-                        ? 'border-amber-400 bg-amber-50 text-amber-700 shadow-sm'
-                        : 'border-slate-200 text-slate-500 hover:border-amber-200 hover:bg-amber-50/50'
+                        ? 'border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 md:shadow-sm dark:md:shadow-none'
+                        : 'border-slate-200 dark:border-admin-border-subtle text-slate-500 dark:text-admin-text-secondary hover:border-amber-200 dark:hover:border-amber-500 hover:bg-amber-50/50 dark:hover:bg-amber-500/10 bg-white dark:bg-admin-bg-surface'
                     }`}
                   >
                     <Icon size={14} />
@@ -319,7 +323,7 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
             {/* Individual picker */}
             {recipientType === 'individual' && (
               <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-admin-text-secondary uppercase tracking-wider mb-2 transition-colors">
                   Select User
                 </label>
                 <input
@@ -327,12 +331,12 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
                   value={searchUser}
                   onChange={e => setSearchUser(e.target.value)}
                   placeholder="Search by name or email…"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all mb-2"
+                  className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base px-4 py-2.5 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface focus:ring-2 focus:ring-amber-100 outline-none transition-all mb-2"
                 />
                 <select
                   value={selectedEmail}
                   onChange={e => setSelectedEmail(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                  className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base px-4 py-2.5 text-sm text-slate-900 dark:text-admin-text-primary focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                 >
                   <option value="">Select a user…</option>
                   {filteredRecipients.map(r => (
@@ -346,7 +350,7 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
 
             {/* Subject */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-admin-text-secondary uppercase tracking-wider mb-2 transition-colors">
                 Subject Line
               </label>
               <input
@@ -354,13 +358,13 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
                 placeholder="Enter email subject…"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+                className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base px-4 py-2.5 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface focus:ring-2 focus:ring-amber-100 outline-none transition-all"
               />
             </div>
 
             {/* Body */}
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-admin-text-secondary uppercase tracking-wider mb-2 transition-colors">
                 Email Body
               </label>
               <textarea
@@ -368,19 +372,19 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
                 value={body}
                 onChange={e => setBody(e.target.value)}
                 placeholder="Write your email content here. Use {{name}} to insert the recipient's name."
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all resize-none font-mono leading-relaxed"
+                className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base px-4 py-3 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface focus:ring-2 focus:ring-amber-100 outline-none transition-all resize-none font-mono leading-relaxed"
               />
-              <p className="mt-1.5 text-[11px] text-slate-400">
+              <p className="mt-1.5 text-[11px] text-slate-400 dark:text-admin-text-tertiary transition-colors">
                 Tip: Use a template from the Templates tab as a starting point. Plain text is sent as-is.
               </p>
             </div>
 
-            {/* Send button */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            {/* Send button (Desktop inline, Mobile sticky bottom) */}
+            <div className="hidden md:flex items-center justify-between pt-2 border-t border-slate-100 dark:border-admin-border-subtle transition-colors">
               <button
                 type="button"
                 onClick={() => setActiveTab('templates')}
-                className="text-xs font-semibold text-amber-600 hover:text-amber-700"
+                className="text-xs font-semibold text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
               >
                 ← Use a template
               </button>
@@ -388,7 +392,29 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
                 type="button"
                 onClick={handleSendEmail}
                 disabled={isSending}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-200 hover:bg-amber-600 disabled:opacity-60 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 dark:bg-admin-accent px-6 py-2.5 text-sm font-bold text-white dark:text-admin-bg-surface-elevated shadow-sm shadow-amber-200 dark:shadow-none hover:bg-amber-600 dark:hover:bg-amber-400 disabled:opacity-60 transition-all"
+              >
+                {isSending ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
+                ) : (
+                  <><Send className="h-4 w-4" /> Send Email</>
+                )}
+              </button>
+            </div>
+            
+            <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-admin-bg-base/95 backdrop-blur-md border-t border-slate-100 dark:border-admin-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-none z-40 pb-safe flex items-center gap-3 transition-colors">
+              <button
+                type="button"
+                onClick={() => setActiveTab('templates')}
+                className="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 dark:bg-admin-bg-surface-hover text-slate-600 dark:text-admin-text-secondary shadow-sm dark:shadow-none transition-colors"
+              >
+                <LayoutTemplate className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleSendEmail}
+                disabled={isSending}
+                className="flex-1 h-12 rounded-xl bg-amber-500 dark:bg-admin-accent active:bg-amber-600 dark:active:bg-amber-400 text-white dark:text-admin-bg-surface-elevated font-extrabold text-sm flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-200/50 dark:shadow-none disabled:opacity-60"
               >
                 {isSending ? (
                   <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
@@ -403,14 +429,14 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
 
       {/* ─── HISTORY TAB ───────────────────────────────── */}
       {activeTab === 'history' && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <h3 className="font-semibold text-slate-900">Email History</h3>
+        <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
+            <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">Email History</h3>
             <button
               type="button"
               onClick={fetchEmailLogs}
               disabled={logsLoading}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-admin-text-secondary hover:text-slate-800 dark:hover:text-admin-text-primary transition-colors"
             >
               <RefreshCw size={12} className={logsLoading ? 'animate-spin' : ''} />
               Refresh
@@ -419,43 +445,44 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
 
           {logsLoading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
             </div>
           ) : emailLogs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <Clock className="h-10 w-10 text-slate-200 mb-3" />
-              <h4 className="font-semibold text-slate-700">No email history yet</h4>
-              <p className="text-sm text-slate-400 mt-1 max-w-sm">
+            <div className="flex flex-col items-center justify-center py-16 text-center px-6 rounded-3xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base m-4 md:m-8 shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-colors">
+              <div className="w-16 h-16 rounded-full bg-white dark:bg-admin-bg-surface shadow-sm flex items-center justify-center mb-4 transition-colors">
+                <Clock className="h-8 w-8 text-slate-300 dark:text-admin-text-tertiary transition-colors" />
+              </div>
+              <h4 className="text-[15px] font-bold text-slate-900 dark:text-admin-text-primary transition-colors">No email history yet</h4>
+              <p className="text-xs text-slate-500 dark:text-admin-text-secondary mt-1 max-w-xs leading-relaxed transition-colors">
                 Email delivery logs will appear here once you start sending emails through the platform.
-                Requires an <code className="text-amber-600">admin_email_log</code> table in Supabase.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 border-b border-slate-100">
+                <thead className="bg-slate-50 dark:bg-admin-bg-base border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
                   <tr>
                     {['Recipient', 'Subject', 'Sent By', 'Date', 'Status'].map(h => (
-                      <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <th key={h} className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-admin-border-subtle transition-colors">
                   {emailLogs.map(log => (
-                    <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-5 py-3.5 text-slate-800 font-medium">{log.to_email}</td>
-                      <td className="px-5 py-3.5 text-slate-600">{log.subject}</td>
-                      <td className="px-5 py-3.5 text-slate-500">{log.sent_by}</td>
-                      <td className="px-5 py-3.5 text-slate-400 text-[12px]">
+                    <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-admin-bg-surface-hover transition-colors">
+                      <td className="px-5 py-3.5 text-slate-800 dark:text-admin-text-primary transition-colors">{log.to_email}</td>
+                      <td className="px-5 py-3.5 text-slate-600 dark:text-admin-text-secondary transition-colors">{log.subject}</td>
+                      <td className="px-5 py-3.5 text-slate-500 dark:text-admin-text-secondary transition-colors">{log.sent_by}</td>
+                      <td className="px-5 py-3.5 text-slate-400 dark:text-admin-text-tertiary text-[12px] transition-colors">
                         {new Date(log.sent_at).toLocaleString()}
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase ${
+                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase transition-colors ${
                           log.status === 'sent'
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                            : 'border-rose-200 bg-rose-50 text-rose-700'
+                            ? 'border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                            : 'border-rose-200 dark:border-rose-500/20 bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400'
                         }`}>
                           {log.status === 'sent'
                             ? <CheckCircle2 size={10} />
@@ -476,9 +503,9 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
       {/* ─── TEMPLATES TAB ─────────────────────────────── */}
       {activeTab === 'templates' && (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Email Templates</h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+          <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface px-6 py-4 shadow-sm transition-colors">
+            <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">Email Templates</h3>
+            <p className="text-xs text-slate-400 dark:text-admin-text-tertiary mt-0.5 transition-colors">
               Click "Use Template" to populate the Compose form with that template's content.
             </p>
           </div>
@@ -487,36 +514,40 @@ export const AdminEmailPage: React.FC<AdminEmailPageProps> = ({ initialTab = 'co
             {EMAIL_TEMPLATES.map(template => (
               <div
                 key={template.id}
-                className={`rounded-2xl border bg-white p-5 shadow-sm transition-all ${
+                onClick={() => handleApplyTemplate(template.id)}
+                className={`relative rounded-2xl border bg-white dark:bg-admin-bg-surface p-4 md:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none transition-all cursor-pointer group ${
                   selectedTemplate === template.id
-                    ? 'border-amber-400 shadow-amber-100'
-                    : 'border-slate-200 hover:border-amber-200 hover:shadow-md'
+                    ? 'border-amber-400 shadow-amber-100 ring-1 ring-amber-400'
+                    : 'border-slate-200 dark:border-admin-border-subtle hover:border-amber-200 dark:hover:border-amber-500 hover:shadow-md'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 shrink-0">
-                    <LayoutTemplate className="h-4 w-4 text-slate-500" />
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex-1 min-w-0 pr-6">
+                    <h4 className="font-syne font-bold text-slate-900 dark:text-admin-text-primary text-[14px] leading-tight mb-1 transition-colors">{template.name}</h4>
+                    <p className="text-[10px] text-slate-400 dark:text-admin-text-tertiary font-bold uppercase tracking-wider truncate transition-colors">{template.subject}</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-slate-900 text-[13px]">{template.name}</h4>
-                    <p className="text-[11px] text-slate-400 truncate">{template.subject}</p>
-                  </div>
-                  {selectedTemplate === template.id && (
-                    <CheckCircle2 className="h-4 w-4 text-amber-500 shrink-0" />
-                  )}
                 </div>
 
-                <pre className="text-[11px] text-slate-500 bg-slate-50 rounded-xl p-3 overflow-hidden line-clamp-4 font-sans whitespace-pre-wrap leading-relaxed">
-                  {template.body.substring(0, 200)}…
-                </pre>
-
-                <button
-                  type="button"
-                  onClick={() => handleApplyTemplate(template.id)}
-                  className="mt-3 w-full rounded-xl bg-amber-500 py-2 text-xs font-bold text-white shadow-sm shadow-amber-200 hover:bg-amber-600 transition-colors"
-                >
-                  Use Template
-                </button>
+                <div className="text-[11px] text-slate-500 dark:text-admin-text-secondary bg-slate-50/50 dark:bg-admin-bg-base/50 rounded-xl p-3 border border-slate-100 dark:border-admin-border-subtle overflow-hidden line-clamp-2 font-sans leading-relaxed transition-colors">
+                  {template.body.replace(/\n/g, ' ')}
+                </div>
+                
+                {/* Desktop massive button / Mobile subtle arrow */}
+                <div className="hidden md:block mt-3">
+                  <button
+                    type="button"
+                    className="w-full rounded-xl bg-amber-500 dark:bg-admin-accent py-2 text-xs font-bold text-white dark:text-admin-bg-surface-elevated shadow-sm shadow-amber-200 dark:shadow-none hover:bg-amber-600 dark:hover:bg-amber-400 transition-colors"
+                  >
+                    Use Template
+                  </button>
+                </div>
+                <div className="md:hidden absolute top-4 right-4 text-slate-300 dark:text-admin-text-tertiary group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
+                  {selectedTemplate === template.id ? (
+                    <CheckCircle2 className="h-5 w-5 text-amber-500 dark:text-amber-400 transition-colors" />
+                  ) : (
+                    <ArrowRight className="h-5 w-5" />
+                  )}
+                </div>
               </div>
             ))}
           </div>

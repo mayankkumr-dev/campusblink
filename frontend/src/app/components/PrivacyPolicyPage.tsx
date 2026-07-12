@@ -12,7 +12,7 @@ export const PrivacyPolicyPage = () => {
         </button>
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 bg-[#FFFFFF] border border-[#ffffff1a] rounded-lg flex items-center justify-center">
-            <Shield className="w-6 h-6 text-green-400" />
+            <Shield className="w-6 h-6 text-green-400 dark:text-green-300 transition-colors" />
           </div>
           <h1 className="font-syne font-extrabold text-4xl md:text-5xl">Privacy Policy</h1>
         </div>

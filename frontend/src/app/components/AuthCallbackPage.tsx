@@ -81,7 +81,7 @@ export const AuthCallbackPage: React.FC = () => {
 
       {state === 'error' && (
         <div className="flex flex-col items-center gap-4 text-center max-w-md">
-          <XCircle className="w-12 h-12 text-[#DC2626]" />
+          <XCircle className="w-12 h-12 text-[#DC2626] dark:text-red-400 transition-colors" />
           <p className="text-2xl font-bold">Verification failed</p>
           <p className="text-sm text-[var(--text-secondary)]">{errorMessage}</p>
           <button

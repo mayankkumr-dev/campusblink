@@ -78,7 +78,7 @@ export const StudentAttendancePage: React.FC = () => {
       if (data.overallPercentage < thresh && data.totalClassesHeld > 0) {
         toast((t) => (
           <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0 dark:text-rose-400 transition-colors" />
             <div className="text-xs font-semibold text-slate-800 dark:text-white">
               <p className="font-bold">Attendance Standing Notice ({data.overallPercentage}%)</p>
               <p className="text-slate-600 dark:text-slate-300 font-normal">Your overall attendance is currently below your {thresh}% academic threshold.</p>
@@ -389,7 +389,7 @@ export const StudentAttendancePage: React.FC = () => {
                             }}
                             className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1.5 transition-all"
                           >
-                            <Flag className="w-3.5 h-3.5 text-amber-500" />
+                            <Flag className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 transition-colors" />
                             <span>Request Correction</span>
                           </button>
                         )}
@@ -408,7 +408,7 @@ export const StudentAttendancePage: React.FC = () => {
             <form onSubmit={handleRaiseDispute} className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Flag className="w-5 h-5 text-amber-500" />
+                  <Flag className="w-5 h-5 text-amber-500 dark:text-amber-400 transition-colors" />
                   <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
                     Request Attendance Correction
                   </h3>

@@ -84,11 +84,11 @@ export const AdminProfessorsPendingPage: React.FC = () => {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#92400E] dark:text-amber-500 transition-colors" />
         </div>
       ) : professors.length === 0 ? (
         <div className="bg-white border border-[rgba(15,23,42,0.08)] rounded-lg p-12 text-center flex flex-col items-center">
-          <User className="w-10 h-10 text-[rgba(15,23,42,0.08)] mb-4" />
+          <User className="w-10 h-10 text-[rgba(15,23,42,0.08)] mb-4 dark:text-slate-600 transition-colors" />
           <p className="font-syne font-semibold text-lg text-slate-900 mb-1">No pending professor requests</p>
           <p className="font-sans text-sm text-slate-500">New requests will appear here</p>
         </div>

@@ -280,7 +280,7 @@ export const PrintReorderPage: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-center mb-4 bg-[var(--bg)] p-3 rounded-lg border border-black/10">
-            <Shield className="w-4 h-4 text-[#10A142] mr-2" />
+            <Shield className="w-4 h-4 text-[#10A142] mr-2 dark:text-emerald-400 transition-colors" />
             <span className="font-sans font-bold text-sm text-[#10A142]">No payment required for this reorder.</span>
           </div>
 

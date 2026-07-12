@@ -398,7 +398,7 @@ export const AdminInvitesPage: React.FC = () => {
               ))}
             </div>
             <label className="relative block w-full md:w-72">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}

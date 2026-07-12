@@ -71,7 +71,7 @@ export const AdminCanteenSchedulePage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-amber-500" /></div>;
+    return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-7 w-7 animate-spin text-amber-500 dark:text-amber-400 transition-colors" /></div>;
   }
 
   return (

@@ -131,11 +131,11 @@ export const AdminProfessorsPage: React.FC = () => {
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#92400E] dark:text-amber-500 transition-colors" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-surface border border-border-subtle rounded-lg p-8 text-center transition-colors">
-          <GraduationCap className="w-10 h-10 text-border-subtle mx-auto mb-3 transition-colors" />
+          <GraduationCap className="w-10 h-10 text-border-subtle mx-auto mb-3 transition-colors dark:text-slate-600" />
           <p className="text-sm text-text-secondary transition-colors">No professors found.</p>
         </div>
       ) : (
