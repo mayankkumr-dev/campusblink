@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { PageSkeleton } from './ui/PageSkeleton';
+import { PushPermissionBanner } from './PushPermissionBanner';
 
 function AccessDenied() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export const CanteenDashboardProtectedRoute: React.FC = () => {
     return <AccessDenied />;
   }
 
-  return <Outlet />;
+  return <><Outlet /><PushPermissionBanner /></>;
 };
 
 export const PrintDashboardProtectedRoute: React.FC = () => {
@@ -63,5 +64,5 @@ export const PrintDashboardProtectedRoute: React.FC = () => {
     return <AccessDenied />;
   }
 
-  return <Outlet />;
+  return <><Outlet /><PushPermissionBanner /></>;
 };

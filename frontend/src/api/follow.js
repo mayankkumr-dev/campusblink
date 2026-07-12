@@ -1,8 +1,49 @@
 import { supabase } from '../lib/supabase';
+import { sendPushNotification } from '../lib/pushNotifications';
 
 function isMissingRpc(error) {
   const message = String(error?.message || '').toLowerCase();
   return message.includes('toggle_follow') && message.includes('does not exist');
+}
+
+/**
+ * Send a "new follower" notification + push to the followed user.
+ * Fire-and-forget — failures here must never break the follow action.
+ */
+async function notifyNewFollower(followerId, followingId) {
+  try {
+    // Fetch follower's display name for the notification text
+    const { data: followerProfile } = await supabase
+      .from('profiles')
+      .select('name, username')
+      .eq('id', followerId)
+      .maybeSingle();
+
+    const displayName = followerProfile?.name || followerProfile?.username || 'Someone';
+    const followerUsername = followerProfile?.username || followerId;
+
+    // Insert in-app notification
+    await supabase.from('notifications').insert([
+      {
+        user_id: followingId,
+        type: 'new_follower',
+        title: 'New follower',
+        message: `${displayName} started following you`,
+        link: `/user/${followerUsername}`,
+      },
+    ]).catch(() => {});
+
+    // Send push notification via backend
+    await sendPushNotification(followingId, {
+      type: 'new_follower',
+      title: 'New follower 👤',
+      body: `${displayName} started following you`,
+      url: `/user/${followerUsername}`,
+      important: false,
+    }).catch(() => {});
+  } catch {
+    // Silently ignore — notification is best-effort
+  }
 }
 
 /**
@@ -11,6 +52,9 @@ function isMissingRpc(error) {
 export async function followUser(followerId, followingId) {
   try {
     const { data, error } = await setFollowState(followerId, followingId, true);
+    if (!error && data?.is_following) {
+      notifyNewFollower(followerId, followingId);
+    }
     return { data, error };
   } catch (err) {
     return { data: null, error: err };
@@ -51,7 +95,7 @@ export async function toggleFollow(followerId, followingId) {
     }
 
     const payload = Array.isArray(data) ? data[0] : data;
-    return {
+    const result = {
       data: {
         is_following: Boolean(payload?.is_following),
         followers_count: Number(payload?.followers_count || 0),
@@ -59,6 +103,13 @@ export async function toggleFollow(followerId, followingId) {
       },
       error: null,
     };
+
+    // Notify followed user when the toggle resulted in a follow (not unfollow)
+    if (result.data.is_following) {
+      notifyNewFollower(followerId, followingId);
+    }
+
+    return result;
   } catch (err) {
     return {
       data: null,

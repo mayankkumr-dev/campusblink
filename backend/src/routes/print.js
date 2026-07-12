@@ -93,6 +93,54 @@ router.patch('/orders/:id/status', authMiddleware, printShopOnlyMiddleware, asyn
       return res.status(400).json({ error: error.message });
     }
 
+    // --- Notify the student about print order status changes ---
+    const studentId = order.student_id || order.user_id;
+    if (studentId && ['ready', 'printing', 'cancelled'].includes(status)) {
+      try {
+        const { data: shopData } = await supabaseAdmin
+          .from('print_shops')
+          .select('name')
+          .eq('id', order.shop_id || order.print_shop_id)
+          .maybeSingle();
+
+        const shopName = shopData?.name || 'your print shop';
+        const rejectionReason = req.body.rejectionReason
+          ? String(req.body.rejectionReason).trim()
+          : 'No reason provided by the print shop.';
+
+        const statusMessages = {
+          ready: {
+            title: 'Your print job is ready! 🖨️',
+            message: `Your print job at ${shopName} is ready for pickup.`,
+            important: true,
+          },
+          printing: {
+            title: 'Print order accepted',
+            message: `Your print order at ${shopName} was accepted and is now printing.`,
+            important: false,
+          },
+          cancelled: {
+            title: 'Print order rejected',
+            message: `Your print order at ${shopName} was rejected. Reason: ${rejectionReason}`,
+            important: false,
+          },
+        };
+
+        const msg = statusMessages[status];
+        if (msg) {
+          await notificationService.createNotification(
+            studentId,
+            'order_ready',
+            msg.title,
+            msg.message,
+            '/student/print'
+          );
+        }
+      } catch (notifyErr) {
+        console.error('Failed to send print order status notification:', notifyErr);
+      }
+    }
+
     res.json({ message: 'Order status updated', order });
   } catch (error) {
     console.error('Error updating order:', error);

@@ -11,6 +11,7 @@ import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { ThemeAwareLogo } from './ThemeAwareLogo';
 import { FeatureErrorBoundary } from './FeatureErrorBoundary';
 import { DashboardSidebar } from './DashboardSidebar';
+import { PushPermissionBanner } from './PushPermissionBanner';
 
 function getFeatureKeyFromPath(pathname: string) {
   if (pathname.startsWith('/student/search')) return 'search';
@@ -207,6 +208,7 @@ export const StudentLayout: React.FC = () => {
       {/* Instagram-style Search Slide Panel */}
       <SearchSlidePanel isOpen={searchPanelOpen} onClose={() => setSearchPanelOpen(false)} />
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
+      <PushPermissionBanner />
     </div>
   );
 };

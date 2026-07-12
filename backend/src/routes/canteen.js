@@ -92,6 +92,54 @@ router.patch('/orders/:id/status', authMiddleware, canteenOwnerOnlyMiddleware, a
       return res.status(400).json({ error: error.message });
     }
 
+    // --- Notify the student about order status changes ---
+    const studentId = order.student_id || order.user_id;
+    if (studentId && ['ready', 'preparing', 'cancelled'].includes(status)) {
+      try {
+        const { data: shopData } = await supabaseAdmin
+          .from('canteen_shops')
+          .select('name')
+          .eq('id', order.shop_id || order.canteen_id)
+          .maybeSingle();
+
+        const shopName = shopData?.name || 'your canteen';
+        const rejectionReason = req.body.rejectionReason
+          ? String(req.body.rejectionReason).trim()
+          : 'No reason provided by the canteen.';
+
+        const statusMessages = {
+          ready: {
+            title: 'Your canteen order is ready! 🍔',
+            message: `Your order at ${shopName} is ready for pickup.`,
+            important: true,
+          },
+          preparing: {
+            title: 'Order accepted',
+            message: `Your order at ${shopName} was accepted and is now being prepared.`,
+            important: false,
+          },
+          cancelled: {
+            title: 'Canteen order rejected',
+            message: `Your order at ${shopName} was rejected. Reason: ${rejectionReason}`,
+            important: false,
+          },
+        };
+
+        const msg = statusMessages[status];
+        if (msg) {
+          await notificationService.createNotification(
+            studentId,
+            'order_ready',
+            msg.title,
+            msg.message,
+            '/student/canteen'
+          );
+        }
+      } catch (notifyErr) {
+        console.error('Failed to send canteen order status notification:', notifyErr);
+      }
+    }
+
     res.json({ message: 'Order status updated', order });
   } catch (error) {
     console.error('Error updating order:', error);

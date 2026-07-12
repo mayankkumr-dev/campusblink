@@ -20,6 +20,7 @@ function preferenceDisabled(preferences, notificationType) {
     new_follower: 'new_follower',
     announcement: 'announcement',
     marketplace_message: 'marketplace_message',
+    direct_message: 'marketplace_message',
     reputation_earned: 'reputation_earned',
     professor_approved: 'professor_approved',
   };
