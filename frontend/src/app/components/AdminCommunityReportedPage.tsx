@@ -222,7 +222,7 @@ export const AdminCommunityReportedPage: React.FC = () => {
                       <p className="text-[11px] text-slate-400">Target ID: {report.target_id}</p>
                     </td>
                     <td className="p-4 text-xs font-bold uppercase tracking-wider text-slate-900">
-                      <span className={`rounded px-2 py-1 ${report.target_type === 'post' ? 'bg-[#FEF9C3] text-[#92400E]' : 'bg-blue-50 text-blue-600'}`}>
+                      <span className={`rounded px-2 py-1 ${report.target_type === 'post' ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-600'}`}>
                         {report.target_type === 'post' ? 'Post' : 'Account'}
                       </span>
                     </td>

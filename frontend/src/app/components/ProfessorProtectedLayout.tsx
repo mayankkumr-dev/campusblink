@@ -27,9 +27,17 @@ export const ProfessorProtectedLayout: React.FC = () => {
   }
 
   // Only professors and admins can access /professor/*
+  // Redirect other roles to their own correct home
   if (profile.role !== 'professor' && profile.role !== 'admin') {
-    return <Navigate to="/student/home" replace />;
+    const roleHome: Record<string, string> = {
+      canteen_owner: '/canteen-dashboard',
+      print_shop: '/print-dashboard',
+      student: '/student/home',
+      society: '/student/home',
+    };
+    return <Navigate to={roleHome[profile.role] || '/student/home'} replace />;
   }
+
 
   // Banned professors
   if (String(profile?.status || '').toLowerCase() === 'banned') {

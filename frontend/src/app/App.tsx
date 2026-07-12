@@ -134,7 +134,18 @@ function App() {
            professor_status: 'pending',
            staff_room_number: user.user_metadata.staff_room_number || null,
         };
+      } else if (isHistoricalPending && profile?.role === 'professor' && 
+                 String(profile?.professor_status || '').toLowerCase() === 'approved') {
+        // Professor was approved in DB but auth metadata still says pending — clear the stale metadata
+        // so the misleading "pending" toast is never shown on future logins.
+        supabase.auth.updateUser({
+          data: {
+            role_request_status: 'approved',
+            requested_role: null,
+          }
+        }).catch(() => null);
       }
+
 
       // Let the Router handle redirects to /professor/pending and /professor/rejected.
       // We no longer sign them out.

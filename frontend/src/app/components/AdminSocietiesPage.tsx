@@ -183,7 +183,7 @@ export const AdminSocietiesPage = () => {
         <div className="bg-white rounded-xl border border-black/[0.08] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#F5F5F7] border-b border-black/[0.08] text-slate-500">
+              <thead className="bg-slate-50 border-b border-black/[0.08] text-slate-500">
                 <tr>
                   <th className="px-4 py-3 font-medium">Society</th>
                   <th className="px-4 py-3 font-medium">Username</th>
@@ -198,7 +198,7 @@ export const AdminSocietiesPage = () => {
                   <tr key={society.id} className="hover:bg-black/[0.02] transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#F5F5F7] border border-black/[0.08] flex items-center justify-center overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-slate-50 border border-black/[0.08] flex items-center justify-center overflow-hidden">
                           {society.avatar_url ? (
                             <img src={society.avatar_url} alt={society.name} className="w-full h-full object-cover" />
                           ) : (
@@ -223,7 +223,7 @@ export const AdminSocietiesPage = () => {
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => openEditModal(society)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-[#F5F5F7]"
+                        className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-slate-50"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         Edit
@@ -259,7 +259,7 @@ export const AdminSocietiesPage = () => {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="e.g. Computer Science Club"
                   />
                 </div>
@@ -278,7 +278,7 @@ export const AdminSocietiesPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })
                     }
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="cs_club"
                   />
                 </div>
@@ -295,7 +295,7 @@ export const AdminSocietiesPage = () => {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="society@college.edu"
                   />
                 </div>
@@ -313,7 +313,7 @@ export const AdminSocietiesPage = () => {
                     minLength={6}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                     placeholder="Min. 6 characters"
                   />
                 </div>
@@ -336,7 +336,7 @@ export const AdminSocietiesPage = () => {
                       type="text"
                       value={formData.theme_color}
                       onChange={(e) => setFormData({ ...formData, theme_color: e.target.value.toUpperCase() })}
-                      className="w-full pl-10 pr-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
                       placeholder="#0F172A"
                     />
                   </div>
@@ -348,7 +348,7 @@ export const AdminSocietiesPage = () => {
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-20"
+                  className="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-20"
                   placeholder="Short description of the society..."
                 />
               </div>
@@ -385,7 +385,7 @@ export const AdminSocietiesPage = () => {
                   required
                   value={editFormData.name}
                   onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                  className="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
@@ -398,7 +398,7 @@ export const AdminSocietiesPage = () => {
                   onChange={(e) =>
                     setEditFormData({ ...editFormData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_@]/g, '') })
                   }
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                  className="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
@@ -408,7 +408,7 @@ export const AdminSocietiesPage = () => {
                   type="text"
                   value={editFormData.college}
                   onChange={(e) => setEditFormData({ ...editFormData, college: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
+                  className="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all"
                 />
               </div>
 
@@ -425,7 +425,7 @@ export const AdminSocietiesPage = () => {
                     type="text"
                     value={editFormData.theme_color}
                     onChange={(e) => setEditFormData({ ...editFormData, theme_color: e.target.value.toUpperCase() })}
-                    className="flex-1 px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
+                    className="flex-1 px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all uppercase"
                     placeholder="#0F172A"
                   />
                 </div>
@@ -436,7 +436,7 @@ export const AdminSocietiesPage = () => {
                 <textarea
                   value={editFormData.bio}
                   onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#F5F5F7] border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-24"
+                  className="w-full px-4 py-2 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 outline-none transition-all resize-none h-24"
                   placeholder="Short description of the society..."
                 />
               </div>

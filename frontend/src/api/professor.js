@@ -146,7 +146,13 @@ export async function getPendingProfessors() {
       .order('created_at', { ascending: false });
       
     if (error) throw error;
-    return { data: pendingProfessors || [], error: null };
+    const activePending = (pendingProfessors || []).filter(
+      p =>
+        p.professor_status !== 'approved' &&
+        p.professor_status !== 'rejected' &&
+        p.role_request_status !== 'approved'
+    );
+    return { data: activePending, error: null };
   } catch (error) {
     return { data: [], error };
   }
@@ -154,39 +160,36 @@ export async function getPendingProfessors() {
 
 export async function approveProfessor(adminId, professorId) {
   try {
-    const { error: rpcError } = await supabase.rpc('admin_approve_professor', {
-      target_user_id: professorId,
+    // The frontend Supabase client (anon key) is blocked by RLS from updating other users' profiles.
+    // Use the backend route which uses supabaseAdmin (service role) and bypasses RLS.
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error('Not authenticated');
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const res = await fetch(`${backendUrl}/api/admin/professors/${professorId}/approve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
     });
-    if (rpcError) throw rpcError;
 
-    const { data: updatedProfile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', professorId)
-      .single();
-    
-    if (error) throw error;
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Failed to approve professor');
 
-    try {
-      if (import.meta.env.VITE_BACKEND_URL) {
-         fetch(`${import.meta.env.VITE_BACKEND_URL}/api/email/professor/approve`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ professorId })
-         }).catch(() => null);
-      }
-    } catch(err) {}
+    const professor = json.professor;
 
     await logAdminAction(
       adminId,
       'APPROVED_PROFESSOR',
       'profile',
       professorId,
-      updatedProfile?.email || professorId,
+      professor?.email || professorId,
       { decision: 'approved' }
-    );
+    ).catch(() => null);
 
-    return { data: updatedProfile, error: null };
+    return { data: professor, error: null };
   } catch (error) {
     return { data: null, error };
   }
@@ -194,33 +197,41 @@ export async function approveProfessor(adminId, professorId) {
 
 export async function rejectProfessor(adminId, professorId, reason) {
   try {
-    const { data: updatedProfile, error } = await supabase.from('profiles').update({ requested_role: null, role_request_status: 'rejected' }).eq('id', professorId).select().single();
-    if (error) throw error;
+    // Use the backend route (supabaseAdmin / service role) to bypass RLS.
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error('Not authenticated');
 
-    try {
-      if (import.meta.env.VITE_BACKEND_URL) {
-         fetch(`${import.meta.env.VITE_BACKEND_URL}/api/email/professor/reject`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ professorId, reason })
-         }).catch(() => null);
-      }
-    } catch(err) {}
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const res = await fetch(`${backendUrl}/api/admin/professors/${professorId}/reject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ reason }),
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Failed to reject professor');
+
+    const professor = json.professor;
 
     await logAdminAction(
       adminId,
       'REJECTED_PROFESSOR',
       'profile',
       professorId,
-      updatedProfile?.email || professorId,
+      professor?.email || professorId,
       { decision: 'rejected', reason }
-    );
+    ).catch(() => null);
 
-    return { data: updatedProfile, error: null };
+    return { data: professor, error: null };
   } catch (error) {
     return { data: null, error };
   }
 }
+
 
 export async function getAllProfessors() {
   try {

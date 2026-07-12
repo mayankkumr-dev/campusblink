@@ -36,8 +36,18 @@ export const AuthCallbackPage: React.FC = () => {
 
         // If a PKCE code is provided, exchange it for a session
         if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
+          try {
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+          } catch (err: any) {
+            // Supabase JS client v2 automatically handles PKCE code exchange on page load.
+            // If the code was already consumed by the client, it will throw an 'Invalid Auth Code' error.
+            // Check if we already have a session.
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+              throw err;
+            }
+          }
         } 
         // If a token_hash is provided, verify the OTP directly
         else if (tokenHash) {

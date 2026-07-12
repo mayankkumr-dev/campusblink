@@ -179,7 +179,11 @@ export const CanteenDashboardPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => navigate('/login')}
+            onClick={async () => {
+              await supabase.auth.signOut();
+              useAuthStore.getState().logout();
+              navigate('/');
+            }}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-accent-red bg-surface dark:bg-shop-bg-surface border border-rose-200 dark:border-red-900/30 hover:bg-rose-50 dark:hover:bg-red-900/20 transition-colors font-bold text-xs shadow-2xs dark:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-red"
           >
             <LogOut className="w-3.5 h-3.5" /> Logout Dashboard

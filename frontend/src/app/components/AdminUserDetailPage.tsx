@@ -173,7 +173,7 @@ export const AdminUserDetailPage: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <button onClick={() => setRestrictedFeatures([])} className="rounded-lg border border-black/[0.08] bg-slate-50 px-4 py-2 text-sm font-bold text-slate-900">Clear all</button>
-            <button onClick={() => setRestrictedFeatures(FEATURE_ACCESS_ITEMS.map((item) => item.key))} className="rounded-lg border border-[#F1CACA] bg-[#FFF5F5] px-4 py-2 text-sm font-bold text-[#DC2626]">Restrict all</button>
+            <button onClick={() => setRestrictedFeatures(FEATURE_ACCESS_ITEMS.map((item) => item.key))} className="rounded-lg border border-[#F1CACA] bg-[#FFF5F5] px-4 py-2 text-sm font-bold text-rose-600">Restrict all</button>
           </div>
         </div>
 
@@ -251,7 +251,7 @@ export const AdminUserDetailPage: React.FC = () => {
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span className="text-xs text-slate-500">{new Date(post.created_at).toLocaleString()}</span>
                   {post.type && <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-900">{post.type}</span>}
-                  {post.is_anonymous && <span className="rounded bg-[#FEE2E2] px-2 py-0.5 text-[10px] font-bold uppercase text-[#DC2626]">Anonymous Post</span>}
+                  {post.is_anonymous && <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-600">Anonymous Post</span>}
                 </div>
                 {post.title && <h4 className="font-bold text-slate-900">{post.title}</h4>}
                 <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">{post.content}</p>

@@ -253,19 +253,29 @@
    This preserves all hover and group-hover states naturally.
 ───────────────────────────────────────────────────────── */
 .dark .admin-theme {
-  --color-white: var(--admin-bg-surface);
-  --color-slate-50: var(--admin-bg-surface-raised);
-  --color-slate-100: var(--admin-bg-surface-hover);
-  --color-slate-200: var(--admin-border-subtle);
-  --color-slate-300: var(--admin-border-strong);
-  --color-slate-400: var(--admin-text-tertiary);
-  --color-slate-500: var(--admin-text-secondary);
-  --color-slate-600: var(--admin-text-secondary);
-  --color-slate-700: var(--admin-text-primary);
-  --color-slate-800: var(--admin-text-primary);
-  --color-slate-900: var(--admin-text-primary);
+  --override-white: var(--admin-bg-surface);
+  --override-black: var(--admin-text-primary);
+  --override-slate-50: var(--admin-bg-surface-raised);
+  --override-slate-100: var(--admin-bg-surface-hover);
+  --override-slate-200: var(--admin-border-subtle);
+  --override-slate-300: var(--admin-border-strong);
+  --override-slate-400: var(--admin-text-tertiary);
+  --override-slate-500: var(--admin-text-secondary);
+  --override-slate-600: var(--admin-text-secondary);
+  --override-slate-700: var(--admin-text-primary);
+  --override-slate-800: var(--admin-text-primary);
+  --override-slate-900: var(--admin-text-primary);
 
-
+  --override-gray-50: var(--admin-bg-surface-raised);
+  --override-gray-100: var(--admin-bg-surface-hover);
+  --override-gray-200: var(--admin-border-subtle);
+  --override-gray-300: var(--admin-border-strong);
+  --override-gray-400: var(--admin-text-tertiary);
+  --override-gray-500: var(--admin-text-secondary);
+  --override-gray-600: var(--admin-text-secondary);
+  --override-gray-700: var(--admin-text-primary);
+  --override-gray-800: var(--admin-text-primary);
+  --override-gray-900: var(--admin-text-primary);
 }
 
 /* Arbitrary values that cannot be variable-remapped */

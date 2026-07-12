@@ -126,11 +126,24 @@ export async function resolveTeacherRequest(adminId, userId, decision) {
     const approve = decision === 'approve';
     
     if (approve) {
-      // Use RPC expected by Supabase/PostgREST: public.admin_approve_professor(target_user_id)
-      const { error: rpcError } = await supabase.rpc('admin_approve_professor', {
-        target_user_id: userId,
-      });
+      const { error: rpcError } = await supabase
+        .from('profiles')
+        .update({
+          role: 'professor',
+          requested_role: null,
+          role_request_status: 'approved',
+          professor_status: 'approved',
+          professor_verified_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+        
       if (rpcError) throw rpcError;
+      
+      // Also update professor_requests table if it exists
+      await supabase
+        .from('professor_requests')
+        .update({ status: 'approved' })
+        .eq('user_id', userId);
       
       const { data: updatedRow, error } = await supabase
         .from('profiles')
@@ -1433,3 +1446,43 @@ export const adminAPI = {
     return data;
   }
 };
+
+export async function createCanteenOwnerAccount(ownerData) {
+  const { data: session } = await supabase.auth.getSession();
+  const token = session?.session?.access_token;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const response = await fetch(`${backendUrl}/api/admin/users/canteen-owner`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(ownerData)
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create canteen owner');
+  }
+  return response.json();
+}
+
+export async function createPrintOwnerAccount(ownerData) {
+  const { data: session } = await supabase.auth.getSession();
+  const token = session?.session?.access_token;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const response = await fetch(`${backendUrl}/api/admin/users/print-owner`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(ownerData)
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to create print owner');
+  }
+  return response.json();
+}
+
+

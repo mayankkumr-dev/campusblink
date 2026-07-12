@@ -85,7 +85,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
       {/* ── MOBILE VIEWPORT ONLY ── */}
       <div className="md:hidden flex flex-col font-sans text-slate-900 dark:text-admin-text-primary pb-8 min-h-screen transition-colors">
         {/* Sticky Search & Filters Header */}
-        <div className="sticky top-[64px] z-30 bg-[#F8FAFC]/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-2 pb-3 px-4 border-b border-slate-200/80 dark:border-admin-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none space-y-3 transition-colors">
+        <div className="sticky top-[64px] z-30 bg-slate-50/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-2 pb-3 px-4 border-b border-slate-200/80 dark:border-admin-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none space-y-3 transition-colors">
           <div className="flex gap-2">
             <div className="relative flex-1 group">
               <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-admin-text-secondary transition-colors" />
@@ -127,7 +127,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
         </div>
 
         {/* Item Cards List */}
-        <div className="p-4 space-y-3 bg-[#F8FAFC] dark:bg-admin-bg-base flex-1 transition-colors">
+        <div className="p-4 space-y-3 bg-slate-50 dark:bg-admin-bg-base flex-1 transition-colors">
           {filteredItems.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-10 text-center flex flex-col items-center transition-colors">
               <div className="p-3 bg-amber-50 dark:bg-amber-500/10 rounded-full mb-3 transition-colors">
@@ -233,7 +233,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
             <div key={item.id} className="relative rounded-lg border border-black/[0.08] bg-white p-4">
               {!item.is_available && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-50/70">
-                  <span className="rounded bg-[#DC2626] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-900">Out of Stock</span>
+                  <span className="rounded bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-900">Out of Stock</span>
                 </div>
               )}
 
@@ -246,10 +246,10 @@ export const AdminCanteenMenuPage: React.FC = () => {
               </div>
 
               <div className="mb-3 flex items-center gap-2 text-xs">
-                <span className={`rounded px-2 py-1 font-bold ${item.is_veg ? 'bg-[#16A34A]/10 text-accent-green' : 'bg-[#DC2626]/10 text-[#DC2626]'}`}>
+                <span className={`rounded px-2 py-1 font-bold ${item.is_veg ? 'bg-emerald-600/10 text-accent-green' : 'bg-rose-600/10 text-rose-600'}`}>
                   {item.is_veg ? 'Veg' : 'Non-veg'}
                 </span>
-                <span className={`rounded px-2 py-1 font-bold ${item.is_available ? 'bg-slate-100 text-slate-900' : 'bg-[#DC2626]/15 text-[#DC2626]'}`}>
+                <span className={`rounded px-2 py-1 font-bold ${item.is_available ? 'bg-slate-100 text-slate-900' : 'bg-rose-600/15 text-rose-600'}`}>
                   {item.is_available ? 'Available' : 'Unavailable'}
                 </span>
               </div>
@@ -264,7 +264,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleDeleteItem(item)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-[#DC2626]/10 px-3 py-2 text-xs font-bold text-[#DC2626] hover:bg-[#DC2626]/15"
+                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-600/10 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600/15"
                 >
                   <Trash2 className="h-4 w-4" /> Delete
                 </button>

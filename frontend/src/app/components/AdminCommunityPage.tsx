@@ -199,7 +199,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
   const StatusBadge = ({ reports }: { reports: number }) => {
     if (reports > 0) {
       return (
-        <span className="inline-flex items-center rounded bg-[#FEE2E2] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#DC2626]">
+        <span className="inline-flex items-center rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-600">
           <Flag className="mr-1 h-3 w-3" /> {reports} Reports
         </span>
       );
@@ -243,7 +243,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
           </button>
         </div>
 
-        {revealError && <p className="mt-3 text-sm font-medium text-[#DC2626]">{revealError}</p>}
+        {revealError && <p className="mt-3 text-sm font-medium text-rose-600">{revealError}</p>}
 
         {revealResult && (
           <div className="mt-4 rounded-lg border border-black/[0.08] bg-slate-50 p-4">
@@ -259,7 +259,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-900">{revealResult.post.type || 'General'}</span>
-                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-[#FEE2E2] text-[#DC2626]' : 'bg-accent-green/15 text-accent-green'}`}>
+                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-rose-100 text-rose-600' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.post.is_anonymous ? 'Anonymous' : 'Public'}
                     </span>
                   </div>
@@ -291,7 +291,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                   <p><span className="font-bold text-slate-900">Role:</span> <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase">{revealResult.author.role || 'student'}</span></p>
                   <p>
                     <span className="font-bold text-slate-900">Status:</span>{' '}
-                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-[#FEE2E2] text-[#DC2626]' : revealResult.author.status === 'restricted' ? 'bg-[#FEF9C3] text-[#92400E]' : 'bg-accent-green/15 text-accent-green'}`}>
+                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-rose-100 text-rose-600' : revealResult.author.status === 'restricted' ? 'bg-amber-100 text-amber-800' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.author.status || 'active'}
                     </span>
                   </p>
@@ -317,33 +317,33 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               </button>
               <button
                 onClick={handleWarnFromReveal}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#92400E]/20 bg-[#FEF9C3] px-3 py-2 text-xs font-bold text-[#92400E] hover:bg-[#92400E] hover:text-slate-900"
+                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800 hover:bg-[#92400E] hover:text-slate-900"
               >
                 <AlertTriangle className="h-4 w-4" /> Send Warning
               </button>
               <button
                 onClick={() => handleStatusFromReveal('restricted')}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#92400E]/20 bg-[#FEF9C3] px-3 py-2 text-xs font-bold text-[#92400E] hover:bg-[#92400E] hover:text-slate-900"
+                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800 hover:bg-[#92400E] hover:text-slate-900"
               >
                 <ShieldAlert className="h-4 w-4" /> Restrict Account
               </button>
               {revealResult.author.status === 'restricted' || revealResult.author.status === 'banned' ? (
                 <button
                   onClick={() => handleStatusFromReveal('active')}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#16A34A]/20 bg-accent-green/15 px-3 py-2 text-xs font-bold text-accent-green hover:bg-[#16A34A] hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-600/20 bg-accent-green/15 px-3 py-2 text-xs font-bold text-accent-green hover:bg-emerald-600 hover:text-white"
                 >
                   <ShieldAlert className="h-4 w-4" /> Unrestrict Account
                 </button>
               ) : null}
               <button
                 onClick={() => handleStatusFromReveal('banned')}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FEE2E2] px-3 py-2 text-xs font-bold text-[#DC2626] hover:bg-[#DC2626] hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white"
               >
                 <UserX className="h-4 w-4" /> Ban Account
               </button>
               <button
                 onClick={() => handleDeleteThread(revealResult.post.id, revealResult.post.content || '')}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#DC2626]/20 bg-[#FEE2E2] px-3 py-2 text-xs font-bold text-[#DC2626] hover:bg-[#DC2626] hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white"
               >
                 <Trash2 className="h-4 w-4" /> Delete Post
               </button>
@@ -541,7 +541,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                         </div>
                         <button
                           onClick={() => handleDeleteThread(post.id, post.content)}
-                          className="flex w-full items-center gap-2 px-4 py-2 text-left font-sans text-xs font-bold text-[#DC2626] hover:bg-[#FEE2E2]"
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left font-sans text-xs font-bold text-rose-600 hover:bg-rose-100"
                         >
                           <Trash2 className="h-4 w-4" /> Delete Thread
                         </button>

@@ -4,7 +4,7 @@ import {
   FileText, Mail, AlertTriangle, PauseCircle, PlayCircle, Trash2, X, Package, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { createAdminPrintShop, getAdminPrintShopOwners, getAllPrintShops, updateAdminPrintShop, updatePrintShopStatus } from '../../api/admin';
+import { createAdminPrintShop, getAdminPrintShopOwners, getAllPrintShops, updateAdminPrintShop, updatePrintShopStatus, createPrintOwnerAccount } from '../../api/admin';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
@@ -30,8 +30,34 @@ export const AdminPrintShopsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [ownerForm, setOwnerForm] = useState({
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+    college: '',
+    shop_name: '',
+  });
+
+  const handleCreateOwnerAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await createPrintOwnerAccount(ownerForm);
+      toast.success('Print shop owner account & shop created successfully! ✅');
+      setIsOwnerModalOpen(false);
+      setOwnerForm({ name: '', username: '', email: '', password: '', college: '', shop_name: '' });
+      fetchShops();
+      fetchOwners();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create print owner account');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const isEditMode = Boolean(form.id);
 
@@ -148,12 +174,12 @@ export const AdminPrintShopsPage: React.FC = () => {
   const StatusBadge = ({ status }: { status: string }) => {
     const badges: any = {
       'Active': 'bg-accent-green/15 text-accent-green',
-      'Pending': 'bg-[#FEF9C3] text-[#92400E]',
-      'Suspended': 'bg-[#FEE2E2] text-[#DC2626]'
+      'Pending': 'bg-amber-100 text-amber-800',
+      'Suspended': 'bg-rose-100 text-rose-600'
     };
     return (
        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${badges[status]}`}>
-         {status === 'Active' && <span className="w-1.5 h-1.5 rounded-md bg-[#16A34A] mr-1" />}
+         {status === 'Active' && <span className="w-1.5 h-1.5 rounded-md bg-emerald-600 mr-1" />}
          {status}
        </span>
     );
@@ -187,10 +213,16 @@ export const AdminPrintShopsPage: React.FC = () => {
           ))}
           <div className="h-6 w-px bg-slate-100 mx-2 hidden lg:block" />
           <button 
+            onClick={() => setIsOwnerModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-sans font-bold transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" /> Create Owner & Shop
+          </button>
+          <button 
             onClick={handleOpenCreate}
             className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-yellow-400 text-slate-900 rounded-lg text-sm font-sans font-bold transition-colors"
           >
-            <PlusCircle className="w-4 h-4" /> Add Print Shop
+            <PlusCircle className="w-4 h-4" /> Add Existing Shop
           </button>
         </div>
       </div>
@@ -272,11 +304,11 @@ export const AdminPrintShopsPage: React.FC = () => {
                       </button>
                       
                       {!shop.is_active ? (
-                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-emerald-600/10 flex items-center gap-2">
                           <PlayCircle className="w-4 h-4" /> Reactivate Shop
                         </button>
                       ) : (
-                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(shop.id, shop.name, shop.is_active)} className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-600/10 flex items-center gap-2">
                           <PauseCircle className="w-4 h-4" /> Suspend Shop
                         </button>
                       )}
@@ -434,6 +466,102 @@ export const AdminPrintShopsPage: React.FC = () => {
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Create Owner Account & Shop Modal */}
+      {isOwnerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-2xl border border-black/[0.08] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-black/[0.08] pb-4 mb-4">
+              <h3 className="font-syne text-lg font-bold text-slate-900">Create Print Shop Owner & Shop</h3>
+              <button onClick={() => setIsOwnerModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateOwnerAccount} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Owner Full Name *</label>
+                <input
+                  value={ownerForm.name}
+                  onChange={(e) => setOwnerForm({ ...ownerForm, name: e.target.value })}
+                  placeholder="e.g. Suresh Kumar"
+                  className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Username *</label>
+                  <input
+                    value={ownerForm.username}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, username: e.target.value })}
+                    placeholder="suresh_print"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">College *</label>
+                  <input
+                    value={ownerForm.college}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, college: e.target.value })}
+                    placeholder="MAIT"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Login Email *</label>
+                  <input
+                    type="email"
+                    value={ownerForm.email}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, email: e.target.value })}
+                    placeholder="print@campusblink.com"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Password *</label>
+                  <input
+                    type="password"
+                    value={ownerForm.password}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, password: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Print Shop Name *</label>
+                <input
+                  value={ownerForm.shop_name}
+                  onChange={(e) => setOwnerForm({ ...ownerForm, shop_name: e.target.value })}
+                  placeholder="e.g. Suresh Print Center"
+                  className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="pt-4 border-t border-black/[0.08] flex justify-end gap-3">
+                <button type="button" onClick={() => setIsOwnerModalOpen(false)} className="px-4 py-2 rounded-lg text-slate-700 font-bold text-sm">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSaving} className="px-5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2">
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Create Account & Shop
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

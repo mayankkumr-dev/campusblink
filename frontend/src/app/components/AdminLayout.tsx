@@ -33,26 +33,26 @@ const SidebarNavLink: React.FC<{
       onClick={() => { navigate(to); onNavigate(); }}
       className={`relative group w-full flex items-center justify-between px-4 md:px-3 py-3 md:py-[7px] my-0 md:my-[1px] md:rounded-xl transition-all duration-150 font-sans text-[14px] md:text-[13px] font-medium text-left min-h-[44px] md:min-h-0 ${
         isActive
-          ? 'bg-amber-50 md:bg-amber-500 text-amber-700 md:text-white shadow-none md:shadow-sm md:shadow-amber-200 dark:bg-amber-500/10 md:dark:bg-admin-accent dark:text-amber-500 md:dark:text-admin-bg-surface-elevated md:dark:shadow-none'
-          : 'text-slate-600 hover:bg-slate-100 md:hover:text-slate-900 dark:text-admin-text-secondary dark:hover:bg-admin-bg-surface-hover dark:hover:text-admin-text-primary'
+          ? 'bg-[#F5A524] text-[#0D0F14] font-bold shadow-sm'
+          : 'text-[#334155] hover:bg-[#F1F5F9] hover:text-[#0F172A] dark:text-[#E2E8F0] dark:hover:bg-[#262B36] dark:hover:text-[#FFFFFF]'
       }`}
     >
       {/* Mobile Active Indicator */}
       {isActive && (
-        <span className="md:hidden absolute left-0 top-0 bottom-0 w-[3px] bg-amber-500 rounded-r-full" />
+        <span className="md:hidden absolute left-0 top-0 bottom-0 w-[4px] bg-[#F5A524] rounded-r-full" />
       )}
       <div className="flex items-center gap-3 md:gap-2.5 min-w-0">
         <Icon
           size={16}
           className={`shrink-0 transition-colors ${
-            isActive ? 'text-amber-600 md:text-white dark:text-amber-500 md:dark:text-admin-bg-surface-elevated' : 'text-slate-400 group-hover:text-slate-600 dark:text-admin-text-tertiary dark:group-hover:text-admin-text-primary'
+            isActive ? 'text-[#0D0F14] font-bold' : 'text-[#64748B] group-hover:text-[#0F172A] dark:text-[#94A3B8] dark:group-hover:text-[#FFFFFF]'
           }`}
         />
         <span className="truncate leading-none mt-[1px] md:mt-0">{label}</span>
       </div>
       {badgeCount !== undefined && badgeCount > 0 && (
         <span className={`flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold shrink-0 ml-1 ${
-          isActive ? 'bg-amber-200 md:bg-white/25 text-amber-800 md:text-white' : 'bg-rose-500 text-white'
+          isActive ? 'bg-[#0D0F14] text-[#FFFFFF]' : 'bg-[#F43F5E] text-[#FFFFFF]'
         }`}>
           {badgeCount > 99 ? '99+' : badgeCount}
         </span>
@@ -64,13 +64,13 @@ const SidebarNavLink: React.FC<{
 /* ─────────────────────────────────────────────────────────
    AccordionCategory — replaces SectionLabel
 ───────────────────────────────────────────────────────── */
-const AccordionCategory: React.FC<{ label: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ label, children, defaultOpen = false }) => {
+const AccordionCategory: React.FC<{ label: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ label, children, defaultOpen = true }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   return (
     <div className="mb-0">
       {/* Desktop label */}
-      <div className="hidden md:block px-3 pt-5 pb-1 font-sans font-semibold text-[10px] text-slate-400 dark:text-admin-text-tertiary uppercase tracking-widest select-none">
+      <div className="hidden md:block px-3 pt-5 pb-1 font-sans font-bold text-[11px] text-[#64748B] dark:text-[#94A3B8] uppercase tracking-widest select-none">
         {label}
       </div>
       
@@ -78,10 +78,10 @@ const AccordionCategory: React.FC<{ label: string; children: React.ReactNode; de
       <button 
         type="button" 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden w-full flex items-center justify-between px-4 py-3 min-h-[44px] font-sans font-bold text-[12px] text-slate-400 dark:text-admin-text-secondary uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-admin-bg-surface-hover transition-colors"
+        className="md:hidden w-full flex items-center justify-between px-4 py-3 min-h-[44px] font-sans font-bold text-[13px] text-[#1E293B] dark:text-[#F8FAFC] uppercase tracking-wider hover:bg-[#F1F5F9] dark:hover:bg-[#262B36] transition-colors"
       >
         {label}
-        <ChevronRight size={14} className={`text-slate-400 dark:text-admin-text-tertiary transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+        <ChevronRight size={14} className={`text-[#64748B] dark:text-[#94A3B8] transition-transform ${isOpen ? 'rotate-90' : ''}`} />
       </button>
 
       {/* Children */}
@@ -163,8 +163,7 @@ export const AdminLayout: React.FC = () => {
       const { count } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .eq('role', 'professor')
-        .eq('professor_status', 'pending');
+        .or('and(requested_role.eq.teacher,role_request_status.eq.pending),professor_status.eq.pending');
       if (mounted) setPendingProfsCount(count || 0);
     };
 
@@ -174,7 +173,7 @@ export const AdminLayout: React.FC = () => {
       .channel('admin_professors_badge')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'profiles', filter: 'role=eq.professor' },
+        { event: '*', schema: 'public', table: 'profiles' },
         () => fetchCount()
       )
       .subscribe();
@@ -197,12 +196,12 @@ export const AdminLayout: React.FC = () => {
       {/* Logo Area */}
       <div className="h-[64px] border-b border-slate-100 dark:border-admin-border-subtle flex items-center justify-between px-5 shrink-0 transition-colors">
         <Link to={user ? '/student/home' : '/'} className="flex items-center gap-2 no-underline">
-          <div className="w-7 h-7 rounded-lg bg-amber-500 dark:bg-admin-accent flex items-center justify-center shrink-0 transition-colors">
-            <span className="text-white dark:text-admin-bg-surface-elevated font-syne font-extrabold text-sm leading-none transition-colors">CB</span>
+          <div className="w-7 h-7 rounded-lg bg-[#F5A524] flex items-center justify-center shrink-0 transition-colors">
+            <span className="text-[#0D0F14] font-syne font-extrabold text-sm leading-none transition-colors">CB</span>
           </div>
           <div>
-            <p className="font-syne font-extrabold text-sm text-slate-900 dark:text-admin-text-primary leading-none transition-colors">Campus Blink</p>
-            <p className="font-sans text-[10px] text-slate-400 dark:text-admin-text-secondary font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
+            <p className="font-syne font-extrabold text-sm text-[#0F172A] dark:text-[#FFFFFF] leading-none transition-colors">Campus Blink</p>
+            <p className="font-sans text-[10px] text-[#64748B] dark:text-[#94A3B8] font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
           </div>
         </Link>
         {/* Mobile close button */}
@@ -279,11 +278,11 @@ export const AdminLayout: React.FC = () => {
       {/* Admin Profile Footer */}
       <div className="shrink-0 border-t border-slate-100 dark:border-admin-border-subtle p-3 md:p-3 transition-colors bg-white dark:bg-admin-bg-surface z-10 shadow-[0_-4px_12px_rgba(0,0,0,0.02)] md:shadow-none">
         <div className="flex items-center gap-2.5 px-2 md:px-1 mb-2.5 md:mb-2.5">
-          <div className="w-9 h-9 md:w-8 md:h-8 rounded-xl bg-amber-500 dark:bg-admin-accent text-white dark:text-admin-bg-surface-elevated flex items-center justify-center font-syne font-extrabold text-[15px] md:text-sm shrink-0 transition-colors">
+          <div className="w-9 h-9 md:w-8 md:h-8 rounded-xl bg-[#F5A524] text-[#0D0F14] flex items-center justify-center font-syne font-extrabold text-[15px] md:text-sm shrink-0 transition-colors">
             {adminInitial}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-sans font-bold text-sm md:text-[13px] text-slate-900 dark:text-admin-text-primary truncate leading-tight transition-colors">{adminName}</p>
+            <p className="font-sans font-bold text-sm md:text-[13px] text-[#0F172A] dark:text-[#FFFFFF] truncate leading-tight transition-colors">{adminName}</p>
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:text-emerald-400 transition-colors">
               <span className="w-1 h-1 rounded-full bg-emerald-500 inline-block" />
               Super Admin

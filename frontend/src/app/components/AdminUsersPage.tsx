@@ -221,7 +221,7 @@ export const AdminUsersPage: React.FC = () => {
   return (
     <div>
       {/* ── MOBILE VIEWPORT ONLY: Ultra-Minimalist, Exceptionally Clean, Light-Mode-Only User Directory ── */}
-      <div className="md:hidden space-y-4 pb-16 font-sans text-slate-900 dark:text-admin-text-primary bg-[#F8FAFC] dark:bg-admin-bg-base transition-colors">
+      <div className="md:hidden space-y-4 pb-16 font-sans text-slate-900 dark:text-admin-text-primary bg-slate-50 dark:bg-admin-bg-base transition-colors">
         {/* Unified Sticky Header with Primary Search Bar and single Filters Icon */}
         <div className="sticky top-0 z-30 bg-white/95 dark:bg-admin-bg-surface/95 backdrop-blur-md py-3 -mx-1 px-1 border-b border-slate-100/90 dark:border-admin-border-subtle flex items-center gap-2.5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors">
           <div className="relative flex-1 group">
@@ -234,7 +234,7 @@ export const AdminUsersPage: React.FC = () => {
                 setSearchTerm(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-[#F8FAFC] dark:bg-admin-bg-base border border-slate-200/80 dark:border-admin-border-subtle rounded-2xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 dark:text-admin-text-primary placeholder:text-slate-400 dark:placeholder:text-admin-text-tertiary focus:outline-none focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface transition-all"
+              className="w-full bg-slate-50 dark:bg-admin-bg-base border border-slate-200/80 dark:border-admin-border-subtle rounded-2xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 dark:text-admin-text-primary placeholder:text-slate-400 dark:placeholder:text-admin-text-tertiary focus:outline-none focus:border-amber-400 focus:bg-white dark:focus:bg-admin-bg-surface transition-all"
             />
           </div>
 

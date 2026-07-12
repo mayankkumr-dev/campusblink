@@ -18,7 +18,7 @@ export const AdminOrdersHub: React.FC = () => {
   return (
     <div>
       {/* ── MOBILE VIEWPORT ONLY ── */}
-      <div className="md:hidden flex flex-col font-sans text-slate-900 dark:text-admin-text-primary bg-[#F8FAFC] dark:bg-admin-bg-base min-h-screen pb-16 transition-colors">
+      <div className="md:hidden flex flex-col font-sans text-slate-900 dark:text-admin-text-primary bg-slate-50 dark:bg-admin-bg-base min-h-screen pb-16 transition-colors">
         {/* Mobile Header */}
         <div className="px-4 pt-4 pb-2 bg-white dark:bg-admin-bg-surface transition-colors">
           <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary tracking-tight transition-colors">

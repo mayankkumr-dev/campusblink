@@ -28,7 +28,7 @@ export const AdminCommunityHub: React.FC = () => {
       </div>
 
       {/* ── MOBILE VIEWPORT ONLY ── */}
-      <div className="md:hidden sticky top-[64px] z-30 bg-[#F8FAFC]/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-2 px-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)] dark:shadow-none transition-colors">
+      <div className="md:hidden sticky top-[64px] z-30 bg-slate-50/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-2 px-4 shadow-[0_4px_12px_rgba(0,0,0,0.02)] dark:shadow-none transition-colors">
         <div className="flex items-center gap-6 overflow-x-auto hide-scrollbar">
           {tabs.map(tab => {
             const Icon = tab.icon;

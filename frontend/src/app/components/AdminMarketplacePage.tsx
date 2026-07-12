@@ -96,7 +96,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
   const StatusBadge = ({ status, reports }: { status: string, reports: number }) => {
     if (reports > 0) {
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-[#FEF0E6] text-[#DC2626] mr-2">
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-[#FEF0E6] text-rose-600 mr-2">
           <Flag className="w-3 h-3 mr-1" /> {reports} Reports
         </span>
       );
@@ -106,11 +106,11 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
     const badges: any = {
       'active': 'bg-accent-green/15 text-accent-green',
       'sold': 'bg-slate-100 dark:bg-admin-bg-base text-slate-900 dark:text-admin-text-primary',
-      'disabled': 'bg-[#FEE2E2] text-[#DC2626]'
+      'disabled': 'bg-rose-100 text-rose-600'
     };
     return (
        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider transition-colors ${badges[normalizedStatus] || 'bg-slate-100 dark:bg-admin-bg-base text-slate-900 dark:text-admin-text-primary'}`}>
-         {normalizedStatus === 'active' && <span className="w-1.5 h-1.5 rounded-md bg-[#16A34A] mr-1" />}
+         {normalizedStatus === 'active' && <span className="w-1.5 h-1.5 rounded-md bg-emerald-600 mr-1" />}
          {normalizedStatus}
        </span>
     );
@@ -119,7 +119,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
   return (
     <div>
       {/* ── MOBILE VIEWPORT ONLY ── */}
-      <div className="md:hidden flex flex-col font-sans text-slate-900 dark:text-admin-text-primary bg-[#F8FAFC] dark:bg-admin-bg-base pb-8 min-h-screen transition-colors">
+      <div className="md:hidden flex flex-col font-sans text-slate-900 dark:text-admin-text-primary bg-slate-50 dark:bg-admin-bg-base pb-8 min-h-screen transition-colors">
         {title && (
           <div className="bg-white dark:bg-admin-bg-surface px-4 pt-4 pb-2 transition-colors">
             <h2 className="font-syne font-bold text-xl text-slate-900 dark:text-admin-text-primary transition-colors">{title}</h2>
@@ -127,7 +127,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
         )}
 
         {/* Sticky Header with Search & Filter Ribbon */}
-        <div className="sticky top-[64px] z-30 bg-[#F8FAFC]/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-4 pb-3 px-4 border-b border-slate-200/80 dark:border-admin-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none space-y-3 transition-colors">
+        <div className="sticky top-[64px] z-30 bg-slate-50/95 dark:bg-admin-bg-base/95 backdrop-blur-md pt-4 pb-3 px-4 border-b border-slate-200/80 dark:border-admin-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none space-y-3 transition-colors">
           <div className="relative group">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-admin-text-secondary transition-colors" />
             <input 
@@ -280,7 +280,7 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
               <button 
                 key={pill} 
                 onClick={() => setFilterStatus(pill as 'All' | 'Active' | 'Sold' | 'Reported' | 'Disabled')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider font-sans transition-colors ${filterStatus === pill ? 'bg-amber-500 text-slate-900' : pill === 'Reported' && filterStatus === 'Reported' ? 'bg-[#DC2626] text-slate-900' : 'bg-slate-100 text-slate-500 hover:text-slate-900 border border-black/[0.08] hover:border-black/10'}`}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider font-sans transition-colors ${filterStatus === pill ? 'bg-amber-500 text-slate-900' : pill === 'Reported' && filterStatus === 'Reported' ? 'bg-rose-600 text-slate-900' : 'bg-slate-100 text-slate-500 hover:text-slate-900 border border-black/[0.08] hover:border-black/10'}`}
               >
                 {pill}
               </button>
@@ -373,18 +373,18 @@ export const AdminMarketplacePage: React.FC<AdminMarketplacePageProps> = ({ init
                         )}
                         
                         {listing.is_admin_disabled ? (
-                          <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'enabled')} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2 font-bold">
+                          <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'enabled')} className="w-full text-left px-4 py-2 text-accent-green hover:bg-emerald-600/10 flex items-center gap-2 font-bold">
                             <PlayCircle className="w-4 h-4" /> Enable Listing
                           </button>
                         ) : (
-                          <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'disabled')} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2 font-bold">
+                          <button onClick={() => handleUpdateStatus(listing.id, listing.title, 'disabled')} className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-600/10 flex items-center gap-2 font-bold">
                             <PauseCircle className="w-4 h-4" /> Disable Listing
                           </button>
                         )}
                         
                         <div className="h-px bg-slate-100 my-1" />
 
-                        <button onClick={() => handleDelete(listing.id, listing.title)} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2 font-bold">
+                        <button onClick={() => handleDelete(listing.id, listing.title)} className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-600/10 flex items-center gap-2 font-bold">
                           <Trash2 className="w-4 h-4" /> Delete Permanently
                         </button>
                       </div>
