@@ -471,6 +471,11 @@ export async function signIn(identifier, password) {
           profileWithEmail.professor_status = 'pending';
           profileWithEmail.staff_room_number = authData.user?.user_metadata?.staff_room_number || null;
         }
+      } else if (String(profileWithEmail.professor_status || '').toLowerCase() === 'approved') {
+        // DB says approved but auth metadata still says pending — clear the stale flag silently.
+        supabase.auth.updateUser({
+          data: { role_request_status: 'approved', requested_role: null }
+        }).catch(() => null);
       }
     }
 

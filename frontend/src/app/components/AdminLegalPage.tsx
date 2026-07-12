@@ -221,7 +221,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
       <div className="space-y-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
-            <Download className="h-4.5 w-4.5 text-slate-600" />
+            <Download className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400 transition-colors" />
           </div>
           <div>
             <h2 className="font-syne text-xl font-extrabold text-slate-900">{title || 'Data Export'}</h2>
@@ -232,7 +232,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2.5 mb-3">
-              <FileText className="h-4.5 w-4.5 text-blue-600" />
+              <FileText className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 transition-colors" />
               <h3 className="font-semibold text-slate-900">Legal Documents Package</h3>
             </div>
             <p className="text-sm text-slate-500 mb-4">
@@ -251,7 +251,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2.5 mb-3">
-              <History className="h-4.5 w-4.5 text-violet-600" />
+              <History className="h-4.5 w-4.5 text-violet-600 dark:text-violet-400 transition-colors" />
               <h3 className="font-semibold text-slate-900">Document Status</h3>
             </div>
             <div className="space-y-2">
@@ -275,7 +275,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
       {/* Header */}
       <div className="flex items-center gap-2.5">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
-          <FileText className="h-4.5 w-4.5 text-slate-600" />
+          <FileText className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400 transition-colors" />
         </div>
         <div>
           <h2 className="font-syne text-xl font-extrabold text-slate-900">{title || 'Terms & Legal Documents'}</h2>
@@ -351,7 +351,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
           <div className="flex-1 p-4">
             {isLoading ? (
               <div className="flex items-center justify-center h-40">
-                <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
               </div>
             ) : (
               <textarea

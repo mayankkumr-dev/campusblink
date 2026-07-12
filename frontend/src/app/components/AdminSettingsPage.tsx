@@ -55,21 +55,21 @@ const SettingRow = ({
   danger?: boolean;
   badge?: string;
 }) => (
-  <div className={`flex items-center justify-between gap-4 rounded-xl border p-4 transition-all ${
+  <div className={`flex items-center justify-between gap-3 md:gap-4 rounded-xl border p-3 md:p-4 transition-all ${
     danger && checked ? 'border-rose-200 bg-rose-50 dark:border-rose-500/20 dark:bg-rose-500/10' : 'border-slate-200 bg-slate-50 hover:bg-white dark:border-admin-border-subtle dark:bg-admin-bg-surface-raised dark:hover:bg-admin-bg-surface-hover'
   }`}>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 mb-0.5">
-        <h4 className="font-semibold text-[13px] text-slate-900 dark:text-admin-text-primary">{label}</h4>
+        <h4 className="font-semibold text-[12px] md:text-[13px] text-slate-900 dark:text-admin-text-primary">{label}</h4>
         {badge && (
-          <span className={`rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+          <span className={`rounded-full border px-1.5 py-0.5 md:px-2 md:py-0.5 text-[8px] md:text-[9px] font-bold uppercase tracking-wider ${
             danger && checked ? 'border-rose-300 bg-rose-100 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/20 dark:text-rose-400' : 'border-slate-200 bg-white text-slate-500 dark:border-admin-border-subtle dark:bg-admin-bg-surface dark:text-admin-text-secondary'
           }`}>
             {badge}
           </span>
         )}
       </div>
-      <p className="text-xs text-slate-400 dark:text-admin-text-tertiary">{description}</p>
+      <p className="text-[10px] md:text-xs text-slate-400 dark:text-admin-text-tertiary leading-tight">{description}</p>
     </div>
     <Toggle checked={checked} onChange={onChange} danger={danger} />
   </div>
@@ -126,7 +126,7 @@ export const AdminSettingsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
       </div>
     );
   }
@@ -205,7 +205,7 @@ export const AdminSettingsPage: React.FC = () => {
           </div>
 
           {/* Appearance Panel */}
-          <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+          <div className="hidden md:block rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
             <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
               <Sun className="h-4 w-4 text-slate-500 dark:text-admin-text-secondary dark:hidden transition-colors" />
               <Moon className="h-4 w-4 text-slate-500 dark:text-admin-text-secondary hidden dark:block transition-colors" />
@@ -243,7 +243,7 @@ export const AdminSettingsPage: React.FC = () => {
               <ShieldBan className="h-4 w-4 text-slate-500 dark:text-admin-text-secondary transition-colors" />
               <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">Access &amp; Registration Controls</h3>
             </div>
-            <div className="p-5 space-y-3">
+            <div className="p-3 md:p-5 space-y-2 md:space-y-3">
               <SettingRow
                 label="New Registrations"
                 description="Allow new users to sign up to the platform via the registration flow"
@@ -271,7 +271,7 @@ export const AdminSettingsPage: React.FC = () => {
                 Global Feature Flags
               </span>
             </div>
-            <div className="p-5 space-y-3">
+            <div className="p-3 md:p-5 space-y-2 md:space-y-3">
               {PLATFORM_TOGGLE_ITEMS
                 .filter(item => !['registrations_enabled', 'maintenance_mode'].includes(item.key))
                 .map(item => (
@@ -357,11 +357,11 @@ export const AdminSettingsPage: React.FC = () => {
                 { label: 'Edge Functions', value: 12, color: 'bg-blue-500', textColor: 'text-blue-600' },
               ].map(({ label, value, color, textColor }) => (
                 <div key={label}>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[12px] font-medium text-slate-500 dark:text-admin-text-secondary">{label}</span>
-                    <span className={`text-[11px] font-bold ${textColor}`}>{value}%</span>
+                  <div className="flex justify-between items-center mb-1 md:mb-1.5">
+                    <span className="text-[11px] md:text-[12px] font-medium text-slate-500 dark:text-admin-text-secondary">{label}</span>
+                    <span className={`text-[9px] md:text-[11px] font-extrabold ${textColor}`}>{value}%</span>
                   </div>
-                  <div className="w-full bg-slate-100 dark:bg-admin-bg-surface-raised h-1.5 rounded-full overflow-hidden transition-colors">
+                  <div className="w-full bg-slate-100 dark:bg-admin-bg-surface-raised h-[3px] md:h-1.5 rounded-full overflow-hidden transition-colors">
                     <div className={`${color} h-full rounded-full transition-all`} style={{ width: `${value}%` }} />
                   </div>
                 </div>

@@ -79,6 +79,47 @@ export async function getPosts(type, page = 1) {
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
+    // First attempt: Algorithmic Recommendation Feed RPC (engagement + time decay + serendipity)
+    try {
+      const { data: rpcPosts, error: rpcError } = await supabase.rpc('get_trending_feed', {
+        p_type: type || 'all',
+        p_limit: limit,
+        p_offset: start
+      });
+
+      if (!rpcError && Array.isArray(rpcPosts)) {
+        const authorIds = [...new Set(rpcPosts.map((p) => p.author_id).filter(Boolean))];
+        let authorMap = {};
+
+        if (authorIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, name, username, avatar_url, role, college')
+            .in('id', authorIds);
+
+          (profiles || []).forEach((prof) => {
+            authorMap[prof.id] = prof;
+          });
+        }
+
+        const enriched = rpcPosts.map((p) => ({
+          ...p,
+          author: authorMap[p.author_id] || {
+            id: p.author_id,
+            name: p.is_anonymous ? 'Anonymous' : 'Student',
+            username: p.is_anonymous ? 'anonymous' : 'student',
+            avatar_url: null,
+            college: null
+          }
+        }));
+
+        const normalized = enriched.map((post) => normalizePostRecord(post));
+        return { data: normalized, error: null };
+      }
+    } catch (_rpcErr) {
+      // Graceful fallback if RPC is not yet installed
+    }
+
     let query = supabase
       .from('posts')
       .select(`

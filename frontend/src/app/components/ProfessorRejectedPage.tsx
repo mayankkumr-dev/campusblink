@@ -15,7 +15,7 @@ export const ProfessorRejectedPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex flex-col items-center justify-center p-6 text-center">
       <div className="max-w-md w-full flex flex-col items-center">
-        <XCircle className="w-12 h-12 text-[#DC2626] mb-6" />
+        <XCircle className="w-12 h-12 text-[#DC2626] mb-6 dark:text-red-400 transition-colors" />
         
         <h1 className="font-syne font-bold text-2xl text-[var(--text-primary)] tracking-tight mb-4">
           Application Not Approved

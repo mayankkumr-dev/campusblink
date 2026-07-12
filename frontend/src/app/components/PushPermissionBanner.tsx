@@ -92,8 +92,8 @@ export const PushPermissionBanner: React.FC = () => {
   if (!visible || isSubscribed || !profile?.id) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[80] mx-auto max-w-md md:bottom-6 md:left-auto md:right-6 md:max-w-sm">
-      <div className="animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 rounded-2xl border border-black/10 bg-[var(--bg)] p-4 shadow-[0_16px_40px_rgba(13,13,13,0.14)]">
+    <div className="fixed bottom-4 left-4 right-4 z-[99] mx-auto max-w-md md:bottom-6 md:left-auto md:right-6 md:max-w-sm">
+      <div className="animate-in slide-in-from-bottom-4 md:slide-in-from-right-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xl opacity-100">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FEF9C3] text-[var(--yellow-dark)]">
             <Bell className="h-5 w-5" />

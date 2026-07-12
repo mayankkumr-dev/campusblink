@@ -12,7 +12,7 @@ export const TermsPage = () => {
         </button>
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 bg-[#FFFFFF] border border-[#ffffff1a] rounded-lg flex items-center justify-center">
-            <FileText className="w-6 h-6 text-blue-400" />
+            <FileText className="w-6 h-6 text-blue-400 dark:text-blue-300 transition-colors" />
           </div>
           <h1 className="font-syne font-extrabold text-4xl md:text-5xl">Terms of Service</h1>
         </div>

@@ -188,7 +188,194 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-7 animate-in fade-in duration-500">
+    <div>
+      {/* ── MOBILE VIEWPORT ONLY: Ultra-Minimalist, Exceptionally Clean, Light-Mode-Only Redesign ── */}
+      <div className="md:hidden space-y-6 pb-12 font-sans text-slate-900 dark:text-admin-text-primary bg-slate-50 dark:bg-admin-bg-base transition-colors">
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between gap-3 pt-1 px-4">
+          <div>
+            <h2 className="font-syne text-xl font-extrabold tracking-tight">
+              Platform Overview
+            </h2>
+            <p className="text-[11px] font-medium text-slate-500 dark:text-admin-text-secondary mt-0.5">
+              Real-time campus metrics · Auto-refreshes
+            </p>
+          </div>
+          <Link
+            to="/admin/alerts"
+            className="inline-flex items-center gap-1 rounded-xl bg-amber-500 text-white px-3 py-1.5 text-xs font-bold shadow-[0_2px_8px_rgba(245,158,11,0.25)] hover:bg-amber-600 transition-all shrink-0"
+          >
+            <Activity className="h-3.5 w-3.5" />
+            <span>Alerts</span>
+          </Link>
+        </div>
+
+        {/* Space-Saving 2x2 Compact Metrics Grid */}
+        <div className="px-4">
+          <div className="grid grid-cols-2 gap-3">
+            {statCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.label}
+                  className="rounded-2xl bg-white dark:bg-admin-bg-surface p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none border border-slate-100 dark:border-admin-border-subtle flex flex-col justify-between transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${card.accent.bg}`}>
+                      <Icon className={`h-4 w-4 stroke-[2.2] ${card.accent.icon}`} />
+                    </div>
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${card.accent.badge} ${card.accent.text}`}>
+                      {card.badge}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <p className="font-syne text-xl font-extrabold tracking-tight leading-none">
+                      {card.value}
+                    </p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary truncate transition-colors">
+                      {card.label}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Shared Platform Quick-Stats Strip */}
+        <div className="mx-4 grid grid-cols-3 gap-2 rounded-2xl bg-white dark:bg-admin-bg-surface p-3 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none border border-slate-100 dark:border-admin-border-subtle transition-colors">
+          {[
+            { label: 'Posts', value: sharedStats.totalCommunityPosts || 0 },
+            { label: 'Listings', value: sharedStats.totalMarketplaceListings || 0 },
+            { label: 'Users', value: sharedStats.totalActiveUsers || 0 },
+          ].map(({ label, value }) => (
+            <div key={label} className="text-center">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">{label}</p>
+              <p className="mt-0.5 font-syne text-base font-extrabold">{Number(value).toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Seamless Airy Feeds (No heavy bounding boxes, faint thin dividers only) */}
+        <div className="space-y-6 px-4">
+          {/* Recent Activity Feed */}
+          <div className="px-1">
+            <div className="flex items-center justify-between pb-2">
+              <h3 className="font-syne text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                Recent Activity
+              </h3>
+              <Link
+                to="/admin/audit"
+                className="text-xs font-bold text-amber-600 dark:text-admin-accent hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+              >
+                View all
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100 dark:divide-admin-border-subtle transition-colors">
+              {recentActivity.length > 0 ? (
+                recentActivity.slice(0, 5).map((entry: any) => (
+                  <div key={entry.id} className="py-3 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold leading-snug">
+                        {entry.action || 'System Action'}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-slate-400 dark:text-admin-text-secondary truncate transition-colors">
+                        {entry.target_name || 'System record'}
+                      </p>
+                    </div>
+                    <span className="shrink-0 flex items-center gap-1 text-[10px] font-medium text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                      <Clock className="h-2.5 w-2.5" />
+                      {new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="py-6 text-center text-xs font-medium text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                  No recent admin activity logged.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Contact Issues Feed */}
+          <div className="px-1">
+            <div className="flex items-center justify-between pb-2">
+              <h3 className="font-syne text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                Contact Issues
+              </h3>
+              <Link
+                to="/admin/contact-issues"
+                className="text-xs font-bold text-amber-600 dark:text-admin-accent hover:text-amber-700 dark:hover:text-amber-400 transition-colors"
+              >
+                Open Inbox ({openIssues} open)
+              </Link>
+            </div>
+
+            <div className="divide-y divide-slate-100 dark:divide-admin-border-subtle transition-colors">
+              {recentIssues.length > 0 ? (
+                recentIssues.slice(0, 5).map((issue: any) => (
+                  <div key={issue.id} className="py-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0 pr-2">
+                      <p className="text-xs font-semibold truncate">
+                        {issue.subject || 'No subject'}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-slate-400 dark:text-admin-text-secondary truncate transition-colors">
+                        {issue.name || issue.email || 'Anonymous'}
+                      </p>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                      issue.status === 'resolved'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : issue.status === 'in_progress'
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'bg-amber-50 text-amber-700'
+                    }`}>
+                      {String(issue.status || 'open').replace('_', ' ')}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="py-6 text-center text-xs font-medium text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                  No contact tickets pending review.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Per-College Snapshot */}
+          <div className="px-1 pt-2">
+            <div className="flex items-center justify-between pb-2">
+              <h3 className="font-syne text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                Per-College Snapshot
+              </h3>
+              <span className="text-xs font-semibold text-slate-500 dark:text-admin-text-secondary transition-colors">
+                {perCollegeStats.length} campuses
+              </span>
+            </div>
+            <div className="divide-y divide-slate-100 dark:divide-admin-border-subtle transition-colors">
+              {perCollegeStats.length > 0 ? (
+                perCollegeStats.slice(0, 4).map((c: any) => (
+                  <div key={c.college} className="py-3 flex items-center justify-between gap-3">
+                    <span className="text-xs font-bold truncate">
+                      {c.college}
+                    </span>
+                    <span className="shrink-0 text-[11px] font-semibold text-slate-500 dark:text-admin-text-secondary transition-colors">
+                      {c.activeStudentsCount} active students
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="py-6 text-center text-xs font-medium text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                  No campus snapshots available.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DESKTOP PC VIEWPORT ONLY: 100% UNTOUCHED ORIGINAL DESKTOP DASHBOARD ── */}
+      <div className="hidden md:block space-y-7 animate-in fade-in duration-500">
 
       {/* ── Greeting row ─────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -399,7 +586,7 @@ export const AdminDashboard: React.FC = () => {
           )}
         </div>
       </div>
-
+      </div>
     </div>
   );
 };

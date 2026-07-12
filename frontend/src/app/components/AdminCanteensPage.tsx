@@ -4,7 +4,7 @@ import {
   ShoppingBag, UtensilsCrossed, Mail, AlertTriangle, 
   PauseCircle, PlayCircle, Trash2, X, Loader2
 } from 'lucide-react';
-import { createAdminCanteen, getAdminCanteenOwners, getAllCanteens, updateAdminCanteen, updateCanteenStatus } from '../../api/admin';
+import { createAdminCanteen, getAdminCanteenOwners, getAllCanteens, updateAdminCanteen, updateCanteenStatus, createCanteenOwnerAccount } from '../../api/admin';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
@@ -27,9 +27,35 @@ export const AdminCanteensPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [owners, setOwners] = useState<any[]>([]);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [ownerForm, setOwnerForm] = useState({
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+    college: '',
+    shop_name: '',
+  });
+
+  const handleCreateOwnerAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await createCanteenOwnerAccount(ownerForm);
+      toast.success('Canteen owner account & shop created successfully! ✅');
+      setIsOwnerModalOpen(false);
+      setOwnerForm({ name: '', username: '', email: '', password: '', college: '', shop_name: '' });
+      fetchCanteens();
+      fetchOwners();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create canteen owner account');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const isEditMode = Boolean(form.id);
 
@@ -138,12 +164,12 @@ export const AdminCanteensPage: React.FC = () => {
   const StatusBadge = ({ status }: { status: string }) => {
     const badges: any = {
       'Active': 'bg-accent-green/15 text-accent-green',
-      'Pending': 'bg-[#FEF9C3] text-[#92400E]',
-      'Suspended': 'bg-[#FEE2E2] text-[#DC2626]'
+      'Pending': 'bg-amber-100 text-amber-800',
+      'Suspended': 'bg-rose-100 text-rose-600'
     };
     return (
        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${badges[status]}`}>
-         {status === 'Active' && <span className="w-1.5 h-1.5 rounded-md bg-[#16A34A] mr-1" />}
+         {status === 'Active' && <span className="w-1.5 h-1.5 rounded-md bg-emerald-600 mr-1" />}
          {status}
        </span>
     );
@@ -155,7 +181,7 @@ export const AdminCanteensPage: React.FC = () => {
       {/* Top Bar */}
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white p-4 rounded-lg border border-black/[0.08]">
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors dark:text-slate-400" />
           <input 
             type="text" 
             placeholder="Search canteen or owner..." 
@@ -177,10 +203,16 @@ export const AdminCanteensPage: React.FC = () => {
           ))}
           <div className="h-6 w-px bg-slate-100 mx-2 hidden lg:block" />
           <button 
+            onClick={() => setIsOwnerModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-sans font-bold transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" /> Create Owner & Shop
+          </button>
+          <button 
             onClick={handleOpenCreate}
             className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-yellow-400 text-slate-900 rounded-lg text-sm font-sans font-bold transition-colors"
           >
-            <PlusCircle className="w-4 h-4" /> Add Canteen
+            <PlusCircle className="w-4 h-4" /> Add Existing Shop
           </button>
         </div>
       </div>
@@ -189,7 +221,7 @@ export const AdminCanteensPage: React.FC = () => {
       <div className="bg-white border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
           </div>
         ) : (
         <table className="w-full text-left border-collapse">
@@ -248,24 +280,24 @@ export const AdminCanteensPage: React.FC = () => {
                     <div className="absolute right-[50px] top-4 w-56 bg-slate-100 border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100">
                       
                       <button onClick={() => { navigate(`/admin/canteen/${canteen.id}`); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Eye className="w-4 h-4 text-slate-500" /> Schedule & Status
+                        <Eye className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Schedule & Status
                       </button>
                       <button onClick={() => handleOpenEdit(canteen)} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Edit3 className="w-4 h-4 text-slate-500" /> Edit Details
+                        <Edit3 className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Edit Details
                       </button>
                       
                       <div className="h-px bg-slate-100 my-1" />
                       
                       <button className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-amber-500" /> Contact Owner
+                        <Mail className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" /> Contact Owner
                       </button>
                       
                       {!canteen.is_active ? (
-                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-[#16A34A]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-accent-green hover:bg-emerald-600/10 flex items-center gap-2">
                           <PlayCircle className="w-4 h-4" /> Reactivate Canteen
                         </button>
                       ) : (
-                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-[#DC2626] hover:bg-[#DC2626]/10 flex items-center gap-2">
+                        <button onClick={() => handleToggleStatus(canteen.id, canteen.name, canteen.is_active)} className="w-full text-left px-4 py-2 text-rose-600 hover:bg-rose-600/10 flex items-center gap-2">
                           <PauseCircle className="w-4 h-4" /> Suspend Canteen
                         </button>
                       )}
@@ -384,6 +416,102 @@ export const AdminCanteensPage: React.FC = () => {
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Create Owner Account & Shop Modal */}
+      {isOwnerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-2xl border border-black/[0.08] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-black/[0.08] pb-4 mb-4">
+              <h3 className="font-syne text-lg font-bold text-slate-900">Create Canteen Owner & Shop</h3>
+              <button onClick={() => setIsOwnerModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateOwnerAccount} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Owner Full Name *</label>
+                <input
+                  value={ownerForm.name}
+                  onChange={(e) => setOwnerForm({ ...ownerForm, name: e.target.value })}
+                  placeholder="e.g. Ramesh Sharma"
+                  className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Username *</label>
+                  <input
+                    value={ownerForm.username}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, username: e.target.value })}
+                    placeholder="ramesh_canteen"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">College *</label>
+                  <input
+                    value={ownerForm.college}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, college: e.target.value })}
+                    placeholder="MAIT"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Login Email *</label>
+                  <input
+                    type="email"
+                    value={ownerForm.email}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, email: e.target.value })}
+                    placeholder="canteen@campusblink.com"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Password *</label>
+                  <input
+                    type="password"
+                    value={ownerForm.password}
+                    onChange={(e) => setOwnerForm({ ...ownerForm, password: e.target.value })}
+                    placeholder="••••••••"
+                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Canteen Shop Name *</label>
+                <input
+                  value={ownerForm.shop_name}
+                  onChange={(e) => setOwnerForm({ ...ownerForm, shop_name: e.target.value })}
+                  placeholder="e.g. Ramesh Canteen Point"
+                  className="w-full rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="pt-4 border-t border-black/[0.08] flex justify-end gap-3">
+                <button type="button" onClick={() => setIsOwnerModalOpen(false)} className="px-4 py-2 rounded-lg text-slate-700 font-bold text-sm">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSaving} className="px-5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2">
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Create Account & Shop
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

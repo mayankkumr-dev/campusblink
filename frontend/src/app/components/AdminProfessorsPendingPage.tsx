@@ -77,18 +77,18 @@ export const AdminProfessorsPendingPage: React.FC = () => {
         <div>
           <h1 className="font-syne font-extrabold text-2xl text-slate-900">Pending Professor Requests</h1>
         </div>
-        <span className="px-3 py-1 rounded-md bg-[#FEF9C3] text-[#92400E] text-sm font-bold border border-[#F59E0B]/30">
+        <span className="px-3 py-1 rounded-md bg-amber-100 text-amber-800 text-sm font-bold border border-[#F59E0B]/30">
           {professors.length} pending
         </span>
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-amber-800 dark:text-amber-500 transition-colors" />
         </div>
       ) : professors.length === 0 ? (
         <div className="bg-white border border-[rgba(15,23,42,0.08)] rounded-lg p-12 text-center flex flex-col items-center">
-          <User className="w-10 h-10 text-[rgba(15,23,42,0.08)] mb-4" />
+          <User className="w-10 h-10 text-[rgba(15,23,42,0.08)] mb-4 dark:text-slate-600 transition-colors" />
           <p className="font-syne font-semibold text-lg text-slate-900 mb-1">No pending professor requests</p>
           <p className="font-sans text-sm text-slate-500">New requests will appear here</p>
         </div>
@@ -106,7 +106,7 @@ export const AdminProfessorsPendingPage: React.FC = () => {
                       <span className="font-sans text-sm text-slate-500">{prof.email}</span>
                       <span className="font-sans text-sm text-slate-900">Staff Room: {prof.staff_room_number || 'N/A'}</span>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="px-2 py-0.5 roundedbg-[#FEF9C3] bg-[#FEF9C3] text-[#92400E] text-xs font-bold border border-[#F59E0B]/30 rounded-md">
+                        <span className="px-2 py-0.5 roundedbg-amber-100 bg-amber-100 text-amber-800 text-xs font-bold border border-[#F59E0B]/30 rounded-md">
                           {prof.colleges?.name || prof.college || 'N/A'}
                         </span>
                         <span className="font-sans text-xs text-slate-500">Applied {formatTimeAgo(prof.created_at)}</span>
@@ -117,14 +117,14 @@ export const AdminProfessorsPendingPage: React.FC = () => {
                     <button
                       onClick={() => handleApprove(prof.id)}
                       disabled={actingOn === prof.id}
-                      className="h-9 px-4 rounded-md bg-[#22C55E] text-white text-sm font-bold hover:bg-[#16A34A] transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      className="h-9 px-4 rounded-md bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <Check className="w-4 h-4" /> Approve
                     </button>
                     <button
                       onClick={() => setRejectModal({ id: prof.id, name: prof.name })}
                       disabled={actingOn === prof.id}
-                      className="h-9 px-4 rounded-md border border-[#DC2626] text-[#DC2626] text-sm font-bold hover:bg-[#DC2626] hover:text-white transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      className="h-9 px-4 rounded-md border border-rose-600 text-rose-600 text-sm font-bold hover:bg-rose-600 hover:text-white transition-colors disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <X className="w-4 h-4" /> Reject
                     </button>
@@ -149,7 +149,7 @@ export const AdminProfessorsPendingPage: React.FC = () => {
                 onChange={e => setRejectReason(e.target.value)}
                 rows={3}
                 placeholder="Provide a reason..."
-                className="w-full mt-1 rounded-md border border-[rgba(15,23,42,0.08)] bg-slate-50 px-3 py-2 text-sm resize-none focus:outline-none focus:border-[#DC2626]"
+                className="w-full mt-1 rounded-md border border-[rgba(15,23,42,0.08)] bg-slate-50 px-3 py-2 text-sm resize-none focus:outline-none focus:border-rose-600"
               />
             </label>
             <div className="flex justify-end gap-2 mt-4">
@@ -159,7 +159,7 @@ export const AdminProfessorsPendingPage: React.FC = () => {
               <button
                 onClick={handleReject}
                 disabled={actingOn === rejectModal.id}
-                className="h-9 px-4 rounded-md bg-[#DC2626] text-white text-sm font-bold hover:bg-rose-700 transition-colors disabled:opacity-50"
+                className="h-9 px-4 rounded-md bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-colors disabled:opacity-50"
               >
                 {actingOn === rejectModal.id ? 'Rejecting...' : 'Reject'}
               </button>

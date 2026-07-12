@@ -19,8 +19,8 @@ const FEATURES = [
 
 const STATUS_BADGE: Record<string, string> = {
   approved: 'bg-accent-green/15 text-accent-green',
-  pending: 'bg-[#FEF9C3] text-[#92400E]',
-  rejected: 'bg-[#FEE2E2] text-accent-red',
+  pending: 'bg-amber-100 text-amber-800',
+  rejected: 'bg-rose-100 text-accent-red',
 };
 
 export const AdminProfessorsPage: React.FC = () => {
@@ -125,17 +125,17 @@ export const AdminProfessorsPage: React.FC = () => {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name, email, room, college..."
-          className="w-full h-10 pl-10 pr-4 rounded-md border border-border-subtle bg-surface text-sm text-text-primary focus:outline-none focus:border-[#92400E] transition-colors"
+          className="w-full h-10 pl-10 pr-4 rounded-md border border-border-subtle bg-surface text-sm text-text-primary focus:outline-none focus:border-amber-800 transition-colors"
         />
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-8 h-8 animate-spin text-[#92400E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-amber-800 dark:text-amber-500 transition-colors" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-surface border border-border-subtle rounded-lg p-8 text-center transition-colors">
-          <GraduationCap className="w-10 h-10 text-border-subtle mx-auto mb-3 transition-colors" />
+          <GraduationCap className="w-10 h-10 text-border-subtle mx-auto mb-3 transition-colors dark:text-slate-600" />
           <p className="text-sm text-text-secondary transition-colors">No professors found.</p>
         </div>
       ) : (
@@ -178,7 +178,7 @@ export const AdminProfessorsPage: React.FC = () => {
                       <button
                         onClick={e => { e.stopPropagation(); handleRevoke(prof.id); }}
                         disabled={actingOn === prof.id}
-                        className="h-7 px-3 rounded-md border border-[#DC2626] text-[#DC2626] text-xs font-bold hover:bg-[#DC2626] hover:text-white transition-colors disabled:opacity-50"
+                        className="h-7 px-3 rounded-md border border-rose-600 text-rose-600 text-xs font-bold hover:bg-rose-600 hover:text-white transition-colors disabled:opacity-50"
                       >
                         Revoke
                       </button>
@@ -187,7 +187,7 @@ export const AdminProfessorsPage: React.FC = () => {
                       <button
                         onClick={e => { e.stopPropagation(); handleReapprove(prof.id); }}
                         disabled={actingOn === prof.id}
-                        className="h-7 px-3 rounded-md bg-[#22C55E] text-white text-xs font-bold hover:bg-[#16A34A] transition-colors disabled:opacity-50"
+                        className="h-7 px-3 rounded-md bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50"
                       >
                         Reapprove
                       </button>
@@ -211,14 +211,14 @@ export const AdminProfessorsPage: React.FC = () => {
                             <div>
                               <span className="text-sm font-bold text-text-primary transition-colors">{f.label}</span>
                               <p className="text-xs text-text-secondary transition-colors">{f.desc}</p>
-                              {isLocked && <p className="text-xs text-[#DC2626] font-medium mt-0.5">Permanently disabled for professors</p>}
+                              {isLocked && <p className="text-xs text-rose-600 font-medium mt-0.5">Permanently disabled for professors</p>}
                             </div>
                             <button
                               onClick={() => !isLocked && handleToggleFeature(prof.id, f.key, isEnabled)}
                               disabled={isLocked || isToggling}
                               className={`relative w-12 h-6 rounded-md transition-colors ${
                                 isLocked ? 'bg-border-subtle cursor-not-allowed' :
-                                isEnabled ? 'bg-[#22C55E]' : 'bg-border-strong'
+                                isEnabled ? 'bg-emerald-500' : 'bg-border-strong'
                               }`}
                             >
                               <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-sm shadow transition-transform ${
@@ -231,7 +231,7 @@ export const AdminProfessorsPage: React.FC = () => {
                     </div>
 
                     {prof.professor_rejection_reason && status === 'rejected' && (
-                      <div className="mt-3 p-3 rounded-md bg-[#FEE2E2] border border-[#EF4444]/20">
+                      <div className="mt-3 p-3 rounded-md bg-rose-100 border border-rose-500/20">
                         <p className="text-xs font-bold text-accent-red">Rejection Reason</p>
                         <p className="text-sm text-accent-red mt-0.5">{prof.professor_rejection_reason}</p>
                       </div>

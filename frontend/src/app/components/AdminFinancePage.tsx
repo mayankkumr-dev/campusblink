@@ -98,7 +98,7 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
       </div>
     );
   }
@@ -177,19 +177,19 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map(card => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-center justify-between mb-3">
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${card.bg} ${card.border}`}>
+            <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-all">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3">
+                <div className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border ${card.bg} ${card.border} mb-2 sm:mb-0`}>
                   <Icon className={`h-4 w-4 ${card.accent}`} />
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{card.label}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">{card.label}</span>
               </div>
-              <p className="font-syne text-2xl font-extrabold text-slate-900">{card.value}</p>
-              <div className={`mt-1.5 flex items-center gap-1 text-[10px] font-semibold ${card.trendColor}`}>
+              <p className="font-syne text-lg sm:text-2xl font-extrabold text-slate-900">{card.value}</p>
+              <div className={`mt-1.5 flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold ${card.trendColor}`}>
                 {card.trend}
               </div>
             </div>
@@ -213,64 +213,109 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
         </span>
       </div>
 
-      {/* Transactions Table */}
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50">
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+      {/* Transactions List */}
+      <div className="space-y-4">
+        {/* Mobile Viewport */}
+        <div className="md:hidden space-y-3">
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary mb-2 px-1 transition-colors">
             {mode === 'credits' ? 'Reputation Credit History' : mode === 'revenue' ? 'Revenue Transactions' : 'All Transactions'}
           </h3>
+          
+          {modeFilteredTransactions.length > 0 ? (
+            modeFilteredTransactions.map(t => {
+              const change = Number(t.credits_change || 0);
+              return (
+                <div key={t.id} className="rounded-2xl border border-slate-100 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-between transition-colors">
+                  <div className="flex-1 min-w-0 pr-4">
+                    <p className="font-sans text-sm font-bold text-slate-900 dark:text-admin-text-primary truncate mb-0.5 transition-colors">
+                      {t.user_profile?.name || t.user_id || 'Unknown'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-mono text-[10px] text-amber-600 dark:text-admin-accent truncate transition-colors">{t.id}</p>
+                      <span className="rounded border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500 dark:text-admin-text-secondary truncate transition-colors">
+                        {formatActionType(t.action_type)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="shrink-0 text-right">
+                    <span className={`font-syne text-xl font-extrabold block ${change > 0 ? 'text-emerald-600 dark:text-emerald-400' : change < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-admin-text-secondary'}`}>
+                      {change > 0 ? '+' : ''}{change} ⭐
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 dark:text-admin-text-tertiary mt-0.5 uppercase tracking-wider block transition-colors">
+                      {new Date(t.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="rounded-3xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-10 text-center flex flex-col items-center shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none mt-4 transition-colors">
+              <BarChart3 className="h-8 w-8 text-slate-300 dark:text-admin-text-tertiary mb-3 transition-colors" />
+              <p className="text-sm font-bold text-slate-900 dark:text-admin-text-primary transition-colors">No transactions found</p>
+            </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead>
-              <tr className="border-b border-slate-100">
-                {['Transaction ID', 'User', 'Type', 'Credit Change', 'Date'].map(h => (
-                  <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {modeFilteredTransactions.length > 0 ? (
-                modeFilteredTransactions.map(t => {
-                  const change = Number(t.credits_change || 0);
-                  return (
-                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-5 py-3.5 font-mono text-[12px] text-amber-600">{t.id}</td>
-                      <td className="px-5 py-3.5 text-slate-800 font-medium">
-                        {t.user_profile?.name || t.user_id || 'Unknown'}
-                        {t.user_profile?.email && (
-                          <p className="text-[11px] text-slate-400 font-normal">{t.user_profile.email}</p>
-                        )}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">
-                          {formatActionType(t.action_type)}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={`font-bold ${change > 0 ? 'text-emerald-600' : change < 0 ? 'text-rose-600' : 'text-slate-500'}`}>
-                          {change > 0 ? '+' : ''}{change} ⭐
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 text-[12px] text-slate-400">
-                        {new Date(t.created_at).toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-5 py-14 text-center text-sm text-slate-400">
-                    <BarChart3 className="h-8 w-8 text-slate-200 mx-auto mb-3" />
-                    No transactions match the current filter.
-                  </td>
+        {/* Desktop Viewport */}
+        <div className="hidden md:block rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              {mode === 'credits' ? 'Reputation Credit History' : mode === 'revenue' ? 'Revenue Transactions' : 'All Transactions'}
+            </h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  {['Transaction ID', 'User', 'Type', 'Credit Change', 'Date'].map(h => (
+                    <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {modeFilteredTransactions.length > 0 ? (
+                  modeFilteredTransactions.map(t => {
+                    const change = Number(t.credits_change || 0);
+                    return (
+                      <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-[12px] text-amber-600">{t.id}</td>
+                        <td className="px-5 py-3.5 text-slate-800 font-medium">
+                          {t.user_profile?.name || t.user_id || 'Unknown'}
+                          {t.user_profile?.email && (
+                            <p className="text-[11px] text-slate-400 font-normal">{t.user_profile.email}</p>
+                          )}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">
+                            {formatActionType(t.action_type)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={`font-bold ${change > 0 ? 'text-emerald-600' : change < 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                            {change > 0 ? '+' : ''}{change} ⭐
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-[12px] text-slate-400">
+                          {new Date(t.created_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-14 text-center text-sm text-slate-400">
+                      <BarChart3 className="h-8 w-8 text-slate-200 mx-auto mb-3" />
+                      No transactions match the current filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

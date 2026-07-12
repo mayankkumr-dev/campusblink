@@ -3,6 +3,24 @@ import { Navigate, Outlet } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { PageSkeleton } from './ui/PageSkeleton';
 
+/** Returns the correct home path for any role */
+function getRoleHome(role: string, professorStatus?: string): string {
+  switch (role) {
+    case 'professor': {
+      const status = String(professorStatus || 'pending').toLowerCase();
+      if (status === 'approved') return '/professor/home';
+      if (status === 'rejected') return '/professor/rejected';
+      return '/professor/pending';
+    }
+    case 'canteen_owner':
+      return '/canteen-dashboard';
+    case 'print_shop':
+      return '/print-dashboard';
+    default:
+      return '/student/home';
+  }
+}
+
 export const AdminProtectedRoute: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const profile = useAuthStore((state) => state.profile);
@@ -21,9 +39,10 @@ export const AdminProtectedRoute: React.FC = () => {
     user.email?.toLowerCase() === 'contactus.mayank@gmail.com' ||
     profile.email?.toLowerCase() === 'contactus.mayank@gmail.com';
 
-  if (profile?.role !== 'admin' && !isAdminEmail) {
-    return <Navigate to="/student/home" replace />;
+  if (profile?.role === 'admin' || isAdminEmail) {
+    return <Outlet />;
   }
 
-  return <Outlet />;
+  // Redirect non-admins to their role's correct home
+  return <Navigate to={getRoleHome(profile.role, profile.professor_status)} replace />;
 };

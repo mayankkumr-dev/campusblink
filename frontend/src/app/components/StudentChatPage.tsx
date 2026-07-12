@@ -328,7 +328,7 @@ export const StudentChatPage: React.FC = () => {
 
           <div className="mt-3 rounded-md border border-[var(--border)] bg-[var(--bg-primary)] px-3 py-2">
             <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-[#8A93A3]" />
+              <Search className="h-4 w-4 text-[#8A93A3] dark:text-slate-400 transition-colors" />
               <input
                 value={peopleQuery}
                 onChange={(event) => setPeopleQuery(event.target.value)}
@@ -462,7 +462,7 @@ export const StudentChatPage: React.FC = () => {
                 ) : messages.length === 0 ? (
                   <div className="flex h-full items-center justify-center rounded-md border border-dashed border-[#DCE2EC] bg-[var(--bg)] p-6 text-center text-sm text-[#6D7684]">
                     <div>
-                      <MessageCircle className="mx-auto h-5 w-5 text-[#98A1B1]" />
+                      <MessageCircle className="mx-auto h-5 w-5 text-[#98A1B1] dark:text-slate-400 transition-colors" />
                       <p className="mt-2">No messages yet. Start chatting now.</p>
                     </div>
                   </div>

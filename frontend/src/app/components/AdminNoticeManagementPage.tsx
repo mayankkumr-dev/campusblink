@@ -99,8 +99,8 @@ export const AdminNoticeManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Explanation Banner */}
-      <div className="rounded-3xl border border-amber-200/80 bg-amber-50/40 p-5 md:p-6">
+      {/* ── DESKTOP PC VIEWPORT ONLY ── */}
+      <div className="hidden md:block rounded-3xl border border-amber-200/80 bg-amber-50/40 p-5 md:p-6">
         <div className="flex items-start gap-4">
           <ShieldCheck className="w-6 h-6 text-accent-amber shrink-0 mt-0.5" />
           <div className="text-xs sm:text-sm text-text-primary leading-relaxed space-y-1.5">
@@ -120,8 +120,17 @@ export const AdminNoticeManagementPage: React.FC = () => {
         </div>
       </div>
 
+      {/* ── MOBILE VIEWPORT ONLY ── */}
+      <div className="md:hidden rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 p-4 font-sans text-xs font-semibold text-amber-900 dark:text-amber-500 shadow-[0_2px_10px_rgba(0,0,0,0.02)] dark:shadow-none flex gap-3 items-start transition-colors">
+        <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 dark:text-amber-400 transition-colors" />
+        <div>
+          <p className="font-bold text-sm mb-0.5">Notice Admin Access</p>
+          <p className="text-amber-700/80 dark:text-amber-400/90 transition-colors">Authorized users get a "Notice Admin" panel to publish official notices with attachments.</p>
+        </div>
+      </div>
+
       {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur-md pt-2 pb-4 -mx-4 px-4 md:static md:bg-transparent md:p-0 md:mx-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/70" />
@@ -129,47 +138,47 @@ export const AdminNoticeManagementPage: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search users by name or email to grant access..."
-            className="w-full h-11 pl-11 pr-4 rounded-2xl border border-border-subtle bg-surface text-sm font-medium text-text-primary outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400"
+            placeholder="Search users by name or email..."
+            className="w-full h-11 pl-11 pr-4 rounded-2xl border border-border-subtle bg-surface text-sm font-medium text-text-primary outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400 shadow-[0_2px_12px_rgba(0,0,0,0.02)]"
           />
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2">
+        {/* Filter Pills (Toggle Switch on Mobile) */}
+        <div className="flex items-center gap-1.5 bg-slate-100/80 dark:bg-admin-bg-surface p-1.5 rounded-xl border border-slate-200/50 dark:border-admin-border-subtle transition-colors">
           <button
             type="button"
             onClick={() => { setFilterMode('admins'); setSearchQuery(''); }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               filterMode === 'admins' && !searchQuery
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated'
+                ? 'bg-white text-amber-600 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            Current Notice Admins
+            Admins
           </button>
           <button
             type="button"
             onClick={() => { setFilterMode('all'); }}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-bold transition-all ${
               filterMode === 'all' || searchQuery
-                ? 'bg-amber-500 text-white shadow-xs'
-                : 'bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated'
+                ? 'bg-white text-amber-600 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            Search All Users
+            All Users
           </button>
         </div>
       </div>
 
       {/* User List */}
-      <div className="bg-surface rounded-3xl border border-border-subtle shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-        <div className="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+      <div className="md:bg-surface md:rounded-3xl md:border md:border-border-subtle md:shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="hidden md:flex px-6 py-4 border-b border-border-subtle items-center justify-between">
           <h2 className="font-syne text-sm font-extrabold text-text-primary uppercase tracking-wider">
             {searchQuery ? `Search results (${users.length})` : filterMode === 'admins' ? `Authorized Notice Admins (${users.length})` : `Users (${users.length})`}
           </h2>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="md:divide-y md:divide-slate-100 flex flex-col gap-3 md:gap-0">
           {isLoading && (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="w-6 h-6 animate-spin text-accent-amber" />
@@ -177,11 +186,11 @@ export const AdminNoticeManagementPage: React.FC = () => {
           )}
 
           {!isLoading && users.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+            <div className="flex flex-col items-center justify-center py-16 text-center px-6 bg-white md:bg-transparent rounded-2xl md:rounded-none border md:border-0 border-slate-100">
               <Users className="w-10 h-10 text-text-placeholder mb-3 stroke-[1.5]" />
               <p className="text-sm font-bold text-text-primary">No users found</p>
-              <p className="text-xs text-text-secondary mt-1">
-                {filterMode === 'admins' ? 'No users have been granted Notice Admin access yet. Search for a user above to grant access.' : 'Try searching for a different name or email.'}
+              <p className="text-xs text-text-secondary mt-1 max-w-[250px]">
+                {filterMode === 'admins' ? 'No users have been granted Notice Admin access yet.' : 'Try searching for a different name or email.'}
               </p>
             </div>
           )}
@@ -194,11 +203,11 @@ export const AdminNoticeManagementPage: React.FC = () => {
               return (
                 <div
                   key={user.id}
-                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+                  className="bg-white md:bg-transparent rounded-2xl md:rounded-none border border-slate-100 md:border-0 p-4 md:px-6 md:py-4 flex flex-row items-center justify-between gap-3 shadow-[0_2px_12px_rgba(0,0,0,0.02)] md:shadow-none hover:bg-slate-50/60 transition-colors"
                 >
                   {/* User info */}
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle overflow-hidden shrink-0 flex items-center justify-center font-bold text-text-secondary text-sm">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-slate-50 border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center font-bold text-slate-400 text-sm">
                       {user.avatar_url ? (
                         <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (
@@ -208,43 +217,45 @@ export const AdminNoticeManagementPage: React.FC = () => {
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-bold text-text-primary truncate">
+                        <p className="text-sm font-bold text-slate-900 truncate">
                           {user.name || user.email}
                         </p>
-                        {user.is_notice_admin && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent-amber-soft text-accent-amber text-[10px] font-extrabold border border-accent-amber-soft">
+                      </div>
+                      <p className="text-[10px] md:text-xs font-semibold text-slate-500 truncate mt-0.5 uppercase tracking-wider">
+                        {studyYearText} · {user.college || 'No college'}
+                      </p>
+                      {user.is_notice_admin && (
+                        <div className="mt-1">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-600 text-[9px] font-extrabold uppercase tracking-wider">
                             <CheckCircle2 className="w-3 h-3" />
                             Notice Admin
                           </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-text-secondary truncate mt-0.5">
-                        {user.email} · <span className="font-semibold text-text-secondary">{studyYearText}</span> · {user.college || 'No college'}
-                      </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Toggle button */}
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="shrink-0">
                     <button
                       type="button"
                       onClick={() => handleToggleNoticeAdmin(user)}
                       disabled={isToggling}
-                      className={`h-9 px-4 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-2xs disabled:opacity-50 ${
+                      className={`h-9 px-3 md:px-4 rounded-xl text-[11px] md:text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-50 ${
                         user.is_notice_admin
-                          ? 'bg-accent-red/15 border border-rose-200 text-accent-red hover:bg-rose-100'
-                          : 'bg-amber-500 hover:bg-amber-600 text-white'
+                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+                          : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
                       }`}
                     >
                       {isToggling ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : user.is_notice_admin ? (
                         <>
-                          <UserX className="w-3.5 h-3.5" /> Revoke Access
+                          <UserX className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Revoke</span>
                         </>
                       ) : (
                         <>
-                          <UserCheck className="w-3.5 h-3.5" /> Grant Notice Admin
+                          <UserCheck className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Grant</span>
                         </>
                       )}
                     </button>

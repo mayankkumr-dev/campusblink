@@ -398,7 +398,7 @@ export const AdminInvitesPage: React.FC = () => {
               ))}
             </div>
             <label className="relative block w-full md:w-72">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500 dark:text-slate-400 transition-colors" />
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -430,7 +430,7 @@ export const AdminInvitesPage: React.FC = () => {
                       <td className="px-3 py-2">{row.createdByUser?.name || row.createdByUser?.email || 'Admin pool'}</td>
                       <td className="px-3 py-2">{row.usedByUser?.name || '-'}</td>
                       <td className="px-3 py-2">
-                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${status === 'Used' ? 'bg-[#F1F5F9] text-[#475569]' : status === 'Expired' ? 'bg-accent-red/15 text-accent-red' : 'bg-accent-green/15 text-accent-green'}`}>
+                        <span className={`rounded-md px-2 py-0.5 text-[11px] font-bold ${status === 'Used' ? 'bg-slate-100 text-[#475569]' : status === 'Expired' ? 'bg-accent-red/15 text-accent-red' : 'bg-accent-green/15 text-accent-green'}`}>
                           {status}
                         </span>
                       </td>

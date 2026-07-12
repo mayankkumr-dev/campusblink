@@ -117,6 +117,7 @@ export const router = createBrowserRouter([
               Component: (await import('./components/StudentDashboard')).StudentDashboard,
             }),
           },
+
           {
             path: 'campus-exchange',
             lazy: async () => ({
@@ -351,6 +352,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'attendance',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorAttendancePage')).ProfessorAttendancePage,
+            }),
+          },
+          {
             path: 'canteen',
             lazy: async () => ({
               Component: (await import('./components/ProfessorCanteenPage')).ProfessorCanteenPage,
@@ -453,6 +460,12 @@ export const router = createBrowserRouter([
                 path: 'orders',
                 lazy: async () => ({
                   Component: (await import('./components/AdminOrdersHub')).AdminOrdersHub,
+                }),
+              },
+              {
+                path: 'attendance',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminAttendancePage')).AdminAttendancePage,
                 }),
               },
 

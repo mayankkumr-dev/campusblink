@@ -93,6 +93,104 @@ router.post('/users/society', authMiddleware, adminOnlyMiddleware, async (req, r
   }
 });
 
+// Create Canteen Owner Account + Canteen Shop
+router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (req, res) => {
+  try {
+    const { email, password, name, username, college, shop_name } = req.body;
+
+    const { data: existingUser } = await supabaseAdmin.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (existingUser) return res.status(400).json({ error: 'Username is already taken' });
+
+    const { data: existingEmail } = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
+    if (existingEmail) return res.status(400).json({ error: 'Email is already registered' });
+
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { role: 'canteen_owner', name, username, college }
+    });
+
+    if (authError) return res.status(400).json({ error: authError.message });
+
+    const userId = authData.user.id;
+    await supabaseAdmin.from('profiles').update({
+      role: 'canteen_owner',
+      name,
+      username,
+      college
+    }).eq('id', userId);
+
+    const { data: shop, error: shopError } = await supabaseAdmin.from('canteen_shops').insert([{
+      owner_id: userId,
+      name: shop_name || `${name}'s Canteen`,
+      college,
+      is_active: true
+    }]).select().single();
+
+    if (shopError) {
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      return res.status(400).json({ error: `Failed to create canteen shop: ${shopError.message}` });
+    }
+
+    res.json({ message: 'Canteen owner and shop created successfully', user: authData.user, shop });
+  } catch (error) {
+    console.error('Error creating canteen owner:', error);
+    res.status(500).json({ error: error.message || 'Failed to create canteen owner' });
+  }
+});
+
+// Create Print Owner Account + Print Shop
+router.post('/users/print-owner', authMiddleware, adminOnlyMiddleware, async (req, res) => {
+  try {
+    const { email, password, name, username, college, shop_name } = req.body;
+
+    const { data: existingUser } = await supabaseAdmin.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (existingUser) return res.status(400).json({ error: 'Username is already taken' });
+
+    const { data: existingEmail } = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
+    if (existingEmail) return res.status(400).json({ error: 'Email is already registered' });
+
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { role: 'print_shop', name, username, college }
+    });
+
+    if (authError) return res.status(400).json({ error: authError.message });
+
+    const userId = authData.user.id;
+    await supabaseAdmin.from('profiles').update({
+      role: 'print_shop',
+      name,
+      username,
+      college
+    }).eq('id', userId);
+
+    const { data: shop, error: shopError } = await supabaseAdmin.from('print_shops').insert([{
+      owner_id: userId,
+      name: shop_name || `${name}'s Print Shop`,
+      college,
+      bw_price_per_page: 2,
+      color_price_per_page: 10,
+      binding_charge: 20,
+      is_active: true
+    }]).select().single();
+
+    if (shopError) {
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+      return res.status(400).json({ error: `Failed to create print shop: ${shopError.message}` });
+    }
+
+    res.json({ message: 'Print owner and shop created successfully', user: authData.user, shop });
+  } catch (error) {
+    console.error('Error creating print owner:', error);
+    res.status(500).json({ error: error.message || 'Failed to create print owner' });
+  }
+});
+
+
 // Get all users with filters
 router.get('/users', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
@@ -269,7 +367,7 @@ router.post('/professors/:id/reject', authMiddleware, adminOnlyMiddleware, async
       return res.status(400).json({ error: 'Rejection reason required' });
     }
 
-    const professor = await supabaseService.updateProfessorStatus(id, 'rejected');
+    const professor = await supabaseService.updateProfessorStatus(id, 'rejected', reason);
 
     // Send rejection email
     await emailService.sendProfessorRejection(professor, reason);

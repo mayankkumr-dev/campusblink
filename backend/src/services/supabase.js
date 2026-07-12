@@ -126,10 +126,21 @@ const supabaseService = {
   },
 
   // Update professor status
-  updateProfessorStatus: async (userId, status) => {
+  updateProfessorStatus: async (userId, status, reason) => {
+    const updates = {
+      professor_status: status,
+      role_request_status: status,
+    };
+    if (status === 'rejected') {
+      if (reason) updates.professor_rejection_reason = reason;
+    } else if (status === 'approved') {
+      updates.role = 'professor';
+      updates.professor_rejection_reason = null;
+      updates.professor_verified_at = new Date().toISOString();
+    }
     const { data, error } = await supabaseAdmin
       .from('profiles')
-      .update({ professor_status: status })
+      .update(updates)
       .eq('id', userId)
       // Explicit column list for admin professor status update result:
       // id: Unique user identifier
@@ -138,8 +149,7 @@ const supabaseService = {
       // username: Professor handle
       // role: Authorization role
       // status: Account activity status
-      // professor_status: Updated verification status (approved/rejected)
-      // campus_credits: Campus credit balance
+      // professor_status: Updated verification status (approved/rejected)\n      // campus_credits: Campus credit balance
       // created_at: Registration timestamp
       // college: Affiliated institution
       .select('id, name, email, username, role, status, professor_status, campus_credits, created_at, college')
@@ -148,6 +158,7 @@ const supabaseService = {
     if (error) throw new Error(`Failed to update professor status: ${error.message}`);
     return data;
   },
+
 
   // Create audit log
   createAuditLog: async (adminId, action, details) => {

@@ -129,10 +129,10 @@ export const AdminGlobalSearch: React.FC = () => {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'user': return <User className="w-4 h-4 text-amber-500" />;
+      case 'user': return <User className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" />;
       case 'order': return <ShoppingBag className="w-4 h-4 text-accent-green" />;
-      case 'post': return <MessageSquare className="w-4 h-4 text-amber-500" />;
-      default: return <Search className="w-4 h-4 text-slate-500" />;
+      case 'post': return <MessageSquare className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" />;
+      default: return <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" />;
     }
   };
 
@@ -170,7 +170,7 @@ export const AdminGlobalSearch: React.FC = () => {
         <div className="max-h-[60vh] overflow-y-auto">
           {isLoading ? (
             <div className="p-8 flex justify-center items-center">
-              <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
             </div>
           ) : results.length > 0 ? (
             <div className="py-2">

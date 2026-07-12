@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, NavLink, useNavigate, useLocation } from 'react-router';
-import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings } from 'lucide-react';
+import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings, ClipboardCheck, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
 import { ProfessorBadge } from './ProfessorBadge';
@@ -70,6 +70,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const navItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
+    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
     { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
@@ -79,12 +80,27 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
   ];
 
+  const mobileNavItems: Array<{
+    to: string;
+    icon: any;
+    label: string;
+    exact?: boolean;
+    isMenu?: boolean;
+    badgeCount?: number;
+  }> = [
+    { to: '/professor/home', icon: Home, label: 'Home', exact: true },
+    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+    { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: false },
+    { to: '/professor/profile', icon: User, label: 'Profile', exact: false },
+    { to: '#menu', icon: Menu, label: 'Menu', isMenu: true },
+  ];
+
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface dark:border-r dark:border-prof-border-subtle rounded-3xl dark:rounded-none shadow-[0_12px_40px_rgba(0,0,0,0.06)] dark:shadow-none overflow-hidden">
       {/* Logo */}
       <div className="h-20 flex items-center justify-center shrink-0 pt-2">
         <Link to="/professor/home" className="no-underline cursor-pointer block transform hover:scale-105 transition-transform">
-          <ThemeAwareLogo alt="Campus Blink" className="h-28 w-auto object-contain" />
+          <ThemeAwareLogo alt="Campus Blink" className="h-8 w-auto object-contain" />
         </Link>
       </div>
 
@@ -151,54 +167,57 @@ export const ProfessorLayout: React.FC = () => {
     </div>
   );
 
-  return (
-    <div className="min-h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary">
-      {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between h-16 px-5 bg-white dark:bg-prof-bg-surface dark:border-b dark:border-prof-border-subtle shadow-sm dark:shadow-none sticky top-0 z-50 safe-area-top select-none">
-        <Link to="/professor/home" className="no-underline cursor-pointer">
-          <div className="h-14 overflow-hidden flex items-center pt-1">
-            <ThemeAwareLogo alt="Campus Blink" className="h-24 w-auto object-contain" />
-          </div>
+  const mobileDrawerItems = [
+    { to: '/professor/home', icon: Home, label: 'Home', exact: true },
+    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+    { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
+    { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
+    { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
+    { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
+    { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
+    { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
+    { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
+    { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
+  ];
+
+  const mobileDrawerContent = (
+    <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface font-sans text-gray-900 dark:text-prof-text-primary select-none overflow-hidden pt-[env(safe-area-inset-top,16px)] pb-[max(env(safe-area-inset-bottom,16px),16px)]">
+      {/* Top Branding & Header */}
+      <div className="px-6 pt-4 pb-5 border-b border-gray-100 dark:border-prof-border-subtle flex flex-col items-center relative shrink-0 bg-white dark:bg-prof-bg-surface">
+        <button
+          type="button"
+          onClick={() => setIsMobileOpen(false)}
+          aria-label="Close Sidebar"
+          className="absolute right-4 top-4 w-9 h-9 rounded-xl bg-gray-50 dark:bg-prof-bg-surface-raised hover:bg-gray-100 dark:hover:bg-prof-bg-surface-hover text-gray-600 dark:text-prof-text-secondary flex items-center justify-center transition-colors active:scale-95"
+        >
+          <X className="w-5 h-5" strokeWidth={1.5} />
+        </button>
+
+        <Link
+          to="/professor/home"
+          onClick={() => setIsMobileOpen(false)}
+          className="no-underline cursor-pointer block mt-1"
+        >
+          <ThemeAwareLogo alt="Campus Blink" className="h-7 w-auto object-contain mx-auto" />
         </Link>
-        <div className="flex items-center gap-3">
-          <ProfessorBadge size="sm" />
-          <button onClick={() => setIsMobileOpen(true)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-prof-bg-surface-hover text-gray-700 dark:text-prof-text-primary transition-colors">
-            <Menu className="w-6 h-6" strokeWidth={1.5} />
-          </button>
+
+        {/* Upgraded Faculty Badge */}
+        <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue text-xs font-bold font-syne tracking-wide">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-prof-accent-blue"></span>
+          FACULTY PORTAL
         </div>
       </div>
 
-      {/* Mobile Drawer */}
-      {isMobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onClick={() => setIsMobileOpen(false)} />
-          <div className="absolute top-4 left-4 bottom-4 w-[280px]">
-            {sidebarContent}
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Sidebar (Floating Architectural Panel) */}
-      <div className="hidden md:block w-[280px] fixed top-4 bottom-4 left-4 z-40 select-none">
-        {sidebarContent}
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 md:ml-[304px] flex flex-col min-h-dvh">
-        <main className="flex-1 safe-area-bottom">
-          <Outlet />
-        </main>
-      </div>
-
-      <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
-      <PushPermissionBanner />
-
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-prof-bg-surface/90 backdrop-blur-md border-t border-gray-100 dark:border-prof-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-around h-[72px] z-40 safe-area-bottom select-none pb-2">
-        {navItems.map((item) => {
+      {/* Navigation Links */}
+      <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 hide-scrollbar bg-white dark:bg-prof-bg-surface">
+        {mobileDrawerItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.to
-            : location.pathname.startsWith(item.to);
+            : location.pathname.startsWith(item.to) &&
+              (item.to !== '/professor' ||
+                location.pathname === '/professor' ||
+                location.pathname === '/professor/home');
+
           return (
             <NavLink
               key={item.to}
@@ -210,18 +229,184 @@ export const ProfessorLayout: React.FC = () => {
                 }
                 setIsMobileOpen(false);
               }}
-              className="flex flex-col items-center justify-center gap-1.5 flex-1 h-full pt-2"
+              className={`group relative flex items-center gap-3.5 min-h-[46px] py-3 px-4 rounded-2xl transition-all duration-200 font-sans text-sm select-none ${
+                isActive
+                  ? 'bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue font-bold'
+                  : 'text-gray-700 dark:text-prof-text-secondary font-medium hover:bg-gray-50 dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary active:bg-gray-100/80'
+              }`}
             >
-              <div className="relative">
-                <item.icon size={22} strokeWidth={isActive ? 2 : 1.25} className={`transition-transform duration-300 ${isActive ? 'text-blue-600 dark:text-prof-accent-blue scale-110' : 'text-gray-400 dark:text-prof-text-secondary'}`} />
+              <item.icon
+                size={20}
+                strokeWidth={isActive ? 1.75 : 1.35}
+                className={`transition-colors duration-200 shrink-0 ${
+                  isActive ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-500 dark:text-prof-text-tertiary group-hover:text-blue-600 dark:group-hover:text-prof-text-primary'
+                }`}
+              />
+              <span className="flex-1 truncate">{item.label}</span>
+              {Number(item.badgeCount || 0) > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                  {item.badgeCount}
+                </span>
+              )}
+            </NavLink>
+          );
+        })}
+      </div>
+
+      {/* Pinned Bottom Actions */}
+      <div className="shrink-0 border-t border-gray-100 dark:border-prof-border-subtle p-4 bg-white dark:bg-prof-bg-surface">
+        {/* User profile block */}
+        <div className="flex items-center gap-3 px-3 py-2.5 mb-3 rounded-2xl bg-gray-50 dark:bg-prof-bg-surface-raised border border-gray-100 dark:border-prof-border-subtle">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-prof-accent-blue-soft-bg flex items-center justify-center text-blue-700 dark:text-prof-accent-blue font-syne font-bold text-base border border-blue-100 dark:border-prof-border-subtle shrink-0">
+            {firstName.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight">Prof. {firstName}</h4>
+            <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block">{profile?.email}</span>
+          </div>
+        </div>
+
+        {/* Settings button */}
+        <NavLink
+          to="/professor/settings/notifications"
+          onClick={() => setIsMobileOpen(false)}
+          className={({ isActive }) =>
+            `group flex items-center gap-3.5 min-h-[44px] py-2.5 px-3.5 rounded-2xl transition-all duration-200 font-sans text-sm ${
+              isActive
+                ? 'bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue font-bold'
+                : 'text-gray-700 dark:text-prof-text-secondary font-medium hover:bg-gray-50 dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary active:bg-gray-100/80'
+            }`
+          }
+        >
+          <Settings
+            size={19}
+            strokeWidth={1.35}
+            className="text-gray-500 dark:text-prof-text-tertiary group-hover:text-blue-600 dark:group-hover:text-prof-text-primary transition-colors shrink-0"
+          />
+          <span className="flex-1 truncate">Settings</span>
+        </NavLink>
+
+        {/* Sign out button */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full group flex items-center gap-3.5 min-h-[44px] py-2.5 px-3.5 mt-1 rounded-2xl bg-rose-50/60 dark:bg-prof-accent-red/10 hover:bg-rose-50 dark:hover:bg-prof-accent-red/20 text-rose-600 dark:text-prof-accent-red hover:text-rose-700 dark:hover:text-prof-accent-red font-sans text-sm font-bold transition-all duration-200 border border-rose-100/60 dark:border-prof-accent-red/20"
+        >
+          <LogOut
+            size={19}
+            strokeWidth={1.4}
+            className="text-rose-500 dark:text-prof-accent-red/80 group-hover:text-rose-600 dark:group-hover:text-prof-accent-red transition-colors shrink-0"
+          />
+          <span>Sign out</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary transition-colors duration-200">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white/95 dark:bg-prof-bg-surface/95 backdrop-blur-md border-b border-transparent dark:border-prof-border-subtle shadow-[0_2px_15px_rgba(0,0,0,0.03)] dark:shadow-none sticky top-0 z-50 select-none">
+        <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2">
+          <ThemeAwareLogo alt="Campus Blink" className="h-6 w-auto object-contain" />
+        </Link>
+        <div className="flex items-center gap-2.5">
+          <ProfessorBadge size="sm" />
+          <button
+            type="button"
+            onClick={() => setNotificationPanelOpen(true)}
+            aria-label="Open Notifications & Alerts"
+            className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50/80 dark:bg-prof-bg-surface-raised text-gray-700 dark:text-prof-text-primary hover:bg-gray-100 dark:hover:bg-prof-bg-surface-hover active:scale-95 transition-all"
+          >
+            <Bell className="w-5 h-5" strokeWidth={1.5} />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-[70] md:hidden flex">
+          <div
+            className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs transition-opacity animate-fadeIn"
+            onClick={() => setIsMobileOpen(false)}
+          />
+          <div className="relative w-[300px] max-w-[85vw] h-full bg-white dark:bg-prof-bg-surface shadow-[20px_0_50px_rgba(0,0,0,0.08)] dark:shadow-2xl flex flex-col z-10 animate-slideRight">
+            {mobileDrawerContent}
+          </div>
+        </div>
+      )}
+
+      {/* Desktop Sidebar (Floating Architectural Panel) */}
+      <div className="hidden md:block w-[280px] fixed top-4 bottom-4 left-4 z-40 select-none">
+        {sidebarContent}
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 md:ml-[304px] flex flex-col min-h-dvh">
+        <main className="flex-1 mb-[calc(66px+env(safe-area-inset-bottom,8px))] md:mb-0">
+          <Outlet />
+        </main>
+      </div>
+
+      <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
+      <PushPermissionBanner />
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-prof-bg-surface border-t border-transparent dark:border-prof-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.05)] dark:shadow-none flex items-center justify-around h-[calc(66px+env(safe-area-inset-bottom,8px))] pb-[env(safe-area-inset-bottom,8px)] z-[60] select-none px-1">
+        {mobileNavItems.map((item) => {
+          const isActive = item.isMenu
+            ? false
+            : item.exact
+            ? location.pathname === item.to
+            : location.pathname.startsWith(item.to);
+
+          if (item.isMenu) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setIsMobileOpen(true)}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
+              >
+                <div className="relative flex items-center justify-center px-3.5 py-1 rounded-2xl text-gray-400 dark:text-prof-text-tertiary hover:text-gray-600 dark:hover:text-prof-text-primary transition-all duration-300">
+                  <item.icon size={21} strokeWidth={1.5} />
+                </div>
+                <span className="text-[10px] font-medium tracking-tight text-gray-400 dark:text-prof-text-tertiary">
+                  {item.label}
+                </span>
+              </button>
+            );
+          }
+
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={(e) => {
+                if (item.to === '/professor/alerts') {
+                  e.preventDefault();
+                  setNotificationPanelOpen(true);
+                }
+                setIsMobileOpen(false);
+              }}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
+            >
+              <div className={`relative flex items-center justify-center px-3.5 py-1 rounded-2xl transition-all duration-300 ${isActive ? 'bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-tertiary'}`}>
+                <item.icon size={21} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-300" />
                 {Number(item.badgeCount || 0) > 0 && (
-                  <span className="absolute -top-1.5 -right-2 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 dark:bg-prof-accent-red opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 dark:bg-prof-accent-red border-2 border-white dark:border-prof-bg-surface"></span>
+                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-prof-bg-surface"></span>
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] font-bold tracking-wide transition-colors ${isActive ? 'text-blue-700 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-secondary'}`}>
+              <span className={`text-[10px] tracking-tight transition-colors ${isActive ? 'font-semibold text-blue-600 dark:text-prof-accent-blue' : 'font-medium text-gray-400 dark:text-prof-text-tertiary'}`}>
                 {item.label}
               </span>
             </NavLink>

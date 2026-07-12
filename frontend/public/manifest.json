@@ -2,8 +2,8 @@
   "name": "Campus Blink",
   "short_name": "Blink",
   "description": "Campus Blink is the all-in-one student app for canteen, print, community, and marketplace.",
-  "theme_color": "#2D4EF5",
-  "background_color": "#FFFFFF"
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
   "display": "standalone",
   "orientation": "portrait",
   "start_url": "/",

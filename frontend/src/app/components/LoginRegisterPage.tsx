@@ -210,10 +210,16 @@ export const LoginRegisterPage: React.FC = () => {
     const finalizeVerification = async () => {
       if (tokenHash && otpType === 'signup') {
         setVerifyingEmailLink(true);
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: 'signup',
-        });
+        let error = null;
+        try {
+          const res = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'signup',
+          });
+          error = res.error;
+        } catch (err: any) {
+          error = err;
+        }
         setVerifyingEmailLink(false);
 
         if (error) {
@@ -574,9 +580,12 @@ export const LoginRegisterPage: React.FC = () => {
     toast.success(`Welcome back, ${getFirstName(data.profile?.name, 'Student')}! 👋`);
 
     const role = resolvedProfile?.role;
+    // Only show pending toast if auth metadata AND the DB profile both say pending
+    // (avoids misleading toast when metadata is stale after admin approval)
     const pendingTeacherRequest =
       data.user?.user_metadata?.requested_role === 'teacher' &&
-      String(data.user?.user_metadata?.role_request_status || '').toLowerCase() === 'pending';
+      String(data.user?.user_metadata?.role_request_status || '').toLowerCase() === 'pending' &&
+      String(resolvedProfile?.professor_status || 'pending').toLowerCase() === 'pending';
     const isAdminEmail = resolvedEmail === 'contactus.mayank@gmail.com';
     const redirectState = typeof location.state === 'object' && location.state && 'from' in location.state
       ? String((location.state as any).from || '')
@@ -714,7 +723,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-6 md:p-12 relative z-10">
           <div className="flex justify-center mb-8">
             <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[85px] w-auto object-contain shrink-0" />
+              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-10 w-auto object-contain shrink-0" />
             </Link>
           </div>
 
@@ -767,7 +776,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-6 md:p-12 relative z-10">
           <div className="flex justify-center mb-8">
             <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[85px] w-auto object-contain shrink-0" />
+              <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-10 w-auto object-contain shrink-0" />
             </Link>
           </div>
 
@@ -912,7 +921,7 @@ export const LoginRegisterPage: React.FC = () => {
         <div className="flex-1 flex flex-col justify-between p-5 md:p-8 lg:px-9 lg:py-7 relative z-10 overflow-y-auto">
         <div className="flex justify-center mb-4 lg:mb-3">
           <Link to="/" className="flex flex-col items-center justify-center drop-shadow-sm transition-transform hover:scale-105">
-            <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-[68px] w-auto object-contain shrink-0" />
+            <ThemeAwareLogo alt="Campus Blink" loading="eager" className="h-9 w-auto object-contain shrink-0" />
           </Link>
         </div>
 
@@ -1071,37 +1080,6 @@ export const LoginRegisterPage: React.FC = () => {
                       </select>
                     </div>
 
-                    {requestedRole === 'student' && (
-                      <div className="mt-4 grid grid-cols-2 gap-4 text-left">
-                        <div>
-                          <span className="text-sm font-medium ml-1">Year of Study</span>
-                          <select
-                            value={studyYear}
-                            onChange={(e) => setStudyYear(e.target.value)}
-                            required
-                            className="w-full mt-1 h-12 rounded-lg border border-[var(--border)] transition-all appearance-none bg-[linear-gradient(45deg,transparent_50%,var(--text-primary)_50%),linear-gradient(135deg,var(--text-primary)_50%,transparent_50%)] bg-[position:calc(100%-18px)_22px,calc(100%-12px)_22px] bg-[size:6px_6px,6px_6px] bg-[var(--bg)] bg-no-repeat pl-3 pr-8 text-[var(--text)]"
-                          >
-                            <option value="" disabled>Select Year</option>
-                            {STUDY_YEARS.map(y => <option key={y} value={y.split(':')[0]}>{y}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium ml-1">Branch</span>
-                          <select
-                            value={branch}
-                            onChange={(e) => setBranch(e.target.value)}
-                            required
-                            className="w-full mt-1 h-12 rounded-lg border border-[var(--border)] transition-all appearance-none bg-[linear-gradient(45deg,transparent_50%,var(--text-primary)_50%),linear-gradient(135deg,var(--text-primary)_50%,transparent_50%)] bg-[position:calc(100%-18px)_22px,calc(100%-12px)_22px] bg-[size:6px_6px,6px_6px] bg-[var(--bg)] bg-no-repeat pl-3 pr-8 text-[var(--text)]"
-                          >
-                            <option value="" disabled>Select Branch</option>
-                            {(college === MAIMS_COLLEGE ? MAIMS_BRANCHES : MAIT_BRANCHES).map(b => (
-                              <option key={b} value={b}>{b}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    )}
-
                     <div className="mt-4 flex flex-col items-start gap-1">
                       <span className="text-sm font-medium ml-1">Signing up as</span>
                       <div className="mt-2 grid w-full grid-cols-2 gap-2">
@@ -1139,6 +1117,37 @@ export const LoginRegisterPage: React.FC = () => {
                         </>
                       ) : null}
                     </div>
+
+                    {requestedRole === 'student' && (
+                      <div className="mt-4 grid grid-cols-2 gap-4 text-left">
+                        <div>
+                          <span className="text-sm font-medium ml-1">Year of Study</span>
+                          <select
+                            value={studyYear}
+                            onChange={(e) => setStudyYear(e.target.value)}
+                            required
+                            className="w-full mt-1 h-12 rounded-lg border border-[var(--border)] transition-all appearance-none bg-[linear-gradient(45deg,transparent_50%,var(--text-primary)_50%),linear-gradient(135deg,var(--text-primary)_50%,transparent_50%)] bg-[position:calc(100%-18px)_22px,calc(100%-12px)_22px] bg-[size:6px_6px,6px_6px] bg-[var(--bg)] bg-no-repeat pl-3 pr-8 text-[var(--text)]"
+                          >
+                            <option value="" disabled>Select Year</option>
+                            {STUDY_YEARS.map(y => <option key={y} value={y.split(':')[0]}>{y}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium ml-1">Branch</span>
+                          <select
+                            value={branch}
+                            onChange={(e) => setBranch(e.target.value)}
+                            required
+                            className="w-full mt-1 h-12 rounded-lg border border-[var(--border)] transition-all appearance-none bg-[linear-gradient(45deg,transparent_50%,var(--text-primary)_50%),linear-gradient(135deg,var(--text-primary)_50%,transparent_50%)] bg-[position:calc(100%-18px)_22px,calc(100%-12px)_22px] bg-[size:6px_6px,6px_6px] bg-[var(--bg)] bg-no-repeat pl-3 pr-8 text-[var(--text)]"
+                          >
+                            <option value="" disabled>Select Branch</option>
+                            {(college === MAIMS_COLLEGE ? MAIMS_BRANCHES : MAIT_BRANCHES).map(b => (
+                              <option key={b} value={b}>{b}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 )}
 

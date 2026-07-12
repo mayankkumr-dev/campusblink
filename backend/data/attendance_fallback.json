@@ -1,0 +1,397 @@
+{
+  "sessions": [
+    {
+      "_id": "sess_1783794399029_y7oyv1",
+      "subjectId": "CS301",
+      "sectionId": "CS-A",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-11T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "submitted",
+      "createdAt": "2026-07-11T18:26:39.030Z",
+      "updatedAt": "2026-07-11T18:26:39.030Z",
+      "submittedAt": "2026-07-11T18:28:35.635Z",
+      "editableUntil": "2026-07-12T18:28:35.635Z"
+    },
+    {
+      "_id": "sess_1783795138773_emc9t8",
+      "subjectId": "HVE",
+      "sectionId": "M",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-11T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "draft",
+      "createdAt": "2026-07-11T18:38:58.773Z",
+      "updatedAt": "2026-07-11T18:38:58.773Z"
+    },
+    {
+      "_id": "sess_1783795933814_hj83zc",
+      "subjectId": "CS301",
+      "sectionId": "Group A",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-11T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "submitted",
+      "createdAt": "2026-07-11T18:52:13.814Z",
+      "updatedAt": "2026-07-11T18:52:13.814Z",
+      "submittedAt": "2026-07-11T18:53:58.617Z",
+      "editableUntil": "2026-07-12T18:53:58.617Z"
+    },
+    {
+      "_id": "sess_1783796332462_8woach",
+      "subjectId": "CS302",
+      "sectionId": "ENTIRE_CLASS",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-11T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "draft",
+      "createdAt": "2026-07-11T18:58:52.462Z",
+      "updatedAt": "2026-07-11T18:58:52.462Z"
+    }
+  ],
+  "records": [
+    {
+      "_id": "rec_1783794514816_m3rabd",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_101",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_zh8qp2",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_102",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_c1tgys",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_103",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_qmszq8",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_104",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_myfzhu",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_105",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_kz4naw",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_106",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_6fwpt5",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_107",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_ey8bif",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_108",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_rv6i2u",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_109",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783794514816_ljbey0",
+      "sessionId": "sess_1783794399029_y7oyv1",
+      "studentId": "stud_110",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:28:34.814Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:28:34.814Z",
+      "updatedAt": "2026-07-11T18:28:34.814Z"
+    },
+    {
+      "_id": "rec_1783796037591_0fxbhx",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_21cs001_0",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_d0b1yq",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_21cs002_1",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_7w17v0",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_21cs003_2",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_d3bqzu",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_21cs004_3",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_053442",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_21cs005_4",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_mma0nf",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_074636092342_5",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_cbucdb",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_3765092459_6",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_xke8kd",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_7432749240_7",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    },
+    {
+      "_id": "rec_1783796037591_ufw2rr",
+      "sessionId": "sess_1783795933814_hj83zc",
+      "studentId": "std_3942095942_8",
+      "status": "present",
+      "lastEditedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "editHistory": [
+        {
+          "editedBy": "a71c8eb9-17a4-493f-8b41-724199146125",
+          "previousStatus": "present",
+          "newStatus": "present",
+          "timestamp": "2026-07-11T18:53:57.591Z",
+          "reason": "Post-submission correction"
+        }
+      ],
+      "createdAt": "2026-07-11T18:53:57.591Z",
+      "updatedAt": "2026-07-11T18:53:57.591Z"
+    }
+  ],
+  "disputes": []
+}

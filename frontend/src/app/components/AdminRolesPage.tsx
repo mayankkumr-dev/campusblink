@@ -110,7 +110,7 @@ export const AdminRolesPage: React.FC = () => {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex items-start gap-3 rounded-lg border border-black/[0.08] bg-white p-4">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#FEF3C7]">
-              <Coffee className="h-4 w-4 text-[#92400E]" />
+              <Coffee className="h-4 w-4 text-amber-800 dark:text-amber-500 transition-colors" />
             </div>
             <div>
               <p className="font-bold text-[14px] text-slate-900">Canteen Dashboard</p>
@@ -120,7 +120,7 @@ export const AdminRolesPage: React.FC = () => {
           </div>
           <div className="flex items-start gap-3 rounded-lg border border-black/[0.08] bg-white p-4">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#FEF3C7]">
-              <Printer className="h-4 w-4 text-[#92400E]" />
+              <Printer className="h-4 w-4 text-amber-800 dark:text-amber-500 transition-colors" />
             </div>
             <div>
               <p className="font-bold text-[14px] text-slate-900">Print Dashboard</p>
@@ -136,7 +136,7 @@ export const AdminRolesPage: React.FC = () => {
         <p className="mb-5 text-sm text-slate-500">Review pending professor account requests and approve or reject them directly from the admin panel.</p>
 
         {loadingTeacherRequests ? (
-          <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 animate-spin text-amber-500" /></div>
+          <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" /></div>
         ) : pendingTeacherRequests.length === 0 ? (
           <div className="rounded-lg border border-dashed border-black/10 bg-slate-50 p-6 text-sm text-slate-500">
             No pending professor signup requests.
@@ -175,9 +175,9 @@ export const AdminRolesPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="rounded-lg border border-black/[0.08] bg-white p-6 lg:col-span-8">
           <h2 className="mb-6 font-syne text-xl font-bold text-slate-900">Assign System Role</h2>
-          <div className="relative mb-6"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search user by name or email..." className="w-full rounded-lg border border-black/10 bg-slate-100 py-4 pl-12 pr-4 text-base text-slate-900 outline-none focus:border-amber-400" /></div>
+          <div className="relative mb-6"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400 transition-colors" /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search user by name or email..." className="w-full rounded-lg border border-black/10 bg-slate-100 py-4 pl-12 pr-4 text-base text-slate-900 outline-none focus:border-amber-400" /></div>
 
-          {isLoading ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-amber-500" /></div> : results.length > 0 ? (
+          {isLoading ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" /></div> : results.length > 0 ? (
             <div className="space-y-3">
               {results.slice(0, 6).map((user) => (
                 <button key={user.id} onClick={() => { setSelectedUser(user); setSelectedRole(user.role || 'student'); }} className={`flex w-full items-center justify-between rounded-lg border px-4 py-4 text-left transition-colors ${selectedUser?.id === user.id ? 'border-amber-400 bg-slate-100' : 'border-black/[0.08] bg-slate-50 hover:border-black/10'}`}>
@@ -194,12 +194,12 @@ export const AdminRolesPage: React.FC = () => {
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {roleOptions.map((role) => (
                 <button key={role} onClick={() => setSelectedRole(role)} className={`rounded-lg border px-4 py-3 text-left transition-colors ${selectedRole === role ? 'border-amber-400 bg-amber-500/10' : 'border-black/[0.08] bg-slate-50 hover:border-black/20'}`}>
-                  <div className={`text-sm font-bold uppercase tracking-wider ${selectedRole === role ? 'text-[#92400E]' : 'text-slate-900'}`}>{role}</div>
+                  <div className={`text-sm font-bold uppercase tracking-wider ${selectedRole === role ? 'text-amber-800' : 'text-slate-900'}`}>{role}</div>
                   {roleDescriptions[role] && <div className="mt-0.5 text-[11px] font-medium normal-case tracking-normal text-slate-500">{roleDescriptions[role]}</div>}
                 </button>
               ))}
               </div>
-              {selectedRole === 'admin' && <div className="rounded-lg border border-rose-200 bg-[#DC2626]/10 p-4"><p className="mb-3 text-sm font-bold text-[#DC2626]">Admin access warning</p><input value={confirmText} onChange={(event) => setConfirmText(event.target.value)} placeholder="Type CONFIRM ADMIN ACCESS" className="w-full rounded-lg border border-rose-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none" /></div>}
+              {selectedRole === 'admin' && <div className="rounded-lg border border-rose-200 bg-rose-600/10 p-4"><p className="mb-3 text-sm font-bold text-rose-600">Admin access warning</p><input value={confirmText} onChange={(event) => setConfirmText(event.target.value)} placeholder="Type CONFIRM ADMIN ACCESS" className="w-full rounded-lg border border-rose-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none" /></div>}
               <button onClick={handleApplyRole} className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-3 text-sm font-bold text-slate-900"><Shield className="h-4 w-4" /> Apply role</button>
             </div>
           )}

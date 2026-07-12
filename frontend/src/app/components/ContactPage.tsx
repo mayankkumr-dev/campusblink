@@ -195,7 +195,7 @@ export const ContactPage = () => {
             <div className="mt-8 w-full border-t border-[#ffffff14] pt-8" />
 
             <div className="w-12 h-12 rounded-lg bg-[#0A0F1E] flex items-center justify-center mb-6 border border-[#ffffff1a] group-hover:scale-110 transition-transform">
-               <MapPin className="w-6 h-6 text-purple-400" />
+               <MapPin className="w-6 h-6 text-purple-400 dark:text-purple-300 transition-colors" />
             </div>
             <h3 className="font-syne font-bold text-xl mb-2">Campus Drop-in</h3>
             <p className="text-text-secondary/70 text-sm">Find us in the library, probably debugging near the charging ports.</p>

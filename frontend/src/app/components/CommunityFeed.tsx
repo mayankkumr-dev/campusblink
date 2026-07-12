@@ -63,7 +63,7 @@ function PostImageGrid({ images, onOpen }: { images: string[]; onOpen: (index: n
 
   if (images.length === 1) {
     return (
-      <div className="mt-4 overflow-hidden rounded-[14px] border border-black/10 bg-[var(--bg-secondary)]">
+      <div className="mt-4 overflow-hidden md:rounded-[14px] max-md:rounded-[20px] md:border md:border-black/10 max-md:border-none md:bg-[var(--bg-secondary)] max-md:bg-slate-50 max-md:shadow-sm">
         <AdaptivePostImage
           src={images[0]}
           alt="Post attachment"
@@ -79,7 +79,7 @@ function PostImageGrid({ images, onOpen }: { images: string[]; onOpen: (index: n
   }
 
   return (
-    <div className="mt-4 grid grid-cols-2 gap-1 overflow-hidden rounded-[14px] border border-black/10 bg-[var(--bg-secondary)]">
+    <div className="mt-4 grid grid-cols-2 gap-1 overflow-hidden md:rounded-[14px] max-md:rounded-[20px] md:border md:border-black/10 max-md:border-none md:bg-[var(--bg-secondary)] max-md:bg-slate-50 max-md:shadow-sm">
       {images.slice(0, 4).map((image, index) => (
         <AdaptivePostImage
           key={`${image}-${index}`}
@@ -239,7 +239,7 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
     };
 
     return (
-      <article onClick={() => navigate(`/community/${post.id}`)} className="cursor-pointer rounded-[16px] border border-black/10 bg-[var(--bg)] p-4  transition-all hover:-translate-y-0.5 hover: md:p-5">
+      <article onClick={() => navigate(`/community/${post.id}`)} className="cursor-pointer md:rounded-[16px] md:border md:border-black/10 md:bg-[var(--bg)] p-4 transition-all hover:-translate-y-0.5 md:p-5 max-md:bg-white max-md:border-b max-md:border-slate-100 max-md:shadow-[0_2px_8px_rgb(0,0,0,0.01)] max-md:rounded-none max-md:mb-1.5">
         <div className="flex gap-3">
           <button
             type="button"
@@ -260,7 +260,7 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
                     type="button"
                     onClick={handleAuthorClick}
                     disabled={isAnonymous}
-                    className="truncate font-bold text-[var(--text-primary)] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline"
+                    className="truncate font-bold text-slate-900 md:text-[var(--text-primary)] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline max-md:text-[13px]"
                   >
                     {isAnonymous ? 'Anonymous Student' : post.author?.name || 'Campus Student'}
                   </button>
@@ -268,14 +268,14 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
                     type="button"
                     onClick={handleAuthorClick}
                     disabled={isAnonymous}
-                    className="text-[var(--text-secondary)] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline"
+                    className="text-slate-500 md:text-[var(--text-secondary)] transition-colors hover:underline disabled:cursor-default disabled:hover:no-underline max-md:text-[12px]"
                   >
                     @{handle}
                   </button>
-                  <span className="text-[var(--text-secondary)]">·</span>
-                  <span className="text-[var(--text-secondary)]">{formatRelativeTime(post.created_at)}</span>
-                  {post.author?.college && !isAnonymous && <span className="rounded-md bg-[var(--bg-secondary)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-primary)]">{post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}</span>}
-                  {post.is_pinned && <span className="rounded-md bg-[var(--yellow)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-primary)]">Pinned</span>}
+                  <span className="text-slate-400 md:text-[var(--text-secondary)]">·</span>
+                  <span className="text-slate-500 md:text-[var(--text-secondary)] max-md:text-[11px]">{formatRelativeTime(post.created_at)}</span>
+                  {post.author?.college && !isAnonymous && <span className="rounded-md bg-slate-100 md:bg-[var(--bg-secondary)] px-2 py-0.5 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-slate-700 md:text-[var(--text-primary)]">{post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}</span>}
+                  {post.is_pinned && <span className="rounded-md bg-amber-100 md:bg-[var(--yellow)] px-2 py-0.5 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-amber-900 md:text-[var(--text-primary)]">Pinned</span>}
                 </div>
                 {post.title && <h3 className="mt-2 text-lg font-bold leading-tight text-[var(--text-primary)] select-text">{post.title}</h3>}
               </div>
@@ -286,8 +286,8 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
                     targetUserId={authorId}
                     initialFollowing={isFollowingAuthor}
                     size="sm"
-                    variant="inline"
-                    className="hidden sm:inline-flex h-6 px-2 text-[11px]"
+                    variant="ghost"
+                    className="max-md:h-7 max-md:px-2.5 max-md:text-[11px] max-md:bg-slate-50 max-md:border-none max-md:shadow-none h-6 px-2 text-[11px]"
                     onChange={(nextFollowing) => {
                       if (authorId) onFollowChange(authorId, nextFollowing);
                     }}
@@ -354,16 +354,16 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
             <PostImageGrid images={images} onOpen={(index) => onOpenImage(images, index)} />
 
             {/* Action Row */}
-            <div className="mt-4 flex max-w-xl items-center justify-between border-t border-black/10 pt-3 text-[var(--text-secondary)]">
+            <div className="mt-4 flex max-w-xl items-center justify-between border-t border-black/5 max-md:border-slate-100/60 pt-2 md:pt-3 text-slate-500 md:text-[var(--text-secondary)]">
               <button
                 onClick={(event) => {
                   event.stopPropagation();
                   onLike(post.id, likedByMe);
                 }}
-                className={`group flex items-center gap-2 text-sm transition-colors ${likedByMe ? 'text-[var(--error)]' : 'hover:text-[var(--error)]'}`}
+                className={`group flex items-center gap-1.5 md:gap-2 text-[13px] md:text-sm transition-colors ${likedByMe ? 'text-[var(--error)]' : 'hover:text-[var(--error)]'}`}
               >
-                <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${likedByMe ? 'bg-[var(--error)]/10' : 'group-hover:bg-[var(--error)]/10'}`}><Heart className={`h-4 w-4 ${likedByMe ? 'fill-current text-[var(--error)]' : ''}`} /></span>
-                <span>{post.likes_count || 0}</span>
+                <span className={`flex h-10 w-10 md:h-9 md:w-9 items-center justify-center rounded-full transition-colors ${likedByMe ? 'bg-[var(--error)]/10' : 'group-hover:bg-[var(--error)]/10'}`}><Heart className={`h-[18px] w-[18px] md:h-4 md:w-4 ${likedByMe ? 'fill-current text-[var(--error)]' : ''}`} strokeWidth={1.5} /></span>
+                <span className="font-medium">{post.likes_count || 0}</span>
               </button>
 
               <button
@@ -371,19 +371,19 @@ function FeedPost({ post, profile, onLike, onDelete, onReportPost, onReportAccou
                   event.stopPropagation();
                   setShowCommentModal(true);
                 }}
-                className="group flex items-center gap-2 text-sm transition-colors hover:text-[var(--text-primary)]"
+                className="group flex items-center gap-1.5 md:gap-2 text-[13px] md:text-sm transition-colors hover:text-slate-900 md:hover:text-[var(--text-primary)]"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full transition-colors group-hover:bg-[var(--bg-secondary)]"><MessageCircle className="h-4 w-4" /></span>
-                <span>{post.comments_count || 0}</span>
+                <span className="flex h-10 w-10 md:h-9 md:w-9 items-center justify-center rounded-full transition-colors group-hover:bg-slate-100 md:group-hover:bg-[var(--bg-secondary)]"><MessageCircle className="h-[18px] w-[18px] md:h-4 md:w-4" strokeWidth={1.5} /></span>
+                <span className="font-medium">{post.comments_count || 0}</span>
               </button>
 
               <div onClick={(e) => e.stopPropagation()}>
                 <Popover className="relative">
                   {({ open, close }) => (
                     <>
-                      <Popover.Button className={`group relative flex items-center gap-1 p-0 outline-none transition-none hover:text-[var(--text-primary)] focus-visible:text-[var(--text-primary)] ${open ? 'text-[var(--text-primary)]' : ''}`}>
-                        <span className={`relative flex h-9 w-9 items-center justify-center rounded-full duration-200 group-hover:bg-[var(--bg-secondary)] ${open ? 'bg-[var(--bg-secondary)]' : ''}`}>
-                          <Share2 className="h-4 w-4" />
+                      <Popover.Button className={`group relative flex items-center gap-1 p-0 outline-none transition-none hover:text-slate-900 md:hover:text-[var(--text-primary)] focus-visible:text-[var(--text-primary)] ${open ? 'text-[var(--text-primary)]' : ''}`}>
+                        <span className={`relative flex h-10 w-10 md:h-9 md:w-9 items-center justify-center rounded-full duration-200 group-hover:bg-slate-100 md:group-hover:bg-[var(--bg-secondary)] ${open ? 'bg-slate-100 md:bg-[var(--bg-secondary)]' : ''}`}>
+                          <Share2 className="h-[18px] w-[18px] md:h-4 md:w-4" strokeWidth={1.5} />
                         </span>
                       </Popover.Button>
                       <Transition
@@ -861,16 +861,16 @@ export const CommunityFeed: React.FC = () => {
         ) : null}
 
         {/* Header Tabs */}
-        <div className="sticky top-0 z-10 bg-[var(--bg)]/80 backdrop-blur-md border-b border-black/10">
+        <div className="sticky top-0 z-10 md:bg-[var(--bg)]/80 md:backdrop-blur-md md:border-b md:border-black/10 max-md:bg-white/95 max-md:backdrop-blur-xl max-md:border-none max-md:shadow-sm">
           <div className="flex w-full mt-1">
             <button 
               onClick={() => setActiveTab('All')}
               className="flex-1 hover:bg-[#000000]/5 transition flex justify-center pb-0"
             >
               <div className="relative py-3">
-                <span className={`font-medium ${activeTab === 'All' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>For you</span>
+                <span className={`font-medium transition-colors ${activeTab === 'All' ? 'text-slate-900 md:text-[var(--text-primary)] font-bold' : 'text-slate-400 md:text-[var(--text-secondary)]'}`}>For you</span>
                 {activeTab === 'All' && (
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--yellow)] rounded-full"></div>
+                  <motion.div layoutId="communityTabIndicator" className="absolute bottom-0 left-0 w-full h-1 max-md:bg-blue-600 md:bg-[var(--yellow)] rounded-full" />
                 )}
               </div>
             </button>
@@ -879,9 +879,9 @@ export const CommunityFeed: React.FC = () => {
               className="flex-1 hover:bg-[#000000]/5 transition flex justify-center pb-0"
             >
               <div className="relative py-3">
-                <span className={`font-medium ${activeTab === 'Following' ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>Following</span>
+                <span className={`font-medium transition-colors ${activeTab === 'Following' ? 'text-slate-900 md:text-[var(--text-primary)] font-bold' : 'text-slate-400 md:text-[var(--text-secondary)]'}`}>Following</span>
                 {activeTab === 'Following' && (
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--yellow)] rounded-full"></div>
+                  <motion.div layoutId="communityTabIndicator" className="absolute bottom-0 left-0 w-full h-1 max-md:bg-blue-600 md:bg-[var(--yellow)] rounded-full" />
                 )}
               </div>
             </button>
@@ -1228,12 +1228,12 @@ const InlinePostComposer = ({
   };
 
   return (
-    <div ref={rootRef} className="p-4 border-b border-black/10 flex gap-3">
+    <div ref={rootRef} className="md:p-4 md:border-b md:border-black/10 flex gap-3 max-md:bg-white max-md:px-4 max-md:py-5 max-md:shadow-[0_4px_24px_rgb(0,0,0,0.03)] max-md:mb-2 max-md:rounded-b-[24px]">
       <div 
-        className="w-10 h-10 rounded-full bg-[var(--bg-secondary)] flex-shrink-0 flex items-center justify-center text-text-secondary/70 font-bold overflow-hidden cursor-pointer border border-black/10" 
+        className="w-10 h-10 md:rounded-full max-md:rounded-[14px] md:bg-[var(--bg-secondary)] max-md:bg-slate-50 flex-shrink-0 flex items-center justify-center text-slate-400 md:text-text-secondary/70 font-bold overflow-hidden cursor-pointer md:border md:border-black/10 max-md:shadow-sm" 
         onClick={() => onExpandedChange(true)}
       >
-        <img src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id || profile?.email })} alt="avatar" className="h-full w-full rounded-full object-cover" />
+        <img src={profile?.avatar_url || getAvatarDataUrl({ name: profile?.name, seed: profile?.id || profile?.email })} alt="avatar" className="h-full w-full object-cover" />
       </div>
 
       <div className="flex-1 flex flex-col">
@@ -1246,7 +1246,7 @@ const InlinePostComposer = ({
           }}
           placeholder="What is happening?!"
           rows={expanded ? 3 : 2}
-          className="w-full bg-transparent text-[20px] leading-[24px] outline-none resize-none min-h-[50px] text-[var(--text-primary)] placeholder-[var(--text-muted)]"
+          className="w-full bg-transparent text-[17px] md:text-[20px] leading-[24px] outline-none resize-none min-h-[50px] text-slate-900 md:text-[var(--text-primary)] placeholder-slate-400 md:placeholder-[var(--text-muted)] focus:ring-0 max-md:focus:bg-slate-50/50 max-md:rounded-xl max-md:px-1 max-md:-ml-1 max-md:transition-colors"
         />
 
         {files.length > 0 ? (

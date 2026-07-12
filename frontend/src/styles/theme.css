@@ -36,8 +36,22 @@
   --bg-tertiary: var(--bg-surface-elevated);
   --text-muted: var(--text-secondary);
   --border-strong: var(--border-2);
-  --midnight-blue: var(--accent-blue);
-  --midnight-blue-soft: var(--accent-blue-soft);
+  --yellow: var(--accent-amber);
+  --yellow-light: var(--accent-amber-soft);
+  
+  /* Shop specific light mode tokens */
+  --shop-bg-base: #F8FAFC;
+  --shop-bg-surface: #FFFFFF;
+  --shop-bg-surface-raised: #F1F5F9;
+  --shop-bg-surface-hover: #E2E8F0;
+  --shop-bg-surface-active: #CBD5E1;
+  --shop-border-subtle: #E2E8F0;
+  --shop-border-strong: #CBD5E1;
+  --shop-text-primary: #0F172A;
+  --shop-text-secondary: #64748B;
+  --shop-text-tertiary: #94A3B8;
+  --shop-accent: #EAB308;
+  --shop-accent-soft-bg: #FEF9C3;
 }
 
 .dark {
@@ -79,6 +93,8 @@
   --color-slate-800: var(--text-primary);
   --color-slate-900: var(--text-primary);
   --color-black: var(--text-inverse);
+  --yellow: var(--accent-amber);
+  --yellow-light: var(--accent-amber-soft);
 
   /* Professor specific dark mode tokens */
   --prof-bg-base: #0D0F14;
@@ -129,6 +145,77 @@
   --shop-accent-soft-bg: rgba(245,165,36,0.14);
 
   scrollbar-color: #27272A #101113;
+
+  /* Map hardcoded colored badges and icons to dark variants globally so all pages adapt seamlessly */
+  --color-emerald-50: rgba(16, 185, 129, 0.1);
+  --color-emerald-100: rgba(16, 185, 129, 0.15);
+  --color-emerald-200: rgba(16, 185, 129, 0.2);
+  --color-emerald-500: #34D399;
+  --color-emerald-600: #34D399;
+  --color-emerald-700: #10B981;
+  
+  --color-amber-50: rgba(245, 158, 11, 0.1);
+  --color-amber-100: rgba(245, 158, 11, 0.15);
+  --color-amber-200: rgba(245, 158, 11, 0.2);
+  --color-amber-500: #FBBF24;
+  --color-amber-600: #FBBF24;
+  --color-amber-700: #F59E0B;
+
+  --color-blue-50: rgba(59, 130, 246, 0.1);
+  --color-blue-100: rgba(59, 130, 246, 0.15);
+  --color-blue-200: rgba(59, 130, 246, 0.2);
+  --color-blue-500: #60A5FA;
+  --color-blue-600: #60A5FA;
+  --color-blue-700: #3B82F6;
+
+  --color-rose-50: rgba(244, 63, 94, 0.1);
+  --color-rose-100: rgba(244, 63, 94, 0.15);
+  --color-rose-200: rgba(244, 63, 94, 0.2);
+  --color-rose-500: #FB7185;
+  --color-rose-600: #FB7185;
+  --color-rose-700: #F43F5E;
+
+  --color-violet-50: rgba(139, 92, 246, 0.1);
+  --color-violet-100: rgba(139, 92, 246, 0.15);
+  --color-violet-200: rgba(139, 92, 246, 0.2);
+  --color-violet-500: #A78BFA;
+  --color-violet-600: #A78BFA;
+  --color-violet-700: #8B5CF6;
+  
+  --color-indigo-50: rgba(99, 102, 241, 0.1);
+  --color-indigo-100: rgba(99, 102, 241, 0.15);
+  --color-indigo-200: rgba(99, 102, 241, 0.2);
+  --color-indigo-500: #818CF8;
+  --color-indigo-600: #818CF8;
+  --color-indigo-700: #6366F1;
+
+  --color-orange-50: rgba(249, 115, 22, 0.1);
+  --color-orange-100: rgba(249, 115, 22, 0.15);
+  --color-orange-200: rgba(249, 115, 22, 0.2);
+  --color-orange-500: #FB923C;
+  --color-orange-600: #FB923C;
+  --color-orange-700: #F97316;
+
+  --color-red-50: rgba(239, 68, 68, 0.1);
+  --color-red-100: rgba(239, 68, 68, 0.15);
+  --color-red-200: rgba(239, 68, 68, 0.2);
+  --color-red-500: #F87171;
+  --color-red-600: #F87171;
+  --color-red-700: #EF4444;
+
+  --color-cyan-50: rgba(6, 182, 212, 0.1);
+  --color-cyan-100: rgba(6, 182, 212, 0.15);
+  --color-cyan-200: rgba(6, 182, 212, 0.2);
+  --color-cyan-500: #22D3EE;
+  --color-cyan-600: #22D3EE;
+  --color-cyan-700: #06B6D4;
+
+  --color-teal-50: rgba(20, 184, 166, 0.1);
+  --color-teal-100: rgba(20, 184, 166, 0.15);
+  --color-teal-200: rgba(20, 184, 166, 0.2);
+  --color-teal-500: #2DD4BF;
+  --color-teal-600: #2DD4BF;
+  --color-teal-700: #14B8A6;
 }
 
 .dark .admin-theme {
@@ -166,17 +253,29 @@
    This preserves all hover and group-hover states naturally.
 ───────────────────────────────────────────────────────── */
 .dark .admin-theme {
-  --color-white: var(--admin-bg-surface);
-  --color-slate-50: var(--admin-bg-surface-raised);
-  --color-slate-100: var(--admin-bg-surface-hover);
-  --color-slate-200: var(--admin-border-subtle);
-  --color-slate-300: var(--admin-border-strong);
-  --color-slate-400: var(--admin-text-tertiary);
-  --color-slate-500: var(--admin-text-secondary);
-  --color-slate-600: var(--admin-text-secondary);
-  --color-slate-700: var(--admin-text-primary);
-  --color-slate-800: var(--admin-text-primary);
-  --color-slate-900: var(--admin-text-primary);
+  --override-white: var(--admin-bg-surface);
+  --override-black: var(--admin-text-primary);
+  --override-slate-50: var(--admin-bg-surface-raised);
+  --override-slate-100: var(--admin-bg-surface-hover);
+  --override-slate-200: var(--admin-border-subtle);
+  --override-slate-300: var(--admin-border-strong);
+  --override-slate-400: var(--admin-text-tertiary);
+  --override-slate-500: var(--admin-text-secondary);
+  --override-slate-600: var(--admin-text-secondary);
+  --override-slate-700: var(--admin-text-primary);
+  --override-slate-800: var(--admin-text-primary);
+  --override-slate-900: var(--admin-text-primary);
+
+  --override-gray-50: var(--admin-bg-surface-raised);
+  --override-gray-100: var(--admin-bg-surface-hover);
+  --override-gray-200: var(--admin-border-subtle);
+  --override-gray-300: var(--admin-border-strong);
+  --override-gray-400: var(--admin-text-tertiary);
+  --override-gray-500: var(--admin-text-secondary);
+  --override-gray-600: var(--admin-text-secondary);
+  --override-gray-700: var(--admin-text-primary);
+  --override-gray-800: var(--admin-text-primary);
+  --override-gray-900: var(--admin-text-primary);
 }
 
 /* Arbitrary values that cannot be variable-remapped */
