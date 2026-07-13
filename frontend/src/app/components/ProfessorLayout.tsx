@@ -12,6 +12,7 @@ import { Logo } from './ui/Logo';
 
 const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
   const location = useLocation();
+  const isChatSection = location.pathname.includes('/messages');
   const isActive = exact
     ? location.pathname === to
     : location.pathname.startsWith(to) && (to !== '/professor' || location.pathname === '/professor' || location.pathname === '/professor/home');
@@ -25,16 +26,20 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
         }
         onNavigate();
       }}
-      className={`group relative flex items-center gap-3 py-3 px-4 mx-3 my-1.5 rounded-2xl transition-all duration-300 font-sans text-sm ${
+      className={`group/nav relative flex items-center py-3 px-4 mx-3 my-1.5 rounded-2xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+        isChatSection ? 'md:w-[52px] group-hover:md:w-[256px] w-[256px]' : 'w-auto'
+      } ${
         isActive
           ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none'
           : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
       }`}
     >
-      <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary"}`} />
-      <span className="flex-1">{label}</span>
+      <div className="shrink-0 w-5 flex items-center justify-center">
+        <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary"}`} />
+      </div>
+      <span className={`ml-3 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>{label}</span>
       {Number(badgeCount || 0) > 0 && (
-        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm dark:bg-prof-accent-red">
+        <span className={`bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm dark:bg-prof-accent-red whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>
           {badgeCount}
         </span>
       )}
@@ -71,13 +76,13 @@ export const ProfessorLayout: React.FC = () => {
   const navItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
     { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
     { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
-    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
     { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
@@ -97,65 +102,83 @@ export const ProfessorLayout: React.FC = () => {
     { to: '#menu', icon: Menu, label: 'Menu', isMenu: true },
   ];
 
+  const isChatSection = location.pathname.includes('/messages');
+
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface dark:border-r dark:border-prof-border-subtle rounded-3xl dark:rounded-none shadow-[0_12px_40px_rgba(0,0,0,0.06)] dark:shadow-none overflow-hidden">
-      {/* Logo */}
-      <div className="h-20 flex items-center justify-center shrink-0 pt-2">
-        <Link to="/professor/home" className="no-underline cursor-pointer block transform hover:scale-105 transition-transform">
-          <Logo alt="Campus Blink" className="h-8 w-auto object-contain" />
-        </Link>
-      </div>
-
-      {/* Nav */}
-      <div className="flex-1 overflow-y-auto py-6 hide-scrollbar">
-        <div className="mb-6 px-6 flex justify-center">
-          <ProfessorBadge size="md" />
+    <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface dark:border-r dark:border-prof-border-subtle rounded-3xl dark:rounded-none shadow-[0_12px_40px_rgba(0,0,0,0.06)] dark:shadow-none overflow-hidden transition-all duration-300">
+      <div className="w-[280px] h-full flex flex-col justify-between shrink-0">
+        {/* Logo */}
+        <div className="h-20 flex items-center shrink-0 pt-2 px-6">
+          <Link to="/professor/home" className="no-underline cursor-pointer block">
+            <div className={`origin-left transition-transform duration-300 ${
+              isChatSection ? 'md:scale-[0.45] group-hover/sidebar:md:scale-100' : 'scale-100'
+            }`}>
+              <Logo alt="Campus Blink" className="h-8 w-auto object-contain transition-transform hover:scale-105" />
+            </div>
+          </Link>
         </div>
-        <div className="space-y-0.5">
-          {navItems.map((item) => (
-            <ProfessorNavItem
-              key={item.to}
-              to={item.to}
-              icon={item.icon}
-              label={item.label}
-              exact={item.exact}
-              onNavigate={() => { setIsMobileOpen(false); if (item.to === '/professor/alerts') setNotificationPanelOpen(true); }}
-              badgeCount={item.badgeCount}
-            />
-          ))}
-        </div>
-      </div>
 
-      {/* Profile */}
-      <div className="p-5 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
-        <div className="flex items-center gap-3 mb-6 px-2">
-          <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
-            {firstName.charAt(0).toUpperCase()}
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-6 hide-scrollbar">
+          <div className="mb-6 px-6 flex justify-start">
+            <div className={`transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
+              <ProfessorBadge size="md" />
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight">Prof. {firstName}</h4>
-            <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block">{profile?.email}</span>
+          <div className="space-y-0.5">
+            {navItems.map((item) => (
+              <ProfessorNavItem
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                exact={item.exact}
+                onNavigate={() => { setIsMobileOpen(false); if (item.to === '/professor/alerts') setNotificationPanelOpen(true); }}
+                badgeCount={item.badgeCount}
+              />
+            ))}
           </div>
         </div>
-        
-        <div className="space-y-1">
-          <NavLink
-            to="/professor/settings"
-            onClick={() => setIsMobileOpen(false)}
-            className={({ isActive }) => `group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl transition-all duration-300 ${
-              isActive 
-                ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
-                : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
-            }`}
-          >
-            <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary'}`} />
-            <span className="text-sm">Settings</span>
-          </NavLink>
+
+        {/* Profile */}
+        <div className="p-4 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
+          <div className="flex items-center gap-3 mb-6 px-2">
+            <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+            <div className={`flex-1 min-w-0 transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
+              <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight whitespace-nowrap">Prof. {firstName}</h4>
+              <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block whitespace-nowrap">{profile?.email}</span>
+            </div>
+          </div>
           
-          <button onClick={handleLogout} className="w-full group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300">
-            <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover:text-red-500 dark:group-hover:text-prof-accent-red transition-colors" />
-            <span className="text-sm font-bold">Sign out</span>
-          </button>
+          <div className="space-y-1">
+            <NavLink
+              to="/professor/settings"
+              onClick={() => setIsMobileOpen(false)}
+              className={({ isActive }) => `group/nav relative flex items-center py-2.5 px-4 mx-1 rounded-2xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+                isChatSection ? 'md:w-[50px] group-hover/sidebar:md:w-[240px] w-[240px]' : 'w-[240px]'
+              } ${
+                isActive 
+                  ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
+                  : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
+              }`}
+            >
+              <div className="shrink-0 w-5 flex items-center justify-center">
+                <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary'}`} />
+              </div>
+              <span className={`ml-3 text-sm flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Settings</span>
+            </NavLink>
+            
+            <button onClick={handleLogout} className={`w-full group/nav relative flex items-center py-2.5 px-4 mx-1 rounded-2xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300 overflow-hidden ${
+              isChatSection ? 'md:w-[50px] group-hover/sidebar:md:w-[240px] w-[240px]' : 'w-[240px]'
+            }`}>
+              <div className="shrink-0 w-5 flex items-center justify-center">
+                <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover/nav:text-red-500 dark:group-hover/nav:text-prof-accent-red transition-colors" />
+              </div>
+              <span className={`ml-3 text-sm font-bold flex-1 whitespace-nowrap text-left transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Sign out</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -164,13 +187,13 @@ export const ProfessorLayout: React.FC = () => {
   const mobileDrawerItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
     { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
     { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
-    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
     { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
@@ -338,12 +361,14 @@ export const ProfessorLayout: React.FC = () => {
       )}
 
       {/* Desktop Sidebar (Floating Architectural Panel) */}
-      <div className="hidden md:block w-[280px] fixed top-4 bottom-4 left-4 z-40 select-none">
+      <div className={`hidden md:block fixed top-4 bottom-4 left-4 z-40 select-none transition-all duration-300 group/sidebar ${
+        isChatSection ? 'w-[88px] hover:w-[280px]' : 'w-[280px]'
+      }`}>
         {sidebarContent}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 md:ml-[304px] flex flex-col min-h-dvh">
+      <div className={`flex-1 flex flex-col min-h-dvh transition-all duration-300 ${isChatSection ? 'md:ml-[112px]' : 'md:ml-[304px]'}`}>
         <main className="flex-1 mb-[calc(66px+env(safe-area-inset-bottom,8px))] md:mb-0">
           <Outlet />
         </main>
