@@ -182,14 +182,16 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {/* Top Section: Branding & User Profile Container */}
         <div className="flex flex-col border-b border-border-subtle px-4 pt-5 pb-4 space-y-4 shrink-0">
           {/* Campus Blink Logo */}
-          <div className="flex items-center justify-between">
-            <NavLink to="/student/home" className="flex items-center gap-2.5 no-underline group/logo py-1 pl-1">
-              <Logo
-                alt="Campus Blink"
-                className="object-contain transition-transform duration-200 group-hover/logo:scale-105 h-8 w-auto"
-              />
-            </NavLink>
-          </div>
+        <div className="flex items-center justify-between">
+          <NavLink to="/student/home" className="flex items-center gap-2.5 no-underline group/logo py-1 pl-1">
+            <Logo
+              alt="Campus Blink"
+              className={`object-contain transition-all duration-300 group-hover/logo:scale-105 w-auto ${
+                isChatSection ? 'h-8 md:h-6 group-hover:md:h-8' : 'h-8'
+              }`}
+            />
+          </NavLink>
+        </div>
 
           {/* User Profile Container Card */}
           <div className="bg-surface border border-border-subtle rounded-2xl p-3 flex items-center gap-3 transition-colors hover:bg-surface-elevated cursor-default">
@@ -208,7 +210,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent-green border-2 border-surface rounded-full" />
             </div>
 
-            <div className="min-w-0 flex-1 whitespace-nowrap">
+            <div className={`min-w-0 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>
               <p className="font-syne font-bold text-sm text-text-primary truncate leading-tight">
                 {displayName}
               </p>
@@ -244,7 +246,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     </span>
                   )}
                 </div>
-                <span className="truncate whitespace-nowrap transition-opacity duration-200 opacity-100 md:opacity-0 group-hover:md:opacity-100">
+                <span className={`truncate whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>
                   {item.label}
                 </span>
               </div>
@@ -275,7 +277,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             <div className="shrink-0 flex items-center justify-center">
               {getThemeIcon()}
             </div>
-            <span className="text-xs font-semibold text-text-primary transition-opacity duration-200 opacity-100 md:opacity-0 group-hover:md:opacity-100">
+            <span className={`text-xs font-semibold text-text-primary transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>
               {getThemeLabel()}
             </span>
           </button>
