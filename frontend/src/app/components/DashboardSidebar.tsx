@@ -184,17 +184,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {/* Campus Blink Logo */}
         <div className="flex items-center justify-between">
           <NavLink to="/student/home" className="flex items-center gap-2.5 no-underline group/logo py-1 pl-1">
-            <Logo
-              alt="Campus Blink"
-              className={`object-contain transition-all duration-300 group-hover/logo:scale-105 w-auto ${
-                isChatSection ? 'h-8 md:h-6 group-hover:md:h-8' : 'h-8'
-              }`}
-            />
+            <div className={`origin-left transition-transform duration-300 ${
+              isChatSection ? 'md:scale-[0.45] group-hover:md:scale-100' : 'scale-100'
+            }`}>
+              <Logo
+                alt="Campus Blink"
+                className="object-contain h-8 w-auto transition-transform duration-300 group-hover/logo:scale-105"
+              />
+            </div>
           </NavLink>
         </div>
 
           {/* User Profile Container Card */}
-          <div className="bg-surface border border-border-subtle rounded-2xl p-3 flex items-center gap-3 transition-colors hover:bg-surface-elevated cursor-default">
+          <div className={`bg-surface border border-border-subtle rounded-2xl p-2 flex items-center gap-3 transition-all duration-300 hover:bg-surface-elevated cursor-default overflow-hidden ${
+            isChatSection ? 'md:w-[56px] group-hover:md:w-full w-full' : 'w-full'
+          }`}>
             <div className="relative shrink-0">
               {profile?.avatar_url ? (
                 <img
@@ -226,7 +230,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {navItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = location.pathname.startsWith(item.path);
-            const className = `w-full flex items-center px-3.5 py-2.5 rounded-xl text-sm transition-all duration-150 group/nav ${
+            const className = `flex items-center px-3.5 py-2.5 rounded-xl text-sm transition-all duration-300 group/nav overflow-hidden ${
+              isChatSection ? 'md:w-[48px] group-hover:md:w-full w-full' : 'w-full'
+            } ${
               isActive
                 ? 'bg-accent-blue-soft text-accent-blue font-semibold shadow-2xs'
                 : 'text-text-secondary hover:bg-surface hover:text-text-primary font-medium'
@@ -272,7 +278,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         <div className="p-4 border-t border-border-subtle shrink-0">
           <button 
             onClick={cycleTheme}
-            className="w-full bg-surface-elevated hover:bg-bg-hover rounded-xl p-3 border border-border-subtle flex items-center justify-start gap-3 transition-colors whitespace-nowrap"
+            className={`bg-surface-elevated hover:bg-bg-hover rounded-xl p-3 border border-border-subtle flex items-center justify-start gap-3 transition-all duration-300 overflow-hidden whitespace-nowrap ${
+              isChatSection ? 'md:w-[42px] group-hover:md:w-full w-full' : 'w-full'
+            }`}
           >
             <div className="shrink-0 flex items-center justify-center">
               {getThemeIcon()}
