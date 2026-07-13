@@ -26,8 +26,8 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
         }
         onNavigate();
       }}
-      className={`group/nav relative flex items-center py-3 px-4 mx-3 my-1.5 rounded-2xl transition-all duration-300 font-sans text-sm overflow-hidden ${
-        isChatSection ? 'md:w-[52px] group-hover:md:w-[256px] w-[256px]' : 'w-auto'
+      className={`group/nav relative flex items-center py-2.5 px-3 mx-3 my-0.5 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+        isChatSection ? 'md:w-[46px] group-hover:md:w-[236px] w-[236px]' : 'w-auto'
       } ${
         isActive
           ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none'
@@ -105,80 +105,73 @@ export const ProfessorLayout: React.FC = () => {
   const isChatSection = location.pathname.includes('/messages');
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white dark:bg-prof-bg-surface dark:border-r dark:border-prof-border-subtle rounded-3xl dark:rounded-none shadow-[0_12px_40px_rgba(0,0,0,0.06)] dark:shadow-none overflow-hidden transition-all duration-300">
-      <div className="w-[280px] h-full flex flex-col justify-between shrink-0">
-        {/* Logo */}
-        <div className="h-20 flex items-center shrink-0 pt-2 px-6">
-          <Link to="/professor/home" className="no-underline cursor-pointer block">
-            <div className={`origin-left transition-transform duration-300 ${
-              isChatSection ? 'md:scale-[0.45] group-hover/sidebar:md:scale-100' : 'scale-100'
-            }`}>
-              <Logo alt="Campus Blink" className="h-8 w-auto object-contain transition-transform hover:scale-105" />
-            </div>
-          </Link>
-        </div>
+    <div className="w-[260px] h-full flex flex-col justify-between shrink-0">
+      {/* Logo */}
+      <div className="h-20 flex items-center shrink-0 pt-2 px-6">
+        <Link to="/professor/home" className="no-underline cursor-pointer block">
+          <div className={`origin-left transition-transform duration-300 ${
+            isChatSection ? 'md:scale-[0.45] group-hover/sidebar:md:scale-100' : 'scale-100'
+          }`}>
+            <Logo alt="Campus Blink" className="h-8 w-auto object-contain transition-transform hover:scale-105" />
+          </div>
+        </Link>
+      </div>
 
-        {/* Nav */}
-        <div className="flex-1 overflow-y-auto py-6 hide-scrollbar">
-          <div className="mb-6 px-6 flex justify-start">
-            <div className={`transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
-              <ProfessorBadge size="md" />
-            </div>
+      {/* Nav */}
+      <div className="flex-1 overflow-y-auto py-2 hide-scrollbar">
+        <div className="space-y-0.5">
+          {navItems.map((item) => (
+            <ProfessorNavItem
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              exact={item.exact}
+              onNavigate={() => { setIsMobileOpen(false); if (item.to === '/professor/alerts') setNotificationPanelOpen(true); }}
+              badgeCount={item.badgeCount}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Profile */}
+      <div className="p-4 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
+        <div className="flex items-center gap-3 mb-4 px-2">
+          <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
+            {firstName.charAt(0).toUpperCase()}
           </div>
-          <div className="space-y-0.5">
-            {navItems.map((item) => (
-              <ProfessorNavItem
-                key={item.to}
-                to={item.to}
-                icon={item.icon}
-                label={item.label}
-                exact={item.exact}
-                onNavigate={() => { setIsMobileOpen(false); if (item.to === '/professor/alerts') setNotificationPanelOpen(true); }}
-                badgeCount={item.badgeCount}
-              />
-            ))}
+          <div className={`flex-1 min-w-0 transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
+            <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight whitespace-nowrap">Prof. {firstName}</h4>
+            <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block whitespace-nowrap">{profile?.email}</span>
           </div>
         </div>
-
-        {/* Profile */}
-        <div className="p-4 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
-          <div className="flex items-center gap-3 mb-6 px-2">
-            <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
-              {firstName.charAt(0).toUpperCase()}
+        
+        <div className="space-y-1">
+          <NavLink
+            to="/professor/settings"
+            onClick={() => setIsMobileOpen(false)}
+            className={({ isActive }) => `group/nav relative flex items-center py-2.5 px-3 mx-1 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+              isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[220px] w-[220px]' : 'w-[220px]'
+            } ${
+              isActive 
+                ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
+                : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
+            }`}
+          >
+            <div className="shrink-0 w-5 flex items-center justify-center">
+              <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary'}`} />
             </div>
-            <div className={`flex-1 min-w-0 transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
-              <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight whitespace-nowrap">Prof. {firstName}</h4>
-              <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block whitespace-nowrap">{profile?.email}</span>
-            </div>
-          </div>
+            <span className={`ml-3 text-sm flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Settings</span>
+          </NavLink>
           
-          <div className="space-y-1">
-            <NavLink
-              to="/professor/settings"
-              onClick={() => setIsMobileOpen(false)}
-              className={({ isActive }) => `group/nav relative flex items-center py-2.5 px-4 mx-1 rounded-2xl transition-all duration-300 font-sans text-sm overflow-hidden ${
-                isChatSection ? 'md:w-[50px] group-hover/sidebar:md:w-[240px] w-[240px]' : 'w-[240px]'
-              } ${
-                isActive 
-                  ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
-                  : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
-              }`}
-            >
-              <div className="shrink-0 w-5 flex items-center justify-center">
-                <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary'}`} />
-              </div>
-              <span className={`ml-3 text-sm flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Settings</span>
-            </NavLink>
-            
-            <button onClick={handleLogout} className={`w-full group/nav relative flex items-center py-2.5 px-4 mx-1 rounded-2xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300 overflow-hidden ${
-              isChatSection ? 'md:w-[50px] group-hover/sidebar:md:w-[240px] w-[240px]' : 'w-[240px]'
-            }`}>
-              <div className="shrink-0 w-5 flex items-center justify-center">
-                <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover/nav:text-red-500 dark:group-hover/nav:text-prof-accent-red transition-colors" />
-              </div>
-              <span className={`ml-3 text-sm font-bold flex-1 whitespace-nowrap text-left transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Sign out</span>
-            </button>
-          </div>
+          <button onClick={handleLogout} className={`w-full group/nav relative flex items-center py-2.5 px-3 mx-1 rounded-xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300 overflow-hidden ${
+            isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[220px] w-[220px]' : 'w-[220px]'
+          }`}>
+            <div className="shrink-0 w-5 flex items-center justify-center">
+              <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover/nav:text-red-500 dark:group-hover/nav:text-prof-accent-red transition-colors" />
+            </div>
+            <span className={`ml-3 text-sm font-bold flex-1 whitespace-nowrap text-left transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Sign out</span>
+          </button>
         </div>
       </div>
     </div>
@@ -360,15 +353,15 @@ export const ProfessorLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Desktop Sidebar (Floating Architectural Panel) */}
-      <div className={`hidden md:block fixed top-4 bottom-4 left-4 z-40 select-none transition-all duration-300 group/sidebar ${
-        isChatSection ? 'w-[88px] hover:w-[280px]' : 'w-[280px]'
+      {/* Desktop Sidebar (Full Height Left) */}
+      <aside className={`hidden md:block fixed top-0 bottom-0 left-0 h-dvh bg-white dark:bg-prof-bg-surface border-r border-gray-100 dark:border-prof-border-subtle z-40 select-none transition-all duration-300 group/sidebar overflow-hidden ${
+        isChatSection ? 'w-[88px] hover:w-[260px]' : 'w-[260px]'
       }`}>
         {sidebarContent}
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-dvh transition-all duration-300 ${isChatSection ? 'md:ml-[112px]' : 'md:ml-[304px]'}`}>
+      <div className={`flex-1 flex flex-col min-h-dvh transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
         <main className="flex-1 mb-[calc(66px+env(safe-area-inset-bottom,8px))] md:mb-0">
           <Outlet />
         </main>
