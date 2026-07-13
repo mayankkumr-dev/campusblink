@@ -26,16 +26,16 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
         }
         onNavigate();
       }}
-      className={`group/nav relative flex items-center py-2.5 px-3 mx-3 my-0.5 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
-        isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[236px] w-[236px]' : 'w-auto'
+      className={`group/nav relative flex items-center py-2.5 px-4 mx-4 my-0.5 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+        isChatSection ? 'md:w-[52px] group-hover/sidebar:md:w-[228px] w-[228px]' : 'w-auto'
       } ${
         isActive
           ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none'
-          : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
+          : 'text-gray-700 font-medium hover:bg-blue-50/40 hover:text-blue-800 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
       }`}
     >
       <div className="shrink-0 w-5 flex items-center justify-center">
-        <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary"}`} />
+        <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-600 group-hover/nav:text-blue-600 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary"}`} />
       </div>
       <span className={`ml-3 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>{label}</span>
       {Number(badgeCount || 0) > 0 && (
@@ -107,7 +107,7 @@ export const ProfessorLayout: React.FC = () => {
   const sidebarContent = (
     <div className="w-[260px] h-full flex flex-col justify-between shrink-0">
       {/* Logo */}
-      <div className="h-20 flex items-center shrink-0 pt-2 px-6">
+      <div className="h-20 flex items-center shrink-0 pt-2 pl-8 pr-4">
         <Link to="/professor/home" className="no-underline cursor-pointer block">
           <div className={`origin-left transition-transform duration-300 ${
             isChatSection ? 'md:scale-[0.45] group-hover/sidebar:md:scale-100' : 'scale-100'
@@ -136,7 +136,7 @@ export const ProfessorLayout: React.FC = () => {
 
       {/* Profile */}
       <div className="p-4 bg-white dark:bg-prof-bg-surface shrink-0 pb-6 border-t border-transparent dark:border-prof-border-subtle">
-        <div className="flex items-center gap-3 mb-4 px-2">
+        <div className="flex items-center gap-3 mb-4 pl-3 pr-2">
           <div className="w-11 h-11 rounded-[1.1rem] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-prof-bg-surface-raised dark:to-prof-bg-surface-raised flex items-center justify-center text-blue-700 dark:text-prof-text-primary font-syne font-bold text-lg border border-blue-100/50 dark:border-prof-border-strong shadow-sm shrink-0">
             {firstName.charAt(0).toUpperCase()}
           </div>
@@ -150,25 +150,25 @@ export const ProfessorLayout: React.FC = () => {
           <NavLink
             to="/professor/settings"
             onClick={() => setIsMobileOpen(false)}
-            className={({ isActive }) => `group/nav relative flex items-center py-2.5 px-3 mx-1 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
-              isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[220px] w-[220px]' : 'w-[220px]'
+            className={({ isActive }) => `group/nav relative flex items-center py-2.5 px-4 mx-3 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
+              isChatSection ? 'md:w-[52px] group-hover/sidebar:md:w-[212px] w-[212px]' : 'w-[212px]'
             } ${
               isActive 
                 ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none' 
-                : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
+                : 'text-gray-700 font-medium hover:bg-blue-50/40 hover:text-blue-800 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
             }`}
           >
             <div className="shrink-0 w-5 flex items-center justify-center">
-              <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary'}`} />
+              <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-600 group-hover/nav:text-blue-600 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary'}`} />
             </div>
             <span className={`ml-3 text-sm flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Settings</span>
           </NavLink>
           
-          <button onClick={handleLogout} className={`w-full group/nav relative flex items-center py-2.5 px-3 mx-1 rounded-xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300 overflow-hidden ${
-            isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[220px] w-[220px]' : 'w-[220px]'
+          <button onClick={handleLogout} className={`w-full group/nav relative flex items-center py-2.5 px-4 mx-3 rounded-xl text-red-500 dark:text-prof-accent-red hover:bg-red-50/60 dark:hover:bg-prof-accent-red/10 hover:text-red-600 dark:hover:text-prof-accent-red transition-all duration-300 overflow-hidden ${
+            isChatSection ? 'md:w-[52px] group-hover/sidebar:md:w-[212px] w-[212px]' : 'w-[212px]'
           }`}>
             <div className="shrink-0 w-5 flex items-center justify-center">
-              <LogOut size={18} strokeWidth={1.25} className="text-red-400 dark:text-prof-accent-red/80 group-hover/nav:text-red-500 dark:group-hover/nav:text-prof-accent-red transition-colors" />
+              <LogOut size={18} strokeWidth={1.25} className="text-red-500 dark:text-prof-accent-red/80 group-hover/nav:text-red-600 dark:group-hover/nav:text-prof-accent-red transition-colors" />
             </div>
             <span className={`ml-3 text-sm font-bold flex-1 whitespace-nowrap text-left transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>Sign out</span>
           </button>

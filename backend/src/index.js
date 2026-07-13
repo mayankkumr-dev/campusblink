@@ -44,7 +44,24 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ['https://campusblink.me', 'http://localhost:5173'];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (
+      allowedOrigins.includes(origin) || 
+      origin === 'https://campusblink.me' ||
+      origin === 'http://localhost:5173' ||
+      origin === 'https://campusblink.vercel.app' || 
+      origin.endsWith('.vercel.app')
+    ) {
+      return callback(null, true);
+    }
+    
+    // Instead of throwing an error which causes a 500 HTML response, return false
+    // so it just omits the Access-Control-Allow-Origin header
+    return callback(null, false);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
