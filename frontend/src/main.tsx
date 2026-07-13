@@ -42,7 +42,7 @@
   });
 
   createRoot(document.getElementById("root")!).render(
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light">
       <App />
     </ThemeProvider>
   );
