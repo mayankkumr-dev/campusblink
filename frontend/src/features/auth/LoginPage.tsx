@@ -259,7 +259,7 @@ export const LoginPage: React.FC = () => {
       data.user?.user_metadata?.requested_role === 'teacher' &&
       String(data.user?.user_metadata?.role_request_status || '').toLowerCase() === 'pending' &&
       String(resolvedProfile?.professor_status || 'pending').toLowerCase() === 'pending';
-    const isAdminEmail = resolvedEmail === 'contactus.mayank@gmail.com';
+    const isAdminEmail = false;
     const redirectState =
       typeof location.state === 'object' && location.state && 'from' in location.state
         ? String((location.state as any).from || '')

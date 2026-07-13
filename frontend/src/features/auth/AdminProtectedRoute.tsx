@@ -35,9 +35,7 @@ export const AdminProtectedRoute: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const isAdminEmail =
-    user.email?.toLowerCase() === 'contactus.mayank@gmail.com' ||
-    profile.email?.toLowerCase() === 'contactus.mayank@gmail.com';
+  const isAdminEmail = false;
 
   if (profile?.role === 'admin' || isAdminEmail) {
     return <Outlet />;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, NavLink, useNavigate, useLocation } from 'react-router';
-import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings, ClipboardCheck, X } from 'lucide-react';
+import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings, ClipboardCheck, X, MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
 import { ProfessorBadge } from '../../shared/components/ProfessorBadge';
@@ -77,6 +77,7 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
+    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
     { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
@@ -169,6 +170,7 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
+    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
     { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];

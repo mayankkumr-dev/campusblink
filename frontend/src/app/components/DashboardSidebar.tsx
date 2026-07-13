@@ -20,6 +20,7 @@ import {
   Moon,
   Monitor,
   ClipboardCheck,
+  MessageCircle,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -51,20 +52,17 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   
   const cycleTheme = () => {
     if (theme === 'light') setTheme('dark');
-    else if (theme === 'dark') setTheme('system');
     else setTheme('light');
   };
 
   const getThemeIcon = () => {
     if (theme === 'light') return <Sun className="w-4 h-4 text-accent-blue" />;
-    if (theme === 'dark') return <Moon className="w-4 h-4 text-accent-blue" />;
-    return <Monitor className="w-4 h-4 text-accent-blue" />;
+    return <Moon className="w-4 h-4 text-accent-blue" />;
   };
 
   const getThemeLabel = () => {
     if (theme === 'light') return 'Light Mode';
-    if (theme === 'dark') return 'Dark Mode';
-    return 'System Theme';
+    return 'Dark Mode';
   };
 
 
@@ -111,6 +109,12 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       label: 'Community',
       path: '/student/community',
       icon: Users,
+      action: undefined,
+    },
+    {
+      label: 'Messages',
+      path: '/student/messages',
+      icon: MessageCircle,
       action: undefined,
     },
     {
@@ -191,7 +195,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {/* User Profile Container Card */}
         <div
           className={`bg-surface border border-border-subtle rounded-2xl p-3 flex items-center gap-3 transition-all ${
-            isChatSection ? 'md:hidden group-hover:md:flex' : ''
+            isChatSection ? 'md:justify-center group-hover:md:justify-start md:border-transparent group-hover:md:border-border-subtle md:bg-transparent group-hover:md:bg-surface' : ''
           }`}
         >
           <div className="relative shrink-0">
@@ -199,17 +203,17 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <img
                 src={profile.avatar_url}
                 alt={displayName}
-                className="w-10 h-10 rounded-full object-cover border border-border-subtle"
+                className={`w-10 h-10 rounded-full object-cover border border-border-subtle transition-all ${isChatSection ? 'md:w-11 md:h-11 group-hover:md:w-10 group-hover:md:h-10' : ''}`}
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-accent-blue-soft border border-accent-blue-soft flex items-center justify-center text-accent-blue font-bold text-sm">
+              <div className={`w-10 h-10 rounded-full bg-accent-blue-soft border border-accent-blue-soft flex items-center justify-center text-accent-blue font-bold text-sm transition-all ${isChatSection ? 'md:w-11 md:h-11 group-hover:md:w-10 group-hover:md:h-10' : ''}`}>
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-accent-green border-2 border-surface rounded-full" />
           </div>
 
-          <div className="min-w-0 flex-1">
+          <div className={`min-w-0 flex-1 ${isChatSection ? 'md:hidden group-hover:md:block' : ''}`}>
             <p className="font-syne font-bold text-sm text-text-primary truncate leading-tight">
               {displayName}
             </p>

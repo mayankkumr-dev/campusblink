@@ -20,14 +20,13 @@ function buildProfileSeedFromMetadata(user: import('@supabase/supabase-js').User
   const username = String(metadata.username || '').trim().toLowerCase() || null;
   const college = String(metadata.college_name || metadata.college || '').trim() || null;
 
-  const isMayankAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
   return {
     id: user.id,
     email: user.email,
     name,
     username,
     college,
-    role: isMayankAdmin ? 'admin' : undefined,
+    role: undefined,
     cover_url: metadata.cover_url || DEFAULT_BANNER_IMAGE_URL,
   };
 }
@@ -91,13 +90,7 @@ function App() {
         }
       }
 
-      const isMayankAdmin = user.email?.toLowerCase() === ADMIN_EMAIL;
-      if (isMayankAdmin) {
-        if (!resolvedProfile || resolvedProfile.role !== 'admin') {
-          await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
-          resolvedProfile = resolvedProfile ? { ...resolvedProfile, role: 'admin' } : { id: user.id, email: user.email, role: 'admin' };
-        }
-      }
+      const isMayankAdmin = false;
 
       if (resolvedProfile?.role === 'admin' && (normalizedStatus === 'restricted' || normalizedStatus === 'banned')) {
         const { data: restoredProfile } = await supabase

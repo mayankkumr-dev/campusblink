@@ -53,10 +53,7 @@ export const ProtectedRoute: React.FC = () => {
     return <Navigate to="/account-restricted?status=banned" replace />;
   }
 
-  const isAdmin =
-    profile.role === 'admin' ||
-    user.email?.toLowerCase() === 'contactus.mayank@gmail.com' ||
-    profile.email?.toLowerCase() === 'contactus.mayank@gmail.com';
+  const isAdmin = profile.role === 'admin';
 
   if (isAdmin) {
     return <StudentLayout />;

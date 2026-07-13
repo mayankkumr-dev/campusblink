@@ -217,7 +217,7 @@ export const AdminSettingsPage: React.FC = () => {
                 <p className="text-xs text-slate-400 dark:text-admin-text-tertiary">Choose how Campus Blink looks on this device.</p>
               </div>
               <div className="flex p-1 bg-slate-100 dark:bg-admin-bg-surface-raised rounded-xl border border-slate-200 dark:border-admin-border-subtle self-start sm:self-auto shrink-0 w-full sm:w-auto">
-                {['light', 'dark', 'system'].map((t) => {
+                {['light', 'dark'].map((t) => {
                   const isActive = mounted && theme === t;
                   return (
                     <button

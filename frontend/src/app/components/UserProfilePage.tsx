@@ -297,7 +297,7 @@ export const UserProfilePage: React.FC = () => {
                     {followerCount} Followers
                   </button>
                   {currentProfile?.id && currentProfile.id !== targetProfile.id && (
-                    targetProfile.role === 'professor' ? (
+                    targetProfile.role === 'professor' && currentProfile.role !== 'admin' ? (
                       <span className="rounded-xl bg-accent-amber-soft px-3.5 py-2 text-xs font-bold text-accent-amber border border-accent-amber-soft/20">
                         Faculty Member
                       </span>
@@ -313,6 +313,17 @@ export const UserProfilePage: React.FC = () => {
                             }
                           }}
                         />
+                        {!(
+                          (currentProfile.role === 'student' && targetProfile.role === 'professor') ||
+                          (currentProfile.role === 'professor' && targetProfile.role === 'student')
+                        ) && (
+                          <button
+                            onClick={() => navigate(`/${currentProfile.role}/messages?newChat=${targetProfile.id}`)}
+                            className="rounded-xl border border-border-subtle bg-blue-50/80 px-4 py-2 text-xs font-bold text-blue-700 shadow-[0_2px_12px_rgba(59,130,246,0.12)] hover:bg-blue-100 transition-all"
+                          >
+                            Message
+                          </button>
+                        )}
                         <button
                           onClick={handleReportAccount}
                           className="rounded-xl border border-rose-200 bg-accent-red/15 px-3.5 py-2 text-xs font-semibold text-accent-red hover:bg-rose-100 transition-colors"

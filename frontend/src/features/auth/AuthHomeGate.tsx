@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { LandingPage } from '../../app/components/LandingPage';
 
 function resolveHomePath(role?: string | null, email?: string | null) {
-  if (email?.toLowerCase() === 'contactus.mayank@gmail.com') return '/admin';
+  // No hardcoded admin email check
   const normalizedRole = String(role || '').toLowerCase();
 
   if (normalizedRole === 'admin') return '/admin';
