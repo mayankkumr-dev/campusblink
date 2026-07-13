@@ -184,6 +184,7 @@ export const MessagesPage: React.FC = () => {
   const [activeConversations, setActiveConversations] = useState<any[]>([]);
   const [requestConversations, setRequestConversations] = useState<any[]>([]);
   const [messages, setMessages] = useState<MsgItem[]>([]);
+  const [messagesCache, setMessagesCache] = useState<Record<string, MsgItem[]>>({});
   const [profiles, setProfiles] = useState<Record<string, any>>({});
 
   // New chat compose
@@ -278,6 +279,10 @@ export const MessagesPage: React.FC = () => {
     socketRef.current = socket;
     socket.on('connect', () => socket.emit('joinRoom', profile.id));
     socket.on('newMessage', (data) => {
+      setMessagesCache(prev => ({
+        ...prev,
+        [data.conversationId]: [...(prev[data.conversationId] || []), data.message]
+      }));
       if (data.conversationId === activeChatId) {
         setMessages(prev => [...prev, data.message]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
@@ -291,9 +296,17 @@ export const MessagesPage: React.FC = () => {
   // ── Load messages when chat changes ─────────────────────────────────────
   useEffect(() => {
     if (activeChatId) {
+      if (messagesCache[activeChatId]) {
+        setMessages(messagesCache[activeChatId]);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }), 100);
+      } else {
+        setMessages([]); // Clear while loading first time
+      }
+      
       getMessages(activeChatId)
         .then(msgs => {
           setMessages(msgs);
+          setMessagesCache(prev => ({ ...prev, [activeChatId]: msgs }));
           setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' }), 100);
         })
         .catch(() => toast.error('Failed to fetch messages'));
