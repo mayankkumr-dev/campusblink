@@ -245,15 +245,31 @@ export const MessagesPage: React.FC = () => {
         setActiveChatId(existing._id);
         setActiveTab(data.requests?.some((r: any) => r._id === existing._id) ? 'requests' : 'primary');
         setNewChatUserId(null); setNewChatProfile(null);
+        setSearchParams({ chat: existing._id }, { replace: true });
       } else {
         setNewChatUserId(newChatId); setNewChatProfile(targetProfile); setActiveChatId(null);
+        setSearchParams({}, { replace: true });
       }
-      setSearchParams({});
     };
     init();
   }, [searchParams.get('newChat'), profile?.id]);
 
   useEffect(() => { if (profile?.id) loadConversations(); }, [profile?.id]);
+
+  // ── Sync URL ?chat= with activeChatId ────────────────────────────────────
+  useEffect(() => {
+    const chatId = searchParams.get('chat');
+    if (chatId && chatId !== activeChatId) {
+      setActiveChatId(chatId);
+      if (requestConversations.some(c => c._id === chatId)) {
+        setActiveTab('requests');
+      } else if (activeConversations.some(c => c._id === chatId)) {
+        setActiveTab('primary');
+      }
+    } else if (!chatId && activeChatId && !newChatUserId) {
+      setActiveChatId(null);
+    }
+  }, [searchParams.get('chat'), activeConversations, requestConversations, activeChatId, newChatUserId]);
 
   // ── Socket.io ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -298,7 +314,7 @@ export const MessagesPage: React.FC = () => {
         const freshData = await loadConversations();
         const allConvs = [...(freshData.active || []), ...(freshData.requests || [])];
         const newConv = allConvs.find(c => c.participants.includes(newChatUserId));
-        if (newConv) { setActiveChatId(newConv._id); setMessages([data.message]); }
+        if (newConv) { setActiveChatId(newConv._id); setMessages([data.message]); setSearchParams({ chat: newConv._id }, { replace: true }); }
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       } catch (e: any) { toast.error(e.message || 'Failed to send'); }
       return;
@@ -339,6 +355,7 @@ export const MessagesPage: React.FC = () => {
     try {
       await deleteConversation(activeChatId);
       setActiveChatId(null);
+      setSearchParams({}, { replace: true });
       setMessages([]);
       await loadConversations();
       toast.success('Conversation deleted');
@@ -529,7 +546,7 @@ export const MessagesPage: React.FC = () => {
         <div className="flex items-center px-6 py-2 gap-6 border-b border-border-subtle bg-background">
           {(['primary', 'requests'] as const).map(tab => (
             <button key={tab}
-              onClick={() => { setActiveTab(tab); setActiveChatId(null); setNewChatUserId(null); setNewChatProfile(null); }}
+              onClick={() => { setActiveTab(tab); setActiveChatId(null); setNewChatUserId(null); setNewChatProfile(null); setSearchParams({}, { replace: true }); }}
               className={`pb-3 text-sm font-bold transition-all relative flex items-center gap-1.5 capitalize ${activeTab === tab ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {tab}
@@ -560,7 +577,7 @@ export const MessagesPage: React.FC = () => {
             const isSenderWaiting = !!(chat.isRequest && chat.requestFor !== profile?.id);
             return (
               <button key={details.id}
-                onClick={() => { setActiveChatId(details.id); setNewChatUserId(null); setNewChatProfile(null); exitSelectionMode(); }}
+                onClick={() => { setActiveChatId(details.id); setNewChatUserId(null); setNewChatProfile(null); exitSelectionMode(); setSearchParams({ chat: details.id }); }}
                 className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all text-left mb-1 ${activeChatId === details.id ? 'bg-surface shadow-sm border border-border-subtle' : 'hover:bg-surface border border-transparent'}`}
               >
                 <img src={details.avatar} alt={details.name} className="h-12 w-12 rounded-full object-cover border border-border-subtle shadow-sm flex-shrink-0" />
@@ -660,7 +677,7 @@ export const MessagesPage: React.FC = () => {
               ) : (
                 <>
                   <div className="flex items-center gap-4">
-                    <button onClick={() => setActiveChatId(null)} className="md:hidden h-9 w-9 flex items-center justify-center rounded-full bg-surface text-text-secondary hover:bg-surface-elevated transition-colors">
+                    <button onClick={() => { setActiveChatId(null); setSearchParams({}, { replace: true }); }} className="md:hidden h-9 w-9 flex items-center justify-center rounded-full bg-surface text-text-secondary hover:bg-surface-elevated transition-colors">
                       <ArrowLeft className="h-5 w-5" />
                     </button>
                     <img src={activeChatDetails.avatar} alt={activeChatDetails.name} className="h-10 w-10 rounded-full object-cover border border-border-subtle" />
@@ -677,7 +694,6 @@ export const MessagesPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6 bg-surface/30 flex flex-col gap-3"
               onClick={() => { if (contextMenu) setContextMenu(null); }}
             >
-                /* ── Normal / Sender waiting messages ── */
                   {visibleMessages.length === 0 ? (
                     <div className="text-center mt-10 text-text-secondary text-sm font-medium">Say hello! 👋</div>
                   ) : visibleMessages.map(msg => {
