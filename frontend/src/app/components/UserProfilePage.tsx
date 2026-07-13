@@ -10,10 +10,10 @@ import { supabase } from '../../lib/supabase';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { getDisplayHandle } from '../../lib/user';
 import { AdaptivePostImage } from './AdaptivePostImage';
-import { SocialLinksStrip, mergeSocialLinks } from './ProfileSocialLinks';
-import { FollowButton } from './FollowButton';
-import { FollowListModal } from './FollowListModal';
-import { ProfessorBadge } from './ProfessorBadge';
+import { SocialLinksStrip, mergeSocialLinks } from '../../features/profile/ProfileSocialLinks';
+import { FollowButton } from '../../shared/components/FollowButton';
+import { FollowListModal } from '../../shared/components/FollowListModal';
+import { ProfessorBadge } from '../../shared/components/ProfessorBadge';
 import { ProfilePictureInteract } from './ProfilePictureInteract';
 
 const POST_IMAGE_DELIMITER = '|||';

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
+import { getPendingProfessors } from '../../api/professor';
 import { AdminGlobalSearch } from './AdminGlobalSearch';
 
 /* ─────────────────────────────────────────────────────────
@@ -160,11 +161,8 @@ export const AdminLayout: React.FC = () => {
   React.useEffect(() => {
     let mounted = true;
     const fetchCount = async () => {
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .or('and(requested_role.eq.teacher,role_request_status.eq.pending),professor_status.eq.pending');
-      if (mounted) setPendingProfsCount(count || 0);
+      const { data } = await getPendingProfessors();
+      if (mounted) setPendingProfsCount(data?.length || 0);
     };
 
     fetchCount();

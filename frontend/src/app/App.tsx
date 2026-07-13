@@ -10,6 +10,7 @@ import { PWALayer } from './components/PWALayer';
 import { NotificationBanner } from './components/NotificationBanner';
 import { Toaster } from 'react-hot-toast';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'contactus.mayank@gmail.com').toLowerCase();
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -19,7 +20,7 @@ function buildProfileSeedFromMetadata(user: import('@supabase/supabase-js').User
   const username = String(metadata.username || '').trim().toLowerCase() || null;
   const college = String(metadata.college_name || metadata.college || '').trim() || null;
 
-  const isMayankAdmin = user?.email?.toLowerCase() === 'contactus.mayank@gmail.com';
+  const isMayankAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
   return {
     id: user.id,
     email: user.email,
@@ -90,7 +91,7 @@ function App() {
         }
       }
 
-      const isMayankAdmin = user.email?.toLowerCase() === 'contactus.mayank@gmail.com';
+      const isMayankAdmin = user.email?.toLowerCase() === ADMIN_EMAIL;
       if (isMayankAdmin) {
         if (!resolvedProfile || resolvedProfile.role !== 'admin') {
           await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);

@@ -42,16 +42,30 @@ export const AdminProfessorsPage: React.FC = () => {
 
   useEffect(() => { load(); }, []);
 
-  const filtered = professors.filter(p => {
-    if (!search.trim()) return true;
-    const q = search.toLowerCase();
-    return (
-      (p.name || '').toLowerCase().includes(q) ||
-      (p.email || '').toLowerCase().includes(q) ||
-      (p.staff_room_number || '').toLowerCase().includes(q) ||
-      (p.college || '').toLowerCase().includes(q)
-    );
-  });
+  const filtered = professors
+    .filter(p => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        (p.username || '').toLowerCase().includes(q) ||
+        (p.email || '').toLowerCase().includes(q) ||
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.staff_room_number || '').toLowerCase().includes(q) ||
+        (p.college || '').toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (!search.trim()) return 0;
+      const q = search.trim().toLowerCase();
+      const aUser = (a.username || '').toLowerCase();
+      const bUser = (b.username || '').toLowerCase();
+      const aEmail = (a.email || '').toLowerCase();
+      const bEmail = (b.email || '').toLowerCase();
+
+      const aPrio = aUser.startsWith(q) || aEmail.startsWith(q) ? 0 : aUser.includes(q) || aEmail.includes(q) ? 1 : 2;
+      const bPrio = bUser.startsWith(q) || bEmail.startsWith(q) ? 0 : bUser.includes(q) || bEmail.includes(q) ? 1 : 2;
+      return aPrio - bPrio;
+    });
 
   const toggleExpand = async (profId: string) => {
     if (expandedId === profId) {

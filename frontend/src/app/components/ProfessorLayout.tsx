@@ -3,12 +3,12 @@ import { Link, Outlet, NavLink, useNavigate, useLocation } from 'react-router';
 import { Home, UtensilsCrossed, Printer, CreditCard, Menu, LogOut, User, Building2, Bell, Megaphone, Shield, Settings, ClipboardCheck, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
-import { ProfessorBadge } from './ProfessorBadge';
+import { ProfessorBadge } from '../../shared/components/ProfessorBadge';
 import { AlertSlidePanel } from './AlertSlidePanel';
 import { PushPermissionBanner } from './PushPermissionBanner';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications } from '../../hooks/useRealtime';
-import { ThemeAwareLogo } from './ThemeAwareLogo';
+import { Logo } from './ui/Logo';
 
 const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
   const location = useLocation();
@@ -78,6 +78,7 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
+    { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
 
   const mobileNavItems: Array<{
@@ -100,7 +101,7 @@ export const ProfessorLayout: React.FC = () => {
       {/* Logo */}
       <div className="h-20 flex items-center justify-center shrink-0 pt-2">
         <Link to="/professor/home" className="no-underline cursor-pointer block transform hover:scale-105 transition-transform">
-          <ThemeAwareLogo alt="Campus Blink" className="h-8 w-auto object-contain" />
+          <Logo alt="Campus Blink" className="h-8 w-auto object-contain" />
         </Link>
       </div>
 
@@ -121,14 +122,6 @@ export const ProfessorLayout: React.FC = () => {
               badgeCount={item.badgeCount}
             />
           ))}
-          <div className="mt-8 pt-4 mx-2">
-            <ProfessorNavItem
-              to="/professor/profile"
-              icon={User}
-              label="My Profile"
-              onNavigate={() => setIsMobileOpen(false)}
-            />
-          </div>
         </div>
       </div>
 
@@ -146,7 +139,7 @@ export const ProfessorLayout: React.FC = () => {
         
         <div className="space-y-1">
           <NavLink
-            to="/professor/settings/notifications"
+            to="/professor/settings"
             onClick={() => setIsMobileOpen(false)}
             className={({ isActive }) => `group flex items-center gap-3 py-2.5 px-4 mx-1 rounded-2xl transition-all duration-300 ${
               isActive 
@@ -154,7 +147,7 @@ export const ProfessorLayout: React.FC = () => {
                 : 'text-gray-500 font-medium hover:bg-blue-50/40 hover:text-blue-700 dark:text-prof-text-secondary dark:hover:bg-prof-bg-surface-hover dark:hover:text-prof-text-primary'
             }`}
           >
-            <Settings size={18} strokeWidth={location.pathname === '/professor/settings/notifications' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings/notifications' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary'}`} />
+            <Settings size={18} strokeWidth={location.pathname === '/professor/settings' ? 1.5 : 1.25} className={`transition-colors duration-300 ${location.pathname === '/professor/settings' ? 'text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 group-hover:text-blue-500 dark:text-prof-text-secondary dark:group-hover:text-prof-text-primary'}`} />
             <span className="text-sm">Settings</span>
           </NavLink>
           
@@ -198,7 +191,7 @@ export const ProfessorLayout: React.FC = () => {
           onClick={() => setIsMobileOpen(false)}
           className="no-underline cursor-pointer block mt-1"
         >
-          <ThemeAwareLogo alt="Campus Blink" className="h-7 w-auto object-contain mx-auto" />
+          <Logo alt="Campus Blink" className="h-7 w-auto object-contain mx-auto" />
         </Link>
 
         {/* Upgraded Faculty Badge */}
@@ -268,7 +261,7 @@ export const ProfessorLayout: React.FC = () => {
 
         {/* Settings button */}
         <NavLink
-          to="/professor/settings/notifications"
+          to="/professor/settings"
           onClick={() => setIsMobileOpen(false)}
           className={({ isActive }) =>
             `group flex items-center gap-3.5 min-h-[44px] py-2.5 px-3.5 rounded-2xl transition-all duration-200 font-sans text-sm ${
@@ -308,7 +301,7 @@ export const ProfessorLayout: React.FC = () => {
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white/95 dark:bg-prof-bg-surface/95 backdrop-blur-md border-b border-transparent dark:border-prof-border-subtle shadow-[0_2px_15px_rgba(0,0,0,0.03)] dark:shadow-none sticky top-0 z-50 select-none">
         <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2">
-          <ThemeAwareLogo alt="Campus Blink" className="h-6 w-auto object-contain" />
+          <Logo alt="Campus Blink" className="h-6 w-auto object-contain" />
         </Link>
         <div className="flex items-center gap-2.5">
           <ProfessorBadge size="sm" />

@@ -1,70 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { useThemeStore } from '../../../store/themeStore';
+import React from 'react';
 
-function useIsDarkMode() {
-  const storeIsDark = useThemeStore(s => s.isDark);
-  const [domIsDark, setDomIsDark] = useState(false);
-
-  useEffect(() => {
-    const checkDark = () => {
-      const root = document.documentElement;
-      setDomIsDark(
-        root.classList.contains('dark') ||
-        root.getAttribute('data-theme') === 'dark'
-      );
-    };
-    checkDark();
-    const observer = new MutationObserver(checkDark);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme']
-    });
-    return () => observer.disconnect();
-  }, []);
-
-  return storeIsDark || domIsDark;
-}
+const LIGHT_LOGO_SRC = '/logo2/Blue_transparent.png?v=8';
+const DARK_LOGO_SRC = '/logo2/white_transparent.png?v=8';
 
 export function Logo({ height = 34, className = '', alt = 'Campus Blink', ...rest }: any) {
-  const isDark = useIsDarkMode();
-  const logoSrc = isDark ? '/logo2/white_transparent.png?v=8' : '/logo2/Blue_transparent.png?v=8';
-
   // Allow custom Tailwind h- classes to control height when passed
   const hasHeightClass = /\bh-/.test(className);
+  const commonStyle = {
+    ...(hasHeightClass ? {} : { height: typeof height === 'number' ? `${height}px` : height }),
+    width: 'auto',
+    maxWidth: '100%',
+    objectFit: 'contain' as const,
+    transition: 'opacity 0.2s ease',
+    ...rest.style,
+  };
 
   return (
-    <img
-      src={logoSrc}
-      alt={alt}
-      {...rest}
-      style={{
-        ...(hasHeightClass ? {} : { height: typeof height === 'number' ? `${height}px` : height }),
-        width: 'auto',
-        maxWidth: '100%',
-        objectFit: 'contain',
-        transition: 'opacity 0.2s ease',
-        ...rest.style
-      }}
-      className={className}
-    />
+    <>
+      <img
+        src={LIGHT_LOGO_SRC}
+        alt={alt}
+        {...rest}
+        style={commonStyle}
+        className={`${className} block dark:hidden`}
+      />
+      <img
+        src={DARK_LOGO_SRC}
+        alt={alt}
+        {...rest}
+        style={commonStyle}
+        className={`${className} hidden dark:block`}
+      />
+    </>
   );
 }
 
 export function LogoIcon({ height = 34, className = '' }: any) {
-  const isDark = useIsDarkMode();
-  const logoSrc = isDark ? '/logo2/white_transparent.png?v=8' : '/logo2/Blue_transparent.png?v=8';
+  const style = {
+    height: typeof height === 'number' ? `${height}px` : height,
+    width: 'auto',
+    objectFit: 'contain' as const,
+  };
 
   return (
-    <img
-      src={logoSrc}
-      alt="Campus Blink"
-      style={{
-        height: typeof height === 'number' ? `${height}px` : height,
-        width: 'auto',
-        objectFit: 'contain'
-      }}
-      className={className}
-    />
+    <>
+      <img
+        src={LIGHT_LOGO_SRC}
+        alt="Campus Blink"
+        style={style}
+        className={`${className} block dark:hidden`}
+      />
+      <img
+        src={DARK_LOGO_SRC}
+        alt="Campus Blink"
+        style={style}
+        className={`${className} hidden dark:block`}
+      />
+    </>
   );
 }
-

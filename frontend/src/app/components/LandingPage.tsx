@@ -24,7 +24,7 @@ import { useNavigate, Link } from 'react-router';
 import toast from 'react-hot-toast';
 import { getLandingSocialProof, joinWaitlist } from '../../api/invites';
 import { useAuthStore } from '../../store/authStore';
-import { ThemeAwareLogo } from './ThemeAwareLogo';
+import { Logo } from './ui/Logo';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   const prefetchLogin = () => {
-    import('./LoginRegisterPage').catch(() => {});
+    import('../../features/auth/LoginPage').catch(() => {});
   };
 
   const openInstallPrompt = () => {
@@ -149,7 +149,7 @@ export const LandingPage: React.FC = () => {
             to={user ? '/student/home' : '/'}
             className="flex items-center gap-2.5 focus:outline-none group"
           >
-            <ThemeAwareLogo
+            <Logo
               alt="Campus Blink"
               loading="eager"
               height={34}
@@ -1006,7 +1006,7 @@ export const LandingPage: React.FC = () => {
       <footer className="bg-surface border-t border-border-subtle py-12">
         <div className="max-w-[1280px] mx-auto px-5 md:px-10 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-text-secondary font-medium">
           <div className="flex items-center gap-3">
-            <ThemeAwareLogo alt="Campus Blink" height={28} className="h-7 w-auto object-contain" />
+            <Logo alt="Campus Blink" height={28} className="h-7 w-auto object-contain" />
             <span>© 2026 Campus Blink. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-6">

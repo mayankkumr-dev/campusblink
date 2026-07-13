@@ -13,27 +13,34 @@ export function generateInviteCode() {
 }
 
 export function formatInviteCodeInput(value) {
-  const cleaned = String(value || '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
+  const raw = String(value || '').toUpperCase();
+  const cleaned = raw.replace(/[^A-Z0-9]/g, '');
 
-  const withoutPrefix = cleaned.startsWith('CB') ? cleaned.slice(2) : cleaned;
-  const first = withoutPrefix.slice(0, 4);
-  const second = withoutPrefix.slice(4, 8);
+  if (cleaned.startsWith('CB')) {
+    const withoutPrefix = cleaned.slice(2);
+    const first = withoutPrefix.slice(0, 4);
+    const second = withoutPrefix.slice(4, 8);
 
-  if (second) return `CB-${first}-${second}`;
-  if (first) return `CB-${first}`;
-  if (cleaned.startsWith('CB')) return 'CB-';
-  return '';
+    if (second) return `CB-${first}-${second}`;
+    if (first) return `CB-${first}`;
+    return 'CB-';
+  }
+
+  return raw.trim();
 }
 
 export function normalizeInviteCode(value) {
   const formatted = formatInviteCodeInput(value);
   if (!formatted) return '';
 
-  const pieces = formatted.split('-').filter(Boolean);
-  if (pieces.length !== 3) return formatted;
-  return `CB-${pieces[1]}-${pieces[2]}`;
+  if (formatted.startsWith('CB-')) {
+    const pieces = formatted.split('-').filter(Boolean);
+    if (pieces.length === 3) {
+      return `CB-${pieces[1]}-${pieces[2]}`;
+    }
+  }
+
+  return formatted.trim().toUpperCase();
 }
 
 function normalizeSupabaseError(error) {
@@ -94,33 +101,60 @@ async function createCodesWithRetry(rows, maxAttempts = 8) {
 
 export async function validateInviteCode(inputCode) {
   try {
-    const code = normalizeInviteCode(inputCode);
-    if (!/^CB-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
-      return { data: null, error: 'Invalid invite code format.' };
+    const rawInput = String(inputCode || '').trim();
+    if (!rawInput) {
+      return { valid: false, code: null, inviter: null, data: null, error: 'Please enter an invite code.' };
     }
 
-    const { data, error } = await supabase
+    const code = normalizeInviteCode(rawInput) || rawInput.toUpperCase();
+
+    let { data, error } = await supabase
       .from('invite_codes')
       .select('*')
-      .eq('code', code)
+      .ilike('code', code)
       .eq('is_used', false)
-      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
       .maybeSingle();
 
+    if (!data && rawInput.toUpperCase() !== code) {
+      const fallback = await supabase
+        .from('invite_codes')
+        .select('*')
+        .ilike('code', rawInput.toUpperCase())
+        .eq('is_used', false)
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
     if (error) throw error;
-    if (!data) return { data: null, error: 'Invalid or expired invite code.' };
+    if (!data) {
+      return { valid: false, code: null, inviter: null, data: null, error: 'Invalid or expired invite code.' };
+    }
+
+    if (data.expires_at && new Date(data.expires_at).getTime() <= Date.now()) {
+      return { valid: false, code: null, inviter: null, data: null, error: 'This invite code has expired.' };
+    }
 
     const inviter = await getProfileById(data.created_by);
 
     return {
+      valid: true,
+      code: data.code,
+      inviter: inviter || null,
       data: {
         ...data,
-        inviter,
+        inviter: inviter || null,
       },
       error: null,
     };
   } catch (error) {
-    return { data: null, error: normalizeSupabaseError(error) || 'Could not validate invite code.' };
+    return {
+      valid: false,
+      code: null,
+      inviter: null,
+      data: null,
+      error: normalizeSupabaseError(error) || 'Could not validate invite code.',
+    };
   }
 }
 

@@ -228,7 +228,7 @@ export const AdminUsersPage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-admin-text-secondary group-focus-within:text-amber-500 dark:group-focus-within:text-amber-400 transition-colors" />
             <input
               type="text"
-              placeholder="Search name, email, college, roll..."
+              placeholder="Search username, email, name, college..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -573,7 +573,7 @@ export const AdminUsersPage: React.FC = () => {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary/70 group-focus-within:text-amber-500 transition-colors" />
             <input
               type="text"
-              placeholder="Search name, email, college, roll number..."
+              placeholder="Search username, email, name, college..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);

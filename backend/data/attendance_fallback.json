@@ -47,6 +47,17 @@
       "status": "draft",
       "createdAt": "2026-07-11T18:58:52.462Z",
       "updatedAt": "2026-07-11T18:58:52.462Z"
+    },
+    {
+      "_id": "sess_1783926511070_80ndpa",
+      "subjectId": "CS301",
+      "sectionId": "Group A",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-13T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "draft",
+      "createdAt": "2026-07-13T07:08:31.070Z",
+      "updatedAt": "2026-07-13T07:08:31.070Z"
     }
   ],
   "records": [

@@ -59,17 +59,27 @@ export const AdminGlobalSearch: React.FC = () => {
         // 1. Search Users
         const { data: users } = await supabase
           .from('profiles')
-          .select('id, full_name, email, role')
-          .or(`full_name.ilike.${searchQuery},email.ilike.${searchQuery}`)
-          .limit(5);
+          .select('id, full_name, name, username, email, role')
+          .or(`username.ilike.${searchQuery},email.ilike.${searchQuery},name.ilike.${searchQuery},full_name.ilike.${searchQuery}`)
+          .limit(10);
 
         if (users) {
-          users.forEach((u) => {
+          const qLower = query.trim().toLowerCase();
+          users.sort((a, b) => {
+            const aUser = String(a.username || '').toLowerCase();
+            const bUser = String(b.username || '').toLowerCase();
+            const aEmail = String(a.email || '').toLowerCase();
+            const bEmail = String(b.email || '').toLowerCase();
+            const aPrio = aUser.startsWith(qLower) || aEmail.startsWith(qLower) ? 0 : aUser.includes(qLower) || aEmail.includes(qLower) ? 1 : 2;
+            const bPrio = bUser.startsWith(qLower) || bEmail.startsWith(qLower) ? 0 : bUser.includes(qLower) || bEmail.includes(qLower) ? 1 : 2;
+            return aPrio - bPrio;
+          });
+          users.slice(0, 5).forEach((u) => {
             tempResults.push({
               type: 'user',
               id: u.id,
-              title: u.full_name || 'Unnamed User',
-              subtitle: `${u.email} • ${u.role}`,
+              title: u.name || u.full_name || u.username || 'Unnamed User',
+              subtitle: `${u.username ? '@' + u.username + ' • ' : ''}${u.email} • ${u.role}`,
               url: `/admin/users/${u.id}`,
             });
           });

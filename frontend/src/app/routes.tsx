@@ -1,5 +1,5 @@
 import { Navigate, createBrowserRouter } from 'react-router';
-import { NotFoundPage } from './components/NotFoundPage';
+import { NotFoundPage } from '../shared/components/NotFoundPage';
 
 export const router = createBrowserRouter([
   {
@@ -9,7 +9,7 @@ export const router = createBrowserRouter([
       {
         path: '',
         lazy: async () => ({
-          Component: (await import('./components/AuthHomeGate')).AuthHomeGate,
+          Component: (await import('../features/auth/AuthHomeGate')).AuthHomeGate,
         }),
       },
       {
@@ -45,37 +45,43 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         lazy: async () => ({
-          Component: (await import('./components/LoginRegisterPage')).LoginRegisterPage,
+          Component: (await import('../features/auth/LoginPage')).LoginPage,
         }),
       },
       {
         path: 'register',
         lazy: async () => ({
-          Component: (await import('./components/LoginRegisterPage')).LoginRegisterPage,
+          Component: (await import('../features/auth/RegisterPage')).RegisterPage,
+        }),
+      },
+      {
+        path: 'register/professor',
+        lazy: async () => ({
+          Component: (await import('../features/auth/ProfessorRegisterPage')).ProfessorRegisterPage,
         }),
       },
       {
         path: 'reset-password',
         lazy: async () => ({
-          Component: (await import('./components/ResetPasswordPage')).ResetPasswordPage,
+          Component: (await import('../features/auth/ResetPasswordPage')).ResetPasswordPage,
         }),
       },
       {
         path: 'account-restricted',
         lazy: async () => ({
-          Component: (await import('./components/AccountRestrictedPage')).AccountRestrictedPage,
+          Component: (await import('../features/auth/AccountRestrictedPage')).AccountRestrictedPage,
         }),
       },
       {
         path: 'auth/callback',
         lazy: async () => ({
-          Component: (await import('./components/AuthCallbackPage')).AuthCallbackPage,
+          Component: (await import('../features/auth/AuthCallbackPage')).AuthCallbackPage,
         }),
       },
       {
         path: 'community/:postId',
         lazy: async () => ({
-          Component: (await import('./components/PostDetailPage')).PostDetailPage,
+          Component: (await import('../features/community/PostDetailPage')).PostDetailPage,
         }),
       },
       {
@@ -103,7 +109,7 @@ export const router = createBrowserRouter([
       {
         path: 'student',
         lazy: async () => ({
-          Component: (await import('./components/StudentProtectedLayout')).StudentProtectedLayout,
+          Component: (await import('../features/auth/StudentProtectedLayout')).StudentProtectedLayout,
         }),
         errorElement: <NotFoundPage />,
         children: [
@@ -121,109 +127,99 @@ export const router = createBrowserRouter([
           {
             path: 'campus-exchange',
             lazy: async () => ({
-              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
+              Component: (await import('../features/marketplace/CampusExchangePage')).CampusExchangePage,
             }),
           },
-          {
-            path: 'campus-excahnge',
-            lazy: async () => ({
-              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
-            }),
-          },
+
           {
             path: 'marketplace',
             lazy: async () => ({
-              Component: (await import('./components/CampusExchangePage')).CampusExchangePage,
+              Component: (await import('../features/marketplace/CampusExchangePage')).CampusExchangePage,
             }),
           },
           {
             path: 'buy-sell',
             lazy: async () => ({
-              Component: (await import('./components/BuySellPage')).BuySellPage,
+              Component: (await import('../features/marketplace/BuySellPage')).BuySellPage,
             }),
           },
           {
             path: 'buy-and-sell',
             lazy: async () => ({
-              Component: (await import('./components/BuySellPage')).BuySellPage,
+              Component: (await import('../features/marketplace/BuySellPage')).BuySellPage,
             }),
           },
           {
             path: 'campus-exchange/buy-sell',
             lazy: async () => ({
-              Component: (await import('./components/BuySellPage')).BuySellPage,
+              Component: (await import('../features/marketplace/BuySellPage')).BuySellPage,
             }),
           },
-          {
-            path: 'campus-excahnge/buy-sell',
-            lazy: async () => ({
-              Component: (await import('./components/BuySellPage')).BuySellPage,
-            }),
-          },
+
           {
             path: 'buy-sell/manage',
             lazy: async () => ({
-              Component: (await import('./components/MarketplaceManagePage')).MarketplaceManagePage,
+              Component: (await import('../features/marketplace/MarketplaceManagePage')).MarketplaceManagePage,
             }),
           },
           {
             path: 'buy-sell/:listingId',
             lazy: async () => ({
-              Component: (await import('./components/MarketplaceListingDetailPage')).MarketplaceListingDetailPage,
+              Component: (await import('../features/marketplace/MarketplaceListingDetailPage')).MarketplaceListingDetailPage,
             }),
           },
           {
             path: 'roommate',
             lazy: async () => ({
-              Component: (await import('./components/RoommatePage')).RoommatePage,
+              Component: (await import('../features/marketplace/RoommatePage')).RoommatePage,
             }),
           },
           {
             path: 'campus-exchange/messages',
             lazy: async () => ({
-              Component: (await import('./components/MarketplaceMessagesPage')).MarketplaceMessagesPage,
+              Component: (await import('../features/marketplace/MarketplaceMessagesPage')).MarketplaceMessagesPage,
             }),
           },
           {
             path: 'wishlist',
             lazy: async () => ({
-              Component: (await import('./components/MarketplaceWishlistPage')).MarketplaceWishlistPage,
+              Component: (await import('../features/marketplace/MarketplaceWishlistPage')).MarketplaceWishlistPage,
             }),
           },
           {
             path: 'canteen',
             lazy: async () => ({
-              Component: (await import('./components/CanteenMenuPage')).CanteenMenuPage,
+              Component: (await import('../features/canteen/CanteenMenuPage')).CanteenMenuPage,
             }),
           },
           {
             path: 'canteen/reorder/:orderId',
             lazy: async () => ({
-              Component: (await import('./components/CanteenReorderPage')).CanteenReorderPage,
+              Component: (await import('../features/canteen/CanteenReorderPage')).CanteenReorderPage,
             }),
           },
           {
             path: 'print',
             lazy: async () => ({
-              Component: (await import('./components/PrintPage')).PrintPage,
+              Component: (await import('../features/print/PrintPage')).PrintPage,
             }),
           },
           {
             path: 'print/reorder/:orderId',
             lazy: async () => ({
-              Component: (await import('./components/PrintReorderPage')).PrintReorderPage,
+              Component: (await import('../features/print/PrintReorderPage')).PrintReorderPage,
             }),
           },
           {
             path: 'community',
             lazy: async () => ({
-              Component: (await import('./components/CommunityFeed')).CommunityFeed,
+              Component: (await import('../features/community/CommunityFeed')).CommunityFeed,
             }),
           },
           {
             path: 'societies',
             lazy: async () => ({
-              Component: (await import('./components/SocietiesFeedPage')).SocietiesFeedPage,
+              Component: (await import('../features/community/SocietiesFeedPage')).SocietiesFeedPage,
             }),
           },
           {
@@ -235,7 +231,7 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             lazy: async () => ({
-              Component: (await import('./components/ProfilePage')).ProfilePage,
+              Component: (await import('../features/profile/ProfilePage')).ProfilePage,
             }),
           },
           {
@@ -307,13 +303,13 @@ export const router = createBrowserRouter([
       {
         path: 'canteen-dashboard',
         lazy: async () => ({
-          Component: (await import('./components/DashboardProtectedRoute')).CanteenDashboardProtectedRoute,
+          Component: (await import('../features/auth/DashboardProtectedRoute')).CanteenDashboardProtectedRoute,
         }),
         children: [
           {
             index: true,
             lazy: async () => ({
-              Component: (await import('./components/CanteenDashboardPage')).CanteenDashboardPage,
+              Component: (await import('../features/canteen/CanteenDashboardPage')).CanteenDashboardPage,
             }),
           },
         ],
@@ -321,13 +317,13 @@ export const router = createBrowserRouter([
       {
         path: 'print-dashboard',
         lazy: async () => ({
-          Component: (await import('./components/DashboardProtectedRoute')).PrintDashboardProtectedRoute,
+          Component: (await import('../features/auth/DashboardProtectedRoute')).PrintDashboardProtectedRoute,
         }),
         children: [
           {
             index: true,
             lazy: async () => ({
-              Component: (await import('./components/PrintDashboardPage')).PrintDashboardPage,
+              Component: (await import('../features/print/PrintDashboardPage')).PrintDashboardPage,
             }),
           },
         ],
@@ -335,7 +331,7 @@ export const router = createBrowserRouter([
       {
         path: 'professor',
         lazy: async () => ({
-          Component: (await import('./components/ProfessorProtectedLayout')).ProfessorProtectedLayout,
+          Component: (await import('../features/auth/ProfessorProtectedLayout')).ProfessorProtectedLayout,
         }),
         errorElement: <NotFoundPage />,
         children: [
@@ -372,7 +368,7 @@ export const router = createBrowserRouter([
           {
             path: 'societies',
             lazy: async () => ({
-              Component: (await import('./components/SocietiesFeedPage')).SocietiesFeedPage,
+              Component: (await import('../features/community/SocietiesFeedPage')).SocietiesFeedPage,
             }),
           },
           {
@@ -384,7 +380,7 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             lazy: async () => ({
-              Component: (await import('./components/ProfilePage')).ProfilePage,
+              Component: (await import('../features/profile/ProfilePage')).ProfilePage,
             }),
           },
           {
@@ -411,12 +407,7 @@ export const router = createBrowserRouter([
               Component: (await import('./components/ProfessorFacultyNoticesPage')).ProfessorFacultyNoticesPage,
             }),
           },
-          {
-            path: 'settings/notifications',
-            lazy: async () => ({
-              Component: (await import('./components/ProfessorSettingsPage')).ProfessorSettingsPage,
-            }),
-          },
+
           {
             path: '*',
             Component: NotFoundPage,
@@ -426,7 +417,7 @@ export const router = createBrowserRouter([
       {
         path: 'admin',
         lazy: async () => ({
-          Component: (await import('./components/AdminProtectedRoute')).AdminProtectedRoute,
+          Component: (await import('../features/auth/AdminProtectedRoute')).AdminProtectedRoute,
         }),
         errorElement: <NotFoundPage />,
         children: [

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { NavLink, useLocation } from 'react-router';
-import { ThemeAwareLogo } from './ThemeAwareLogo';
+import { Logo } from './ui/Logo';
 import {
   Home,
   Search,
@@ -179,7 +179,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {/* Campus Blink Logo */}
         <div className={`flex items-center ${isChatSection ? 'justify-center md:justify-center' : 'justify-between'}`}>
           <NavLink to="/student/home" className="flex items-center gap-2.5 no-underline group py-1">
-            <ThemeAwareLogo
+            <Logo
               alt="Campus Blink"
               className={`object-contain transition-all duration-200 group-hover:scale-105 ${
                 isChatSection ? 'h-7 md:h-6 group-hover:md:h-8' : 'h-8 md:h-8'

@@ -28,13 +28,13 @@ export const AdminNoticeManagementPage: React.FC = () => {
     setIsLoading(true);
     let query = supabase
       .from('profiles')
-      .select('id, name, email, college, study_year, role, is_notice_admin, avatar_url')
+      .select('id, name, username, email, college, study_year, role, is_notice_admin, avatar_url')
       .order('is_notice_admin', { ascending: false })
       .order('name', { ascending: true })
       .limit(60);
 
     if (searchQuery.trim()) {
-      query = query.or(`name.ilike.%${searchQuery.trim()}%,email.ilike.%${searchQuery.trim()}%`);
+      query = query.or(`username.ilike.%${searchQuery.trim()}%,email.ilike.%${searchQuery.trim()}%,name.ilike.%${searchQuery.trim()}%`);
     } else if (filterMode === 'admins') {
       query = query.eq('is_notice_admin', true);
     }
@@ -43,7 +43,20 @@ export const AdminNoticeManagementPage: React.FC = () => {
     if (error) {
       toast.error('Could not load users');
     } else {
-      setUsers(data || []);
+      let loaded = data || [];
+      if (searchQuery.trim()) {
+        const qLower = searchQuery.trim().toLowerCase();
+        loaded = loaded.sort((a, b) => {
+          const aUser = String(a.username || '').toLowerCase();
+          const bUser = String(b.username || '').toLowerCase();
+          const aEmail = String(a.email || '').toLowerCase();
+          const bEmail = String(b.email || '').toLowerCase();
+          const aPrio = aUser.startsWith(qLower) || aEmail.startsWith(qLower) ? 0 : aUser.includes(qLower) || aEmail.includes(qLower) ? 1 : 2;
+          const bPrio = bUser.startsWith(qLower) || bEmail.startsWith(qLower) ? 0 : bUser.includes(qLower) || bEmail.includes(qLower) ? 1 : 2;
+          return aPrio - bPrio;
+        });
+      }
+      setUsers(loaded);
     }
     setIsLoading(false);
   }, [searchQuery, filterMode]);

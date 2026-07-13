@@ -30,7 +30,7 @@ export async function getAllUsers(filters, page = 1) {
       .range(start, end);
 
     if (filters?.searchTerm) {
-      query = query.or(`name.ilike.%${filters.searchTerm}%,email.ilike.%${filters.searchTerm}%,username.ilike.%${filters.searchTerm}%`);
+      query = query.or(`username.ilike.%${filters.searchTerm}%,email.ilike.%${filters.searchTerm}%,name.ilike.%${filters.searchTerm}%`);
     }
     if (filters?.role && filters.role !== 'all') {
       query = query.eq('role', filters.role);
@@ -41,6 +41,25 @@ export async function getAllUsers(filters, page = 1) {
 
     const { data, error, count } = await query;
     if (error) throw error;
+
+    if (filters?.searchTerm && data?.length) {
+      const q = String(filters.searchTerm).trim().toLowerCase();
+      data.sort((a, b) => {
+        const aUser = String(a.username || '').toLowerCase();
+        const bUser = String(b.username || '').toLowerCase();
+        const aEmail = String(a.email || '').toLowerCase();
+        const bEmail = String(b.email || '').toLowerCase();
+
+        const aPrio =
+          aUser.startsWith(q) || aEmail.startsWith(q) ? 0 :
+          aUser.includes(q) || aEmail.includes(q) ? 1 : 2;
+        const bPrio =
+          bUser.startsWith(q) || bEmail.startsWith(q) ? 0 :
+          bUser.includes(q) || bEmail.includes(q) ? 1 : 2;
+        return aPrio - bPrio;
+      });
+    }
+
     return { data, count, error: null };
   } catch (error) {
     return { data: null, count: 0, error };
@@ -1275,12 +1294,29 @@ export const searchAnnouncementUsers = async (term) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('id, name, email, username, status')
-      .or(`name.ilike.%${term}%,email.ilike.%${term}%`)
+      .or(`username.ilike.%${term}%,email.ilike.%${term}%,name.ilike.%${term}%`)
       .order('created_at', { ascending: false })
       .limit(8);
 
     if (error) throw error;
-    return { data: data || [], error: null };
+
+    const sortedData = (data || []).sort((a, b) => {
+      const q = String(term).trim().toLowerCase();
+      const aUser = String(a.username || '').toLowerCase();
+      const bUser = String(b.username || '').toLowerCase();
+      const aEmail = String(a.email || '').toLowerCase();
+      const bEmail = String(b.email || '').toLowerCase();
+
+      const aPrio =
+        aUser.startsWith(q) || aEmail.startsWith(q) ? 0 :
+        aUser.includes(q) || aEmail.includes(q) ? 1 : 2;
+      const bPrio =
+        bUser.startsWith(q) || bEmail.startsWith(q) ? 0 :
+        bUser.includes(q) || bEmail.includes(q) ? 1 : 2;
+      return aPrio - bPrio;
+    });
+
+    return { data: sortedData, error: null };
   } catch (error) {
     return { data: [], error: error.message || error };
   }

@@ -175,13 +175,13 @@ export const AdminRolesPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="rounded-lg border border-black/[0.08] bg-white p-6 lg:col-span-8">
           <h2 className="mb-6 font-syne text-xl font-bold text-slate-900">Assign System Role</h2>
-          <div className="relative mb-6"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400 transition-colors" /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search user by name or email..." className="w-full rounded-lg border border-black/10 bg-slate-100 py-4 pl-12 pr-4 text-base text-slate-900 outline-none focus:border-amber-400" /></div>
+          <div className="relative mb-6"><Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500 dark:text-slate-400 transition-colors" /><input value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search user by username, email or name..." className="w-full rounded-lg border border-black/10 bg-slate-100 py-4 pl-12 pr-4 text-base text-slate-900 outline-none focus:border-amber-400" /></div>
 
           {isLoading ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-amber-500 dark:text-amber-400 transition-colors" /></div> : results.length > 0 ? (
             <div className="space-y-3">
               {results.slice(0, 6).map((user) => (
                 <button key={user.id} onClick={() => { setSelectedUser(user); setSelectedRole(user.role || 'student'); }} className={`flex w-full items-center justify-between rounded-lg border px-4 py-4 text-left transition-colors ${selectedUser?.id === user.id ? 'border-amber-400 bg-slate-100' : 'border-black/[0.08] bg-slate-50 hover:border-black/10'}`}>
-                  <div><div className="font-bold text-slate-900">{user.name || 'Unnamed user'}</div><div className="text-xs text-slate-500">{user.email}</div></div>
+                  <div><div className="font-bold text-slate-900">{user.name || 'Unnamed user'}</div><div className="text-xs text-slate-500">{user.username ? `@${user.username} • ` : ''}{user.email}</div></div>
                   <span className="rounded-md bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-900">{user.role || 'student'}</span>
                 </button>
               ))}

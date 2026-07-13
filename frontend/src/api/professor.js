@@ -142,7 +142,7 @@ export async function getPendingProfessors() {
     const { data: pendingProfessors, error } = await supabase
       .from('profiles')
       .select('*')
-      .or('and(requested_role.eq.teacher,role_request_status.eq.pending),professor_status.eq.pending')
+      .or('and(requested_role.eq.teacher,role_request_status.eq.pending),and(role.eq.professor,professor_status.eq.pending)')
       .order('created_at', { ascending: false });
       
     if (error) throw error;
@@ -150,7 +150,9 @@ export async function getPendingProfessors() {
       p =>
         p.professor_status !== 'approved' &&
         p.professor_status !== 'rejected' &&
-        p.role_request_status !== 'approved'
+        p.role_request_status !== 'approved' &&
+        p.role_request_status !== 'rejected' &&
+        (p.role === 'professor' || p.requested_role === 'teacher')
     );
     return { data: activePending, error: null };
   } catch (error) {

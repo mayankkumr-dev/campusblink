@@ -8,14 +8,14 @@ import { getActiveAnnouncementForUser } from '../../api/announcements';
 import { SearchSlidePanel } from './SearchBar';
 import { AlertSlidePanel } from './AlertSlidePanel';
 import { useFeatureAccess } from '../../hooks/useFeatureAccess';
-import { ThemeAwareLogo } from './ThemeAwareLogo';
-import { FeatureErrorBoundary } from './FeatureErrorBoundary';
+import { Logo } from './ui/Logo';
+import { FeatureErrorBoundary } from '../../shared/components/FeatureErrorBoundary';
 import { DashboardSidebar } from './DashboardSidebar';
 import { PushPermissionBanner } from './PushPermissionBanner';
 
 function getFeatureKeyFromPath(pathname: string) {
   if (pathname.startsWith('/student/search')) return 'search';
-  if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/campus-excahnge') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell') || pathname.startsWith('/student/roommate') || pathname.startsWith('/student/campus-exchange/messages') || pathname.startsWith('/student/wishlist')) return 'exchange';
+  if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell') || pathname.startsWith('/student/roommate') || pathname.startsWith('/student/campus-exchange/messages') || pathname.startsWith('/student/wishlist')) return 'exchange';
   if (pathname.startsWith('/student/canteen')) return 'canteen';
   if (pathname.startsWith('/student/print')) return 'print';
   if (pathname.startsWith('/student/community')) return 'community';
@@ -105,7 +105,7 @@ export const StudentLayout: React.FC = () => {
       <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-black/10 bg-[var(--bg)] px-4 md:hidden select-none">
         <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer">
           <div className="h-16 overflow-hidden flex items-center">
-            <ThemeAwareLogo loading="lazy" alt="Campus Blink" className="h-7 w-auto object-contain" />
+            <Logo loading="lazy" alt="Campus Blink" className="h-7 w-auto object-contain" />
           </div>
         </Link>
         <div className="flex items-center gap-2">

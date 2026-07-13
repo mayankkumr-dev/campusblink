@@ -128,11 +128,23 @@ export const AdminInvitesPage: React.FC = () => {
       const { data } = await supabase
         .from('profiles')
         .select('id, name, email, username')
-        .or(`name.ilike.%${targetUserTerm}%,email.ilike.%${targetUserTerm}%`)
+        .or(`username.ilike.%${targetUserTerm}%,email.ilike.%${targetUserTerm}%,name.ilike.%${targetUserTerm}%`)
         .order('created_at', { ascending: false })
         .limit(8);
 
-      if (isMounted) setTargetUsers(data || []);
+      if (isMounted) {
+        const qLower = targetUserTerm.trim().toLowerCase();
+        const sorted = (data || []).sort((a, b) => {
+          const aUser = String(a.username || '').toLowerCase();
+          const bUser = String(b.username || '').toLowerCase();
+          const aEmail = String(a.email || '').toLowerCase();
+          const bEmail = String(b.email || '').toLowerCase();
+          const aPrio = aUser.startsWith(qLower) || aEmail.startsWith(qLower) ? 0 : aUser.includes(qLower) || aEmail.includes(qLower) ? 1 : 2;
+          const bPrio = bUser.startsWith(qLower) || bEmail.startsWith(qLower) ? 0 : bUser.includes(qLower) || bEmail.includes(qLower) ? 1 : 2;
+          return aPrio - bPrio;
+        });
+        setTargetUsers(sorted);
+      }
     }, 250);
 
     return () => {

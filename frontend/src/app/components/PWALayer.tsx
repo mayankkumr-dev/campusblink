@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Download, X, Bell } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { subscribeToPush } from '../../lib/pushNotifications';
-import { ThemeAwareLogo } from './ThemeAwareLogo';
+import { Logo } from './ui/Logo';
 
 const INSTALL_DISMISS_KEY = 'cb_install_dismiss_until';
 const VISIT_COUNT_KEY = 'cb_visit_count';
@@ -180,7 +180,7 @@ export const PWALayer: React.FC = () => {
       {showInstallBanner && !inStandalone && deferredPrompt && (
         <div className="fixed left-4 right-4 z-[120] rounded-lg border border-black/10 bg-white p-4 shadow-strong bottom-[calc(5rem+env(safe-area-inset-bottom)+1rem)] md:bottom-4">
           <div className="flex items-center gap-3">
-            <ThemeAwareLogo alt="Campus Blink" className="h-10 w-10 rounded-lg" />
+            <Logo alt="Campus Blink" className="h-10 w-10 rounded-lg" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-extrabold text-[var(--text-primary)]">Install Campus Blink</p>
               <p className="truncate text-xs text-[var(--text-secondary)]">Works offline · Faster · No browser bar</p>
@@ -214,7 +214,7 @@ export const PWALayer: React.FC = () => {
         <div className="fixed inset-0 z-[130] flex items-end justify-center bg-black/35 p-4 md:items-center">
           <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-strong">
             <div className="mb-3 flex items-center gap-2">
-              <ThemeAwareLogo alt="Campus Blink" className="h-5 w-5 rounded-md object-contain" />
+              <Logo alt="Campus Blink" className="h-5 w-5 rounded-md object-contain" />
               <h3 className="text-base font-extrabold text-[var(--text-primary)]">Get notified when your order is ready?</h3>
             </div>
             <p className="mb-5 text-sm text-[var(--text-secondary)]">Allow notifications so Campus Blink can alert you when your status changes.</p>

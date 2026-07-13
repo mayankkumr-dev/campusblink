@@ -5,7 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import { searchStudents, searchPosts, searchListings } from '../../api/search';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { getDisplayHandle } from '../../lib/user';
-import { FollowButton } from './FollowButton';
+import { FollowButton } from '../../shared/components/FollowButton';
 import { SearchResultsSkeleton } from './BoneyardSkeletons';
 
 const POST_IMAGE_DELIMITER = '|||';
