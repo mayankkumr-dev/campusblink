@@ -27,7 +27,7 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
         onNavigate();
       }}
       className={`group/nav relative flex items-center py-2.5 px-3 mx-3 my-0.5 rounded-xl transition-all duration-300 font-sans text-sm overflow-hidden ${
-        isChatSection ? 'md:w-[46px] group-hover:md:w-[236px] w-[236px]' : 'w-auto'
+        isChatSection ? 'md:w-[46px] group-hover/sidebar:md:w-[236px] w-[236px]' : 'w-auto'
       } ${
         isActive
           ? 'bg-blue-50/80 text-blue-700 font-bold shadow-[0_2px_12px_rgba(59,130,246,0.06)] dark:bg-prof-accent-blue-soft-bg dark:text-prof-accent-blue dark:shadow-none'
@@ -37,9 +37,9 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
       <div className="shrink-0 w-5 flex items-center justify-center">
         <Icon size={20} strokeWidth={isActive ? 1.5 : 1.25} className={`transition-colors duration-300 ${isActive ? "text-blue-600 dark:text-prof-accent-blue" : "text-gray-400 group-hover/nav:text-blue-500 dark:text-prof-text-secondary dark:group-hover/nav:text-prof-text-primary"}`} />
       </div>
-      <span className={`ml-3 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>{label}</span>
+      <span className={`ml-3 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>{label}</span>
       {Number(badgeCount || 0) > 0 && (
-        <span className={`bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm dark:bg-prof-accent-red whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}>
+        <span className={`bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm dark:bg-prof-accent-red whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover/sidebar:md:opacity-100' : 'opacity-100'}`}>
           {badgeCount}
         </span>
       )}
