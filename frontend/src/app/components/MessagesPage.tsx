@@ -677,28 +677,7 @@ export const MessagesPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6 bg-surface/30 flex flex-col gap-3"
               onClick={() => { if (contextMenu) setContextMenu(null); }}
             >
-              {/* ── Receiver's Accept/Decline view ── */}
-              {activeTab === 'requests' && !iAmTheSenderWaiting ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="bg-surface border border-border-subtle shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-3xl p-6 text-center max-w-sm w-full">
-                    <img src={activeChatDetails.avatar} alt="Avatar" className="w-16 h-16 rounded-full mx-auto mb-4 border border-border-subtle shadow-sm" />
-                    <h3 className="font-syne text-lg font-bold text-text-primary mb-1">{activeChatDetails.name}</h3>
-                    <p className="text-sm text-text-secondary mb-6 line-clamp-2">{activeChatDetails.lastMessage || 'Sent you a message request'}</p>
-                    <div className="flex gap-3">
-                      <button onClick={handleDeleteConversation}
-                        className="flex-1 bg-red-50 dark:bg-red-950 hover:bg-red-100 text-red-600 font-bold py-2.5 rounded-xl text-sm transition-colors border border-red-100 dark:border-red-900">
-                        Delete
-                      </button>
-                      <button onClick={handleAccept}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-sm transition-all shadow-[0_4px_14px_rgba(37,99,235,0.2)]">
-                        Accept
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
                 /* ── Normal / Sender waiting messages ── */
-                <>
                   {visibleMessages.length === 0 ? (
                     <div className="text-center mt-10 text-text-secondary text-sm font-medium">Say hello! 👋</div>
                   ) : visibleMessages.map(msg => {
@@ -772,8 +751,6 @@ export const MessagesPage: React.FC = () => {
                     );
                   })}
                   <div ref={messagesEndRef} />
-                </>
-              )}
             </div>
 
             {/* Input / Waiting Banner */}
@@ -788,6 +765,19 @@ export const MessagesPage: React.FC = () => {
                   </div>
                   <button onClick={handleDeleteConversation} className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors flex-shrink-0">
                     Cancel
+                  </button>
+                </div>
+              </div>
+            ) : activeTab === 'requests' && !iAmTheSenderWaiting ? (
+              <div className="p-4 bg-background border-t border-border-subtle flex-shrink-0">
+                <div className="max-w-4xl mx-auto flex gap-3">
+                  <button onClick={handleDeleteConversation}
+                    className="flex-1 bg-red-50 dark:bg-red-950 hover:bg-red-100 text-red-600 font-bold py-3 rounded-2xl text-sm transition-colors border border-red-100 dark:border-red-900">
+                    Delete Request
+                  </button>
+                  <button onClick={handleAccept}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-sm transition-all shadow-[0_4px_14px_rgba(37,99,235,0.2)]">
+                    Accept Request
                   </button>
                 </div>
               </div>

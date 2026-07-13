@@ -14,7 +14,7 @@ export const CampusExchangePage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           <Link
             to="/student/buy-sell"
             className="group rounded-3xl bg-surface p-8 text-left transition-all duration-300 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_40px_-10px_rgba(37,99,235,0.1)] border border-border-subtle hover:-translate-y-1 relative overflow-hidden flex flex-col h-full"
@@ -42,21 +42,6 @@ export const CampusExchangePage: React.FC = () => {
             <p className="text-[14px] text-text-secondary leading-relaxed mb-6 flex-grow relative z-10">Post that you need a flatmate and easily share your address and personal preferences.</p>
             <div className="flex items-center text-accent-green font-bold text-sm mt-auto group-hover:gap-2 transition-all relative z-10">
               Search <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
-          </Link>
-
-          <Link
-            to="/student/campus-exchange/messages"
-            className="group rounded-3xl bg-surface p-8 text-left transition-all duration-300 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_40px_-10px_rgba(245,158,11,0.1)] border border-border-subtle hover:-translate-y-1 relative overflow-hidden flex flex-col h-full"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-accent-amber-soft rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500" />
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-amber-soft text-accent-amber mb-6 shadow-sm relative z-10 border border-amber-100">
-              <MessageCircle className="h-6 w-6" />
-            </div>
-            <h2 className="font-syne text-2xl font-bold text-text-primary mb-2 relative z-10">Messages</h2>
-            <p className="text-[14px] text-text-secondary leading-relaxed mb-6 flex-grow relative z-10">Open your buyer-seller and flatmate chats easily from one central inbox.</p>
-            <div className="flex items-center text-accent-amber font-bold text-sm mt-auto group-hover:gap-2 transition-all relative z-10">
-              Open Inbox <ArrowRight className="h-4 w-4 ml-1" />
             </div>
           </Link>
         </div>
