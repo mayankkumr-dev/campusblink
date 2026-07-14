@@ -134,6 +134,8 @@ export const UserProfilePage: React.FC = () => {
     return () => { mounted = false; };
   }, [currentProfile?.id, userId]);
 
+  // Fetch follow counts once on mount (not on every isFollowing change,
+  // because the FollowButton onChange already applies the RPC-returned counts).
   useEffect(() => {
     if (!userId) return;
 
@@ -147,7 +149,7 @@ export const UserProfilePage: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [userId, isFollowing]);
+  }, [userId]);
 
   if (isLoading) {
     return (
@@ -310,6 +312,9 @@ export const UserProfilePage: React.FC = () => {
                             setIsFollowing(nextFollowing);
                             if (typeof counts?.followers_count === 'number') {
                               setFollowerCount(counts.followers_count);
+                            }
+                            if (typeof counts?.following_count === 'number') {
+                              setFollowingCount(counts.following_count);
                             }
                           }}
                         />
