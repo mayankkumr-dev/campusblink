@@ -3,13 +3,30 @@ import { supabase } from '../lib/supabase';
 import { getUserFeatureAccess, resolveFeatureAccess } from '../api/featureAccess';
 import { useAuthStore } from '../store/authStore';
 
-export function useFeatureAccess(profileOrFeature) {
+export interface FeatureAccessApi {
+  disabledFeatures: any[];
+  platformSettings: Record<string, any>;
+  isLoading: boolean;
+  isAllowed: (featureKey: string) => boolean;
+  resolve: (featureKey: string) => any;
+  hasAccess?: any;
+  isChecking?: boolean;
+}
+
+export interface FeatureAccessResult extends FeatureAccessApi {
+  hasAccess: any;
+  isChecking: boolean;
+}
+
+export function useFeatureAccess(featureKey: string): FeatureAccessResult;
+export function useFeatureAccess(profile: Record<string, any> | null | undefined): FeatureAccessApi;
+export function useFeatureAccess(profileOrFeature: any): any {
   const storeProfile = useAuthStore((state) => state.profile);
   const featureKey = typeof profileOrFeature === 'string' ? profileOrFeature : null;
   const profile = featureKey ? storeProfile : profileOrFeature;
 
-  const [disabledFeatures, setDisabledFeatures] = useState([]);
-  const [platformSettings, setPlatformSettings] = useState({});
+  const [disabledFeatures, setDisabledFeatures] = useState<any[]>([]);
+  const [platformSettings, setPlatformSettings] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -48,8 +65,8 @@ export function useFeatureAccess(profileOrFeature) {
     disabledFeatures,
     platformSettings,
     isLoading,
-    isAllowed: (featureKey) => !disabledFeatures.includes(featureKey),
-    resolve: (featureKey) => resolveFeatureAccess(featureKey, disabledFeatures, platformSettings),
+    isAllowed: (featureKey: string) => !disabledFeatures.includes(featureKey),
+    resolve: (featureKey: string) => resolveFeatureAccess(featureKey, disabledFeatures, platformSettings),
   }), [disabledFeatures, platformSettings, isLoading]);
 
   if (featureKey) {

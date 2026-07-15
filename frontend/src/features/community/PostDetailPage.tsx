@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { AnimatePresence } from 'motion/react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Loader2, MessageCircle, Repeat2, Send, Share2, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Bookmark, ChevronLeft, ChevronRight, Heart, Loader2, MessageCircle, Repeat2, Send, Share2, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
-import { addComment, deleteComment, getComments, getPostDetail, toggleCommentLike, togglePostLike } from '../../api/community';
+import { addComment, deleteComment, getComments, getPostDetail, toggleCommentLike, togglePostLike, togglePostBookmark } from '../../api/community';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { getDisplayHandle } from '../../lib/user';
 import { ProfilePictureInteract } from '../../app/components/ProfilePictureInteract';
@@ -24,6 +24,7 @@ function buildCommentTree(flatComments: any[]): any[] {
 }
 
 interface CommentItemProps {
+  key?: React.Key;
   comment: any;
   post: any;
   profile: any;
@@ -320,6 +321,16 @@ export const PostDetailPage: React.FC = () => {
 
   const images = parseImageUrls(post);
   const likedByMe = Boolean(profile?.id && post?.liked_by?.includes(profile.id));
+  const [isBookmarked, setIsBookmarked] = useState(post?.user_has_bookmarked || false);
+  const [localBookmarkCount, setLocalBookmarkCount] = useState(post?.bookmarks_count || 0);
+
+  // Sync bookmark state when post data is fetched/updated
+  useEffect(() => {
+    if (post) {
+      setIsBookmarked(post.user_has_bookmarked || false);
+      setLocalBookmarkCount(post.bookmarks_count || 0);
+    }
+  }, [post?.user_has_bookmarked, post?.bookmarks_count]);
   const avatar = post?.is_anonymous
     ? null
     : post?.author?.avatar_url || getAvatarDataUrl({ name: post?.author?.name, seed: post?.author?.id || post?.author_id || post?.id });
@@ -384,6 +395,28 @@ export const PostDetailPage: React.FC = () => {
     if (error) {
       toast.error(error.message || 'Could not update like.');
       setPost(post);
+    }
+  };
+
+  const handleBookmarkToggle = async () => {
+    if (!post || !profile?.id) { toast.error('Log in to bookmark'); return; }
+    const prev = isBookmarked;
+    const prevCount = localBookmarkCount;
+    setIsBookmarked(!prev);
+    setLocalBookmarkCount(prev ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+    const { error } = await togglePostBookmark(post.id, profile.id);
+    if (error) {
+      setIsBookmarked(prev);
+      setLocalBookmarkCount(prevCount);
+      toast.error('Failed to bookmark');
+    } else {
+      toast.success(prev ? 'Removed from Bookmarks' : 'Added to Bookmarks');
+      setPost((prevPost: any) => prevPost ? {
+        ...prevPost,
+        user_has_bookmarked: !prev,
+        bookmarks_count: prev ? Math.max(0, (prevPost.bookmarks_count || 0) - 1) : (prevPost.bookmarks_count || 0) + 1
+      } : prevPost);
     }
   };
 
@@ -521,7 +554,7 @@ export const PostDetailPage: React.FC = () => {
                 <PostImageGrid images={images} onOpen={(index) => setLightbox({ images, index })} />
 
                 <div className="mt-4 border-y border-black/10 py-3 text-sm text-[var(--text-secondary)]">
-                  <span className="font-bold text-[var(--text-primary)]">{post.comments_count ?? flatComments.length}</span> Comments · <span className="font-bold text-[var(--text-primary)]">{post.likes_count || 0}</span> Likes
+                  <span className="font-bold text-[var(--text-primary)]">{post.comments_count ?? flatComments.length}</span> Comments · <span className="font-bold text-[var(--text-primary)]">{post.likes_count || 0}</span> Likes · <span className="font-bold text-[var(--text-primary)]">{localBookmarkCount}</span> Bookmarks
                 </div>
 
                 <div className="mt-1 flex max-w-xl items-center justify-between text-[var(--text-secondary)]">
@@ -529,6 +562,7 @@ export const PostDetailPage: React.FC = () => {
                   <button onClick={() => toast('Repost is coming soon.', { icon: '🔁' })} className="group flex items-center gap-2 text-sm transition-colors hover:text-[var(--text-primary)]"><span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-black/10"><Repeat2 className="h-4 w-4" /></span></button>
                   <button onClick={handleLike} disabled={!profile?.id} className={`group flex items-center gap-2 text-sm transition-colors ${likedByMe ? 'text-[var(--error)]' : 'hover:text-[var(--error)]'} ${!profile?.id ? 'opacity-60 cursor-not-allowed' : ''}`}><span className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${likedByMe ? 'bg-[var(--error)]/10' : 'group-hover:bg-[var(--error)]/10'}`}><Heart className={`h-4 w-4 ${likedByMe ? 'fill-current' : ''}`} /></span><span>{post.likes_count || 0}</span></button>
                   <button onClick={handleShare} className="group flex items-center gap-2 text-sm transition-colors hover:text-[var(--text-primary)]"><span className="flex h-9 w-9 items-center justify-center rounded-md transition-colors group-hover:bg-[var(--yellow)]/15"><Share2 className="h-4 w-4" /></span></button>
+                  <button onClick={handleBookmarkToggle} disabled={!profile?.id} className={`group flex items-center gap-2 text-sm transition-colors ${isBookmarked ? 'text-[var(--accent-blue,#3b82f6)]' : 'hover:text-[var(--accent-blue,#3b82f6)]'} ${!profile?.id ? 'opacity-60 cursor-not-allowed' : ''}`}><span className={`flex h-9 w-9 items-center justify-center rounded-md transition-colors ${isBookmarked ? 'bg-[var(--accent-blue,#3b82f6)]/10' : 'group-hover:bg-[var(--accent-blue,#3b82f6)]/10'}`}><Bookmark className="h-4 w-4" fill={isBookmarked ? 'currentColor' : 'none'} /></span><span>{localBookmarkCount}</span></button>
                 </div>
               </div>
             </div>

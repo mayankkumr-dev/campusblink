@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { sendPushNotification } from '../lib/pushNotifications';
+import { normalizePostRecord } from './community';
 
 function isMissingRpc(error) {
   const message = String(error?.message || '').toLowerCase();
@@ -219,7 +220,7 @@ export async function getFollowingPosts(userId, page = 1) {
     const { data, error } = await supabase
       .from('posts')
       .select(
-        '*, author:profiles!author_id(id, name, avatar_url, username, college), post_likes!left(user_id)'
+        '*, author:profiles!author_id(id, name, avatar_url, username, college), post_likes!left(user_id), bookmarks!left(user_id)'
       )
       .in('author_id', followingIds)
       .eq('is_hidden', false)
@@ -227,7 +228,8 @@ export async function getFollowingPosts(userId, page = 1) {
       .range(start, end);
 
     if (error) throw error;
-    return { data: data || [], error: null, noFollows: false };
+    const normalized = (data || []).map((post) => normalizePostRecord(post));
+    return { data: normalized, error: null, noFollows: false };
   } catch (err) {
     return { data: [], error: err, noFollows: false };
   }
