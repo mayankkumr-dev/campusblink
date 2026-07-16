@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 type AdaptivePostImageProps = {
+  key?: React.Key;
   src: string;
   alt: string;
   className?: string;

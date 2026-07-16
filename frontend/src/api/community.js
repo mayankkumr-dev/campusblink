@@ -21,7 +21,7 @@ function parsePostImageUrls(value) {
   return [value];
 }
 
-function normalizePostRecord(post) {
+export function normalizePostRecord(post) {
   return {
     ...post,
     user_has_liked: post?.user_has_liked?.length > 0 || (Array.isArray(post?.post_likes) && post.post_likes.length > 0),
@@ -102,8 +102,39 @@ export async function getPosts(type, page = 1) {
           });
         }
 
+        // Fetch user likes and bookmarks to enrich the feed
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserId = session?.user?.id;
+        const postIds = rpcPosts.map(p => p.id);
+        const likedPostIds = new Set();
+        const bookmarkedPostIds = new Set();
+
+        if (currentUserId && postIds.length > 0) {
+          const [likesResult, bookmarksResult] = await Promise.all([
+            supabase
+              .from('post_likes')
+              .select('post_id')
+              .eq('user_id', currentUserId)
+              .in('post_id', postIds),
+            supabase
+              .from('bookmarks')
+              .select('post_id')
+              .eq('user_id', currentUserId)
+              .in('post_id', postIds)
+          ]);
+
+          if (likesResult.data) {
+            likesResult.data.forEach(like => likedPostIds.add(like.post_id));
+          }
+          if (bookmarksResult.data) {
+            bookmarksResult.data.forEach(bm => bookmarkedPostIds.add(bm.post_id));
+          }
+        }
+
         const enriched = rpcPosts.map((p) => ({
           ...p,
+          user_has_liked: likedPostIds.has(p.id) ? [{ id: true }] : [],
+          user_has_bookmarked: bookmarkedPostIds.has(p.id) ? [{ id: true }] : [],
           author: authorMap[p.author_id] || {
             id: p.author_id,
             name: p.is_anonymous ? 'Anonymous' : 'Student',
@@ -768,74 +799,113 @@ export async function togglePostBookmark(postId, userId) {
   try {
     const { data: existing, error: fetchError } = await supabase
       .from('bookmarks')
-      .select('*')
+      .select('id')
       .eq('post_id', postId)
       .eq('user_id', userId)
       .maybeSingle();
-      
-    if (fetchError) throw fetchError;
-    
+
+    if (fetchError) {
+      console.error("togglePostBookmark fetchError:", fetchError);
+      throw fetchError;
+    }
+
     if (existing) {
-      await supabase.from('bookmarks').delete().eq('post_id', postId).eq('user_id', userId);
+      const { error: deleteError } = await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', userId);
+      if (deleteError) {
+        console.error("togglePostBookmark deleteError:", deleteError);
+        throw deleteError;
+      }
+
+      // Decrement stored count (SECURITY DEFINER RPC bypasses posts RLS)
+      supabase.rpc('decrement_post_bookmarks', { p_id: postId })
+        .then(({ error }) => { if (error) console.error("decrement_post_bookmarks RPC error:", error); })
+        .catch(err => console.error("decrement_post_bookmarks RPC catch:", err));
+
       return { data: { bookmarked: false }, error: null };
     } else {
-      await supabase.from('bookmarks').insert([{ post_id: postId, user_id: userId }]);
+      const { error: insertError } = await supabase
+        .from('bookmarks')
+        .insert([{ post_id: postId, user_id: userId }]);
+      if (insertError) {
+        console.error("togglePostBookmark insertError:", insertError);
+        throw insertError;
+      }
+
+      // Increment stored count
+      supabase.rpc('increment_post_bookmarks', { p_id: postId })
+        .then(({ error }) => { if (error) console.error("increment_post_bookmarks RPC error:", error); })
+        .catch(err => console.error("increment_post_bookmarks RPC catch:", err));
+
       return { data: { bookmarked: true }, error: null };
     }
   } catch (error) {
-    console.error('Error toggling bookmark:', error);
-    return { data: null, error };
+    console.error("togglePostBookmark caught error inside try-catch:", error);
+    return { data: null, error: normalizeCommunityError(error, 'Failed to update bookmark') };
   }
 }
 
-export async function togglePostRepost(postId, userId) {
-  if (!postId || !userId) return { error: { message: "Invalid parameters" } };
+export async function getBookmarkedPosts(userId, page = 1) {
   try {
-    const { data: existing, error: fetchError } = await supabase
-      .from('reposts')
-      .select('*')
-      .eq('post_id', postId)
-      .eq('user_id', userId)
-      .maybeSingle();
-      
-    if (fetchError) throw fetchError;
-    
-    if (existing) {
-      await supabase.from('reposts').delete().eq('post_id', postId).eq('user_id', userId);
-      return { data: { reposted: false }, error: null };
-    } else {
-      await supabase.from('reposts').insert([{ post_id: postId, user_id: userId }]);
-      return { data: { reposted: true }, error: null };
-    }
-  } catch (error) {
-    console.error('Error toggling repost:', error);
-    return { data: null, error };
-  }
-}
+    const limit = 20;
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
 
-export async function getBookmarkedPosts(userId) {
-  try {
     const { data, error } = await supabase
       .from('bookmarks')
       .select(`
         post_id,
+        created_at,
         posts (
-          *,
-          profiles:author_id (id,   user  avatar_url, role, theme_color)
+          id,
+          content,
+          title,
+          type,
+          image_url,
+          is_anonymous,
+          likes_count,
+          comments_count,
+          reposts_count,
+          bookmarks_count,
+          views_count,
+          is_pinned,
+          created_at,
+          author_id,
+          author:profiles!author_id (
+            id,
+            name,
+            username,
+            avatar_url,
+            role,
+            college
+          ),
+          user_has_liked:post_likes (
+            id
+          ),
+          user_has_bookmarked:bookmarks (
+            id
+          ),
+          reposts (
+            id
+          )
         )
       `)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(start, end);
 
     if (error) throw error;
-    
-    const posts = data
+
+    const posts = (data || [])
       .filter(b => b.posts)
       .map(b => normalizePostRecord(b.posts));
-      
-    return { data: posts, error: null };
+
+    return { data: posts, hasMore: posts.length === limit, error: null };
   } catch (error) {
-    console.error('Error fetching bookmarks:', error);
-    return { data: [], error };
+    return { data: [], hasMore: false, error: normalizeCommunityError(error, 'Failed to load bookmarks') };
   }
 }
+

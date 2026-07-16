@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   ArrowLeft,
   Bell,
+  Bookmark,
   Calendar,
   Camera,
   GraduationCap,
@@ -114,6 +115,16 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 onClick={() => setProfileMenuOpen(false)}
               />
               <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileMenuOpen(false);
+                    navigate('/student/bookmarks');
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated border-b border-border-subtle/50"
+                >
+                  <Bookmark className="h-4 w-4 text-text-secondary/70" /> Bookmarks
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -272,6 +283,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300"
                 >
                   Share Profile
+                </button>
+                <button
+                  onClick={() => navigate('/student/bookmarks')}
+                  className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300 flex items-center gap-1.5"
+                >
+                  <Bookmark className="h-3.5 w-3.5 text-text-secondary" />
+                  Bookmarks
                 </button>
               </div>
               {visibleSocialLinks.length ? (

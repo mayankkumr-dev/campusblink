@@ -638,11 +638,11 @@ export const SocietiesFeedPage: React.FC = () => {
     setAllPosts((prev) => [hydratedPost, ...prev]);
   });
 
-  const collegeOptions = Array.from(
-    new Set(
+  const collegeOptions: string[] = Array.from(
+    new Set<string>(
       allPosts
         .map((post) => post.author?.college)
-        .filter((value): value is string => Boolean(value && value.trim())),
+        .filter((value): value is string => Boolean(value && typeof value === 'string' && value.trim())),
     ),
   );
 

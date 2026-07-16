@@ -31,6 +31,8 @@
   --radius-full: 9999px;
 
   /* Legacy aliases to keep old UI somewhat working until fully refactored */
+  --bg: var(--bg-surface);
+  --text: var(--text-primary);
   --bg-primary: var(--bg-background);
   --bg-secondary: var(--bg-surface);
   --bg-tertiary: var(--bg-surface-elevated);
@@ -95,6 +97,8 @@
   --color-black: var(--text-inverse);
   --yellow: var(--accent-amber);
   --yellow-light: var(--accent-amber-soft);
+  --bg: var(--bg-surface);
+  --text: var(--text-primary);
 
   /* Professor specific dark mode tokens */
   --prof-bg-base: #0D0F14;
@@ -330,8 +334,8 @@
   }
   
   body {
-    background-color: var(--bg);
-    color: var(--text);
+    background-color: var(--bg-background);
+    color: var(--text-primary);
     font-family: var(--font-sans);
     line-height: 1.6;
     overflow-x: hidden;
@@ -425,6 +429,7 @@
   [data-listing-title='true'] {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     word-break: break-word;

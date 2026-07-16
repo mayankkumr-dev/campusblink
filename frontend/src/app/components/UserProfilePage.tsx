@@ -61,10 +61,21 @@ export const UserProfilePage: React.FC = () => {
 
   // Redirect to own profile if viewing self
   useEffect(() => {
-    if (userId && currentProfile?.id && userId === currentProfile.id) {
+    if (userId && currentProfile?.id) {
+      const isSelfId = userId.toLowerCase() === currentProfile.id.toLowerCase();
+      const isSelfUsername = currentProfile.username && userId.toLowerCase() === currentProfile.username.toLowerCase();
+      if (isSelfId || isSelfUsername) {
+        navigate('/student/profile', { replace: true });
+      }
+    }
+  }, [userId, currentProfile?.id, currentProfile?.username, navigate]);
+
+  // Redirect to own profile if loaded target profile is the logged-in user
+  useEffect(() => {
+    if (targetProfile?.id && currentProfile?.id && targetProfile.id.toLowerCase() === currentProfile.id.toLowerCase()) {
       navigate('/student/profile', { replace: true });
     }
-  }, [userId, currentProfile?.id, navigate]);
+  }, [targetProfile?.id, currentProfile?.id, navigate]);
 
   useEffect(() => {
     if (!userId) {
@@ -91,6 +102,10 @@ export const UserProfilePage: React.FC = () => {
       if (!profileData) {
         setNotFound(true);
       } else {
+        if (currentProfile?.id && profileData.id === currentProfile.id) {
+          navigate('/student/profile', { replace: true });
+          return;
+        }
         setTargetProfile(profileData);
         setFollowerCount(profileData.followers_count || 0);
         setFollowingCount(profileData.following_count || 0);
@@ -111,9 +126,11 @@ export const UserProfilePage: React.FC = () => {
         setPosts(normalizedPosts);
       }
 
-      const { data: socialLinkData } = await getProfileSocialLinks(userId);
-      if (mounted) {
-        setSocialLinks((socialLinkData || []).map((item: any) => ({ platform: item.platform || 'website', url: item.url || '' })));
+      if (profileData) {
+        const { data: socialLinkData } = await getProfileSocialLinks(profileData.id);
+        if (mounted) {
+          setSocialLinks((socialLinkData || []).map((item: any) => ({ platform: item.platform || 'website', url: item.url || '' })));
+        }
       }
 
       if (mounted) setIsLoading(false);
@@ -122,23 +139,25 @@ export const UserProfilePage: React.FC = () => {
     load();
 
     return () => { mounted = false; };
-  }, [userId]);
+  }, [userId, currentProfile?.id]);
 
   // Check follow status
   useEffect(() => {
-    if (!currentProfile?.id || !userId || currentProfile.id === userId) return;
+    if (!currentProfile?.id || !targetProfile?.id || currentProfile.id === targetProfile.id) return;
     let mounted = true;
-    checkIsFollowing(currentProfile.id, userId).then(({ isFollowing: f }) => {
+    checkIsFollowing(currentProfile.id, targetProfile.id).then(({ isFollowing: f }) => {
       if (mounted) setIsFollowing(f);
     });
     return () => { mounted = false; };
-  }, [currentProfile?.id, userId]);
+  }, [currentProfile?.id, targetProfile?.id]);
 
+  // Fetch follow counts once on mount (not on every isFollowing change,
+  // because the FollowButton onChange already applies the RPC-returned counts).
   useEffect(() => {
-    if (!userId) return;
+    if (!targetProfile?.id) return;
 
     let mounted = true;
-    getFollowStats(userId).then(({ data }) => {
+    getFollowStats(targetProfile.id).then(({ data }) => {
       if (!mounted || !data) return;
       setFollowerCount(data.followers_count || 0);
       setFollowingCount(data.following_count || 0);
@@ -147,7 +166,7 @@ export const UserProfilePage: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [userId, isFollowing]);
+  }, [targetProfile?.id]);
 
   if (isLoading) {
     return (
@@ -310,6 +329,9 @@ export const UserProfilePage: React.FC = () => {
                             setIsFollowing(nextFollowing);
                             if (typeof counts?.followers_count === 'number') {
                               setFollowerCount(counts.followers_count);
+                            }
+                            if (typeof counts?.following_count === 'number') {
+                              setFollowingCount(counts.following_count);
                             }
                           }}
                         />

@@ -33,13 +33,20 @@
     console.error("PWA SERVICE WORKER REGISTRATION THREW", error);
   }
 
-  window.addEventListener("load", () => {
+  const removeSplash = () => {
     const splash = document.getElementById("app-splash");
     if (splash) {
       splash.classList.add("hide");
       window.setTimeout(() => splash.remove(), 450);
     }
-  });
+  };
+
+  if (document.readyState === "complete") {
+    removeSplash();
+  } else {
+    window.addEventListener("load", removeSplash);
+  }
+
 
   createRoot(document.getElementById("root")!).render(
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
