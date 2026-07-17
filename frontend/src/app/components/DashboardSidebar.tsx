@@ -36,6 +36,7 @@ export interface DashboardSidebarProps {
   onOpenSearch?: () => void;
   onOpenAlerts?: () => void;
   isChatSection?: boolean;
+  isMobileMenu?: boolean;
 }
 
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
@@ -44,6 +45,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   onOpenSearch,
   onOpenAlerts,
   isChatSection = false,
+  isMobileMenu = false,
 }) => {
   const location = useLocation();
   const [unreadNoticeCount, setUnreadNoticeCount] = useState(0);
@@ -174,11 +176,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   return (
     <aside
-      className={`group fixed top-0 left-0 h-dvh bg-surface border-r border-border-subtle z-[40] select-none transition-all duration-300 overflow-hidden ${
-        isChatSection ? 'w-[260px] md:w-[88px] hover:md:w-[260px]' : 'w-[260px]'
+      className={`${isMobileMenu ? 'w-full h-full static border-none bg-transparent flex-1' : 'group fixed top-0 left-0 h-dvh bg-surface border-r border-border-subtle z-[40]'} select-none transition-all duration-300 overflow-hidden ${
+        !isMobileMenu && isChatSection ? 'w-[260px] md:w-[88px] hover:md:w-[260px]' : (!isMobileMenu ? 'w-[260px]' : '')
       }`}
     >
-      <div className="w-[260px] h-full flex flex-col justify-between">
+      <div className={`${isMobileMenu ? 'w-full' : 'w-[260px]'} h-full flex flex-col justify-between`}>
         {/* Top Section: Branding & User Profile Container */}
         <div className="flex flex-col border-b border-border-subtle px-4 pt-5 pb-4 space-y-4 shrink-0">
           {/* Campus Blink Logo */}
@@ -197,7 +199,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
           {/* User Profile Container Card */}
           <div className={`bg-surface border border-border-subtle rounded-2xl p-2 flex items-center gap-3 transition-all duration-300 hover:bg-surface-elevated cursor-default overflow-hidden ${
-            isChatSection ? 'md:w-[56px] group-hover:md:w-full w-full' : 'w-full'
+            !isMobileMenu && isChatSection ? 'md:w-[56px] group-hover:md:w-full w-full' : 'w-full'
           }`}>
             <div className="relative shrink-0">
               {profile?.avatar_url ? (

@@ -49,6 +49,24 @@ const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, ba
 
 export const ProfessorLayout: React.FC = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Support hardware back button in PWA for full screen menu
+  useEffect(() => {
+    if (!isMobileOpen) return;
+    window.history.pushState({ panel: 'prof_menu' }, '');
+    const handlePopState = () => { setIsMobileOpen(false); };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (window.history.state?.panel === 'prof_menu') window.history.back();
+    };
+  }, [isMobileOpen]);
+  
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
+
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
 
   const profile = useAuthStore((state) => state.profile);
@@ -340,14 +358,14 @@ export const ProfessorLayout: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Full-Screen Overlay) */}
       {isMobileOpen && (
         <div className="fixed inset-0 z-[70] md:hidden flex">
           <div
             className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs transition-opacity animate-fadeIn"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="relative w-[300px] max-w-[85vw] h-full bg-white dark:bg-prof-bg-surface shadow-[20px_0_50px_rgba(0,0,0,0.08)] dark:shadow-2xl flex flex-col z-10 animate-slideRight">
+          <div className="relative w-full max-w-full h-full bg-white dark:bg-prof-bg-surface shadow-[20px_0_50px_rgba(0,0,0,0.08)] dark:shadow-2xl flex flex-col z-10 animate-slideRight">
             {mobileDrawerContent}
           </div>
         </div>

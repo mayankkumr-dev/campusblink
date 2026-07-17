@@ -8,9 +8,9 @@ export const PWALandingPage: React.FC = () => {
     <div className="flex flex-col min-h-dvh bg-[var(--bg-primary)] dark:bg-[#0a0a0a] text-[var(--text-primary)] font-sans overflow-hidden">
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[var(--yellow)]/10 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-lighten" />
-        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-lighten" />
-        <div className="absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] bg-purple-500/10 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-lighten" />
+        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[var(--yellow)]/20 dark:bg-amber-500/15 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-blue-500/20 dark:bg-blue-500/15 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+        <div className="absolute -bottom-[10%] left-[20%] w-[60%] h-[60%] bg-purple-500/20 dark:bg-purple-500/15 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
       </div>
 
       <main className="flex-1 flex flex-col items-center justify-center p-8 relative z-10">
@@ -21,13 +21,13 @@ export const PWALandingPage: React.FC = () => {
           className="flex flex-col items-center max-w-sm w-full"
         >
           {/* App Logo */}
-          <div className="mb-10 p-6 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[32px] border border-black/5 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
+          <div className="mb-10 p-6 bg-white/50 dark:bg-black/30 backdrop-blur-2xl rounded-[32px] border border-black/5 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-none">
             <Logo className="h-16 w-auto drop-shadow-md" alt="Campus Blink Logo" />
           </div>
 
           {/* Welcome Text */}
           <div className="text-center mb-12 space-y-3">
-            <h1 className="font-syne text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+            <h1 className="font-syne text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">
               Welcome to Campus
             </h1>
             <p className="text-[var(--text-secondary)] font-medium text-[15px] leading-relaxed">

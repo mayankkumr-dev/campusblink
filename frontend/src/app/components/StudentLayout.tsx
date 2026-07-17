@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { Bell, Home, MoreHorizontal, Search, Store, User, Users, Star, Settings, UtensilsCrossed, Printer, Building2, ClipboardCheck, MessageCircle } from 'lucide-react';
+import { Bell, Home, Menu, X, Search, Store, User, Users, Star, Settings, UtensilsCrossed, Printer, Building2, ClipboardCheck, MessageCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';
@@ -35,6 +35,25 @@ export const StudentLayout: React.FC = () => {
   const [activeAnnouncement, setActiveAnnouncement] = useState<any | null>(null);
   const [searchPanelOpen, setSearchPanelOpen] = useState(false);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Support hardware back button for mobile menu
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    window.history.pushState({ panel: 'student_menu' }, '');
+    const handlePopState = () => { setIsMobileMenuOpen(false); };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (window.history.state?.panel === 'student_menu') window.history.back();
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const { disabledFeatures } = useFeatureAccess(profile);
 
   useNotifications(profile?.id);
@@ -98,7 +117,7 @@ export const StudentLayout: React.FC = () => {
     { icon: Search, path: '/student/search', label: 'Search', feature: 'search' },
     { icon: Users, path: '/student/community', label: 'Community', feature: 'community' },
     { icon: Store, path: '/student/campus-exchange', label: 'Exchange', feature: 'exchange' },
-    { icon: MoreHorizontal, path: '/student/more', label: 'More', feature: 'more' },
+    { icon: Menu, label: 'Menu', feature: 'more', isMenu: true },
   ];
 
   return (
@@ -146,6 +165,38 @@ export const StudentLayout: React.FC = () => {
         />
       </div>
 
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[70] md:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="relative w-full max-w-full h-full bg-[var(--bg-primary)] shadow-[20px_0_50px_rgba(0,0,0,0.08)] flex flex-col z-10 animate-slideRight">
+            <div className="h-14 flex items-center justify-between px-4 border-b border-black/10 shrink-0 bg-white dark:bg-[#1a1a1a]">
+              <span className="font-syne font-bold text-[var(--text-primary)]">Menu</span>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 -mr-2 text-[var(--text-secondary)] hover:bg-black/5 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <DashboardSidebar
+                profile={profile}
+                unreadCount={unreadCount}
+                onOpenSearch={() => { setIsMobileMenuOpen(false); setSearchPanelOpen(true); }}
+                onOpenAlerts={() => { setIsMobileMenuOpen(false); setNotificationPanelOpen(true); }}
+                isChatSection={isChatSection}
+                isMobileMenu={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className={`flex-1 flex flex-col w-full h-full pt-[60px] md:pt-0 overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
         {/* Scrollable main content */}
@@ -190,7 +241,20 @@ export const StudentLayout: React.FC = () => {
       <nav className="fixed bottom-0 left-0 right-0 z-50 grid h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] w-full grid-cols-5 border-t border-black/10 bg-white px-1 md:hidden select-none shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path || '');
+          const isActive = item.isMenu ? false : location.pathname.startsWith(item.path || '');
+
+          if (item.isMenu) {
+            return (
+              <button
+                key={item.label}
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              >
+                <Icon size={20} className="text-[var(--text-muted)]" />
+                <span className="leading-none">{item.label}</span>
+              </button>
+            );
+          }
 
           return (
             <NavLink

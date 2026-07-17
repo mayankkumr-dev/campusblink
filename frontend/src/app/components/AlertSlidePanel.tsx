@@ -100,6 +100,27 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  // Support hardware back button in PWA
+  useEffect(() => {
+    if (!isOpen) return;
+
+    window.history.pushState({ panel: 'alert' }, '');
+
+    const handlePopState = () => {
+      onClose();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // Clean up the pushed state if it wasn't triggered by popstate
+      if (window.history.state?.panel === 'alert') {
+        window.history.back();
+      }
+    };
+  }, [isOpen, onClose]);
+
   const loadAlerts = useCallback(async (isLoadMore = false) => {
     if (!profile?.id) return;
     
