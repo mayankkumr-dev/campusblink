@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { LandingPage } from '../../app/components/LandingPage';
+import { PWALandingPage } from '../../app/components/PWALandingPage';
 
 function resolveHomePath(role?: string | null, email?: string | null) {
   // No hardcoded admin email check
@@ -19,6 +20,14 @@ export const AuthHomeGate: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const profile = useAuthStore((state) => state.profile);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const [isPWA, setIsPWA] = useState(false);
+
+  useEffect(() => {
+    // Detect if running as an installed PWA
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                         (window.navigator as any).standalone === true;
+    setIsPWA(isStandalone);
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -35,5 +44,5 @@ export const AuthHomeGate: React.FC = () => {
     return <Navigate to={resolveHomePath(profile.role, user.email || profile.email)} replace />;
   }
 
-  return <LandingPage />;
+  return isPWA ? <PWALandingPage /> : <LandingPage />;
 };

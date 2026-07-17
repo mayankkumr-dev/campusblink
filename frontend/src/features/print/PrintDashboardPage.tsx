@@ -464,7 +464,7 @@ export const PrintDashboardPage: React.FC = () => {
         {/* ========================================================
             MOBILE PWA VIEWPORT (<md) - Ultra-Minimalist & Isolated
         ======================================================== */}
-        <div className="md:hidden flex-1 overflow-y-auto">
+        <div className="md:hidden flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
           {activeView === 'Live Orders' && (
             <MobilePrintOrdersDashboard
               shop={shop}

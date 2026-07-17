@@ -149,7 +149,7 @@ export const StudentLayout: React.FC = () => {
       {/* Main Content */}
       <main className={`flex-1 flex flex-col w-full h-full pt-[60px] md:pt-0 overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
         {/* Scrollable main content */}
-        <div className="flex-1 overflow-y-auto mb-[calc(5rem+env(safe-area-inset-bottom))] md:mb-0">
+        <div className="flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
         {activeAnnouncement && (
           <div className="m-6 rounded-lg px-4 py-4 border border-[var(--border)] bg-[var(--bg-primary)] shadow-soft">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

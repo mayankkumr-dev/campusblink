@@ -198,7 +198,7 @@ export const CanteenDashboardPage: React.FC = () => {
         </div>
 
         {/* Content View Area */}
-        <div className="flex-1 overflow-auto p-0 md:p-6 lg:p-10 pb-20 md:pb-10">
+        <div className="flex-1 overflow-auto p-0 md:p-6 lg:p-10 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10">
           <FeatureErrorBoundary featureName="Canteen Dashboard">
             <div className="hidden md:block">
               <ShopSettingsPanel shop={shop} onOverride={handleOverride} />
@@ -418,7 +418,7 @@ export const CanteenDashboardPage: React.FC = () => {
                 </div>
 
                 {/* Mobile Settings View (Touched flush to top) */}
-                <div className="md:hidden flex flex-col min-h-dvh bg-[#FAFAFA] dark:bg-shop-bg-base pb-28">
+                <div className="md:hidden flex flex-col min-h-dvh bg-[#FAFAFA] dark:bg-shop-bg-base pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
                   <header className="sticky top-0 z-40 bg-white/95 dark:bg-shop-bg-surface/95 backdrop-blur-md shadow-[0_2px_15px_rgba(0,0,0,0.04)] dark:shadow-none border-b border-gray-100 dark:border-shop-border-subtle px-4 pt-3.5 pb-3 flex items-center justify-between">
                     <div>
                       <h1 className="font-syne text-xl font-extrabold text-gray-900 dark:text-shop-text-primary tracking-tight">
@@ -496,6 +496,19 @@ export const CanteenDashboardPage: React.FC = () => {
                         Active
                       </span>
                     </div>
+
+                    {/* Account Actions */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        useAuthStore.getState().logout();
+                        navigate('/');
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl text-rose-600 bg-white dark:bg-shop-bg-surface border border-rose-100 dark:border-red-900/30 hover:bg-rose-50 transition-colors font-bold text-sm shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none"
+                    >
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
                   </div>
                 </div>
               </>

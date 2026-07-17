@@ -315,7 +315,7 @@ export const ProfessorLayout: React.FC = () => {
   );
 
   return (
-    <div className="min-h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary transition-colors duration-200">
+    <div className="flex h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary transition-colors duration-200 overflow-hidden">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white/95 dark:bg-prof-bg-surface/95 backdrop-blur-md border-b border-transparent dark:border-prof-border-subtle shadow-[0_2px_15px_rgba(0,0,0,0.03)] dark:shadow-none sticky top-0 z-50 select-none">
         <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2">
@@ -361,8 +361,8 @@ export const ProfessorLayout: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-dvh transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
-        <main className="flex-1 mb-[calc(66px+env(safe-area-inset-bottom,8px))] md:mb-0">
+      <div className={`flex-1 flex flex-col w-full h-full md:pt-0 overflow-hidden transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
+        <main className="flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-6">
           <Outlet />
         </main>
       </div>
