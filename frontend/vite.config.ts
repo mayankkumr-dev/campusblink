@@ -31,7 +31,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: false,
       manifest: false,
       // Keep custom push + notificationclick listeners from src/sw.js in production builds.

@@ -7,7 +7,6 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
-self.skipWaiting();
 clientsClaim();
 
 precacheAndRoute(self.__WB_MANIFEST || []);
