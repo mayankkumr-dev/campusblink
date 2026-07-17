@@ -9,6 +9,8 @@ import { useThemeStore } from '../store/themeStore';
 import { PWALayer } from './components/PWALayer';
 import { NotificationBanner } from './components/NotificationBanner';
 import { Toaster } from 'react-hot-toast';
+import { OfflineOverlay } from './components/OfflineOverlay';
+import { useThemeColor } from '../hooks/useThemeColor';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'contactus.mayank@gmail.com').toLowerCase();
 
@@ -35,6 +37,8 @@ function App() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const setIsLoading = useAuthStore((state) => state.setIsLoading);
   const initTheme = useThemeStore((state) => state.initTheme);
+
+  useThemeColor();
 
   useEffect(() => {
     initTheme();
@@ -201,6 +205,7 @@ function App() {
       <RouterProvider router={router} />
       <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
       <PWALayer />
+      <OfflineOverlay />
     </>
   );
 }
