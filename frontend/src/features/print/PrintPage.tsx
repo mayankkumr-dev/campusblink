@@ -229,8 +229,8 @@ export const PrintPage: React.FC = () => {
       const perFileTotals = files.map((_, idx) => {
        const analysis = inkAnalyses[idx];
        const pages = analysis?.pageCount || mockedPagesPerFile;
-      const inkRatePerPage = analysis?.inkRatePerPage || 2;
-      let base = pages * copies * inkRatePerPage;
+       const rate = colorMode === 'color' ? colorPrice : bwPrice;
+       let base = pages * copies * rate;
        if (isDoubleSided) base *= 0.8;
        if (hasBinding) base += bindingCharge;
        return base;
@@ -283,7 +283,8 @@ export const PrintPage: React.FC = () => {
           });
         }
 
-        let inkAdjustedCost = pageCount * copies * (analysis.inkRatePerPage || 2);
+        const rate = colorMode === 'color' ? colorPrice : bwPrice;
+        let inkAdjustedCost = pageCount * copies * rate;
         if (isDoubleSided) inkAdjustedCost *= 0.8;
         if (hasBinding) inkAdjustedCost += bindingCharge;
         inkAdjustedCost = Math.ceil(inkAdjustedCost);

@@ -120,11 +120,12 @@ export const ProfessorPrintPage: React.FC = () => {
     const perFileTotals = files.map((_, idx) => {
       const analysis = inkAnalyses[idx];
       const pCount = analysis?.pageCount || 1;
-      const inkRatePerPage = analysis?.inkRatePerPage || 2;
-      let base = pCount * copies * inkRatePerPage;
-      if (isColor && selectedShop) {
-        base = pCount * copies * selectedShop.color_price_per_page;
-      }
+      
+      const rate = (isColor && selectedShop) 
+        ? selectedShop.color_price_per_page 
+        : (selectedShop?.bw_price_per_page || 1);
+        
+      let base = pCount * copies * rate;
       if (isBinding) base += (selectedShop?.binding_charge || 20);
       return base;
     });
@@ -303,7 +304,9 @@ export const ProfessorPrintPage: React.FC = () => {
             files.map((file, idx) => {
                const analysis = inkAnalyses[idx];
                const pCount = analysis?.pageCount || 1;
-               const rate = isColor && selectedShop ? selectedShop.color_price_per_page : (analysis?.inkRatePerPage || 2);
+               const rate = (isColor && selectedShop) 
+                  ? selectedShop.color_price_per_page 
+                  : (selectedShop?.bw_price_per_page || 1);
                const basePrice = pCount * rate;
                const fileTotal = (basePrice + (isBinding && selectedShop ? selectedShop.binding_charge : 0)) * copies;
                

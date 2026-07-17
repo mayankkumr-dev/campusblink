@@ -572,6 +572,20 @@
     button, a, [role='button'], label {
       -webkit-touch-callout: none;
     }
+    /* Prevent iOS Safari auto-zoom on inputs */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
+
+  /* Improve typography readability on mobile screens (especially outdoors) */
+  @media (max-width: 640px) {
+    h1, h2, h3, h4, h5, h6,
+    .card-title,
+    .module-title,
+    .font-syne {
+      font-weight: 800 !important;
+    }
   }
 
   /* Allow text selection in form inputs to let users type */
