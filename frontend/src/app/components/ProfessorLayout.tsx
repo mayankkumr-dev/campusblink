@@ -61,11 +61,6 @@ export const ProfessorLayout: React.FC = () => {
       if (window.history.state?.panel === 'prof_menu') window.history.back();
     };
   }, [isMobileOpen]);
-  
-  // Close mobile drawer on route change
-  useEffect(() => {
-    setIsMobileOpen(false);
-  }, [location.pathname]);
 
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
 
@@ -74,6 +69,11 @@ export const ProfessorLayout: React.FC = () => {
   const unreadCount = useNotificationStore(state => state.unreadCount);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   const logout = useAuthStore((state) => state.logout);
 
