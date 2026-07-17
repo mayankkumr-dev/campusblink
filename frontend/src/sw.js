@@ -2,9 +2,10 @@
 import { clientsClaim } from 'workbox-core';
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst, StaleWhileRevalidate, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
 self.skipWaiting();
 clientsClaim();
@@ -16,101 +17,127 @@ const isApiRequest = ({ url }) => {
   return url.origin.includes('supabase.co') || url.pathname.startsWith('/api/');
 };
 
-const postQueue = new BackgroundSyncPlugin('campus-blink-sync-queue', {
-  maxRetentionTime: 24 * 60,
+// Single Background Sync queue for all mutation operations.
+const bgSyncPlugin = new BackgroundSyncPlugin('campus-blink-sync-queue', {
+  maxRetentionTime: 24 * 60, // 24 hours in minutes
+  onSync: async ({ queue }) => {
+    let entry;
+    while ((entry = await queue.shiftRequest())) {
+      try {
+        await fetch(entry.request);
+        console.log('[SW BG-SYNC] Replayed queued request:', entry.request.url);
+      } catch (error) {
+        console.error('[SW BG-SYNC] Replay failed, re-queueing:', entry.request.url);
+        await queue.unshiftRequest(entry);
+        throw error;
+      }
+    }
+  },
 });
 
 registerRoute(
   ({ request }) => request.destination === 'image',
   new CacheFirst({
-    cacheName: 'cb-images-v1',
-    plugins: [new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 })],
+    cacheName: 'cb-images-v2',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 }),
+    ],
   })
 );
 
 registerRoute(
-  ({ request }) => request.destination === 'style' || request.destination === 'script' || request.destination === 'worker',
+  ({ request }) =>
+    request.destination === 'style' ||
+    request.destination === 'script' ||
+    request.destination === 'worker',
   new CacheFirst({
-    cacheName: 'cb-app-shell-assets-v1',
-    plugins: [new ExpirationPlugin({ maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 30 })],
+    cacheName: 'cb-app-shell-assets-v2',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 30 }),
+    ],
   })
 );
 
 registerRoute(
   ({ request }) => request.destination === 'font',
   new StaleWhileRevalidate({
-    cacheName: 'cb-fonts-v1',
-    plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 365 })],
+    cacheName: 'cb-fonts-v2',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 365 }),
+    ],
   })
 );
 
+// ─── Student Content APIs — Stale-While-Revalidate ──────────────────────────
+// Serves cached version instantly while fetching a fresh one in the background.
+const isStudentContentApi = ({ url }) =>
+  url.href.includes('/rest/v1/menu_items') ||
+  url.href.includes('/rest/v1/canteen_orders') ||
+  url.href.includes('/rest/v1/print_orders') ||
+  url.href.includes('/rest/v1/posts') ||
+  url.href.includes('/rest/v1/notices') ||
+  url.href.includes('/rest/v1/announcements');
+
 registerRoute(
-  isApiRequest,
+  ({ url, request }) => isStudentContentApi({ url }) && request.method === 'GET',
+  new StaleWhileRevalidate({
+    cacheName: 'cb-student-content-v2',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 14 }),
+    ],
+  }),
+  'GET'
+);
+
+// ─── Other API GETs — Network First with 5s timeout ─────────────────────────
+registerRoute(
+  ({ url, request }) => isApiRequest({ url }) && !isStudentContentApi({ url }) && request.method === 'GET',
   new NetworkFirst({
-    cacheName: 'cb-api-v1',
+    cacheName: 'cb-api-v2',
     networkTimeoutSeconds: 5,
-    plugins: [new ExpirationPlugin({ maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 7 })],
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 7 }),
+    ],
   }),
   'GET'
 );
 
-registerRoute(
-  ({ url }) =>
-    url.href.includes('/rest/v1/menu_items') ||
-    url.href.includes('/rest/v1/canteen_orders') ||
-    url.href.includes('/rest/v1/print_orders') ||
-    url.href.includes('/rest/v1/posts'),
-  new NetworkFirst({
-    cacheName: 'cb-student-content-v1',
-    networkTimeoutSeconds: 4,
-    plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 14 })],
-  }),
-  'GET'
-);
+// ─── Mutation Requests — NetworkOnly + Background Sync ──────────────────────
+// Each HTTP verb registered separately (required by Workbox router).
+// When offline, the request is queued and automatically replayed on reconnect.
+const mutationMatcher = ({ url, request }) =>
+  isApiRequest({ url }) &&
+  ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method);
 
-registerRoute(
-  ({ request }) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && isApiRequest({ url: new URL(request.url) }),
-  new NetworkFirst({
-    cacheName: 'cb-write-requests-v1',
-    plugins: [postQueue],
-    networkTimeoutSeconds: 8,
-  }),
-  'POST'
-);
-registerRoute(
-  ({ request }) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && isApiRequest({ url: new URL(request.url) }),
-  new NetworkFirst({
-    cacheName: 'cb-write-requests-v1',
-    plugins: [postQueue],
-    networkTimeoutSeconds: 8,
-  }),
-  'PUT'
-);
-registerRoute(
-  ({ request }) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && isApiRequest({ url: new URL(request.url) }),
-  new NetworkFirst({
-    cacheName: 'cb-write-requests-v1',
-    plugins: [postQueue],
-    networkTimeoutSeconds: 8,
-  }),
-  'PATCH'
-);
-registerRoute(
-  ({ request }) => ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) && isApiRequest({ url: new URL(request.url) }),
-  new NetworkFirst({
-    cacheName: 'cb-write-requests-v1',
-    plugins: [postQueue],
-    networkTimeoutSeconds: 8,
-  }),
-  'DELETE'
-);
-
-const navigationHandler = new CacheFirst({
-  cacheName: 'cb-pages-v1',
-  plugins: [new ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 })],
+const mutationStrategy = new NetworkOnly({
+  plugins: [bgSyncPlugin],
+  networkTimeoutSeconds: 10,
 });
 
-registerRoute(new NavigationRoute(navigationHandler));
+registerRoute(mutationMatcher, mutationStrategy, 'POST');
+registerRoute(mutationMatcher, mutationStrategy, 'PUT');
+registerRoute(mutationMatcher, mutationStrategy, 'PATCH');
+registerRoute(mutationMatcher, mutationStrategy, 'DELETE');
+
+// ─── Navigation Routes — Network First + Offline Shell Fallback ──────────────
+// NetworkFirst ensures fresh HTML is always preferred over a stale cached shell.
+const navigationHandler = new NetworkFirst({
+  cacheName: 'cb-pages-v2',
+  networkTimeoutSeconds: 4,
+  plugins: [
+    new CacheableResponsePlugin({ statuses: [0, 200] }),
+    new ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 }),
+  ],
+});
+
+registerRoute(new NavigationRoute(navigationHandler, {
+  denylist: [/^\/auth\/callback/],
+}));
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
@@ -182,11 +209,6 @@ function resolveTargetUrl(payload) {
 }
 
 self.addEventListener('push', (event) => {
-  try {
-    console.log('PUSH EVENT RECEIVED', event.data.text());
-  } catch (error) {
-    console.error('PUSH EVENT PAYLOAD READ FAILED', error);
-  }
   const payload = parsePushPayload(event);
   const title = payload.title || 'Campus Blink';
   const targetUrl = resolveTargetUrl(payload);
@@ -221,11 +243,9 @@ self.addEventListener('push', (event) => {
 
     // Always show a system notification for delivery reliability on mobile.
     try {
-      console.log('SHOW NOTIFICATION START', { title, options });
       await self.registration.showNotification(title, options);
-      console.log('SHOW NOTIFICATION SUCCESS', { title });
     } catch (error) {
-      console.error('SHOW NOTIFICATION FAILED', error);
+      console.error('[SW] showNotification failed:', error);
       throw error;
     }
   })());

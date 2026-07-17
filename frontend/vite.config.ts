@@ -46,21 +46,9 @@ export default defineConfig({
         ],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       },
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => ['script', 'style', 'font', 'image'].includes(request.destination),
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'cb-static-assets-v1',
-              expiration: {
-                maxEntries: 400,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
-              },
-            },
-          },
-        ],
-      },
+      // Note: workbox.runtimeCaching is intentionally omitted.
+      // With strategies: 'injectManifest', runtime caching is handled entirely
+      // inside src/sw.js (the custom service worker), not here.
       devOptions: {
         enabled: true,
       },
