@@ -321,18 +321,25 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
-    -webkit-touch-callout: none; /* Disable long press menus */
-    -webkit-user-select: none;   /* Disable text selection */
-    user-select: none;
-    /* Prevent pull-to-refresh and elastic rubber-banding on the app shell */
-    overscroll-behavior-y: none;
-    overscroll-behavior: none;
+  }
+
+  /* Only apply mobile app-like restrictions on touch devices */
+  @media (pointer: coarse) {
+    html {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      overscroll-behavior-y: none;
+      overscroll-behavior: none;
+    }
+    
+    html, body, #root {
+      overscroll-behavior: none;
+    }
   }
 
   html, body, #root {
     min-height: 100%;
-    /* Prevent elastic scrolling on the outermost shell */
-    overscroll-behavior: none;
   }
 
   html,
@@ -555,13 +562,16 @@
   /* Base interactive transitions */
   a, button, input, select, textarea {
     transition: all 0.15s ease;
-    /* Remove 300ms tap delay on Android Chrome */
-    touch-action: manipulation;
   }
 
-  /* Prevent long-press callout on all interactive elements */
-  button, a, [role='button'], label {
-    -webkit-touch-callout: none;
+  /* Mobile-specific interactive element handling */
+  @media (pointer: coarse) {
+    a, button, input, select, textarea {
+      touch-action: manipulation;
+    }
+    button, a, [role='button'], label {
+      -webkit-touch-callout: none;
+    }
   }
 
   /* Allow text selection in form inputs to let users type */
