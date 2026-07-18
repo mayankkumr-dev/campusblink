@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { PWALayer } from './components/PWALayer';
 import { NotificationBanner } from './components/NotificationBanner';
+import { PushOnboardingModal } from './components/PushOnboardingModal';
 import { Toaster } from 'react-hot-toast';
 import { OfflineOverlay } from './components/OfflineOverlay';
 import { useThemeColor } from '../hooks/useThemeColor';
@@ -201,6 +202,9 @@ function App() {
 
   return (
     <>
+      {/* Primary push onboarding — shown once, deferred 4.5 s after first login */}
+      <PushOnboardingModal />
+      {/* Secondary fallback banner — shown on subsequent visits if not yet subscribed */}
       <NotificationBanner />
       <RouterProvider router={router} />
       <Toaster position="top-right" toastOptions={{ duration: 3500 }} />

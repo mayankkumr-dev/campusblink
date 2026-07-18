@@ -4,6 +4,97 @@ const authMiddleware = require('../middleware/auth');
 const { supabaseAdmin } = require('../config/supabase');
 const { sendPushToUser } = require('../services/push');
 
+// ── POST /api/push/subscribe ──────────────────────────────────────────────────
+// Saves (upserts) a Web Push subscription for the authenticated user.
+// The frontend sends this after Notification.requestPermission() is granted.
+router.post('/subscribe', authMiddleware, async (req, res) => {
+  try {
+    const { endpoint, p256dh, auth, deviceName } = req.body || {};
+
+    if (!endpoint || !p256dh || !auth) {
+      return res.status(400).json({
+        error: 'Missing required fields: endpoint, p256dh, auth',
+      });
+    }
+
+    if (
+      typeof endpoint !== 'string' ||
+      typeof p256dh !== 'string' ||
+      typeof auth !== 'string'
+    ) {
+      return res.status(400).json({ error: 'endpoint, p256dh and auth must be strings' });
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('push_subscriptions')
+      .upsert(
+        {
+          user_id: req.user.id,
+          endpoint: endpoint.trim(),
+          p256dh: p256dh.trim(),
+          auth: auth.trim(),
+          device_name: String(deviceName || 'Unknown').trim(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'user_id,endpoint' }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[push/subscribe] Supabase upsert error:', error);
+      return res.status(500).json({ error: 'Failed to save subscription' });
+    }
+
+    console.log('[push/subscribe] Subscription saved', {
+      userId: req.user.id,
+      subscriptionId: data?.id,
+      endpoint: endpoint.slice(0, 60) + '…',
+    });
+
+    return res.status(200).json({ success: true, id: data?.id });
+  } catch (err) {
+    console.error('[push/subscribe] Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── DELETE /api/push/unsubscribe ──────────────────────────────────────────────
+// Deletes a specific push subscription by endpoint for the authenticated user.
+// Called when the user revokes notification permission or signs out.
+router.delete('/unsubscribe', authMiddleware, async (req, res) => {
+  try {
+    const { endpoint } = req.body || {};
+
+    if (!endpoint) {
+      return res.status(400).json({ error: 'Missing required field: endpoint' });
+    }
+
+    const { error } = await supabaseAdmin
+      .from('push_subscriptions')
+      .delete()
+      .eq('user_id', req.user.id)
+      .eq('endpoint', endpoint.trim());
+
+    if (error) {
+      console.error('[push/unsubscribe] Supabase delete error:', error);
+      return res.status(500).json({ error: 'Failed to delete subscription' });
+    }
+
+    console.log('[push/unsubscribe] Subscription removed', {
+      userId: req.user.id,
+      endpoint: endpoint.slice(0, 60) + '…',
+    });
+
+    return res.status(204).send();
+  } catch (err) {
+    console.error('[push/unsubscribe] Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ── POST /api/push/test ───────────────────────────────────────────────────────
+// Sends a test notification to the authenticated user's subscribed devices.
 router.post('/test', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -22,6 +113,9 @@ router.post('/test', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/push/notify ─────────────────────────────────────────────────────
+// Internal trigger endpoint — send an arbitrary push to any userId.
+// Requires auth; intended for server-to-server or admin use.
 router.post('/notify', authMiddleware, async (req, res) => {
   try {
     const { userId, notification } = req.body || {};
@@ -38,6 +132,7 @@ router.post('/notify', authMiddleware, async (req, res) => {
   }
 });
 
+// ── GET /api/push/preferences ─────────────────────────────────────────────────
 router.get('/preferences', authMiddleware, async (req, res) => {
   try {
     const { data, error } = await supabaseAdmin
@@ -54,6 +149,7 @@ router.get('/preferences', authMiddleware, async (req, res) => {
   }
 });
 
+// ── PUT /api/push/preferences ─────────────────────────────────────────────────
 router.put('/preferences', authMiddleware, async (req, res) => {
   try {
     const payload = {

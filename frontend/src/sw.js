@@ -176,6 +176,7 @@ function parsePushPayload(event) {
       requireInteraction: Boolean(json?.requireInteraction),
       route: nestedData?.route,
       postId: nestedData?.postId,
+      noticeId: nestedData?.noticeId,
       chatId: nestedData?.chatId,
     };
   } catch {
@@ -196,10 +197,17 @@ function resolveTargetUrl(payload) {
     return toAbsoluteUrl(payload.route);
   }
 
+  // Diary post — route to /diaries/:id (renamed from /community)
   if (payload?.postId) {
-    return toAbsoluteUrl(`/community/${payload.postId}`);
+    return toAbsoluteUrl(`/diaries/${payload.postId}`);
   }
 
+  // Official notice — route to /notices/:id
+  if (payload?.noticeId) {
+    return toAbsoluteUrl(`/notices/${payload.noticeId}`);
+  }
+
+  // Direct message / chat
   if (payload?.chatId) {
     return toAbsoluteUrl(`/student/campus-exchange/messages/${payload.chatId}`);
   }
