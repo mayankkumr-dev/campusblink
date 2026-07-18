@@ -198,7 +198,7 @@ export const CanteenDashboardPage: React.FC = () => {
         </div>
 
         {/* Content View Area */}
-        <div className="flex-1 overflow-y-auto p-0 md:p-6 lg:p-10 pb-6 md:pb-10">
+        <div className="flex-1 overflow-y-auto p-0 md:p-6 lg:p-10 pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-10">
           <FeatureErrorBoundary featureName="Canteen Dashboard">
             <div className="hidden md:block">
               <ShopSettingsPanel shop={shop} onOverride={handleOverride} />
@@ -516,8 +516,8 @@ export const CanteenDashboardPage: React.FC = () => {
           </FeatureErrorBoundary>
         </div>
 
-        {/* Sleek Mobile Bottom Navigation Bar strictly below main scrollable content in the flex column */}
-        <nav className="md:hidden shrink-0 w-full bg-white dark:bg-shop-bg-surface border-t border-gray-100 dark:border-shop-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.04)] dark:shadow-none h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 flex items-center justify-around px-1 select-none">
+        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar */}
+        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
           {navItems.map((item) => {
             const isActive = activeView === item.label;
             return (
@@ -525,37 +525,23 @@ export const CanteenDashboardPage: React.FC = () => {
                 key={item.label}
                 type="button"
                 onClick={() => setActiveView(item.label)}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-none"
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${
+                  isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'
+                }`}
               >
-                <div
-                  className={`relative flex items-center justify-center px-3.5 py-1 rounded-2xl transition-all duration-300 ${
-                    isActive
-                      ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                      : 'text-gray-400 dark:text-shop-text-tertiary'
-                  }`}
-                >
+                <div className="relative flex items-center justify-center">
                   <item.icon className="w-5 h-5" />
                   {item.label === 'Live Orders' && newOrdersList.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-shop-bg-surface" />
-                    </span>
+                    <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
                   )}
                 </div>
-                <span
-                  className={`text-[10px] tracking-tight transition-colors ${
-                    isActive
-                      ? 'font-bold text-blue-600 dark:text-blue-400'
-                      : 'font-medium text-gray-400 dark:text-shop-text-secondary'
-                  }`}
-                >
+                <span className="text-[10px] leading-none">
                   {item.label === 'Menu Management' ? 'Menu' : item.label === 'Order History' ? 'History' : item.label}
                 </span>
               </button>
             );
           })}
         </nav>
-
       </main>
     </div>
   );

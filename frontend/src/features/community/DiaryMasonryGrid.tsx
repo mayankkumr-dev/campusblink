@@ -240,28 +240,54 @@ function DiaryCard({
   onCommentClick: (entry: DiaryEntry) => void;
   onShareClick: (entry: DiaryEntry) => void;
 }) {
+  const [showPopHeart, setShowPopHeart] = useState(false);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
 
   const avatarUrl =
     entry.author?.avatar_url ||
     getAvatarDataUrl({ name: entry.author?.name, seed: entry.author?.id || entry.id });
 
-  // Strictly enforce light mode tone or pure white
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
   const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
   const hasImage = Boolean(entry.image_url);
 
+  const handleDoubleTap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPopHeart(true);
+    if (!liked) {
+      onLike(entry.id);
+    }
+    setTimeout(() => setShowPopHeart(false), 900);
+  };
+
   return (
     <motion.article
       onClick={() => onClick(entry)}
+      onDoubleClick={handleDoubleTap}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
       whileHover={{ y: -5 }}
+      whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', damping: 24, stiffness: 280 }}
       className="group relative w-full aspect-[9/16] min-h-[280px] sm:min-h-[340px] rounded-2xl border border-gray-100/90 bg-white shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between select-none"
     >
+      {/* Pop Heart Animation on Double Tap */}
+      <AnimatePresence>
+        {showPopHeart && (
+          <motion.div
+            initial={{ scale: 0.3, opacity: 0 }}
+            animate={{ scale: 1.4, opacity: 1 }}
+            exit={{ scale: 1.8, opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
+          >
+            <Heart className="w-20 h-20 fill-rose-500 text-rose-500 drop-shadow-[0_8px_24px_rgba(244,63,94,0.5)]" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Media / Background stretching Edge-to-Edge ──────────────── */}
       {hasImage ? (
         <img
@@ -281,8 +307,9 @@ function DiaryCard({
         />
       )}
 
-      {/* ── Top Dark-to-Transparent CSS Gradient strictly at top inside edge ── */}
-      <div className="absolute top-0 inset-x-0 pt-3 sm:pt-3.5 pb-16 px-3 sm:px-3.5 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
+      {/* ── Top & Bottom Dark-to-Transparent CSS Gradients strictly at edges for high contrast ── */}
+      <div className="absolute top-0 inset-x-0 pt-3 sm:pt-3.5 pb-16 px-3 sm:px-3.5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+      <div className="absolute bottom-0 inset-x-0 pt-20 pb-3 px-3 sm:px-3.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
 
       {/* ── Author Meta-Data cleanly over top gradient in crisp pure white text ── */}
       <div className="relative z-20 pt-3 px-3 sm:px-3.5 flex items-center justify-between">
@@ -433,6 +460,7 @@ function DiaryFullscreen({
   onCommentClick: (entry: DiaryEntry) => void;
   onShareClick: (entry: DiaryEntry) => void;
 }) {
+  const [showPopHeart, setShowPopHeart] = useState(false);
   const isOwner = currentUserId && (entry.author?.id === currentUserId || (entry as any).author_id === currentUserId);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
@@ -443,10 +471,19 @@ function DiaryFullscreen({
     entry.author?.avatar_url ||
     getAvatarDataUrl({ name: entry.author?.name, seed: entry.author?.id });
 
+  const handleDoubleTap = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPopHeart(true);
+    if (!liked) {
+      onLike(entry.id);
+    }
+    setTimeout(() => setShowPopHeart(false), 900);
+  };
+
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
-      style={{ background: 'rgba(15, 23, 42, 0.55)', backdropFilter: 'blur(10px)' }}
+      style={{ background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(12px)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -454,7 +491,7 @@ function DiaryFullscreen({
       onClick={onClose}
     >
       <motion.div
-        className="w-full max-w-md aspect-[9/16] min-h-[500px] max-h-[92vh] rounded-3xl border border-gray-200/80 shadow-[0_25px_80px_rgba(0,0,0,0.18)] overflow-hidden flex flex-col relative my-auto select-none bg-white"
+        className="w-full max-w-md aspect-[9/16] min-h-[500px] max-h-[92vh] rounded-3xl border border-gray-200/80 shadow-[0_25px_80px_rgba(0,0,0,0.22)] overflow-hidden flex flex-col relative my-auto select-none bg-white"
         style={{
           background: entry.image_url
             ? '#0F172A'
@@ -467,7 +504,23 @@ function DiaryFullscreen({
         exit={{ scale: 0.94, y: 20 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
+        onDoubleClick={handleDoubleTap}
       >
+        {/* Pop Heart Animation on Double Tap inside Fullscreen */}
+        <AnimatePresence>
+          {showPopHeart && (
+            <motion.div
+              initial={{ scale: 0.3, opacity: 0 }}
+              animate={{ scale: 1.5, opacity: 1 }}
+              exit={{ scale: 1.9, opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none"
+            >
+              <Heart className="w-24 h-24 fill-rose-500 text-rose-500 drop-shadow-[0_12px_32px_rgba(244,63,94,0.6)]" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* If image card, render background image edge-to-edge */}
         {entry.image_url && (
           <img
@@ -477,8 +530,9 @@ function DiaryFullscreen({
           />
         )}
 
-        {/* Top Dark Gradient Overlay for legible author header */}
+        {/* Top & Bottom Dark Gradient Overlay for legible author header & right engagement controls */}
         <div className="absolute top-0 inset-x-0 pt-4 pb-20 px-5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+        <div className="absolute bottom-0 inset-x-0 pt-32 pb-4 px-5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
 
         {/* Top bar with Author Info */}
         <div className="relative z-20 flex items-center justify-between px-5 pt-4 pb-2">
@@ -502,14 +556,14 @@ function DiaryFullscreen({
             {isOwner && (
               <button
                 onClick={() => { onDelete(entry.id); onClose(); }}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-rose-500 bg-black/40 backdrop-blur-md border border-rose-400/50 transition-all cursor-pointer hover:bg-rose-500 hover:text-white"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-rose-400 bg-black/45 backdrop-blur-md border border-rose-400/50 transition-all cursor-pointer hover:bg-rose-500 hover:text-white"
               >
                 <Trash2 size={13} strokeWidth={1.8} /> Delete
               </button>
             )}
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 border border-white/25 flex items-center justify-center text-white transition-all shadow-sm cursor-pointer"
+              className="w-9 h-9 rounded-full bg-black/45 hover:bg-black/65 border border-white/25 flex items-center justify-center text-white transition-all shadow-sm cursor-pointer active:scale-90"
               aria-label="Close"
             >
               <X size={18} strokeWidth={2} />
@@ -741,22 +795,65 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
     }
   };
 
-  /* Empty state */
+  /* Custom Illustrated Empty State with stacked story card outlines */
   if (!isLoading && entries.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 px-6 text-center max-w-md mx-auto">
-        <div className="w-20 h-20 rounded-3xl bg-white border border-gray-200 flex items-center justify-center text-gray-700 mb-5 shadow-sm">
-          <BookOpen size={36} strokeWidth={1.5} />
+      <div className="flex flex-col items-center justify-center py-20 px-6 text-center max-w-lg mx-auto select-none">
+        {/* Soft-Tinted Stacked Card Illustration */}
+        <div className="relative w-36 h-40 mb-8 flex items-center justify-center">
+          <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-amber-500/10 via-purple-500/10 to-blue-500/10 blur-xl pointer-events-none" />
+          
+          {/* Back left rotated story outline */}
+          <div className="absolute w-24 h-32 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/80 shadow-md -rotate-12 -translate-x-6 translate-y-2 flex flex-col justify-between p-2.5 opacity-90">
+            <div className="w-5 h-5 rounded-full bg-amber-200/70" />
+            <div className="space-y-1">
+              <div className="w-full h-1.5 bg-amber-200/80 rounded" />
+              <div className="w-2/3 h-1.5 bg-amber-200/60 rounded" />
+            </div>
+          </div>
+
+          {/* Back right rotated story outline */}
+          <div className="absolute w-24 h-32 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200/80 shadow-md rotate-12 translate-x-6 translate-y-2 flex flex-col justify-between p-2.5 opacity-90">
+            <div className="w-5 h-5 rounded-full bg-purple-200/70" />
+            <div className="space-y-1">
+              <div className="w-full h-1.5 bg-purple-200/80 rounded" />
+              <div className="w-2/3 h-1.5 bg-purple-200/60 rounded" />
+            </div>
+          </div>
+
+          {/* Center primary story outline */}
+          <div className="relative z-10 w-28 h-36 rounded-2xl bg-white border border-gray-200/90 shadow-xl flex flex-col justify-between p-3 transform hover:scale-105 transition-transform duration-300">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-xs">
+                <BookOpen size={12} strokeWidth={2} />
+              </div>
+              <div className="space-y-1 flex-1">
+                <div className="w-12 h-2 bg-gray-200 rounded" />
+                <div className="w-8 h-1.5 bg-gray-100 rounded" />
+              </div>
+            </div>
+            <div className="my-auto space-y-1.5 flex flex-col items-center">
+              <div className="w-4/5 h-2 bg-gray-100 rounded" />
+              <div className="w-full h-2 bg-gray-100 rounded" />
+              <div className="w-3/5 h-2 bg-gray-100 rounded" />
+            </div>
+            <div className="flex justify-end gap-1.5 pt-1">
+              <div className="w-5 h-5 rounded-full bg-rose-50 flex items-center justify-center">
+                <Heart size={10} className="text-rose-500 fill-rose-500" />
+              </div>
+            </div>
+          </div>
         </div>
-        <h3 className="text-lg font-extrabold text-gray-900 font-sans tracking-tight mb-2">
-          {filter === 'friends' ? 'No entries from campus friends yet' :
-           filter === 'mine'    ? 'Your journal is currently empty' :
-           'The campus journal is waiting for its first story'}
+
+        <h3 className="font-syne text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
+          {filter === 'friends' ? 'No stories from campus friends yet' :
+           filter === 'mine'    ? 'Your campus journal is empty' :
+           'The campus feed is waiting for its first story'}
         </h3>
-        <p className="text-sm font-normal text-gray-500 font-sans leading-relaxed">
+        <p className="text-sm font-medium text-gray-500 max-w-sm leading-relaxed mb-6">
           {filter === 'mine' 
-            ? 'Tap the create button above or bottom right to share your thoughts with campus.' 
-            : 'Be the pioneer to share a reflection, photo story, or memory for the entire campus.'}
+            ? 'Start writing your college journey! Capture campus moments, photo memories, and secret thoughts.' 
+            : 'Be the pioneer! Share a photo memory, reflection, or campus moment to kick off the feed.'}
         </p>
       </div>
     );

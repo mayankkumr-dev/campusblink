@@ -464,7 +464,7 @@ export const PrintDashboardPage: React.FC = () => {
         {/* ========================================================
             MOBILE PWA VIEWPORT (<md) - Ultra-Minimalist & Isolated
         ======================================================== */}
-        <div className="md:hidden flex-1 overflow-y-auto pb-6">
+        <div className="md:hidden flex-1 overflow-y-auto pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))]">
           {activeView === 'Live Orders' && (
             <MobilePrintOrdersDashboard
               shop={shop}
@@ -490,34 +490,30 @@ export const PrintDashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Sleek Mobile Bottom Navigation Bar (<md) strictly stacked inside flex-col */}
-        <nav className="md:hidden shrink-0 w-full z-50 bg-white/95 dark:bg-shop-bg-surface/95 backdrop-blur-md border-t border-gray-100 dark:border-shop-border-subtle px-4 py-2 h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_20px_rgba(0,0,0,0.04)] dark:shadow-none transition-colors">
-          <div className="flex items-center justify-around h-full">
-            {navItems.map((item) => {
-              const isActive = activeView === item.label;
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => setActiveView(item.label)}
-                  className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all active:scale-95 ${
-                    isActive
-                      ? 'text-blue-600 dark:text-shop-accent font-bold'
-                      : 'text-gray-400 dark:text-shop-text-secondary font-medium'
+        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar (<md) */}
+        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
+          {navItems.map((item) => {
+            const isActive = activeView === item.label;
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => setActiveView(item.label)}
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${
+                  isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'
+                }`}
+              >
+                <item.icon
+                  className={`w-5 h-5 transition-transform ${
+                    isActive ? 'scale-110 stroke-[2.2]' : 'stroke-[1.5]'
                   }`}
-                >
-                  <item.icon
-                    className={`w-5 h-5 transition-transform ${
-                      isActive ? 'scale-110 stroke-[2.4]' : 'stroke-[1.8]'
-                    }`}
-                  />
-                  <span className="text-[10px] mt-1 font-syne tracking-wide">
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                />
+                <span className="text-[10px] leading-none">
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Desktop Content Area (Hidden on Mobile viewports) */}

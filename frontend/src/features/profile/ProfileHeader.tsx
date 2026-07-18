@@ -355,57 +355,55 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </div>
             </div>
 
-            {/* Stats Row: Posts, Followers, Following, Reputation */}
-            <div className="grid grid-cols-4 gap-3 my-6">
-              <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
-                <div className="font-syne font-bold text-xl text-text-primary">📖</div>
-                <div className="text-xs font-medium text-text-secondary mt-0.5">Diaries</div>
+            {/* Unified Floating Stats Card combining Diaries, Followers, Following & Reputation */}
+            <div className="my-6 rounded-2xl border border-border-subtle bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-4 hover:shadow-[0_12px_40px_rgba(0,0,0,0.09)] transition-all duration-300">
+              <div className="grid grid-cols-4 divide-x divide-border-subtle/80">
+                <div className="flex flex-col items-center justify-center px-2 py-1">
+                  <div className="flex items-center gap-1 font-syne font-extrabold text-xl sm:text-2xl text-text-primary">
+                    {postsStat || 0}
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-text-secondary mt-0.5">Diaries</div>
+                </div>
+
+                <button
+                  onClick={onOpenFollowersModal}
+                  className="flex flex-col items-center justify-center px-2 py-1 group active:scale-95 transition-transform"
+                >
+                  <div className="font-syne font-extrabold text-xl sm:text-2xl text-text-primary group-hover:text-blue-600 transition-colors">
+                    {followersCount}
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-text-secondary mt-0.5 group-hover:text-text-primary transition-colors">Followers</div>
+                </button>
+
+                <button
+                  onClick={onOpenFollowingModal}
+                  className="flex flex-col items-center justify-center px-2 py-1 group active:scale-95 transition-transform"
+                >
+                  <div className="font-syne font-extrabold text-xl sm:text-2xl text-text-primary group-hover:text-blue-600 transition-colors">
+                    {followingCount}
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-text-secondary mt-0.5 group-hover:text-text-primary transition-colors">Following</div>
+                </button>
+
+                <div className="flex flex-col items-center justify-center px-2 py-1">
+                  <div className="flex items-center gap-1 font-syne font-extrabold text-xl sm:text-2xl text-accent-amber">
+                    <Star className="h-4 w-4 fill-amber-500 text-amber-500 inline -mt-0.5" />
+                    {profile.campus_credits || 0}
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-semibold text-text-secondary mt-0.5">Reputation</div>
+                </div>
               </div>
 
-              <button
-                onClick={onOpenFollowersModal}
-                className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
-              >
-                <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">
-                  {followersCount}
+              {/* Reputation Level Strip inside Floating Card */}
+              <div className="mt-4 pt-3.5 border-t border-border-subtle/60 flex items-center justify-between gap-3 px-1">
+                <div className="flex items-center gap-2 text-xs font-bold text-text-primary">
+                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Campus Standing: <span className="text-accent-amber uppercase tracking-wide">Active Contributor</span></span>
                 </div>
-                <div className="text-xs font-medium text-text-secondary mt-0.5">Followers</div>
-              </button>
-
-              <button
-                onClick={onOpenFollowingModal}
-                className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all group"
-              >
-                <div className="font-syne font-bold text-xl text-text-primary group-hover:text-blue-600 transition-colors">
-                  {followingCount}
-                </div>
-                <div className="text-xs font-medium text-text-secondary mt-0.5">Following</div>
-              </button>
-
-              <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
-                <div className="font-syne font-bold text-xl text-accent-amber">
-                  {profile.campus_credits || 0}
-                </div>
-                <div className="text-xs font-medium text-text-secondary mt-0.5">Reputation</div>
-              </div>
-            </div>
-
-            {/* Your Reputation Card with Soft Subtle Shadows */}
-            <div className="rounded-2xl bg-gradient-to-br from-white via-amber-50/30 to-amber-50/60 p-5 shadow-[0_4px_20px_rgba(245,158,11,0.08)] border border-accent-amber-soft/20 mb-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent-amber">
-                    <Star className="h-4 w-4 text-accent-amber fill-amber-500" />
-                    Your Reputation Score
-                  </div>
-                  <div className="mt-1 font-syne text-2xl font-bold text-text-primary">
-                    {profile.campus_credits || 0}{' '}
-                    <span className="text-xs font-semibold text-text-secondary ml-1">
-                      credits earned
-                    </span>
-                  </div>
-                </div>
-                <button className="text-xs font-semibold text-accent-amber bg-amber-100/70 hover:bg-amber-100 rounded-xl px-3.5 py-2 transition-colors shrink-0">
+                <button
+                  onClick={() => toast.success('Earn credits by sharing campus diaries, helping students, and getting likes!')}
+                  className="text-xs font-bold text-accent-amber hover:underline transition-all"
+                >
                   How to earn →
                 </button>
               </div>

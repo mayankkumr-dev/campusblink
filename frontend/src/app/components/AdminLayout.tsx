@@ -416,13 +416,13 @@ export const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-6 safe-area-bottom">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-6 safe-area-bottom">
           <AdminGlobalSearch />
           <Outlet />
         </main>
 
-        {/* Sleek Mobile Bottom Navigation Bar (<md) strictly stacked inside flex-col */}
-        <nav className="md:hidden shrink-0 w-full bg-white dark:bg-admin-bg-surface border-t border-slate-200 dark:border-admin-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-around h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 select-none px-1">
+        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar */}
+        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
           {[
             { label: 'Dashboard', path: '/admin', icon: Home, exact: true },
             { label: 'Notices', path: '/admin/notices', icon: Megaphone, exact: false },
@@ -443,7 +443,9 @@ export const AdminLayout: React.FC = () => {
                     navigate(item.path);
                   }
                 }}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-none ${isActive ? 'text-amber-500 dark:text-admin-accent font-bold' : 'text-slate-400 dark:text-admin-text-secondary font-medium'}`}
+                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${
+                  isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'
+                }`}
               >
                 <Icon size={20} className={isActive ? 'scale-110' : ''} />
                 <span className="text-[10px] leading-none tracking-tight">{item.label}</span>

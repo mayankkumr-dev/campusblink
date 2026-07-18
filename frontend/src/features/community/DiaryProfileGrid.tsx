@@ -259,20 +259,60 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
   /* Empty state */
   if (entries.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-sm"
-          style={{ background: 'linear-gradient(135deg, #fdf2f8 0%, #ede9fe 100%)' }}
-        >
-          <span style={{ fontSize: 28 }}>📔</span>
+      <div className="flex flex-col items-center justify-center py-20 px-6 text-center max-w-sm mx-auto select-none">
+        {/* Soft-Tinted Vector Card Stack Illustration */}
+        <div className="relative w-28 h-32 mb-6 flex items-center justify-center">
+          <div className="absolute -inset-3 rounded-full bg-gradient-to-tr from-violet-500/10 via-pink-500/10 to-blue-500/10 blur-xl pointer-events-none" />
+          
+          {/* Rotated back card outline */}
+          <div className="absolute w-20 h-24 rounded-xl bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-200/80 shadow-xs -rotate-12 -translate-x-3 translate-y-1 p-2 opacity-85 flex flex-col justify-between">
+            <div className="w-3.5 h-3.5 rounded-full bg-violet-200/80" />
+            <div className="space-y-1">
+              <div className="w-full h-1 bg-violet-200/80 rounded" />
+              <div className="w-2/3 h-1 bg-violet-200/60 rounded" />
+            </div>
+          </div>
+
+          {/* Rotated front/right card outline */}
+          <div className="absolute w-20 h-24 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 shadow-xs rotate-12 translate-x-3 translate-y-1 p-2 opacity-85 flex flex-col justify-between">
+            <div className="w-3.5 h-3.5 rounded-full bg-blue-200/80" />
+            <div className="space-y-1">
+              <div className="w-full h-1 bg-blue-200/80 rounded" />
+              <div className="w-2/3 h-1 bg-blue-200/60 rounded" />
+            </div>
+          </div>
+
+          {/* Center main card illustration */}
+          <div className="relative z-10 w-22 h-26 rounded-xl bg-white border border-gray-200 shadow-md flex flex-col justify-between p-2.5 transform hover:scale-105 transition-transform duration-300">
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-2xs">
+                <span className="text-[10px]">✨</span>
+              </div>
+              <div className="space-y-0.5 flex-1">
+                <div className="w-10 h-1.5 bg-gray-200 rounded" />
+                <div className="w-6 h-1 bg-gray-100 rounded" />
+              </div>
+            </div>
+            <div className="my-auto space-y-1 flex flex-col items-center">
+              <div className="w-4/5 h-1.5 bg-gray-100 rounded" />
+              <div className="w-full h-1.5 bg-gray-100 rounded" />
+              <div className="w-3/5 h-1.5 bg-gray-100 rounded" />
+            </div>
+            <div className="flex justify-end pt-1">
+              <div className="w-4 h-4 rounded-full bg-rose-50 flex items-center justify-center text-[8px] text-rose-500">
+                ❤️
+              </div>
+            </div>
+          </div>
         </div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-1">
-          {isOwner ? 'Your diary is empty' : 'No diary entries yet'}
+
+        <h3 className="font-syne text-base font-bold text-gray-900 tracking-tight mb-1.5">
+          {isOwner ? 'Your campus journal is empty' : 'No diary stories yet'}
         </h3>
-        <p className="text-xs text-gray-400 max-w-[200px]">
+        <p className="text-xs font-medium text-gray-500 leading-relaxed max-w-[240px]">
           {isOwner
-            ? 'Head to Community and tap the diary button to write your first entry.'
-            : 'This person hasn\'t shared any diary entries yet.'}
+            ? 'Capture your college journey! Head over to Campus Diaries to publish your first moment.'
+            : 'This student hasn\'t shared any campus stories or journal moments yet.'}
         </p>
       </div>
     );

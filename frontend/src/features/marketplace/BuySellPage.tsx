@@ -552,7 +552,7 @@ export function BuySellPage() {
               {featuredListings.map((listing) => (
                 <div
                   key={listing.id}
-                  className="group overflow-hidden rounded-2xl border border-border-subtle bg-surface p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                  className="group overflow-hidden rounded-2xl border border-border-subtle bg-surface p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                 >
                   <div>
                     <Link to={`/student/buy-sell/${listing.id}`} className="block relative">
@@ -588,7 +588,7 @@ export function BuySellPage() {
                   <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between gap-2 px-1">
                     <button
                       onClick={() => handleToggleWishlist(listing.id)}
-                      className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${
+                      className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-transform active:scale-90 ${
                         wishlistIds.includes(listing.id)
                           ? 'text-accent-red'
                           : 'text-text-secondary hover:text-text-primary'
@@ -605,14 +605,14 @@ export function BuySellPage() {
                       {profile?.id && profile.id !== listing.seller_id ? (
                         <Link
                           to="/student/campus-exchange/messages"
-                          className="rounded-xl border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-elevated transition-colors"
+                          className="rounded-xl border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-elevated active:scale-95 transition-all"
                         >
                           Chat
                         </Link>
                       ) : null}
                       <Link
                         to={`/student/buy-sell/${listing.id}`}
-                        className="rounded-xl bg-surface-elevated hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-text-primary transition-colors"
+                        className="rounded-xl bg-surface-elevated hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-text-primary active:scale-95 transition-all"
                       >
                         Details
                       </Link>

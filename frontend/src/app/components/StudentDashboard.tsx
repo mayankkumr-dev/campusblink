@@ -15,7 +15,12 @@ import {
   Share2,
   Clock,
   ExternalLink,
-  WifiOff
+  WifiOff,
+  Sparkles,
+  ShoppingBag,
+  Utensils,
+  Flame,
+  BookOpen
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
@@ -271,72 +276,133 @@ export const StudentDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Core Quick Service Metric Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {[
-          {
-            title: 'Buy & Sell',
-            subtitle: 'Campus Marketplace',
-            badge: 'All Colleges',
-            path: '/student/buy-sell',
-            icon: Store,
-            iconClass: 'bg-accent-blue-soft text-accent-blue border border-accent-blue-soft',
-          },
-          {
-            title: 'Canteen',
-            subtitle: 'Order Food & Drinks',
-            badge: 'Your Campus Only',
-            path: '/student/canteen',
-            icon: Coffee,
-            iconClass: 'bg-accent-amber-soft text-accent-amber border border-amber-100',
-          },
-          {
-            title: 'Print Shop',
-            subtitle: 'Document Services',
-            badge: 'Your Campus Only',
-            path: '/student/print',
-            icon: Printer,
-            iconClass: 'bg-accent-teal/15 text-cyan-600 border border-cyan-100',
-          },
-          {
-            title: 'Community',
-            subtitle: 'Discussions & Posts',
-            badge: 'All Colleges',
-            path: '/student/community',
-            icon: Users,
-            iconClass: 'bg-accent-purple/15 text-accent-purple border border-purple-100',
-          },
-        ].map((item, i) => {
-          const IconComponent = item.icon;
-          return (
-            <button
-              key={i}
-              onClick={() => navigate(item.path)}
-              className="md:bg-surface md:border md:border-border-subtle max-md:bg-white max-md:border-none max-md:shadow-[0_4px_24px_rgb(0,0,0,0.04)] rounded-[20px] md:rounded-2xl p-4 md:p-5 text-left flex flex-col justify-between hover:border-slate-300 md:hover:shadow-md transition-all duration-200 group min-h-[140px] md:min-h-[148px]"
-            >
-              <div className="flex items-center justify-between">
-                <div className={`w-10 h-10 md:w-11 md:h-11 rounded-xl max-md:rounded-[14px] flex items-center justify-center ${item.iconClass.replace('border', 'md:border')} transition-transform group-hover:scale-105`}>
-                  <IconComponent className="w-5 h-5 max-md:w-4 max-md:h-4" />
-                </div>
-                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-slate-400 max-md:bg-slate-50 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all">
-                  <ArrowUpRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                </div>
+      {/* Asymmetric Bento Box Service Hierarchy */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* High-Traffic Bento Hub 1: Buy & Sell (Spans 2 columns) */}
+        <button
+          onClick={() => navigate('/student/buy-sell')}
+          className="sm:col-span-2 bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/60 rounded-3xl p-5 sm:p-6 border border-blue-100 shadow-[0_4px_20px_rgba(37,99,235,0.06)] hover:shadow-[0_14px_36px_rgba(37,99,235,0.14)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[180px] text-left select-none"
+        >
+          {/* Subtle Graphic Aura Background */}
+          <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+          
+          <div className="flex items-start justify-between relative z-10 w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform">
+                <ShoppingBag className="w-6 h-6 stroke-[2]" />
               </div>
-
-              <div className="mt-3 md:mt-4">
-                <h3 className="font-syne font-bold text-[13px] md:text-lg text-slate-900 leading-tight mb-1 md:mb-0">
-                  {item.title}
-                </h3>
-                <p className="text-[10px] md:text-xs text-slate-500 font-medium mb-2.5 line-clamp-1">
-                  {item.subtitle}
-                </p>
-                <span className="inline-block px-2 md:px-2.5 py-0.5 rounded-full text-[9px] md:text-[11px] font-semibold bg-slate-50 md:bg-surface-elevated md:border md:border-border-subtle text-slate-500">
-                  {item.badge}
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100/80 text-blue-800 border border-blue-200/60">
+                  <Flame className="w-3 h-3 text-blue-600 fill-blue-600" /> High Activity
                 </span>
+                <h3 className="font-syne font-bold text-xl sm:text-2xl text-slate-900 mt-1">
+                  Campus Marketplace
+                </h3>
               </div>
-            </button>
-          );
-        })}
+            </div>
+            <div className="w-9 h-9 rounded-full bg-white/80 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          <div className="mt-4 relative z-10 flex items-end justify-between">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-[280px]">
+              Buy, sell & trade books, electronics, and essentials with verified peers across all colleges.
+            </p>
+            <span className="text-xs font-bold text-blue-600 underline underline-offset-4 group-hover:translate-x-1 transition-transform">
+              Explore listings →
+            </span>
+          </div>
+        </button>
+
+        {/* High-Traffic Bento Hub 2: Canteen Orders (Spans 2 columns) */}
+        <button
+          onClick={() => navigate('/student/canteen')}
+          className="sm:col-span-2 bg-gradient-to-br from-amber-50/90 via-white to-orange-50/60 rounded-3xl p-5 sm:p-6 border border-amber-100 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_14px_36px_rgba(245,158,11,0.14)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[180px] text-left select-none"
+        >
+          {/* Subtle Graphic Aura Background */}
+          <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-amber-500/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+          
+          <div className="flex items-start justify-between relative z-10 w-full">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                <Utensils className="w-6 h-6 stroke-[2]" />
+              </div>
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100/80 text-amber-800 border border-amber-200/60">
+                  <Clock className="w-3 h-3 text-amber-700" /> Instant Pickup
+                </span>
+                <h3 className="font-syne font-bold text-xl sm:text-2xl text-slate-900 mt-1">
+                  Canteen Food & Drinks
+                </h3>
+              </div>
+            </div>
+            <div className="w-9 h-9 rounded-full bg-white/80 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-all">
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          <div className="mt-4 relative z-10 flex items-end justify-between">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-[280px]">
+              Pre-order meals, skip long campus queues, and track your food status live in real time.
+            </p>
+            <span className="text-xs font-bold text-amber-600 underline underline-offset-4 group-hover:translate-x-1 transition-transform">
+              Order now →
+            </span>
+          </div>
+        </button>
+
+        {/* Secondary Bento Tile 3: Print Shop (Spans 1 col on sm, 2 cols on lg) */}
+        <button
+          onClick={() => navigate('/student/print')}
+          className="sm:col-span-1 lg:col-span-2 bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-[155px] group text-left select-none"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-11 h-11 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Printer className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:text-cyan-600 group-hover:bg-cyan-50 transition-all">
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
+              Document Services
+            </span>
+            <h3 className="font-syne font-bold text-lg sm:text-xl text-slate-900 mt-1.5">
+              Print Shop Requests
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Upload PDFs & pick up bound prints without waiting.
+            </p>
+          </div>
+        </button>
+
+        {/* Secondary Bento Tile 4: Campus Diaries & Community (Spans 1 col on sm, 2 cols on lg) */}
+        <button
+          onClick={() => navigate('/student/community')}
+          className="sm:col-span-1 lg:col-span-2 bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-[155px] group text-left select-none"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <BookOpen className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:text-purple-600 group-hover:bg-purple-50 transition-all">
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+              Stories & Memories
+            </span>
+            <h3 className="font-syne font-bold text-lg sm:text-xl text-slate-900 mt-1.5">
+              Campus Diaries
+            </h3>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Browse photo memories, secrets & stories across colleges.
+            </p>
+          </div>
+        </button>
       </div>
 
       {/* Main Content Split: Recent Activity & Quick Insights */}
