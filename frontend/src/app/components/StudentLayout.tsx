@@ -100,7 +100,7 @@ export const StudentLayout: React.FC = () => {
   const navItems = [
     { icon: Home, path: '/student/home', label: 'Home', feature: 'home' },
     { icon: Search, path: '/student/search', label: 'Search People', feature: 'search' },
-    { icon: Users, path: '/student/community', label: 'Community', feature: 'community' },
+    { icon: Users, path: '/student/community', label: 'Diaries', feature: 'community' },
     { icon: Store, path: '/student/campus-exchange', label: 'Campus Exchange', feature: 'exchange' },
     { icon: MessageCircle, path: '/student/messages', label: 'Messages', feature: 'messages' },
     { icon: UtensilsCrossed, path: '/student/canteen', label: 'Canteen', feature: 'canteen' },
@@ -115,7 +115,7 @@ export const StudentLayout: React.FC = () => {
   const bottomNavItems = [
     { icon: Home, path: '/student/home', label: 'Home', feature: 'home' },
     { icon: Search, path: '/student/search', label: 'Search', feature: 'search' },
-    { icon: Users, path: '/student/community', label: 'Community', feature: 'community' },
+    { icon: Users, path: '/student/community', label: 'Diaries', feature: 'community' },
     { icon: Store, path: '/student/campus-exchange', label: 'Exchange', feature: 'exchange' },
     { icon: Menu, label: 'Menu', feature: 'more', isMenu: true },
   ];

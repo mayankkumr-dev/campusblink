@@ -23,6 +23,7 @@ const usersRoutes = require('./routes/users');
 const feedRoutes = require('./routes/feed');
 const attendanceRoutes = require('./routes/attendance');
 const messagingRoutes = require('./routes/messaging');
+const diaryRoutes = require('./routes/diary');
 const http = require('http');
 const { initSocket } = require('./config/socket');
 const { connectDB } = require('./config/db');
@@ -95,13 +96,14 @@ if (process.env.NODE_ENV !== 'production') {
     res.json({
       environment: process.env.NODE_ENV,
       message: 'Campus Blink Backend - Development Mode',
-      note: 'Fill in .env file with Supabase and Cloudinary credentials',
+      note: 'Fill in .env file with Supabase and AWS S3 credentials',
       requiredEnvVars: [
         'SUPABASE_URL',
         'SUPABASE_SERVICE_ROLE_KEY',
-        'CLOUDINARY_CLOUD_NAME',
-        'CLOUDINARY_API_KEY',
-        'CLOUDINARY_API_SECRET',
+        'AWS_REGION',
+        'AWS_ACCESS_KEY_ID',
+        'AWS_SECRET_ACCESS_KEY',
+        'AWS_S3_BUCKET',
       ],
     });
   });
@@ -126,6 +128,7 @@ app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
 app.use('/api/attendance', generalLimiter, attendanceRoutes);
 app.use('/api/messages', generalLimiter, messagingRoutes);
+app.use('/api/diary', generalLimiter, diaryRoutes);
 
 // 404 handler
 app.use((req, res) => {

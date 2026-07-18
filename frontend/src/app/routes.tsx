@@ -479,6 +479,12 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                path: 'flagged-diaries',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFlaggedDiariesPage')).AdminFlaggedDiariesPage,
+                }),
+              },
+              {
                 path: 'notices',
                 lazy: async () => ({
                   Component: (await import('./components/AdminNoticesPage')).AdminNoticesPage,

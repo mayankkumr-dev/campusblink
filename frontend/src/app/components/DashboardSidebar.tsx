@@ -108,7 +108,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       action: onOpenSearch,
     },
     {
-      label: 'Community',
+      label: 'Diaries',
       path: '/student/community',
       icon: Users,
       action: undefined,

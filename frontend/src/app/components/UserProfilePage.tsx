@@ -6,38 +6,16 @@ import { useAuthStore } from '../../store/authStore';
 import { reportContent } from '../../api/community';
 import { getProfileSocialLinks } from '../../api/profileSocialLinks';
 import { checkIsFollowing, getFollowStats } from '../../api/follow';
-import { supabase } from '../../lib/supabase';
-import { getAvatarDataUrl } from '../../lib/avatar';
-import { getDisplayHandle } from '../../lib/user';
-import { AdaptivePostImage } from './AdaptivePostImage';
+
 import { SocialLinksStrip, mergeSocialLinks } from '../../features/profile/ProfileSocialLinks';
 import { FollowButton } from '../../shared/components/FollowButton';
 import { FollowListModal } from '../../shared/components/FollowListModal';
 import { ProfessorBadge } from '../../shared/components/ProfessorBadge';
 import { ProfilePictureInteract } from './ProfilePictureInteract';
+import { DiaryProfileGrid } from '../../features/community/DiaryProfileGrid';
 
-const POST_IMAGE_DELIMITER = '|||';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 
-function formatRelativeTime(value: string) {
-  const date = new Date(value);
-  const diff = Date.now() - date.getTime();
-  const minute = 60 * 1000;
-  const hour = 60 * minute;
-  const day = 24 * hour;
-  if (diff < hour) return `${Math.max(1, Math.floor(diff / minute))}m`;
-  if (diff < day) return `${Math.max(1, Math.floor(diff / hour))}h`;
-  if (diff < 7 * day) return `${Math.max(1, Math.floor(diff / day))}d`;
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-}
-
-function parsePostImageUrls(post: any): string[] {
-  if (Array.isArray(post?.image_urls) && post.image_urls.length > 0) return post.image_urls.filter(Boolean);
-  const value = post?.image_url;
-  if (!value || typeof value !== 'string') return [];
-  if (value.includes(POST_IMAGE_DELIMITER)) return value.split(POST_IMAGE_DELIMITER).map((e) => e.trim()).filter(Boolean);
-  return [value];
-}
 
 export const UserProfilePage: React.FC = () => {
   const { userId } = useParams();
@@ -45,19 +23,18 @@ export const UserProfilePage: React.FC = () => {
   const currentProfile = useAuthStore((state) => state.profile);
 
   const [targetProfile, setTargetProfile] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
-  const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
-  const [peopleModal, setPeopleModal] = useState<'followers' | 'following' | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportDetails, setReportDetails] = useState('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const [imageModal, setImageModal] = useState<{ src: string; title: string } | null>(null);
+  const [peopleModal, setPeopleModal] = useState<'followers' | 'following' | null>(null);
 
   // Redirect to own profile if viewing self
   useEffect(() => {
@@ -99,7 +76,7 @@ export const UserProfilePage: React.FC = () => {
 
       if (!mounted) return;
 
-      if (!profileData) {
+        if (!profileData) {
         setNotFound(true);
       } else {
         if (currentProfile?.id && profileData.id === currentProfile.id) {
@@ -109,21 +86,6 @@ export const UserProfilePage: React.FC = () => {
         setTargetProfile(profileData);
         setFollowerCount(profileData.followers_count || 0);
         setFollowingCount(profileData.following_count || 0);
-        const { data: postsData } = await supabase
-          .from('posts')
-          .select('*, author:profiles!author_id(id, name, avatar_url, username, college), post_likes!left(user_id)')
-          .eq('author_id', profileData.id)
-          .eq('is_anonymous', false)
-          .order('created_at', { ascending: false });
-
-        if (!mounted) return;
-
-        const normalizedPosts = (postsData || []).map((p: any) => ({
-          ...p,
-          likes_count: p.likes_count ?? p.upvotes ?? 0,
-          liked_by: Array.isArray(p.post_likes) ? p.post_likes.map((l: any) => l.user_id) : [],
-        }));
-        setPosts(normalizedPosts);
       }
 
       if (profileData) {
@@ -270,7 +232,7 @@ export const UserProfilePage: React.FC = () => {
                     {targetProfile.name}
                     {targetProfile.role === 'professor' && <ProfessorBadge />}
                   </h1>
-                  <p className="text-xs text-text-secondary">{posts.length} Posts</p>
+                  <p className="text-xs text-text-secondary">Diaries</p>
                 </div>
               </div>
             </div>
@@ -395,8 +357,8 @@ export const UserProfilePage: React.FC = () => {
                 {/* Stats Row with Soft Shadows */}
                 <div className="grid grid-cols-3 gap-3 my-6">
                   <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center">
-                    <div className="font-syne font-bold text-xl text-text-primary">{posts.length}</div>
-                    <div className="text-xs font-medium text-text-secondary mt-0.5">Posts</div>
+                    <div className="font-syne font-bold text-xl text-text-primary">📖</div>
+                    <div className="text-xs font-medium text-text-secondary mt-0.5">Diaries</div>
                   </div>
                   <button
                     onClick={() => setPeopleModal('followers')}
@@ -415,85 +377,8 @@ export const UserProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Posts Feed Header */}
-              <div className="border-b border-border-subtle px-6 py-3.5 bg-surface sticky top-14 z-20">
-                <h2 className="font-syne text-sm font-bold uppercase tracking-wider text-text-primary">Posts</h2>
-              </div>
-
-              {/* Posts Feed */}
-              <div className="divide-y divide-slate-100">
-                {posts.length > 0 ? (
-                  posts.map((post) => {
-                    const postAvatar = post.author?.avatar_url || getAvatarDataUrl({ name: post.author?.name, seed: post.author?.id || post.author_id });
-                    const images = parsePostImageUrls(post);
-
-                    return (
-                      <article
-                        key={post.id}
-                        onClick={() => navigate(`/community/${post.id}`)}
-                        className="cursor-pointer px-6 py-5 bg-surface transition-colors hover:bg-slate-50/60"
-                      >
-                        <div className="flex gap-4">
-                          <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden rounded-full border border-border-subtle bg-surface shadow-2xs">
-                            <img loading="lazy" src={postAvatar} alt={post.author?.name || 'avatar'} className="h-full w-full rounded-full object-cover" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                              <span className="font-syne font-bold text-text-primary">{post.author?.name || targetProfile.name}</span>
-                              <span className="text-text-placeholder">·</span>
-                              <span className="text-xs text-text-secondary/70">{formatRelativeTime(post.created_at)}</span>
-                              {post.author?.college && (
-                                <span className="rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
-                                  {post.author.college.includes('(MAIT)') ? 'MAIT' : post.author.college}
-                                </span>
-                              )}
-                            </div>
-                            {post.title && <h3 className="mt-1.5 text-base font-bold text-text-primary">{post.title}</h3>}
-                            <p className="mt-2 text-sm leading-relaxed text-text-primary line-clamp-3">{post.content}</p>
-                            {images.length > 0 && (
-                              images.length === 1 ? (
-                                <div className="mt-3.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
-                                  <AdaptivePostImage
-                                    src={images[0]}
-                                    alt="Post attachment"
-                                    className="w-full max-h-[400px] bg-surface"
-                                    imgClassName="h-full w-full object-contain"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="mt-3.5 grid grid-cols-2 gap-1.5 overflow-hidden rounded-2xl border border-border-subtle bg-surface">
-                                  {images.slice(0, 4).map((image, index) => (
-                                    <AdaptivePostImage
-                                      key={`${image}-${index}`}
-                                      src={image}
-                                      alt={`Post attachment ${index + 1}`}
-                                      className="bg-surface-elevated"
-                                      imgClassName="h-full w-full object-contain"
-                                    >
-                                      {images.length > 4 && index === 3 ? (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-xl font-bold text-white">+{images.length - 4}</div>
-                                      ) : null}
-                                    </AdaptivePostImage>
-                                  ))}
-                                </div>
-                              )
-                            )}
-                            <div className="mt-4 flex items-center gap-6 text-xs font-medium text-text-secondary/70">
-                              <span>{post.comments_count || 0} comments</span>
-                              <span>{post.likes_count || 0} likes</span>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })
-                ) : (
-                  <div className="px-6 py-16 text-center">
-                    <h3 className="text-base font-bold text-text-primary">No public posts yet</h3>
-                    <p className="mt-1 text-sm text-text-secondary">This user hasn't posted anything publicly.</p>
-                  </div>
-                )}
-              </div>
+              {/* Diary Grid — Always shown */}
+              <DiaryProfileGrid userId={targetProfile.id} />
             </section>
           </div>
         </div>

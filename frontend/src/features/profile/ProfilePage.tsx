@@ -3,10 +3,8 @@ import { useLocation, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { getProfile, updateProfile, uploadAvatar, uploadCover } from '../../api/auth';
-import { getLikedPosts, togglePostLike } from '../../api/community';
 import { getFollowStats } from '../../api/follow';
 import { getProfileSocialLinks, replaceProfileSocialLinks } from '../../api/profileSocialLinks';
-import { supabase } from '../../lib/supabase';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { FollowListModal } from '../../shared/components/FollowListModal';
 import { mergeSocialLinks, normalizeSocialUrl, sanitizeEditableSocialLinks } from './ProfileSocialLinks';
@@ -19,6 +17,7 @@ import {
   MediaEditorState,
 } from './ProfileEditModal';
 import { ProfilePostsTab } from './ProfilePostsTab';
+
 
 const ONLY_COLLEGE = 'Maharaja Agrasen Institute of Technology (MAIT)';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
@@ -33,11 +32,8 @@ export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile, setAuth, updateProfile: updateProfileStore } = useAuthStore();
 
-  const [activeTab, setActiveTab] = useState('posts');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingContent, setIsLoadingContent] = useState(true);
-  const [content, setContent] = useState<any[]>([]);
   const [peopleModal, setPeopleModal] = useState<'followers' | 'following' | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -50,7 +46,6 @@ export const ProfilePage: React.FC = () => {
   const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
   const [mediaEditor, setMediaEditor] = useState<MediaEditorState | null>(null);
   const [isSavingMedia, setIsSavingMedia] = useState(false);
-  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [formData, setFormData] = useState({
@@ -84,74 +79,6 @@ export const ProfilePage: React.FC = () => {
     const params = new URLSearchParams(location.search);
     if (params.get('edit') === '1') setIsEditModalOpen(true);
   }, [location.search, profile?.id]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadContent = async () => {
-      if (!profile?.id) return;
-      setIsLoadingContent(true);
-
-      try {
-        if (activeTab === 'likes') {
-          const { data } = await getLikedPosts(profile.id);
-          if (isMounted) setContent(data || []);
-          return;
-        }
-        if (activeTab === 'replies') {
-          const { data } = await supabase
-            .from('comments')
-            .select(
-              'content, created_at, post:posts!post_id(*, author:profiles!author_id(id, name, avatar_url, username, college), post_likes!left(user_id))'
-            )
-            .eq('author_id', profile.id)
-            .order('created_at', { ascending: false });
-
-          const normalizedReplies = (data || [])
-            .map((entry: any) => {
-              if (!entry.post) return null;
-
-              return {
-                ...entry.post,
-                reply_content: entry.content,
-                liked_by: Array.isArray(entry.post?.post_likes)
-                  ? entry.post.post_likes.map((like: any) => like.user_id)
-                  : [],
-              };
-            })
-            .filter(Boolean);
-
-          if (isMounted) setContent(normalizedReplies);
-          return;
-        }
-
-        const { data } = await supabase
-          .from('posts')
-          .select(
-            '*, author:profiles!author_id(id, name, avatar_url, username, college), post_likes!left(user_id)'
-          )
-          .eq('author_id', profile.id)
-          .order('created_at', { ascending: false });
-
-        const normalizedPosts = (data || []).map((post: any) => ({
-          ...post,
-          likes_count: post.likes_count ?? post.upvotes ?? 0,
-          liked_by: Array.isArray(post.post_likes)
-            ? post.post_likes.map((like: any) => like.user_id)
-            : [],
-        }));
-
-        if (isMounted) setContent(normalizedPosts);
-      } finally {
-        if (isMounted) setIsLoadingContent(false);
-      }
-    };
-
-    loadContent();
-    return () => {
-      isMounted = false;
-    };
-  }, [activeTab, profile?.id]);
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -339,46 +266,6 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleLike = async (postId: string, likedByMe: boolean) => {
-    if (!profile?.id) return;
-
-    setContent((prev) =>
-      prev.map((item) => {
-        if (item.id !== postId) return item;
-
-        const likedBy = new Set(item.liked_by || []);
-        if (likedByMe) likedBy.delete(profile.id);
-        else likedBy.add(profile.id);
-
-        return {
-          ...item,
-          liked_by: Array.from(likedBy),
-          likes_count: Math.max(0, (item.likes_count || 0) + (likedByMe ? -1 : 1)),
-        };
-      })
-    );
-
-    const { error } = await togglePostLike(postId, profile.id);
-    if (error) {
-      toast.error(error.message || 'Could not update like');
-      setContent((prev) =>
-        prev.map((item) => {
-          if (item.id !== postId) return item;
-
-          const likedBy = new Set(item.liked_by || []);
-          if (likedByMe) likedBy.add(profile.id);
-          else likedBy.delete(profile.id);
-
-          return {
-            ...item,
-            liked_by: Array.from(likedBy),
-            likes_count: Math.max(0, (item.likes_count || 0) + (likedByMe ? 1 : -1)),
-          };
-        })
-      );
-    }
-  };
-
   const handleSaveProfile = async () => {
     if (!user) return;
 
@@ -475,16 +362,14 @@ export const ProfilePage: React.FC = () => {
     );
   }
 
-  const postsStat = activeTab === 'posts' ? content.length : 0;
-
   return (
     <div className="min-h-screen bg-surface pb-24 text-text-primary font-sans">
       <div className="w-full flex justify-center min-h-screen pb-28">
         <div className="w-full max-w-[680px] bg-surface border-x border-border-subtle shadow-xs flex flex-col min-h-screen pb-10">
           <ProfileHeader
             profile={profile}
-            postsStat={postsStat}
-            activeTab={activeTab}
+            postsStat={0}
+            activeTab="diaries"
             followersCount={followersCount}
             followingCount={followingCount}
             displayAvatar={displayAvatar}
@@ -503,16 +388,8 @@ export const ProfilePage: React.FC = () => {
           />
 
           <ProfilePostsTab
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            isLoadingContent={isLoadingContent}
-            content={content}
             viewerProfile={profile}
-            onLike={handleLike}
-            lightbox={lightbox}
-            onOpenImage={(images, index) => setLightbox({ images, index })}
-            onCloseLightbox={() => setLightbox(null)}
-            onNavigateCreatePost={() => navigate('/student/community')}
+            profileUserId={profile.id}
           />
         </div>
       </div>

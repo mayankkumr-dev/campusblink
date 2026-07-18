@@ -104,6 +104,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/marketplace': 'Marketplace Listings',
   '/admin/marketplace/reported': 'Reported Listings',
   '/admin/community-hub': 'Community Hub',
+  '/admin/flagged-diaries': 'Flagged Campus Diaries',
   '/admin/community': 'All Community Posts',
   '/admin/community/reported': 'Reported Posts',
   '/admin/community/notice': 'Post Community Notice',
@@ -240,6 +241,7 @@ export const AdminLayout: React.FC = () => {
 
         <AccordionCategory label="Community">
           <SidebarNavLink to="/admin/community-hub" icon={MessageSquare} label="Community Hub" onNavigate={closeMenu} />
+          <SidebarNavLink to="/admin/flagged-diaries" icon={Flag} label="Flagged Diaries" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/notice-admins" icon={UserCheck} label="Notice Admin Access" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/notices" icon={Megaphone} label="Compose Notice" onNavigate={closeMenu} />
         </AccordionCategory>

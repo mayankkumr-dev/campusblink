@@ -5,6 +5,7 @@ const adminOnlyMiddleware = require('../middleware/adminOnly');
 const supabaseService = require('../services/supabase');
 const emailService = require('../services/email');
 const { supabaseAdmin } = require('../config/supabase');
+const s3Service = require('../services/s3');
 
 // Get platform statistics
 router.get('/stats', authMiddleware, adminOnlyMiddleware, async (req, res) => {
@@ -287,25 +288,18 @@ router.delete('/users/:id', authMiddleware, adminOnlyMiddleware, async (req, res
     const { id } = req.params;
 
     try {
-      const cloudinary = require('cloudinary').v2;
-      cloudinary.config({
-        cloud_name: process.env.VITE_CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
-      });
-      
       const prefixes = [
         `campus-blink/avatars/${id}`,
         `campus-blink/covers/${id}`,
         `campus-blink/community/${id}`,
-        `campus-blink/marketplace-chat/${id}`
+        `campus-blink/marketplace-chat/${id}`,
       ];
-      
+
       for (const prefix of prefixes) {
-         await cloudinary.api.delete_resources_by_prefix(prefix).catch(() => {});
+        await s3Service.deleteByPrefix(prefix);
       }
-    } catch(err) {
-      console.error('Failed to purge cloudinary for user:', err);
+    } catch (err) {
+      console.error('Failed to purge S3 resources for user:', err);
     }
     
     await supabaseService.deleteUser(id);

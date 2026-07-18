@@ -2,11 +2,33 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authMiddleware = require('../middleware/auth');
-const cloudinaryService = require('../services/cloudinary');
+const s3Service = require('../services/s3');
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Upload image
+// Generate presigned URL for direct S3 upload from client (offloads bandwidth/memory from EC2)
+router.post('/presigned-url', authMiddleware, async (req, res) => {
+  try {
+    const { filename, filetype, folder = 'uploads' } = req.body;
+    const userId = req.user.id;
+
+    if (!filename) {
+      return res.status(400).json({ error: 'filename required' });
+    }
+
+    const result = await s3Service.generatePresignedUrl(filename, filetype, folder, userId);
+
+    res.json({
+      message: 'Presigned URL generated successfully',
+      ...result,
+    });
+  } catch (error) {
+    console.error('Error generating presigned URL:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate presigned URL' });
+  }
+});
+
+// Upload image via backend Express server (fallback or direct API usage)
 router.post('/image', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -27,7 +49,7 @@ router.post('/image', authMiddleware, upload.single('file'), async (req, res) =>
       return res.status(400).json({ error: 'File too large. Maximum size is 5MB' });
     }
 
-    const url = await cloudinaryService.uploadImage(req.file, folder, userId);
+    const url = await s3Service.uploadImage(req.file, folder, userId);
 
     res.json({
       message: 'Image uploaded successfully',
@@ -39,7 +61,7 @@ router.post('/image', authMiddleware, upload.single('file'), async (req, res) =>
   }
 });
 
-// Upload PDF
+// Upload PDF via backend Express server
 router.post('/pdf', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -59,7 +81,7 @@ router.post('/pdf', authMiddleware, upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'File too large. Maximum size is 20MB' });
     }
 
-    const url = await cloudinaryService.uploadPDF(req.file, folder, userId);
+    const url = await s3Service.uploadPDF(req.file, folder, userId);
 
     res.json({
       message: 'PDF uploaded successfully',
@@ -71,23 +93,25 @@ router.post('/pdf', authMiddleware, upload.single('file'), async (req, res) => {
   }
 });
 
-// Delete file
+// Delete file from S3
 router.delete('/file', authMiddleware, async (req, res) => {
   try {
-    const { publicId } = req.body;
+    const { publicId, key } = req.body;
+    const targetKey = key || publicId;
 
-    if (!publicId) {
-      return res.status(400).json({ error: 'publicId required' });
+    if (!targetKey) {
+      return res.status(400).json({ error: 'publicId or key required' });
     }
 
     /**
      * Ownership check:
-     * Cloudinary publicIds follow the structure: campus-blink/{folder}/{userId}/...
+     * S3 object keys follow the structure: campus-blink/{folder}/{userId}/...
      * Extract the userId segment (parts[2]) and verify whether it matches req.user.id
      * or if the requesting user is an admin (req.profile.role === 'admin').
      * Return 403 Forbidden if neither condition is met.
      */
-    const parts = String(publicId).split('/');
+    const cleanKey = s3Service.extractS3Key(targetKey) || String(targetKey);
+    const parts = cleanKey.split('/');
     let extractedUserId = null;
     if (parts[0] === 'campus-blink' && parts.length >= 4) {
       extractedUserId = parts[2];
@@ -100,7 +124,7 @@ router.delete('/file', authMiddleware, async (req, res) => {
       return res.status(403).json({ error: 'You do not have permission to delete this file' });
     }
 
-    await cloudinaryService.deleteFile(publicId);
+    await s3Service.deleteFile(cleanKey);
 
     res.json({ message: 'File deleted successfully' });
   } catch (error) {

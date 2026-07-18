@@ -92,7 +92,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               {profile.name}
             </h1>
             <p className="text-xs text-text-secondary">
-              {postsStat} {activeTab}
+              Diaries
             </p>
           </div>
         </div>
@@ -358,8 +358,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             {/* Stats Row: Posts, Followers, Following, Reputation */}
             <div className="grid grid-cols-4 gap-3 my-6">
               <div className="bg-surface rounded-2xl p-3.5 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-border-subtle text-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-shadow">
-                <div className="font-syne font-bold text-xl text-text-primary">{postsStat}</div>
-                <div className="text-xs font-medium text-text-secondary mt-0.5">Posts</div>
+                <div className="font-syne font-bold text-xl text-text-primary">📖</div>
+                <div className="text-xs font-medium text-text-secondary mt-0.5">Diaries</div>
               </div>
 
               <button
