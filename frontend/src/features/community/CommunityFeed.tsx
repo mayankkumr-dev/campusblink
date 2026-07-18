@@ -1,14 +1,15 @@
 /**
  * CommunityFeed.tsx — Campus Diaries Hub
  *
- * Ultra-premium, light-mode only interface tailored for the MAIT ecosystem.
- * Features a sleek sticky glassmorphism header, segmented scrollable navigation pills
- * with animated active layout shift, masonry/vertical stack feed, and a prominent Feather Pen FAB.
+ * Strict, premium light-mode-only interface tailored for the MAIT ecosystem.
+ * Features pure whites, breathable whitespace, soft off-white backgrounds (bg-gray-50),
+ * ultra-soft diffused drop-shadows, horizontally scrollable floating pill filters,
+ * and a responsive Pinterest-meets-Instagram-Stories masonry layout.
  */
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Flame, Sparkles, Users, User, Feather } from 'lucide-react';
+import { Flame, Sparkles, Users, User, Feather } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { getFollowingIds } from '../../api/follow';
@@ -24,11 +25,11 @@ import type { DiaryEntry } from './DiaryMasonryGrid';
 /* ─── Feed filter tabs ───────────────────────────────────────────── */
 type DiaryFilter = 'popular' | 'new' | 'friends' | 'mine';
 
-const FILTER_TABS: { label: string; value: DiaryFilter; icon: React.ReactNode; activeColor: string }[] = [
-  { label: 'Popular', value: 'popular', icon: <Flame size={15} strokeWidth={2} />,    activeColor: 'text-amber-500'   },
-  { label: 'New',     value: 'new',     icon: <Sparkles size={15} strokeWidth={2} />, activeColor: 'text-indigo-500'  },
-  { label: 'Friends', value: 'friends', icon: <Users size={15} strokeWidth={2} />,    activeColor: 'text-emerald-500' },
-  { label: 'Mine',    value: 'mine',    icon: <User size={15} strokeWidth={2} />,     activeColor: 'text-rose-500'    },
+const FILTER_TABS: { label: string; value: DiaryFilter; icon: React.ReactNode }[] = [
+  { label: 'Popular', value: 'popular', icon: <Flame size={15} strokeWidth={2.2} /> },
+  { label: 'New',     value: 'new',     icon: <Sparkles size={15} strokeWidth={2.2} /> },
+  { label: 'Friends', value: 'friends', icon: <Users size={15} strokeWidth={2.2} /> },
+  { label: 'Mine',    value: 'mine',    icon: <User size={15} strokeWidth={2.2} /> },
 ];
 
 /* ─── Friends row ────────────────────────────────────────────────── */
@@ -42,13 +43,13 @@ function FriendsRow({ writers }: { writers: FriendWriter[] }) {
   if (writers.length === 0) return null;
 
   return (
-    <div className="mx-4 mb-6 rounded-2xl border border-stone-200/70 bg-[#FAF9F6] p-4 shadow-sm">
+    <div className="mx-3 sm:mx-6 mb-6 rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-bold text-stone-600 uppercase tracking-wider font-sans flex items-center gap-1.5">
+        <p className="text-xs font-bold text-gray-700 uppercase tracking-wider font-sans flex items-center gap-1.5">
           <span>👥</span>
           <span>Campus Friends Who Wrote Recently</span>
         </p>
-        <span className="text-[11px] font-semibold text-stone-400 bg-stone-200/50 px-2 py-0.5 rounded-full">
+        <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
           {writers.length} {writers.length === 1 ? 'friend' : 'friends'}
         </span>
       </div>
@@ -61,16 +62,16 @@ function FriendsRow({ writers }: { writers: FriendWriter[] }) {
             <button
               key={w.author_id}
               onClick={() => navigate(`/student/profile/${w.author_id}`)}
-              className="group flex flex-col items-center gap-1.5 flex-shrink-0 transition-transform hover:-translate-y-0.5"
+              className="group flex flex-col items-center gap-1.5 flex-shrink-0 transition-transform hover:-translate-y-0.5 cursor-pointer"
             >
-              <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-amber-400/60 group-hover:ring-amber-500 shadow-sm transition-all p-0.5 bg-white">
+              <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-gray-200 group-hover:ring-gray-400 shadow-sm transition-all p-0.5 bg-white">
                 <img
                   src={avatar}
                   alt={w.author?.name}
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
-              <span className="text-xs font-bold text-stone-700 max-w-[56px] truncate font-sans group-hover:text-stone-900">
+              <span className="text-xs font-bold text-gray-700 max-w-[56px] truncate font-sans group-hover:text-gray-900">
                 {w.author?.name?.split(' ')[0]}
               </span>
             </button>
@@ -112,8 +113,8 @@ export const CommunityFeed: React.FC = () => {
 
   if (checkingCommunityAccess) {
     return (
-      <div className="min-h-screen bg-white px-4 py-8">
-        <div className="mx-auto w-full max-w-[680px] space-y-6">
+      <div className="min-h-screen bg-gray-50 px-4 py-8">
+        <div className="mx-auto w-full max-w-5xl space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <PostSkeleton key={i} />
           ))}
@@ -127,56 +128,63 @@ export const CommunityFeed: React.FC = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-white text-stone-900 font-sans select-none">
-      {/* ── Sleek Glassmorphism Header ─────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-stone-200/60 shadow-[0_2px_14px_rgba(0,0,0,0.025)] transition-all">
+    <div className="w-full min-h-screen bg-gray-50 text-gray-900 font-sans select-none">
+      {/* ── Sleek, Sticky Top Header Ribbon ──────────────────────── */}
+      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/70 shadow-[0_4px_20px_rgba(0,0,0,0.025)] transition-all">
         {/* Title row */}
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 pt-4 pb-2">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500/15 via-orange-500/15 to-rose-500/15 border border-amber-200/70 flex items-center justify-center shadow-sm">
-              <Feather size={20} className="text-amber-700" strokeWidth={1.8} />
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 pt-4 pb-2.5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center shadow-2xs">
+              <Feather size={19} className="text-gray-800" strokeWidth={2} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight text-stone-900 leading-none">
+                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 leading-none">
                   Campus Diaries
                 </h1>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100/80 text-amber-800 border border-amber-200/60">
-                  MAIT Ecosystem
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
+                  MAIT Stories
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-stone-500 font-medium mt-1">
-                Reflections, stories & memories from across our campus
+              <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">
+                A visual journal of moments, memories, and stories from campus
               </p>
             </div>
           </div>
+
+          {/* Premium 'Create' / 'Write Entry' Button inside top header */}
+          <motion.button
+            onClick={() => setIsDiaryCreatorOpen(true)}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            className="flex items-center gap-2 px-4.5 py-2 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex-shrink-0 border border-gray-800"
+            aria-label="Create new story entry"
+          >
+            <Sparkles size={15} className="text-amber-300 animate-pulse" />
+            <span>Create</span>
+          </motion.button>
         </div>
 
-        {/* Navigation Tabs (Scrollable Segmented Pill) */}
-        <div className="max-w-7xl mx-auto px-4 pb-3 pt-1">
-          <div className="flex items-center gap-1.5 p-1.5 bg-stone-100/80 border border-stone-200/60 rounded-full overflow-x-auto scrollbar-none w-full md:w-fit">
+        {/* Horizontally Scrollable Row of Floating, Soft-Shadowed Pills */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
             {FILTER_TABS.map((tab) => {
               const isActive = activeFilter === tab.value;
               return (
                 <button
                   key={tab.value}
                   onClick={() => setActiveFilter(tab.value)}
-                  className={`relative px-4.5 py-2 md:px-5 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all duration-200 flex items-center gap-2 whitespace-nowrap flex-shrink-0 cursor-pointer ${
-                    isActive ? 'text-stone-900' : 'text-stone-500 hover:text-stone-700'
+                  className={`relative px-4.5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap flex-shrink-0 cursor-pointer ${
+                    isActive
+                      ? 'bg-gray-900 text-white shadow-md border border-gray-900'
+                      : 'bg-white/90 text-gray-600 border border-gray-200/80 shadow-2xs hover:bg-white hover:text-gray-900 hover:shadow-sm'
                   }`}
                   aria-pressed={isActive}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="diaryFilterIndicator"
-                      className="absolute inset-0 bg-white rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.065)] border border-stone-200/50"
-                      transition={{ type: 'spring', damping: 25, stiffness: 320 }}
-                    />
-                  )}
-                  <span className={`relative z-10 transition-colors ${isActive ? tab.activeColor : 'text-stone-400'}`}>
+                  <span className={`transition-colors ${isActive ? 'text-white' : 'text-gray-400'}`}>
                     {tab.icon}
                   </span>
-                  <span className="relative z-10 tracking-tight">
+                  <span className="tracking-tight">
                     {tab.label}
                   </span>
                 </button>
@@ -187,12 +195,12 @@ export const CommunityFeed: React.FC = () => {
       </header>
 
       {/* ── Feed Content Body ───────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto pt-5 pb-32">
+      <main className="max-w-7xl mx-auto pt-6 pb-32">
         {/* Friends who wrote recently (if Friends tab is active) */}
         {activeFilter === 'friends' && <FriendsRow writers={friendWriters} />}
 
-        {/* Masonry / Vertical Stack Feed Grid */}
-        <div className="px-4">
+        {/* Masonry Card Grid */}
+        <div className="px-3 sm:px-6">
           <DiaryMasonryGrid
             filter={activeFilter}
             followingIds={followingIds}
@@ -200,24 +208,19 @@ export const CommunityFeed: React.FC = () => {
           />
         </div>
       </main>
-
+      
       {/* ── Prominent Floating Action Button (FAB) ──────────────── */}
       <motion.button
         onClick={() => setIsDiaryCreatorOpen(true)}
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
-        className="group fixed right-5 md:right-8 bottom-24 md:bottom-8 z-40 px-6 py-4 rounded-full flex items-center gap-3 transition-all duration-300 select-none cursor-pointer"
-        style={{
-          background: '#18181B', // sleek dark stone-900 button for contrast in ultra-premium light mode
-          boxShadow: '0 14px 38px rgba(24, 24, 27, 0.28), 0 4px 12px rgba(0, 0, 0, 0.15)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-        }}
+        className="group fixed right-4 md:right-8 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-8 z-40 px-6 py-3.5 rounded-full flex items-center gap-2.5 transition-all duration-300 select-none cursor-pointer bg-white text-gray-900 border border-gray-200/90 shadow-[0_12px_36px_rgba(0,0,0,0.09)] hover:shadow-[0_16px_44px_rgba(0,0,0,0.13)]"
         aria-label="Write a new diary entry"
       >
-        <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover:rotate-12 transition-transform">
-          <Feather size={17} strokeWidth={2} />
+        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 group-hover:rotate-12 transition-transform">
+          <Feather size={16} strokeWidth={2.2} />
         </div>
-        <span className="text-white text-sm font-extrabold tracking-wide pr-0.5">
+        <span className="text-gray-900 text-sm font-extrabold tracking-tight pr-0.5">
           Write Entry
         </span>
       </motion.button>
@@ -235,3 +238,4 @@ export const CommunityFeed: React.FC = () => {
     </div>
   );
 };
+

@@ -302,7 +302,7 @@ export const NoticesPage: React.FC = () => {
   const regular = activeNotices.filter((n) => !isPinnedAndActive(n));
 
   return (
-    <div className="min-h-full bg-background px-4 py-6 md:px-6 md:py-8">
+    <div className="min-h-full bg-background px-4 py-6 pb-12 md:px-6 md:py-8">
       <div className="max-w-2xl mx-auto">
         {/* Page Header */}
         <div className="flex items-start justify-between gap-4 mb-8">

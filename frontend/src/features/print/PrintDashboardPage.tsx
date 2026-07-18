@@ -464,7 +464,7 @@ export const PrintDashboardPage: React.FC = () => {
         {/* ========================================================
             MOBILE PWA VIEWPORT (<md) - Ultra-Minimalist & Isolated
         ======================================================== */}
-        <div className="md:hidden flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+        <div className="md:hidden flex-1 overflow-y-auto pb-6">
           {activeView === 'Live Orders' && (
             <MobilePrintOrdersDashboard
               shop={shop}
@@ -490,9 +490,9 @@ export const PrintDashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Sleek Fixed Mobile Bottom Navigation Bar (<md) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-shop-bg-surface/95 backdrop-blur-md border-t border-gray-100 dark:border-shop-border-subtle px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.04)] dark:shadow-none transition-colors">
-          <div className="flex items-center justify-around">
+        {/* Sleek Mobile Bottom Navigation Bar (<md) strictly stacked inside flex-col */}
+        <nav className="md:hidden shrink-0 w-full z-50 bg-white/95 dark:bg-shop-bg-surface/95 backdrop-blur-md border-t border-gray-100 dark:border-shop-border-subtle px-4 py-2 h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-4px_20px_rgba(0,0,0,0.04)] dark:shadow-none transition-colors">
+          <div className="flex items-center justify-around h-full">
             {navItems.map((item) => {
               const isActive = activeView === item.label;
               return (

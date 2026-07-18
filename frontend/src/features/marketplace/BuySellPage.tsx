@@ -645,6 +645,27 @@ export function BuySellPage() {
         </section>
       </div>
 
+      {/* ── Prominent Floating Action Button (FAB) ──────────────── */}
+      <button
+        type="button"
+        onClick={() => {
+          if (!isAllowed('listing_creation')) {
+            toast.error('Listing creation is currently restricted for your account.');
+            return;
+          }
+          setShowComposer(true);
+        }}
+        className="group fixed right-4 md:right-8 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-8 z-40 px-6 py-3.5 rounded-full flex items-center gap-2.5 transition-all duration-300 select-none cursor-pointer bg-white text-gray-900 border border-gray-200/90 shadow-[0_12px_36px_rgba(0,0,0,0.09)] hover:shadow-[0_16px_44px_rgba(0,0,0,0.13)] active:scale-95"
+        aria-label="Post a new marketplace listing"
+      >
+        <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:rotate-90 transition-transform duration-300">
+          <Plus size={16} strokeWidth={2.4} />
+        </div>
+        <span className="text-gray-900 text-sm font-extrabold font-syne tracking-tight pr-0.5">
+          Post Item
+        </span>
+      </button>
+
       <CreateListingModal
         open={showComposer}
         draft={draft}

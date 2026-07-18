@@ -50,7 +50,7 @@ export const ProfessorCampusNoticesPage: React.FC = () => {
   useEffect(() => { loadNotices(); }, [loadNotices]);
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-prof-bg-base px-4 py-8 md:px-8 font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-prof-bg-base px-4 py-8 pb-12 md:px-8 font-sans transition-colors duration-200">
       <div className="max-w-[800px] mx-auto">
         <div className="mb-10 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2.5 mb-3">

@@ -198,7 +198,7 @@ export const CanteenDashboardPage: React.FC = () => {
         </div>
 
         {/* Content View Area */}
-        <div className="flex-1 overflow-auto p-0 md:p-6 lg:p-10 pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10">
+        <div className="flex-1 overflow-y-auto p-0 md:p-6 lg:p-10 pb-6 md:pb-10">
           <FeatureErrorBoundary featureName="Canteen Dashboard">
             <div className="hidden md:block">
               <ShopSettingsPanel shop={shop} onOverride={handleOverride} />
@@ -516,8 +516,8 @@ export const CanteenDashboardPage: React.FC = () => {
           </FeatureErrorBoundary>
         </div>
 
-        {/* Sleek Mobile Bottom Navigation Bar (Light & Dark Mode supported) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-shop-bg-surface border-t border-gray-100 dark:border-shop-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.04)] dark:shadow-none h-[calc(64px+env(safe-area-inset-bottom,8px))] pb-[env(safe-area-inset-bottom,8px)] z-50 flex items-center justify-around px-1 select-none">
+        {/* Sleek Mobile Bottom Navigation Bar strictly below main scrollable content in the flex column */}
+        <nav className="md:hidden shrink-0 w-full bg-white dark:bg-shop-bg-surface border-t border-gray-100 dark:border-shop-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.04)] dark:shadow-none h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 flex items-center justify-around px-1 select-none">
           {navItems.map((item) => {
             const isActive = activeView === item.label;
             return (

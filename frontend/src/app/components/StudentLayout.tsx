@@ -197,77 +197,77 @@ export const StudentLayout: React.FC = () => {
         </div>
       )}
 
-      {/* Main Content */}
-      <main className={`flex-1 flex flex-col w-full h-full pt-[60px] md:pt-0 overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
+      {/* Main Content + Header + Bottom Nav Wrapper */}
+      <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-[var(--bg-primary)] ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
         {/* Scrollable main content */}
-        <div className="flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
-        {activeAnnouncement && (
-          <div className="m-6 rounded-lg px-4 py-4 border border-[var(--border)] bg-[var(--bg-primary)] shadow-soft">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-               <div>
-                  <h4 className="font-syne font-bold text-[var(--text-primary)] text-[16px]">{activeAnnouncement.title}</h4>
-                  <p className="font-sans text-[var(--text-secondary)] text-[14px] mt-1">{activeAnnouncement.content}</p>
-               </div>
-               <button onClick={dismissAnnouncement} className="btn-secondary">Dismiss</button>
-            </div>
-          </div>
-        )}
-        <div className="w-full h-full">
-          {currentFeatureDisabled ? (
-            <div className="flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
-              <div className="w-full max-w-xl rounded-[28px] border border-black/10 bg-[var(--bg)] p-8 text-center shadow-[0_16px_40px_rgba(13,13,13,0.08)]">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--yellow-light)] text-[var(--yellow-dark)]">
-                  <Star className="h-7 w-7" />
-                </div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--yellow-dark)]">Access limited</p>
-                <h2 className="mt-3 font-syne text-3xl font-extrabold text-[var(--text-primary)]">This section is turned off for your account.</h2>
-                <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">An admin has disabled this feature for your profile. Contact the admin team if you need access restored.</p>
-                <div className="mt-6 flex justify-center gap-3">
-                  <NavLink to={fallbackNavPath} className="rounded-md bg-[var(--text-primary)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)]">Open available section</NavLink>
-                  <NavLink to="/student/settings" className="rounded-md border border-black/10 bg-[var(--bg-primary)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]">Settings</NavLink>
-                </div>
+        <main className="flex-1 overflow-y-auto w-full pt-[60px] md:pt-0 pb-6 md:pb-0">
+          {activeAnnouncement && (
+            <div className="m-6 rounded-lg px-4 py-4 border border-[var(--border)] bg-[var(--bg-primary)] shadow-soft">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                 <div>
+                    <h4 className="font-syne font-bold text-[var(--text-primary)] text-[16px]">{activeAnnouncement.title}</h4>
+                    <p className="font-sans text-[var(--text-secondary)] text-[14px] mt-1">{activeAnnouncement.content}</p>
+                 </div>
+                 <button onClick={dismissAnnouncement} className="btn-secondary">Dismiss</button>
               </div>
             </div>
-          ) : (
-            <FeatureErrorBoundary featureName="Student Section">
-              <Outlet />
-            </FeatureErrorBoundary>
           )}
-        </div>
-        </div>
-      </main>
+          <div className="w-full h-full">
+            {currentFeatureDisabled ? (
+              <div className="flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
+                <div className="w-full max-w-xl rounded-[28px] border border-black/10 bg-[var(--bg)] p-8 text-center shadow-[0_16px_40px_rgba(13,13,13,0.08)]">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--yellow-light)] text-[var(--yellow-dark)]">
+                    <Star className="h-7 w-7" />
+                  </div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--yellow-dark)]">Access limited</p>
+                  <h2 className="mt-3 font-syne text-3xl font-extrabold text-[var(--text-primary)]">This section is turned off for your account.</h2>
+                  <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">An admin has disabled this feature for your profile. Contact the admin team if you need access restored.</p>
+                  <div className="mt-6 flex justify-center gap-3">
+                    <NavLink to={fallbackNavPath} className="rounded-md bg-[var(--text-primary)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)]">Open available section</NavLink>
+                    <NavLink to="/student/settings" className="rounded-md border border-black/10 bg-[var(--bg-primary)] px-5 py-3 text-sm font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]">Settings</NavLink>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <FeatureErrorBoundary featureName="Student Section">
+                <Outlet />
+              </FeatureErrorBoundary>
+            )}
+          </div>
+        </main>
 
-      {/* Fixed Bottom Navigation - Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 grid h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] w-full grid-cols-5 border-t border-black/10 bg-white px-1 md:hidden select-none shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-        {bottomNavItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.isMenu ? false : location.pathname.startsWith(item.path || '');
+        {/* Fixed Bottom Navigation - Mobile placed strictly right below main content inside the flex-col */}
+        <nav className="md:hidden shrink-0 z-50 grid h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] w-full grid-cols-5 border-t border-black/10 bg-white px-1 select-none shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
+          {bottomNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.isMenu ? false : location.pathname.startsWith(item.path || '');
 
-          if (item.isMenu) {
+            if (item.isMenu) {
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => setIsMobileMenuOpen(true)}
+                  className="flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <Icon size={20} className="text-[var(--text-muted)]" />
+                  <span className="leading-none">{item.label}</span>
+                </button>
+              );
+            }
+
             return (
-              <button
+              <NavLink
                 key={item.label}
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                to={item.path || '/student/home'}
+                className={`flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
               >
-                <Icon size={20} className="text-[var(--text-muted)]" />
+                <Icon size={20} className={isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'} />
                 <span className="leading-none">{item.label}</span>
-              </button>
+              </NavLink>
             );
-          }
-
-          return (
-            <NavLink
-              key={item.label}
-              to={item.path || '/student/home'}
-              className={`flex flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-            >
-              <Icon size={20} className={isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'} />
-              <span className="leading-none">{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
+          })}
+        </nav>
+      </div>
 
 
 

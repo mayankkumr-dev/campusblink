@@ -178,7 +178,7 @@ export const MobilePrintOrdersDashboard: React.FC<MobilePrintOrdersDashboardProp
   ];
 
   return (
-    <div className="flex flex-col min-h-dvh bg-[#FAFAFA] dark:bg-shop-bg-base text-gray-900 dark:text-shop-text-primary font-sans pb-28 select-none transition-colors">
+    <div className="flex flex-col min-h-full bg-[#FAFAFA] dark:bg-shop-bg-base text-gray-900 dark:text-shop-text-primary font-sans pb-6 select-none transition-colors">
       {/* ========================================================
           GLOBAL STICKY TOP HEADER & SHOP STATUS PANEL
       ======================================================== */}

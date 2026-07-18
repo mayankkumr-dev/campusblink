@@ -407,7 +407,7 @@ export const AdminNoticesPage: React.FC = () => {
         />
       )}
 
-      <div className="min-h-full bg-background px-4 py-6 md:px-6 md:py-8">
+      <div className="min-h-full bg-background px-4 py-6 pb-12 md:px-6 md:py-8">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">

@@ -303,10 +303,10 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className="admin-theme min-h-dvh flex flex-col md:flex-row font-sans bg-slate-50 text-slate-900 dark:bg-admin-bg-base dark:text-admin-text-primary transition-colors"
+      className="admin-theme h-dvh flex flex-col md:flex-row font-sans bg-slate-50 text-slate-900 dark:bg-admin-bg-base dark:text-admin-text-primary transition-colors overflow-hidden"
     >
       {/* ── Mobile Header ──────────────────────────────── */}
-      <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle sticky top-0 z-50 safe-area-top shadow-sm transition-colors">
+      <div className="md:hidden shrink-0 flex items-center justify-between h-14 px-4 bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle z-50 safe-area-top shadow-sm transition-colors">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-lg bg-amber-500 dark:bg-admin-accent flex items-center justify-center transition-colors">
             <span className="text-white dark:text-admin-bg-surface-elevated font-syne font-extrabold text-xs transition-colors">CB</span>
@@ -330,7 +330,7 @@ export const AdminLayout: React.FC = () => {
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={closeMenu}
           />
-          <div className="relative w-[85%] max-w-[320px] h-full shadow-2xl bg-white dark:bg-admin-bg-surface" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div className="relative w-[85%] max-w-[320px] h-full shadow-2xl bg-white dark:bg-admin-bg-surface overflow-y-auto" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             {sidebarContent}
           </div>
         </div>
@@ -341,11 +341,11 @@ export const AdminLayout: React.FC = () => {
         {sidebarContent}
       </div>
 
-      {/* ── Main Content ────────────────────────────────── */}
-      <div className="flex-1 md:ml-60 flex flex-col min-h-dvh bg-slate-50 dark:bg-admin-bg-base transition-colors">
+      {/* ── Main Content + Bottom Nav Wrapper ────────────────────────────────── */}
+      <div className="flex-1 md:ml-60 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-admin-bg-base transition-colors">
 
         {/* Top Header Bar */}
-        <header className="h-[64px] bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle flex items-center justify-between px-5 lg:px-8 shrink-0 sticky top-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-none transition-colors">
+        <header className="h-[64px] bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle hidden md:flex items-center justify-between px-5 lg:px-8 shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-none transition-colors">
 
           {/* Page Title + Breadcrumb */}
           <div className="flex items-center gap-2 min-w-0">
@@ -416,10 +416,41 @@ export const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 safe-area-bottom">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-6 safe-area-bottom">
           <AdminGlobalSearch />
           <Outlet />
         </main>
+
+        {/* Sleek Mobile Bottom Navigation Bar (<md) strictly stacked inside flex-col */}
+        <nav className="md:hidden shrink-0 w-full bg-white dark:bg-admin-bg-surface border-t border-slate-200 dark:border-admin-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none flex items-center justify-around h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-50 select-none px-1">
+          {[
+            { label: 'Dashboard', path: '/admin', icon: Home, exact: true },
+            { label: 'Notices', path: '/admin/notices', icon: Megaphone, exact: false },
+            { label: 'Alerts', path: '/admin/alerts', icon: Bell, exact: false },
+            { label: 'Orders', path: '/admin/shop-orders', icon: ShoppingBag, exact: false },
+            { label: 'Menu', path: '#', icon: Menu, isMenu: true }
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = item.isMenu ? false : item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  if (item.isMenu) {
+                    setIsMobileOpen(true);
+                  } else {
+                    navigate(item.path);
+                  }
+                }}
+                className={`flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-none ${isActive ? 'text-amber-500 dark:text-admin-accent font-bold' : 'text-slate-400 dark:text-admin-text-secondary font-medium'}`}
+              >
+                <Icon size={20} className={isActive ? 'scale-110' : ''} />
+                <span className="text-[10px] leading-none tracking-tight">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );

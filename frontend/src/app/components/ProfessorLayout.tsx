@@ -378,72 +378,72 @@ export const ProfessorLayout: React.FC = () => {
         {sidebarContent}
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content + Bottom Nav Wrapper */}
       <div className={`flex-1 flex flex-col w-full h-full md:pt-0 overflow-hidden transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
-        <main className="flex-1 overflow-y-auto pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-6">
+        <main className="flex-1 overflow-y-auto w-full pb-6 md:pb-6">
           <Outlet />
         </main>
+
+        {/* Mobile Bottom Navigation strictly below scrollable content in the flex column */}
+        <nav className="md:hidden shrink-0 w-full bg-white dark:bg-prof-bg-surface border-t border-gray-100 dark:border-prof-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.05)] dark:shadow-none flex items-center justify-around h-[calc(4.5rem+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] z-[60] select-none px-1">
+          {mobileNavItems.map((item) => {
+            const isActive = item.isMenu
+              ? false
+              : item.exact
+              ? location.pathname === item.to
+              : location.pathname.startsWith(item.to);
+
+            if (item.isMenu) {
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => setIsMobileOpen(true)}
+                  className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
+                >
+                  <div className="relative flex items-center justify-center px-3.5 py-1 rounded-2xl text-gray-400 dark:text-prof-text-tertiary hover:text-gray-600 dark:hover:text-prof-text-primary transition-all duration-300">
+                    <item.icon size={21} strokeWidth={1.5} />
+                  </div>
+                  <span className="text-[10px] font-medium tracking-tight text-gray-400 dark:text-prof-text-tertiary">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            }
+
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={(e) => {
+                  if (item.to === '/professor/alerts') {
+                    e.preventDefault();
+                    setNotificationPanelOpen(true);
+                  }
+                  setIsMobileOpen(false);
+                }}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
+              >
+                <div className={`relative flex items-center justify-center px-3.5 py-1 rounded-2xl transition-all duration-300 ${isActive ? 'bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-tertiary'}`}>
+                  <item.icon size={21} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-300" />
+                  {Number(item.badgeCount || 0) > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-prof-bg-surface"></span>
+                    </span>
+                  )}
+                </div>
+                <span className={`text-[10px] tracking-tight transition-colors ${isActive ? 'font-semibold text-blue-600 dark:text-prof-accent-blue' : 'font-medium text-gray-400 dark:text-prof-text-tertiary'}`}>
+                  {item.label}
+                </span>
+              </NavLink>
+            );
+          })}
+        </nav>
       </div>
 
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
       <PushPermissionBanner />
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-prof-bg-surface border-t border-transparent dark:border-prof-border-subtle shadow-[0_-4px_25px_rgba(0,0,0,0.05)] dark:shadow-none flex items-center justify-around h-[calc(66px+env(safe-area-inset-bottom,8px))] pb-[env(safe-area-inset-bottom,8px)] z-[60] select-none px-1">
-        {mobileNavItems.map((item) => {
-          const isActive = item.isMenu
-            ? false
-            : item.exact
-            ? location.pathname === item.to
-            : location.pathname.startsWith(item.to);
-
-          if (item.isMenu) {
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => setIsMobileOpen(true)}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
-              >
-                <div className="relative flex items-center justify-center px-3.5 py-1 rounded-2xl text-gray-400 dark:text-prof-text-tertiary hover:text-gray-600 dark:hover:text-prof-text-primary transition-all duration-300">
-                  <item.icon size={21} strokeWidth={1.5} />
-                </div>
-                <span className="text-[10px] font-medium tracking-tight text-gray-400 dark:text-prof-text-tertiary">
-                  {item.label}
-                </span>
-              </button>
-            );
-          }
-
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={(e) => {
-                if (item.to === '/professor/alerts') {
-                  e.preventDefault();
-                  setNotificationPanelOpen(true);
-                }
-                setIsMobileOpen(false);
-              }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-full pt-1.5 focus:outline-hidden"
-            >
-              <div className={`relative flex items-center justify-center px-3.5 py-1 rounded-2xl transition-all duration-300 ${isActive ? 'bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-600 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-tertiary'}`}>
-                <item.icon size={21} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-300" />
-                {Number(item.badgeCount || 0) > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-white dark:border-prof-bg-surface"></span>
-                  </span>
-                )}
-              </div>
-              <span className={`text-[10px] tracking-tight transition-colors ${isActive ? 'font-semibold text-blue-600 dark:text-prof-accent-blue' : 'font-medium text-gray-400 dark:text-prof-text-tertiary'}`}>
-                {item.label}
-              </span>
-            </NavLink>
-          );
-        })}
-      </nav>
       
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {
