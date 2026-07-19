@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { clientsClaim } from 'workbox-core';
-import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst, StaleWhileRevalidate, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
@@ -123,20 +123,23 @@ registerRoute(mutationMatcher, mutationStrategy, 'PUT');
 registerRoute(mutationMatcher, mutationStrategy, 'PATCH');
 registerRoute(mutationMatcher, mutationStrategy, 'DELETE');
 
-// ─── Navigation Routes — Network First + Offline Shell Fallback ──────────────
-// NetworkFirst ensures fresh HTML is always preferred over a stale cached shell.
-const navigationHandler = new NetworkFirst({
-  cacheName: 'cb-pages-v2',
-  networkTimeoutSeconds: 4,
-  plugins: [
-    new CacheableResponsePlugin({ statuses: [0, 200] }),
-    new ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 7 }),
-  ],
-});
-
-registerRoute(new NavigationRoute(navigationHandler, {
-  denylist: [/^\/auth\/callback/],
-}));
+// ─── Navigation Routes — Instant PWA Shell Fallback ──────────────
+// Serves the precached index.html instantly without waiting for the network!
+// This makes the app launch instantly without the 4-second NetworkFirst delay.
+try {
+  const handler = createHandlerBoundToURL('/index.html');
+  registerRoute(new NavigationRoute(handler, {
+    denylist: [/^\/auth\/callback/],
+  }));
+} catch (e) {
+  // Fallback for dev mode where index.html might not be in the precache manifest
+  registerRoute(new NavigationRoute(new NetworkFirst({
+    cacheName: 'cb-pages-v2',
+    networkTimeoutSeconds: 4,
+  }), {
+    denylist: [/^\/auth\/callback/],
+  }));
+}
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {

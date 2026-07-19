@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { Heart, Trash2, X, BookOpen, Clock, ThumbsUp, MessageCircle, Send, Share2, Gift, MoreHorizontal, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
@@ -1044,6 +1044,7 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
 }) => {
   const profile = useAuthStore((s) => s.profile);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const diaryIdParam = searchParams.get('diaryId');
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1057,7 +1058,18 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
 
   // Sync individual diary link when URL parameter is present
   useEffect(() => {
-    if (closingRef.current || !diaryIdParam || viewEntry?.id === diaryIdParam) return;
+    if (closingRef.current) return;
+    
+    // If the URL param is missing but a diary is open, user pressed the hardware "Back" button
+    if (!diaryIdParam) {
+      if (viewEntry) {
+        setViewEntry(null);
+      }
+      return;
+    }
+
+    if (viewEntry?.id === diaryIdParam) return;
+    
     const found = entries.find((e) => e.id === diaryIdParam);
     if (found) {
       setViewEntry(found);
@@ -1102,19 +1114,26 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
     setViewEntry(entry);
     const params = new URLSearchParams(window.location.search);
     params.set('diaryId', entry.id);
-    setSearchParams(params, { replace: true });
+    // Push the state so the hardware "Back" button works correctly
+    setSearchParams(params);
   }, [setSearchParams]);
 
   const handleCloseFullscreen = useCallback(() => {
     closingRef.current = true;
     setViewEntry(null);
-    const params = new URLSearchParams(window.location.search);
-    params.delete('diaryId');
-    setSearchParams(params, { replace: true });
+    
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      params.delete('diaryId');
+      setSearchParams(params, { replace: true });
+    }
+    
     setTimeout(() => {
       closingRef.current = false;
     }, 400);
-  }, [setSearchParams]);
+  }, [navigate, setSearchParams]);
 
   const load = useCallback(async (pageNum: number, resetEntries = false) => {
     setIsLoading(true);
