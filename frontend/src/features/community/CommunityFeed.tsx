@@ -127,72 +127,105 @@ export const CommunityFeed: React.FC = () => {
     return <AccessDenied feature="Community" />;
   }
 
+  const daysOnApp = profile?.created_at
+    ? Math.max(1, Math.ceil((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24)))
+    : ((profile as any)?.streak_days || 15);
+
   return (
     <div className="w-full min-h-screen bg-gray-50 text-gray-900 font-sans select-none">
-      {/* ── Sleek, Sticky Top Header Ribbon ──────────────────────── */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs pt-[env(safe-area-inset-top,0px)] transition-all">
-        {/* Title row */}
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 pt-4 pb-2.5 gap-3">
+      {/* ── Desktop-Only Title Ribbon (Mobile uses native top bar 'Diaries') ── */}
+      <header className="hidden md:block sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs pt-[env(safe-area-inset-top,0px)] transition-all">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 pt-4 pb-3 gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center shadow-2xs shrink-0">
               <BookOpen size={19} className="text-gray-800" strokeWidth={2} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 leading-none truncate font-syne">
+                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none truncate font-syne">
                   Campus Diaries
                 </h1>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
                   MAIT Stories
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-gray-500 font-medium mt-1 truncate">
+              <p className="text-sm text-gray-500 font-medium mt-1 truncate">
                 A visual journal of moments, memories, and stories from campus
               </p>
             </div>
           </div>
 
-          {/* Premium Single 'Create' Button inside top header */}
           <motion.button
             onClick={() => setIsDiaryCreatorOpen(true)}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
             aria-label="Create new story entry"
           >
             <Sparkles size={16} className="text-amber-300 animate-pulse shrink-0" />
             <span>Create</span>
           </motion.button>
         </div>
-
-        {/* Horizontally Scrollable Row of Equal-Weight Pill Tabs with no clipping */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-0.5">
-            {FILTER_TABS.map((tab) => {
-              const isActive = activeFilter === tab.value;
-              return (
-                <button
-                  key={tab.value}
-                  onClick={() => setActiveFilter(tab.value)}
-                  className={`relative px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer min-h-[42px] ${
-                    isActive
-                      ? 'bg-gray-900 text-white shadow-sm border border-gray-900'
-                      : 'bg-white text-gray-600 border border-gray-200 shadow-2xs hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  aria-pressed={isActive}
-                >
-                  <span className={`transition-colors ${isActive ? 'text-white' : 'text-gray-400'}`}>
-                    {tab.icon}
-                  </span>
-                  <span className="tracking-tight">
-                    {tab.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
       </header>
+
+      {/* ── Daily Prompt Streak Card & Single-Row Filters ────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-3 space-y-3">
+        {/* Day Prompt Card matching screenshot */}
+        <motion.div
+          onClick={() => setIsDiaryCreatorOpen(true)}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800/90 shadow-md p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer text-white transition-all hover:border-slate-700 active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="flex flex-col items-center justify-center rounded-xl overflow-hidden shrink-0 shadow-sm border border-slate-700/60 w-12 sm:w-14">
+              <span className="bg-sky-500 text-white font-syne font-bold text-[10px] sm:text-[11px] px-2 py-0.5 w-full text-center tracking-wide uppercase">
+                Day
+              </span>
+              <span className="bg-slate-800 text-white font-syne font-extrabold text-sm sm:text-base px-2 py-1 w-full text-center">
+                {daysOnApp}
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-syne font-bold text-sm sm:text-base text-white truncate group-hover:text-amber-200 transition-colors">
+                Treasuring my peaceful ti...
+              </h2>
+              <p className="font-sans text-xs text-slate-300/80 mt-0.5 flex items-center gap-1">
+                <span>Share your story ✍️</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-white/10 text-slate-300 group-hover:bg-white/20 group-hover:text-white transition-all">
+            <span className="text-sm font-bold">→</span>
+          </div>
+        </motion.div>
+
+        {/* Single Page Filter Grid — All filters visible without horizontal swiping */}
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2 w-full pt-1">
+          {FILTER_TABS.map((tab) => {
+            const isActive = activeFilter === tab.value;
+            return (
+              <button
+                key={tab.value}
+                onClick={() => setActiveFilter(tab.value)}
+                className={`relative px-2 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[42px] ${
+                  isActive
+                    ? 'bg-gray-900 text-white shadow-sm border border-gray-900 font-extrabold'
+                    : 'bg-white text-gray-600 border border-gray-200/90 shadow-2xs hover:bg-gray-50 hover:text-gray-900'
+                }`}
+                aria-pressed={isActive}
+              >
+                <span className={`transition-colors shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`}>
+                  {tab.icon}
+                </span>
+                <span className="tracking-tight truncate">
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* ── Feed Content Body ───────────────────────────────────── */}
       <main className="max-w-7xl mx-auto pt-6 pb-6 md:pb-10">

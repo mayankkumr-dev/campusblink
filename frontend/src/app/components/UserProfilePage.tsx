@@ -243,7 +243,16 @@ export const UserProfilePage: React.FC = () => {
                 {targetProfile.cover_url ? (
                   <img loading="lazy" src={targetProfile.cover_url} alt="Profile banner" className="h-full w-full object-cover" />
                 ) : (
-                  <img loading="lazy" src={DEFAULT_BANNER_IMAGE_URL} alt="Default profile banner" className="h-full w-full object-cover" />
+                  <div className="h-full w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 relative overflow-hidden flex items-center justify-center">
+                    <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+                    <div className="absolute -left-10 -top-10 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
+                      <span className="font-syne font-extrabold text-xl sm:text-2xl tracking-widest uppercase text-white/20 select-none">
+                        Campus Blink Journal
+                      </span>
+                    </div>
+                  </div>
                 )}
                 <button
                   type="button"
@@ -321,31 +330,35 @@ export const UserProfilePage: React.FC = () => {
               </div>
 
               {/* User Info & Bio Section */}
-              <div className="mx-auto px-6 pt-3">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="font-syne font-bold text-2xl text-text-primary leading-tight flex items-center gap-1.5">
+              <div className="mx-auto px-6 pt-3 min-w-0 max-w-full">
+                <div className="flex flex-wrap items-center gap-2.5 min-w-0 max-w-full">
+                  <h1 className="font-syne font-bold text-2xl text-text-primary leading-tight flex items-center gap-1.5 break-words truncate max-w-full">
                     {targetProfile.name}
                     {targetProfile.role === 'professor' && <ProfessorBadge />}
                   </h1>
                 </div>
 
-                <p className="mt-0.5 text-sm font-medium text-text-secondary">@{getDisplayHandle(targetProfile.username, 'student')}</p>
+                <p className="mt-0.5 text-sm font-medium text-text-secondary truncate max-w-full">@{getDisplayHandle(targetProfile.username, 'student')}</p>
 
-                <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-text-primary">
+                <p className="mt-3 max-w-[540px] whitespace-pre-wrap break-words text-sm font-normal leading-relaxed text-text-primary">
                   {targetProfile.bio || "This user hasn't added a bio yet."}
                 </p>
 
-                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary">
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary min-w-0 max-w-full">
                   {targetProfile.location && (
-                    <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-text-secondary/70" /><span>{targetProfile.location}</span></div>
+                    <div className="flex items-center gap-1.5 min-w-0 max-w-full"><MapPin className="h-3.5 w-3.5 text-text-secondary/70 shrink-0" /><span className="truncate break-words">{targetProfile.location}</span></div>
                   )}
                   {targetProfile.website && (
-                    <a href={`https://${targetProfile.website.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-medium text-accent-blue transition-colors hover:underline">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      <span>{targetProfile.website.replace(/^https?:\/\//, '')}</span>
+                    <a href={`https://${targetProfile.website.replace(/^https?:\/\//, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 transition-colors text-accent-blue hover:underline min-w-0 max-w-full">
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0" /><span className="truncate">{targetProfile.website.replace(/^https?:\/\//, '')}</span>
                     </a>
                   )}
-                  <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-text-secondary/70" /><span>Joined {new Date(targetProfile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span></div>
+                  {targetProfile.created_at && (
+                    <div className="flex items-center gap-1.5 shrink-0"><Calendar className="h-3.5 w-3.5 text-text-secondary/70 shrink-0" /><span>Joined {new Date(targetProfile.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })}</span></div>
+                  )}
+                  {targetProfile.college && (
+                    <div className="flex items-center gap-1.5 min-w-0 max-w-full"><span className="text-text-secondary/70 shrink-0">🎓</span><span className="truncate break-words">{targetProfile.college}</span></div>
+                  )}
                 </div>
 
                 {visibleSocialLinks.length ? (

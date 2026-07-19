@@ -189,30 +189,38 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               className="h-full w-full object-cover object-center transition-opacity duration-300"
             />
           ) : (
-            <img
-              loading="lazy"
-              src={DEFAULT_BANNER_IMAGE_URL}
-              alt="Default profile banner"
-              className="h-full w-full object-cover object-center"
-            />
+            <div className="h-full w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 relative overflow-hidden flex items-center justify-center">
+              <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
+              <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute -left-10 -top-10 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+              <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
+                <span className="font-syne font-extrabold text-xl sm:text-2xl tracking-widest uppercase text-white/20 select-none">
+                  Campus Blink Journal
+                </span>
+              </div>
+            </div>
           )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-60" />
-          <button
-            onClick={() => coverInputRef.current?.click()}
-            className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-xl bg-white/95 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-text-primary shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-white"
-          >
-            <Camera className="h-3.5 w-3.5" />
-            Edit Cover
-          </button>
-          {profile.cover_url ? (
+          <div className="absolute right-3.5 bottom-3.5 z-20 flex items-center gap-2">
+            {profile.cover_url && (
+              <button
+                onClick={() => onRemoveMedia('cover')}
+                className="inline-flex items-center justify-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/25 px-3.5 py-2 text-xs font-bold text-rose-300 hover:text-rose-200 shadow-md transition-all min-h-[44px] min-w-[44px] cursor-pointer hover:bg-black/80"
+                aria-label="Remove cover photo"
+                title="Remove cover photo"
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+              </button>
+            )}
             <button
-              onClick={() => onRemoveMedia('cover')}
-              className="absolute right-[134px] top-4 inline-flex items-center gap-1.5 rounded-xl bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-accent-red shadow-sm opacity-0 transition-all duration-150 group-hover:opacity-100 hover:bg-rose-50"
+              onClick={() => coverInputRef.current?.click()}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-black/60 backdrop-blur-md border border-white/25 px-4 py-2 text-xs font-bold text-white shadow-md transition-all min-h-[44px] min-w-[44px] cursor-pointer hover:bg-black/80"
+              aria-label="Edit cover photo"
             >
-              <Trash2 className="h-3.5 w-3.5" />
-              Remove
+              <Camera className="h-4 w-4 shrink-0" />
+              <span className="hidden sm:inline">Edit Cover</span>
             </button>
-          ) : null}
+          </div>
           <input
             ref={coverInputRef}
             type="file"
@@ -228,30 +236,36 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             visibleSocialLinks.length ? 'pb-12' : ''
           }`}
         >
-          <div className="group relative h-28 w-28 overflow-hidden rounded-full border-4 border-surface bg-surface shadow-md">
-            <ProfilePictureInteract imageUrl={displayAvatar} alt={profile.name} className="h-full w-full">
-              <img
-                loading="lazy"
-                src={displayAvatar}
-                alt={profile.name}
-                className="h-full w-full rounded-full object-cover transition-transform duration-150 group-hover:scale-[1.03]"
-              />
-            </ProfilePictureInteract>
+          <div className="relative shrink-0">
+            <div className="group relative h-28 w-28 sm:h-32 sm:w-32 overflow-hidden rounded-full border-4 border-surface bg-surface shadow-md">
+              <ProfilePictureInteract imageUrl={displayAvatar} alt={profile.name} className="h-full w-full">
+                <img
+                  loading="lazy"
+                  src={displayAvatar}
+                  alt={profile.name}
+                  className="h-full w-full rounded-full object-cover transition-transform duration-150 group-hover:scale-[1.03]"
+                />
+              </ProfilePictureInteract>
+            </div>
+            {/* Anchored floating camera edit icon (bottom-right edge of avatar circle, 44x44pt) */}
             <button
               onClick={() => avatarInputRef.current?.click()}
-              className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+              className="absolute -bottom-1 -right-1 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 sm:bg-black/75 backdrop-blur-md border-2 border-white text-white shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer min-h-[44px] min-w-[44px]"
+              aria-label="Change profile picture"
+              title="Change profile picture"
             >
-              <Camera className="h-5 w-5 text-white" />
+              <Camera className="h-5 w-5" />
             </button>
-            {profile.avatar_url ? (
+            {profile.avatar_url && (
               <button
                 onClick={() => onRemoveMedia('avatar')}
-                className="absolute bottom-1 right-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-surface text-accent-red shadow-sm"
-                title="Remove photo"
+                className="absolute -top-1 -right-1 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-rose-600 sm:bg-black/75 backdrop-blur-md border-2 border-white text-white shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                aria-label="Remove profile picture"
+                title="Remove profile picture"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="h-4 w-4" />
               </button>
-            ) : null}
+            )}
             <input
               ref={avatarInputRef}
               type="file"
@@ -305,31 +319,31 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         {/* User Info & Bio Section */}
         <div className="mx-auto px-6 pt-4">
           <div className="animate-[fadeIn_0.3s_ease]">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="font-syne font-bold text-2xl text-text-primary select-text leading-tight">
+            <div className="flex flex-wrap items-center gap-2.5 min-w-0 max-w-full">
+              <h1 className="font-syne font-bold text-2xl text-text-primary select-text leading-tight break-words truncate max-w-full">
                 {profile.name}
               </h1>
-              <span className="inline-flex items-center rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
-                <GraduationCap className="mr-1 h-3.5 w-3.5" />
-                MAIT
+              <span className="inline-flex items-center rounded-full bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700 shrink-0 max-w-full truncate">
+                <GraduationCap className="mr-1 h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">MAIT</span>
               </span>
             </div>
 
-            <p className="mt-0.5 text-sm font-medium text-text-secondary">
+            <p className="mt-0.5 text-sm font-medium text-text-secondary truncate max-w-full">
               @{getDisplayHandle(profile.username, 'student')}
             </p>
 
-            <p className="mt-3 max-w-[540px] whitespace-pre-wrap text-sm font-normal leading-relaxed text-text-primary select-text">
+            <p className="mt-3 max-w-[540px] whitespace-pre-wrap break-words text-sm font-normal leading-relaxed text-text-primary select-text">
               {profile.bio ||
                 'Set up your profile with a short intro, your links, and what you are known for on campus.'}
             </p>
 
             {/* College Tags & Metadata Strip */}
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary">
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary min-w-0 max-w-full">
               {profile.location ? (
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-text-secondary/70" />
-                  <span>{profile.location}</span>
+                <div className="flex items-center gap-1.5 min-w-0 max-w-full">
+                  <MapPin className="h-3.5 w-3.5 text-text-secondary/70 shrink-0" />
+                  <span className="truncate break-words">{profile.location}</span>
                 </div>
               ) : null}
               {profile.website ? (
@@ -337,21 +351,21 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   href={`https://${displayWebsite}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 transition-colors text-accent-blue hover:underline"
+                  className="flex items-center gap-1.5 transition-colors text-accent-blue hover:underline min-w-0 max-w-full"
                 >
-                  <Link2 className="h-3.5 w-3.5" />
-                  <span>{displayWebsite}</span>
+                  <Link2 className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{displayWebsite}</span>
                 </a>
               ) : null}
               {joinedOn ? (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-text-secondary/70" />
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Calendar className="h-3.5 w-3.5 text-text-secondary/70 shrink-0" />
                   <span>Joined {joinedOn}</span>
                 </div>
               ) : null}
-              <div className="flex items-center gap-1.5">
-                <GraduationCap className="h-3.5 w-3.5 text-text-secondary/70" />
-                <span>{profile.college || ONLY_COLLEGE}</span>
+              <div className="flex items-center gap-1.5 min-w-0 max-w-full">
+                <GraduationCap className="h-3.5 w-3.5 text-text-secondary/70 shrink-0" />
+                <span className="truncate break-words">{profile.college || ONLY_COLLEGE}</span>
               </div>
             </div>
 

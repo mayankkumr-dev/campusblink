@@ -6,6 +6,7 @@ import { clearAllNotifications, deleteNotification, getNotifications, markAllRea
 import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { NotificationsSkeleton } from './BoneyardSkeletons';
+import { getAlertAppearance, clusterConsecutiveNotifications } from './AlertSlidePanel';
 
 export const StudentNotificationsPage: React.FC = () => {
   const profile = useAuthStore((state) => state.profile);
@@ -16,6 +17,7 @@ export const StudentNotificationsPage: React.FC = () => {
   const clearNotifications = useNotificationStore((state) => state.clearNotifications);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedClusters, setExpandedClusters] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -99,56 +101,106 @@ export const StudentNotificationsPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {notifications.map((n: any) => (
-              <div
-                key={n.id}
-                onClick={() => {
-                  if (n.link) navigate(n.link);
-                }}
-                className={`rounded-lg border bg-[var(--bg)] p-4 md:p-5 transition-colors ${
-                  n.is_read ? 'border-[var(--text-primary)]/10' : 'border-[var(--yellow)]/40'
-                } ${n.link ? 'cursor-pointer hover:bg-[var(--bg-primary)]' : ''}`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex items-start gap-3">
-                    <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-md bg-[var(--bg-tertiary)] text-sm">
-                      {n.type === 'announcement' ? '📣' : '🔔'}
-                    </div>
-                    <div>
-                    <h2 className="font-sans font-bold text-[var(--text-primary)] truncate">{n.title}</h2>
-                    <p className="font-sans text-sm text-[var(--text-secondary)] mt-1">{n.message}</p>
-                    <p className="font-sans text-xs text-[var(--text-muted)] mt-2">
-                      {n.created_at ? new Date(n.created_at).toLocaleString() : ''}
-                    </p>
-                    </div>
-                  </div>
+            {clusterConsecutiveNotifications(notifications, false).map((cluster) => {
+              const isExpanded = expandedClusters[cluster.id] || false;
+              const { bgClass, Icon } = getAlertAppearance(cluster.items[0], false);
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    {n.link && (
-                      <Link
-                        to={n.link}
-                        onClick={(event) => event.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)] hover:underline"
-                      >
-                        Open
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
-                    )}
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDeleteAlert(n.id);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-md border border-[var(--text-primary)]/15 px-2.5 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </button>
+              if (cluster.isGrouped && !isExpanded) {
+                return (
+                  <div
+                    key={cluster.id}
+                    onClick={() => setExpandedClusters((prev) => ({ ...prev, [cluster.id]: true }))}
+                    className="rounded-xl border border-[var(--text-primary)]/10 bg-[var(--bg)] p-4 md:p-5 transition-all cursor-pointer hover:bg-[var(--bg-primary)] flex items-center justify-between gap-4 shadow-xs"
+                  >
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${bgClass}`}>
+                        <Icon className="h-5 w-5 stroke-[2]" />
+                      </div>
+                      <div className="min-w-0">
+                        <h2 className="font-syne font-bold text-[var(--text-primary)] truncate text-sm md:text-base">
+                          {cluster.items.length} new {cluster.category.toLowerCase()} alerts
+                        </h2>
+                        <p className="font-sans text-xs text-[var(--text-secondary)] truncate">
+                          Tap to expand grouped updates
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                        {cluster.items.length}
+                      </span>
+                    </div>
                   </div>
+                );
+              }
+
+              return (
+                <div key={cluster.id} className={cluster.isGrouped ? 'space-y-2 pl-3 border-l-2 border-blue-500/20 ml-2 my-2' : ''}>
+                  {cluster.isGrouped && (
+                    <div
+                      onClick={() => setExpandedClusters((prev) => ({ ...prev, [cluster.id]: false }))}
+                      className="flex items-center justify-between px-3 py-1 text-xs font-semibold text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-primary)]"
+                    >
+                      <span>Grouped {cluster.category.toLowerCase()}s ({cluster.items.length})</span>
+                      <span className="text-[11px] text-blue-500 font-bold">Collapse</span>
+                    </div>
+                  )}
+                  {cluster.items.map((n: any) => {
+                    const itemApp = getAlertAppearance(n, false);
+                    return (
+                      <div
+                        key={n.id}
+                        onClick={() => {
+                          if (n.link) navigate(n.link);
+                        }}
+                        className={`rounded-xl border bg-[var(--bg)] p-4 md:p-5 transition-all shadow-xs ${
+                          n.is_read ? 'border-[var(--text-primary)]/10' : 'border-[var(--yellow)]/40'
+                        } ${n.link ? 'cursor-pointer hover:bg-[var(--bg-primary)]' : ''}`}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0 flex items-start gap-3.5">
+                            <div className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${itemApp.bgClass}`}>
+                              <itemApp.Icon className="h-5 w-5 stroke-[2]" />
+                            </div>
+                            <div className="min-w-0">
+                              <h2 className="font-syne font-bold text-[var(--text-primary)] truncate text-sm md:text-base">{n.title}</h2>
+                              <p className="font-sans text-sm text-[var(--text-secondary)] mt-1 leading-relaxed">{n.message}</p>
+                              <p className="font-sans text-xs text-[var(--text-muted)] mt-2 font-semibold uppercase tracking-wide">
+                                {n.created_at ? new Date(n.created_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {n.link && (
+                              <Link
+                                to={n.link}
+                                onClick={(event) => event.stopPropagation()}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-[var(--accent)] hover:underline"
+                              >
+                                Open
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Link>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleDeleteAlert(n.id);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-lg border border-[var(--text-primary)]/15 px-2.5 py-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

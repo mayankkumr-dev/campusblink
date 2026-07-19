@@ -30,6 +30,13 @@
   --radius-xl: 12px;
   --radius-full: 9999px;
 
+  /* Consolidated Mobile PWA Tokens */
+  --mobile-card-radius: 16px;
+  --mobile-card-radius-lg: 20px;
+  --mobile-card-padding: 16px;
+  --mobile-card-border: var(--border-subtle);
+  --mobile-card-shadow: 0 2px 12px rgba(10,15,30,0.05);
+
   /* Legacy aliases to keep old UI somewhat working until fully refactored */
   --bg: var(--bg-surface);
   --text: var(--text-primary);
@@ -61,6 +68,8 @@
   --bg-surface: #1A1B1E;
   --bg-surface-elevated: #202226;
   --border-subtle: rgba(255,255,255,0.08);
+  --mobile-card-border: rgba(255,255,255,0.08);
+  --mobile-card-shadow: 0 4px 16px rgba(0,0,0,0.25);
   --text-primary: #F4F5F7;
   --text-secondary: #9BA1AC;
   --text-placeholder: #6B7280;
@@ -666,4 +675,32 @@
 .btn-secondary:hover {
   background-color: var(--bg-secondary);
   border-color: var(--midnight-blue);
+}
+
+/* ─── Consolidated Mobile PWA & Touch Utilities ──────────────────────── */
+.mobile-interactive-card {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.mobile-interactive-card:active {
+  transform: scale(0.98);
+  opacity: 0.92;
+}
+
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

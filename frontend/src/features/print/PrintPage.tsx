@@ -414,7 +414,7 @@ export const PrintPage: React.FC = () => {
         
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-          <h1 className="font-syne font-bold text-2xl md:text-3xl text-[var(--text-primary)]">Printout preview</h1>
+          <h1 className="hidden md:block font-syne font-bold text-2xl md:text-3xl text-[var(--text-primary)]">Printout preview</h1>
           
           <div className="flex items-center gap-4">
              {/* Shop Selector */}

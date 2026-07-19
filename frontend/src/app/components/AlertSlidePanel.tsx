@@ -24,25 +24,59 @@ interface AlertSlidePanelProps {
   onClose: () => void;
 }
 
-function getAlertAppearance(n: any, isProf: boolean) {
+export function getAlertAppearance(n: any, isProf: boolean) {
   const t = `${n.type || ''} ${n.title || ''} ${n.message || ''}`.toLowerCase();
   const profDark = (c: string) => isProf ? c : '';
   if (t.includes('reject') || t.includes('cancel') || t.includes('error') || t.includes('fail')) {
-    return { bgClass: `bg-accent-red/15 text-accent-red ${profDark('dark:bg-prof-accent-red/10 dark:text-prof-accent-red')}`, Icon: AlertTriangle };
+    return { bgClass: `bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400 ${profDark('dark:bg-prof-accent-red/10 dark:text-prof-accent-red')}`, Icon: AlertTriangle, category: 'Alert' };
   }
   if (t.includes('print')) {
-    return { bgClass: `bg-accent-blue-soft text-accent-blue ${profDark('dark:bg-prof-accent-blue/10 dark:text-prof-accent-blue')}`, Icon: Printer };
+    return { bgClass: `bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400 ${profDark('dark:bg-prof-accent-blue/10 dark:text-prof-accent-blue')}`, Icon: Printer, category: 'Print' };
   }
   if (t.includes('canteen') || t.includes('order') || t.includes('food')) {
-    return { bgClass: `bg-accent-amber-soft text-accent-amber ${profDark('dark:bg-prof-accent-orange/10 dark:text-prof-accent-orange')}`, Icon: UtensilsCrossed };
+    return { bgClass: `bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 ${profDark('dark:bg-prof-accent-orange/10 dark:text-prof-accent-orange')}`, Icon: UtensilsCrossed, category: 'Canteen' };
   }
   if (t.includes('announce') || n.type === 'announcement') {
-    return { bgClass: `bg-accent-purple/15 text-accent-purple ${profDark('dark:bg-purple-900/30 dark:text-purple-400')}`, Icon: Megaphone };
+    return { bgClass: `bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 ${profDark('dark:bg-purple-900/30 dark:text-purple-400')}`, Icon: Megaphone, category: 'Announcement' };
   }
   if (t.includes('success') || t.includes('ready') || t.includes('complete') || t.includes('paid')) {
-    return { bgClass: `bg-accent-green/15 text-accent-green ${profDark('dark:bg-prof-accent-green/10 dark:text-prof-accent-green')}`, Icon: CheckCircle2 };
+    return { bgClass: `bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 ${profDark('dark:bg-prof-accent-green/10 dark:text-prof-accent-green')}`, Icon: CheckCircle2, category: 'Update' };
   }
-  return { bgClass: `bg-surface text-text-secondary ${profDark('dark:bg-prof-bg-surface-raised dark:text-prof-text-secondary')}`, Icon: Bell };
+  return { bgClass: `bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 ${profDark('dark:bg-prof-bg-surface-raised dark:text-prof-text-secondary')}`, Icon: Bell, category: 'General' };
+}
+
+export function clusterConsecutiveNotifications(items: any[], isProf: boolean) {
+  const clusters: { id: string; category: string; items: any[]; isGrouped: boolean }[] = [];
+  if (!items || items.length === 0) return clusters;
+
+  let currentCategory = getAlertAppearance(items[0], isProf).category;
+  let currentItems = [items[0]];
+
+  for (let i = 1; i < items.length; i++) {
+    const item = items[i];
+    const cat = getAlertAppearance(item, isProf).category;
+    if (cat === currentCategory && cat !== 'General') {
+      currentItems.push(item);
+    } else {
+      clusters.push({
+        id: `cluster-${currentItems[0].id}`,
+        category: currentCategory,
+        items: currentItems,
+        isGrouped: currentItems.length > 1,
+      });
+      currentCategory = cat;
+      currentItems = [item];
+    }
+  }
+  if (currentItems.length > 0) {
+    clusters.push({
+      id: `cluster-${currentItems[0].id}`,
+      category: currentCategory,
+      items: currentItems,
+      isGrouped: currentItems.length > 1,
+    });
+  }
+  return clusters;
 }
 
 function groupNotifications(notifications: any[]) {
@@ -87,6 +121,7 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [showFollowRequests, setShowFollowRequests] = useState(false);
+  const [expandedClusters, setExpandedClusters] = useState<Record<string, boolean>>({});
   const LIMIT = 30;
 
   const isProf = profile?.role === 'professor' || profile?.role === 'admin';
@@ -305,7 +340,8 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
               {groupKeys.map((group) => {
                 const groupItems = groupedNotifs[group];
                 if (groupItems.length === 0) return null;
-                
+                const clusters = clusterConsecutiveNotifications(groupItems, isProf);
+
                 return (
                   <div key={group} className="mb-2">
                     <div className={`px-6 py-3 bg-background sticky top-0 z-10 ${profDark('dark:bg-prof-bg-base')}`}>
@@ -313,81 +349,129 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                         {group}
                       </h4>
                     </div>
-                    <div className="flex flex-col gap-1 px-3">
-                      {groupItems.map((n: any) => {
-                        const { bgClass, Icon } = getAlertAppearance(n, isProf);
-                        const isUnread = !n.is_read;
-                        return (
-                          <div
-                            key={n.id}
-                            onClick={() => {
-                              if (n.link) {
-                                navigate(n.link);
-                                onClose();
-                              }
-                            }}
-                            className={`group relative flex items-start gap-4 px-4 py-4 rounded-2xl transition-all duration-200 ${
-                              isUnread 
-                                ? `bg-accent-blue-soft shadow-[0_2px_12px_rgba(37,99,235,0.03)] ${profDark('dark:bg-prof-accent-blue/10 dark:shadow-none')}` 
-                                : `hover:bg-surface-elevated ${profDark('dark:hover:bg-prof-bg-surface-raised')}`
-                            } ${n.link ? 'cursor-pointer' : ''}`}
-                          >
+                    <div className="flex flex-col gap-1.5 px-3">
+                      {clusters.map((cluster) => {
+                        const isExpanded = expandedClusters[cluster.id] || false;
+                        const { bgClass, Icon } = getAlertAppearance(cluster.items[0], isProf);
+
+                        if (cluster.isGrouped && !isExpanded) {
+                          return (
                             <div
-                              className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${bgClass}`}
+                              key={cluster.id}
+                              onClick={() => setExpandedClusters((prev) => ({ ...prev, [cluster.id]: true }))}
+                              className={`group flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl cursor-pointer transition-all bg-surface hover:bg-surface-elevated border border-border-subtle ${profDark('dark:bg-prof-bg-surface dark:border-prof-border-subtle dark:hover:bg-prof-bg-surface-raised')}`}
                             >
-                              <Icon className="h-5 w-5 stroke-[2]" />
-                            </div>
-
-                            <div className="min-w-0 flex-1 pr-10">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <h3 className={`font-syne text-sm font-bold text-text-primary leading-snug ${profDark('dark:text-prof-text-primary')}`}>
-                                  {n.title}
-                                </h3>
-                                {isUnread && (
-                                  <span className={`h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0 ${profDark('dark:bg-prof-accent-blue')}`} title="Unread" />
-                                )}
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bgClass}`}>
+                                  <Icon className="h-5 w-5 stroke-[2]" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h3 className={`font-syne text-sm font-bold text-text-primary truncate ${profDark('dark:text-prof-text-primary')}`}>
+                                    {cluster.items.length} new {cluster.category.toLowerCase()} alerts
+                                  </h3>
+                                  <p className={`text-xs text-text-secondary truncate ${profDark('dark:text-prof-text-secondary')}`}>
+                                    Tap to expand grouped updates
+                                  </p>
+                                </div>
                               </div>
-                              <p className={`text-xs leading-relaxed text-text-secondary line-clamp-3 ${profDark('dark:text-prof-text-secondary')}`}>
-                                {n.message}
-                              </p>
-                              <p className={`mt-2 text-[10px] font-bold text-text-secondary/70 uppercase tracking-wide ${profDark('dark:text-prof-text-tertiary')}`}>
-                                {n.created_at
-                                  ? new Date(n.created_at).toLocaleString([], {
-                                      month: 'short',
-                                      day: 'numeric',
-                                      hour: 'numeric',
-                                      minute: '2-digit',
-                                    })
-                                  : ''}
-                              </p>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400">
+                                  {cluster.items.length}
+                                </span>
+                                <ChevronRight className="w-4 h-4 text-text-secondary" />
+                              </div>
                             </div>
+                          );
+                        }
 
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 flex flex-col gap-1">
-                              {n.link && (
-                                <Link
-                                  to={n.link}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    onClose();
-                                  }}
-                                  className={`flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary transition-colors hover:text-text-primary hover:shadow-md ${profDark('dark:bg-prof-bg-surface-raised dark:shadow-none dark:text-prof-text-secondary dark:hover:bg-prof-border-strong dark:hover:text-prof-text-primary')}`}
-                                  title="Open link"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </Link>
-                              )}
-                              <button
-                                type="button"
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  handleDeleteAlert(n.id);
-                                }}
-                                className={`flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary/70 transition-colors hover:text-accent-red hover:shadow-md ${profDark('dark:bg-prof-bg-surface-raised dark:shadow-none dark:text-prof-text-secondary dark:hover:bg-prof-accent-red/20 dark:hover:text-prof-accent-red')}`}
-                                title="Delete alert"
+                        return (
+                          <div key={cluster.id} className={cluster.isGrouped ? 'space-y-1.5 pl-3 border-l-2 border-blue-500/20 ml-2 my-1' : ''}>
+                            {cluster.isGrouped && (
+                              <div
+                                onClick={() => setExpandedClusters((prev) => ({ ...prev, [cluster.id]: false }))}
+                                className="flex items-center justify-between px-3 py-1 text-xs font-semibold text-text-secondary cursor-pointer hover:text-text-primary"
                               >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
+                                <span>Grouped {cluster.category.toLowerCase()}s ({cluster.items.length})</span>
+                                <span className="text-[11px] text-blue-500 font-bold">Collapse</span>
+                              </div>
+                            )}
+                            {cluster.items.map((n: any) => {
+                              const itemApp = getAlertAppearance(n, isProf);
+                              const isUnread = !n.is_read;
+                              return (
+                                <div
+                                  key={n.id}
+                                  onClick={() => {
+                                    if (n.link) {
+                                      navigate(n.link);
+                                      onClose();
+                                    }
+                                  }}
+                                  className={`group relative flex items-start gap-4 px-4 py-4 rounded-2xl transition-all duration-200 ${
+                                    isUnread 
+                                      ? `bg-accent-blue-soft shadow-[0_2px_12px_rgba(37,99,235,0.03)] ${profDark('dark:bg-prof-accent-blue/10 dark:shadow-none')}` 
+                                      : `hover:bg-surface-elevated ${profDark('dark:hover:bg-prof-bg-surface-raised')}`
+                                  } ${n.link ? 'cursor-pointer' : ''}`}
+                                >
+                                  <div
+                                    className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${itemApp.bgClass}`}
+                                  >
+                                    <itemApp.Icon className="h-5 w-5 stroke-[2]" />
+                                  </div>
+
+                                  <div className="min-w-0 flex-1 pr-10">
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                      <h3 className={`font-syne text-sm font-bold text-text-primary leading-snug ${profDark('dark:text-prof-text-primary')}`}>
+                                        {n.title}
+                                      </h3>
+                                      {isUnread && (
+                                        <span className={`h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0 ${profDark('dark:bg-prof-accent-blue')}`} title="Unread" />
+                                      )}
+                                    </div>
+                                    <p className={`text-xs leading-relaxed text-text-secondary line-clamp-3 ${profDark('dark:text-prof-text-secondary')}`}>
+                                      {n.message}
+                                    </p>
+                                    <p className={`mt-2 text-[10px] font-bold text-text-secondary/70 uppercase tracking-wide ${profDark('dark:text-prof-text-tertiary')}`}>
+                                      {n.created_at
+                                        ? new Date(n.created_at).toLocaleString([], {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit',
+                                          })
+                                        : ''}
+                                    </p>
+                                  </div>
+
+                                  <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 flex flex-col gap-1">
+                                    {n.link && (
+                                      <Link
+                                        to={n.link}
+                                        onClick={(event) => {
+                                          event.stopPropagation();
+                                          onClose();
+                                        }}
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary transition-colors hover:text-text-primary hover:shadow-md ${profDark('dark:bg-prof-bg-surface-raised dark:shadow-none dark:text-prof-text-secondary dark:hover:bg-prof-border-strong dark:hover:text-prof-text-primary')}`}
+                                        title="Open link"
+                                      >
+                                        <ExternalLink className="h-4 w-4" />
+                                      </Link>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleDeleteAlert(n.id);
+                                      }}
+                                      className={`flex h-8 w-8 items-center justify-center rounded-full bg-surface shadow-sm text-text-secondary/70 transition-colors hover:text-accent-red hover:shadow-md ${profDark('dark:bg-prof-bg-surface-raised dark:shadow-none dark:text-prof-text-secondary dark:hover:bg-prof-accent-red/20 dark:hover:text-prof-accent-red')}`}
+                                      title="Delete alert"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       })}

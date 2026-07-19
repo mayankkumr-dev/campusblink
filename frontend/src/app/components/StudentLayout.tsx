@@ -1,7 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
-import { Bell, Home, Menu, X, Search, Store, User, Users, BookOpen, Star, Settings, UtensilsCrossed, Printer, Building2, ClipboardCheck, MessageCircle, LogOut, ChevronRight, Bookmark, ShieldAlert, Sparkles } from 'lucide-react';
+import {
+  Bell,
+  BookOpen,
+  Building2,
+  Home,
+  LogOut,
+  Menu,
+  MessageCircle,
+  Printer,
+  Search,
+  ShoppingBag,
+  Store,
+  User,
+  UtensilsCrossed,
+  X,
+  Star,
+  Settings,
+  Users,
+  Bookmark,
+  ShieldAlert,
+  Sparkles,
+  ClipboardCheck,
+  ChevronRight,
+} from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';
@@ -28,6 +51,17 @@ function getFeatureKeyFromPath(pathname: string) {
   return 'home';
 }
 
+function getMobileHeaderTitle(pathname: string) {
+  if (pathname.startsWith('/student/community')) return 'Diaries';
+  if (pathname.startsWith('/student/messages')) return 'Messages';
+  if (pathname.startsWith('/student/search')) return 'Search';
+  if (pathname.startsWith('/student/canteen')) return 'Canteen';
+  if (pathname.startsWith('/student/print')) return 'Print';
+  if (pathname.startsWith('/student/societies')) return 'Societies';
+  if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell')) return 'Marketplace';
+  return null;
+}
+
 export const StudentLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,6 +73,16 @@ export const StudentLayout: React.FC = () => {
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const menuCloseAndNavigate = (path: string) => {
+    setIsMobileMenuOpen(false);
+    if (window.history.state?.panel === 'student_menu') {
+      window.history.back();
+    }
+    setTimeout(() => {
+      navigate(path);
+    }, 10);
+  };
+
   // Support hardware back button for mobile menu
   useEffect(() => {
     if (!isMobileMenuOpen) return;
@@ -47,7 +91,6 @@ export const StudentLayout: React.FC = () => {
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      if (window.history.state?.panel === 'student_menu') window.history.back();
     };
   }, [isMobileMenuOpen]);
 
@@ -116,20 +159,38 @@ export const StudentLayout: React.FC = () => {
   const fallbackNavPath = visibleNavItems[0]?.path || '/student/settings';
   const bottomNavItems: TabBarItem[] = [
     { key: 'home', icon: Home, path: '/student/home', label: 'Home', exact: true },
-    { key: 'search', icon: Search, path: '/student/search', label: 'Search' },
+    { key: 'messages', icon: MessageCircle, path: '/student/messages', label: 'Chat' },
     { key: 'community', icon: BookOpen, path: '/student/community', label: 'Diaries' },
-    { key: 'exchange', icon: Store, path: '/student/campus-exchange', label: 'Exchange' },
+    { key: 'search', icon: Search, path: '/student/search', label: 'Search' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
   ];
+
+  const isDiaryOpen = location.pathname.includes('/post/') || window.location.search.includes('diaryId') || document.body.classList.contains('diary-fullscreen-open');
 
   return (
     <div className="flex h-screen w-full bg-gray-50 text-gray-900 font-sans overflow-hidden select-none no-touch-callout">
       {/* Refined Native Top Header */}
+      {!isDiaryOpen && (
       <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-md px-4 md:hidden shadow-2xs select-none">
-        <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center min-h-[44px] min-w-[44px] justify-start">
-          <Logo loading="lazy" alt="Campus Blink" className="h-6 w-auto object-contain" />
-        </Link>
+        {(() => {
+          const title = getMobileHeaderTitle(location.pathname);
+          return title ? (
+            <Link to={location.pathname} className="no-underline cursor-pointer flex items-center min-h-[44px] justify-start">
+              <h1 className="font-syne font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white capitalize">{title}</h1>
+            </Link>
+          ) : (
+            <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center min-h-[44px] min-w-[44px] justify-start">
+              <Logo loading="lazy" alt="Campus Blink" className="h-6 w-auto object-contain" />
+            </Link>
+          );
+        })()}
         <div className="flex items-center gap-2">
+          {location.pathname.startsWith('/student/community') && (
+            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white font-syne font-bold text-xs shadow-2xs border border-slate-700">
+              <span className="text-amber-400">🪙</span>
+              <span>{profile?.campus_credits || 38}</span>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
@@ -137,12 +198,16 @@ export const StudentLayout: React.FC = () => {
             aria-label="Open notifications"
           >
             <Bell size={20} strokeWidth={2} />
-            {Number(unreadCount || 0) > 0 && <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />}
+            {Number(unreadCount || 0) > 0 && (
+              <span className="absolute right-1.5 top-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white shadow-xs">
+                {Number(unreadCount) > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </button>
           <button
             type="button"
             onClick={() => navigate('/student/profile')}
-            className="h-9 w-9 overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center"
+            className="h-9 w-9 min-h-[44px] min-w-[44px] overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center"
             aria-label="Open profile"
           >
             {profile?.avatar_url ? (
@@ -153,8 +218,9 @@ export const StudentLayout: React.FC = () => {
           </button>
         </div>
       </header>
+      )}
 
-      {/* Sidebar - Desktop only */}
+      {/* Desktop Sidebar Container (Strictly md:block) */}
       <div className="hidden md:block">
         <DashboardSidebar
           profile={profile}
@@ -186,7 +252,7 @@ export const StudentLayout: React.FC = () => {
               {/* Drawer Handle */}
               <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0" />
               <div className="h-12 flex items-center justify-between px-5 border-b border-gray-100 shrink-0">
-                <span className="font-syne font-bold text-lg text-slate-900">Campus Blink Navigation</span>
+                <span className="font-syne font-bold text-lg text-slate-900">More Services & Settings</span>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -197,46 +263,21 @@ export const StudentLayout: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-4 font-sans bg-gray-50/60">
-                {/* Your Account Mini-Row */}
-                <div
-                  onClick={() => { setIsMobileMenuOpen(false); navigate('/student/profile'); }}
-                  className="bg-white rounded-2xl p-4 border border-gray-100 shadow-2xs flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors active:scale-[0.99] group"
-                >
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="h-12 w-12 rounded-full overflow-hidden border border-gray-200 bg-gray-100 shrink-0 flex items-center justify-center">
-                      {profile?.avatar_url ? (
-                        <img src={profile.avatar_url} alt={profile.name || 'User'} className="h-full w-full object-cover" />
-                      ) : (
-                        <User size={22} className="text-slate-400" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1 font-sans">
-                      <h4 className="text-base font-bold text-slate-900 truncate">
-                        {profile?.name || user?.email?.split('@')[0] || 'Student Profile'}
-                      </h4>
-                      <p className="text-xs font-semibold text-amber-600 mt-0.5 flex items-center gap-1 group-hover:underline">
-                        <span>View profile</span>
-                        <ChevronRight size={13} className="inline" />
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Campus Services Section (Monochrome Neutral Icon Tiles) */}
+                {/* Campus Services Section */}
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-1.5">Campus Services</p>
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
                     {[
+                      { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
                       { icon: Building2, label: 'Societies & Clubs', path: '/student/societies' },
-                      { icon: MessageCircle, label: 'Direct Messages', path: '/student/messages', badge: unreadCount > 0 ? unreadCount : undefined },
                     ].map((link, idx) => {
                       const IconComp = link.icon;
                       return (
                         <button
                           key={idx}
-                          onClick={() => { setIsMobileMenuOpen(false); navigate(link.path); }}
+                          onClick={() => menuCloseAndNavigate(link.path)}
                           className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-gray-50/80 active:bg-gray-100 transition-colors text-left"
                         >
                           <div className="flex items-center gap-3">
@@ -274,7 +315,7 @@ export const StudentLayout: React.FC = () => {
                       return (
                         <button
                           key={idx}
-                          onClick={() => { setIsMobileMenuOpen(false); navigate(link.path); }}
+                          onClick={() => menuCloseAndNavigate(link.path)}
                           className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50/80 active:bg-gray-100 transition-colors text-left"
                         >
                           <div className="flex items-center gap-3">

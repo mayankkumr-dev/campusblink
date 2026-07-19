@@ -59,7 +59,6 @@ export const ProfessorLayout: React.FC = () => {
     window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      if (window.history.state?.panel === 'prof_menu') window.history.back();
     };
   }, [isMobileOpen]);
 
@@ -108,7 +107,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const mobileNavItems: TabBarItem[] = [
     { key: 'home', path: '/professor/home', icon: Home, label: 'Home', exact: true },
-    { key: 'attendance', path: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance' },
+    { key: 'attendance', path: '/professor/attendance', icon: ClipboardCheck, label: 'Check-in' },
     { key: 'messages', path: '/professor/messages', icon: MessageCircle, label: 'Messages' },
     { key: 'notices', path: '/professor/notices', icon: Megaphone, label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
@@ -200,7 +199,6 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
     { to: '/professor/alerts', icon: Bell, label: 'Alerts', exact: true, badgeCount: unreadCount },
-    { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
 
   const mobileDrawerContent = (
@@ -227,7 +225,7 @@ export const ProfessorLayout: React.FC = () => {
         {/* Upgraded Faculty Badge */}
         <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg text-blue-700 dark:text-prof-accent-blue text-xs font-bold font-syne tracking-wide">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-prof-accent-blue"></span>
-          FACULTY PORTAL
+          FACULTY SERVICES & HUB
         </div>
       </div>
 
@@ -278,17 +276,6 @@ export const ProfessorLayout: React.FC = () => {
 
       {/* Pinned Bottom Actions */}
       <div className="shrink-0 border-t border-gray-100 dark:border-prof-border-subtle p-4 bg-white dark:bg-prof-bg-surface">
-        {/* User profile block */}
-        <div className="flex items-center gap-3 px-3 py-2.5 mb-3 rounded-2xl bg-gray-50 dark:bg-prof-bg-surface-raised border border-gray-100 dark:border-prof-border-subtle">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-prof-accent-blue-soft-bg flex items-center justify-center text-blue-700 dark:text-prof-accent-blue font-syne font-bold text-base border border-blue-100 dark:border-prof-border-subtle shrink-0">
-            {firstName.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="font-sans font-bold text-sm text-gray-900 dark:text-prof-text-primary truncate tracking-tight">Prof. {firstName}</h4>
-            <span className="text-[11px] font-medium text-gray-500 dark:text-prof-text-secondary truncate block">{profile?.email}</span>
-          </div>
-        </div>
-
         {/* Settings button */}
         <NavLink
           to="/professor/settings"
@@ -333,20 +320,30 @@ export const ProfessorLayout: React.FC = () => {
         <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2 min-h-[44px] min-w-[44px] justify-start">
           <Logo alt="Campus Blink" className="h-6 w-auto object-contain" />
         </Link>
-        <div className="flex items-center gap-2.5">
-          <ProfessorBadge size="sm" />
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
             aria-label="Open Notifications & Alerts"
-            className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
+            className="relative w-9 h-9 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-gray-50 text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
           >
-            <Bell className="w-5 h-5" strokeWidth={1.5} />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            <Bell className="w-5 h-5" strokeWidth={1.8} />
+            {Number(unreadCount || 0) > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white shadow-xs">
+                {Number(unreadCount) > 99 ? '99+' : unreadCount}
               </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/professor/profile')}
+            className="h-9 w-9 min-h-[44px] min-w-[44px] overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center font-syne font-bold text-sm text-blue-700 bg-blue-50"
+            aria-label="Open profile"
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="profile" className="h-full w-full object-cover" />
+            ) : (
+              <span>{firstName.charAt(0).toUpperCase()}</span>
             )}
           </button>
         </div>

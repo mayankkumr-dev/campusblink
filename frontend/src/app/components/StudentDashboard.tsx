@@ -79,6 +79,10 @@ export const StudentDashboard: React.FC = () => {
   const repToTrusted = Math.max(0, 300 - repBalance);
   const repProgressPct = useMemo(() => Math.min(100, Math.max(8, Math.round((repBalance / 300) * 100))), [repBalance]);
 
+  const activeListingsCount = useMemo(() => recentActivity.filter((i) => i.type === 'Buy/Sell' && i.status !== 'sold').length, [recentActivity]);
+  const canteenOrdersCount = useMemo(() => recentActivity.filter((i) => i.type === 'Canteen' && i.status !== 'delivered' && i.status !== 'completed').length, [recentActivity]);
+  const printOrdersCount = useMemo(() => recentActivity.filter((i) => i.type === 'Print' && i.status !== 'completed' && i.status !== 'ready').length, [recentActivity]);
+
   const loadRecentActivity = async () => {
     if (!profile?.id) return;
     setIsActivityLoading(true);
@@ -317,7 +321,7 @@ export const StudentDashboard: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
+        className="bg-white dark:bg-[#161922] border border-[var(--mobile-card-border)] md:border-slate-200/80 dark:md:border-slate-800 rounded-[var(--mobile-card-radius)] md:rounded-3xl p-[var(--mobile-card-padding)] md:p-8 shadow-[var(--mobile-card-shadow)] md:shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
       >
         {/* Subtle Calm Gradient Glow */}
         <div className="absolute -right-16 -top-16 w-64 h-64 bg-slate-100/60 dark:bg-slate-800/20 rounded-full blur-3xl pointer-events-none" />
@@ -421,7 +425,7 @@ export const StudentDashboard: React.FC = () => {
           {/* Tile 1: Marketplace */}
           <button
             onClick={() => navigate('/student/buy-sell')}
-            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+            className="bg-white dark:bg-[#161922] rounded-[var(--mobile-card-radius)] md:rounded-2xl p-[var(--mobile-card-padding)] md:p-5 border border-[var(--mobile-card-border)] md:border-slate-200/70 dark:md:border-slate-800 shadow-[var(--mobile-card-shadow)] md:shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden mobile-interactive-card"
           >
             <div className="flex items-center justify-between w-full">
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform shrink-0">
@@ -433,9 +437,14 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
-                <Flame className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400" /> High Activity
-              </span>
+              {isActivityLoading || isRefreshingAll ? (
+                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded" />
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  {activeListingsCount > 0 ? `${activeListingsCount} Active Listing${activeListingsCount > 1 ? 's' : ''}` : 'Live Campus Market'}
+                </span>
+              )}
               <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
                 Marketplace
               </h3>
@@ -448,7 +457,7 @@ export const StudentDashboard: React.FC = () => {
           {/* Tile 2: Canteen */}
           <button
             onClick={() => navigate('/student/canteen')}
-            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+            className="bg-white dark:bg-[#161922] rounded-[var(--mobile-card-radius)] md:rounded-2xl p-[var(--mobile-card-padding)] md:p-5 border border-[var(--mobile-card-border)] md:border-slate-200/70 dark:md:border-slate-800 shadow-[var(--mobile-card-shadow)] md:shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden mobile-interactive-card"
           >
             <div className="flex items-center justify-between w-full">
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-amber-500 group-hover:scale-105 transition-transform shrink-0">
@@ -460,9 +469,14 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
-                <Clock className="w-3 h-3 text-amber-500" /> Instant Pickup
-              </span>
+              {isActivityLoading || isRefreshingAll ? (
+                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded" />
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {canteenOrdersCount > 0 ? `${canteenOrdersCount} Order${canteenOrdersCount > 1 ? 's' : ''} in Progress` : 'Instant Pickup Ready'}
+                </span>
+              )}
               <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
                 Canteen
               </h3>
@@ -475,7 +489,7 @@ export const StudentDashboard: React.FC = () => {
           {/* Tile 3: Print Shop */}
           <button
             onClick={() => navigate('/student/print')}
-            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+            className="bg-white dark:bg-[#161922] rounded-[var(--mobile-card-radius)] md:rounded-2xl p-[var(--mobile-card-padding)] md:p-5 border border-[var(--mobile-card-border)] md:border-slate-200/70 dark:md:border-slate-800 shadow-[var(--mobile-card-shadow)] md:shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden mobile-interactive-card"
           >
             <div className="flex items-center justify-between w-full">
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:scale-105 transition-transform shrink-0">
@@ -487,9 +501,14 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
-                Document Services
-              </span>
+              {isActivityLoading || isRefreshingAll ? (
+                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded" />
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 border border-cyan-500/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                  {printOrdersCount > 0 ? `${printOrdersCount} Job${printOrdersCount > 1 ? 's' : ''} Processing` : 'Document Services Ready'}
+                </span>
+              )}
               <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
                 Print Shop
               </h3>
@@ -502,7 +521,7 @@ export const StudentDashboard: React.FC = () => {
           {/* Tile 4: Diaries & Community */}
           <button
             onClick={() => navigate('/student/community')}
-            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+            className="bg-white dark:bg-[#161922] rounded-[var(--mobile-card-radius)] md:rounded-2xl p-[var(--mobile-card-padding)] md:p-5 border border-[var(--mobile-card-border)] md:border-slate-200/70 dark:md:border-slate-800 shadow-[var(--mobile-card-shadow)] md:shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden mobile-interactive-card"
           >
             <div className="flex items-center justify-between w-full">
               <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform shrink-0">
@@ -514,9 +533,14 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
-                Stories & Secrets
-              </span>
+              {isActivityLoading || isRefreshingAll ? (
+                <div className="w-24 h-4 bg-slate-200 dark:bg-slate-700 animate-pulse rounded" />
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-700 dark:text-purple-400 border border-purple-500/25">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
+                  Stories & Campus Secrets
+                </span>
+              )}
               <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
                 Diaries
               </h3>
@@ -533,7 +557,7 @@ export const StudentDashboard: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.15 }}
-        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-xs space-y-4"
+        className="bg-white dark:bg-[#161922] border border-[var(--mobile-card-border)] md:border-slate-200/80 dark:md:border-slate-800 rounded-[var(--mobile-card-radius)] md:rounded-3xl p-[var(--mobile-card-padding)] md:p-6 shadow-[var(--mobile-card-shadow)] md:shadow-xs space-y-4"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -559,7 +583,7 @@ export const StudentDashboard: React.FC = () => {
 
         {/* List Content */}
         <div>
-          {isActivityLoading ? (
+          {isActivityLoading || isRefreshingAll ? (
             <div className="py-2 space-y-3">
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="flex items-center justify-between py-3 px-2">
@@ -624,7 +648,7 @@ export const StudentDashboard: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xs transition-all"
+        className="bg-white dark:bg-[#161922] border border-[var(--mobile-card-border)] md:border-slate-200/80 dark:md:border-slate-800 rounded-[var(--mobile-card-radius)] md:rounded-3xl overflow-hidden shadow-[var(--mobile-card-shadow)] md:shadow-xs transition-all"
       >
         {/* Header Toggle Row */}
         <div
