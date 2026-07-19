@@ -14,6 +14,7 @@ import {
 import { getProfile } from '../../api/auth';
 import { io as socketIOClient, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface MsgItem {

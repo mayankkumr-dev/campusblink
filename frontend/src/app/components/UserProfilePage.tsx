@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { reportContent } from '../../api/community';
 import { getProfileSocialLinks } from '../../api/profileSocialLinks';
 import { checkIsFollowing, getFollowStats } from '../../api/follow';
+import { supabase } from '../../lib/supabase';
 
 import { SocialLinksStrip, mergeSocialLinks } from '../../features/profile/ProfileSocialLinks';
 import { FollowButton } from '../../shared/components/FollowButton';
