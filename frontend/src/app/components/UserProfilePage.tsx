@@ -7,6 +7,8 @@ import { reportContent } from '../../api/community';
 import { getProfileSocialLinks } from '../../api/profileSocialLinks';
 import { checkIsFollowing, getFollowStats } from '../../api/follow';
 import { supabase } from '../../lib/supabase';
+import { getAvatarDataUrl } from '../../lib/avatar';
+import { getDisplayHandle } from '../../lib/user';
 
 import { SocialLinksStrip, mergeSocialLinks } from '../../features/profile/ProfileSocialLinks';
 import { FollowButton } from '../../shared/components/FollowButton';
