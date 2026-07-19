@@ -376,7 +376,7 @@ export const CanteenMenuPage: React.FC = () => {
                 </div>
               </div>
             ) : activeTab === 'menu' ? (
-              <div className="animate-in fade-in duration-500 pb-24 md:pb-0">
+              <div className="animate-in fade-in duration-500 pb-6 md:pb-0">
                 <div className="flex items-center gap-4 mb-8">
                   <button 
                     onClick={() => { 

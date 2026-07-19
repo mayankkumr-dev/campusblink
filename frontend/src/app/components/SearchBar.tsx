@@ -55,8 +55,6 @@ export const SearchSlidePanel: React.FC<SearchSlidePanelProps> = ({ isOpen, onCl
   useEffect(() => {
     if (isOpen) {
       setRecentSearches(getRecentSearches());
-      const t = setTimeout(() => inputRef.current?.focus(), 150);
-      return () => clearTimeout(t);
     } else {
       setQuery('');
       setResults({ students: [], posts: [], listings: [] });

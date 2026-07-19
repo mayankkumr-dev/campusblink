@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Trash2, X, BookOpen, Clock, ThumbsUp, MessageCircle, Send, Share2, Gift } from 'lucide-react';
+import { useSearchParams } from 'react-router';
+import { Heart, Trash2, X, BookOpen, Clock, ThumbsUp, MessageCircle, Send, Share2, Gift, MoreHorizontal } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { getDiaryFeed, toggleDiaryLike, deleteDiaryEntry } from '../../api/diary';
 import { getAvatarDataUrl } from '../../lib/avatar';
+import { supabase } from '../../lib/supabase';
 
 /* ─── Types ──────────────────────────────────────────────────────── */
 export interface DiaryEntry {
@@ -70,6 +72,31 @@ function getHandwritingFont(fontFamily?: string) {
     case 'Plus Jakarta Sans':  return `'Plus Jakarta Sans', sans-serif`;
     default:                   return `'Caveat', cursive`;
   }
+}
+
+/* ─── Validation Helper ──────────────────────────────────────────── */
+export function isValidDiaryImage(url?: string | null): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return false;
+  if (trimmed.startsWith('data:image/') || trimmed.startsWith('blob:')) return true;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+    const lower = trimmed.toLowerCase();
+    if (
+      lower.includes('boneyard') ||
+      lower.includes('terminal') ||
+      lower.includes('code-editor') ||
+      lower.includes('screenshot') ||
+      lower.includes('vscode') ||
+      lower.includes('localhost') ||
+      lower.includes('editor') ||
+      lower.includes('console')
+    ) {
+      return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 /* ─── Skeleton card (9:16 Story Card Ratio) ──────────────────────── */
@@ -223,15 +250,8 @@ function DiaryCommentSheet({
 }
 
 /* ─── Single diary card ('Story Card' Architecture matching 9:16 PWA) ── */
-function DiaryCard({
-  entry,
-  currentUserId,
-  onLike,
-  onDelete,
-  onClick,
-  onCommentClick,
-  onShareClick,
-}: {
+interface DiaryCardProps {
+  key?: React.Key;
   entry: DiaryEntry;
   currentUserId?: string;
   onLike: (id: string) => void | Promise<void>;
@@ -239,8 +259,19 @@ function DiaryCard({
   onClick: (entry: DiaryEntry) => void;
   onCommentClick: (entry: DiaryEntry) => void;
   onShareClick: (entry: DiaryEntry) => void;
-}) {
+}
+
+const DiaryCard = React.memo<DiaryCardProps>(({
+  entry,
+  currentUserId,
+  onLike,
+  onDelete,
+  onClick,
+  onCommentClick,
+  onShareClick,
+}) => {
   const [showPopHeart, setShowPopHeart] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
 
   const avatarUrl =
@@ -250,7 +281,7 @@ function DiaryCard({
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
   const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
-  const hasImage = Boolean(entry.image_url);
+  const hasImage = !imageFailed && isValidDiaryImage(entry.image_url);
 
   const handleDoubleTap = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -293,31 +324,33 @@ function DiaryCard({
         <img
           src={entry.image_url!}
           alt="Diary moment"
+          onError={() => setImageFailed(true)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
+          decoding="async"
         />
       ) : (
         <div
           className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-102"
-          style={{
-            background: paperBg !== '#FFFFFF'
-              ? `linear-gradient(145deg, ${paperBg}, #F3F4F6)`
-              : 'linear-gradient(145deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%)'
-          }}
+          style={{ background: paperBg }}
         />
       )}
 
-      {/* ── Top & Bottom Dark-to-Transparent CSS Gradients strictly at edges for high contrast ── */}
-      <div className="absolute top-0 inset-x-0 pt-3 sm:pt-3.5 pb-16 px-3 sm:px-3.5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
-      <div className="absolute bottom-0 inset-x-0 pt-20 pb-3 px-3 sm:px-3.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+      {/* ── Top & Bottom Dark-to-Transparent CSS Gradients strictly at edges for high contrast (Photo Stories Only) ── */}
+      {hasImage && (
+        <>
+          <div className="absolute top-0 inset-x-0 pt-3 sm:pt-3.5 pb-16 px-3 sm:px-3.5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+          <div className="absolute bottom-0 inset-x-0 pt-20 pb-3 px-3 sm:px-3.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+        </>
+      )}
 
-      {/* ── Author Meta-Data cleanly over top gradient in crisp pure white text ── */}
+      {/* ── Author Meta-Data cleanly over top gradient in crisp text ── */}
       <div className="relative z-20 pt-3 px-3 sm:px-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <img
             src={avatarUrl}
             alt={entry.author?.name || 'Author'}
-            className="w-7 sm:w-8 h-7 sm:h-8 rounded-full object-cover ring-2 ring-white/90 shadow-md flex-shrink-0"
+            className="w-7 sm:w-8 h-7 sm:h-8 rounded-full object-cover ring-2 ring-white/90 shadow-md shrink-0"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src = getAvatarDataUrl({
                 name: entry.author?.name,
@@ -326,10 +359,10 @@ function DiaryCard({
             }}
           />
           <div className="min-w-0 flex-1 font-sans">
-            <p className="text-xs sm:text-sm font-extrabold text-white tracking-tight leading-snug truncate drop-shadow-md">
+            <p className={`text-xs sm:text-sm font-extrabold tracking-tight leading-snug truncate ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-900'}`}>
               {entry.author?.name || 'Campus Student'}
             </p>
-            <p className="text-[10px] sm:text-[11px] text-white/90 font-semibold truncate drop-shadow-md leading-none mt-0.5">
+            <p className={`text-[10px] sm:text-[11px] font-semibold truncate leading-none mt-0.5 ${hasImage ? 'text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-600'}`}>
               {collegeName(entry.author?.college)} • {relativeTime(entry.created_at)}
             </p>
           </div>
@@ -339,7 +372,7 @@ function DiaryCard({
       {/* ── Content Body Rendered Directly on Card ───────────────────── */}
       {hasImage ? (
         entry.content?.trim() ? (
-          <div className="relative z-10 mb-14 mx-3">
+          <div className="relative z-10 mb-16 mx-3">
             <div className="bg-white/95 backdrop-blur-md rounded-xl py-2 px-3 shadow-lg border border-white/80 text-center">
               <p
                 className="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-3 leading-relaxed break-words"
@@ -365,8 +398,8 @@ function DiaryCard({
         </div>
       )}
 
-      {/* ── Advanced Engagement Controls Stacked Vertically on Bottom-Right (TikTok/Reels Style) ── */}
-      <div className="absolute bottom-3 right-2 sm:right-2.5 z-20 flex flex-col items-center gap-2.5">
+      {/* ── Action Rail Stacked on Bottom-Right (Only Like & Comment at Thumbnail Size) ── */}
+      <div className="absolute bottom-3 right-2.5 z-20 flex flex-col items-center gap-3">
         {/* Like Button */}
         <div className="flex flex-col items-center">
           <motion.button
@@ -376,7 +409,7 @@ function DiaryCard({
             }}
             whileTap={{ scale: 1.5, rotate: [0, -15, 15, -10, 0] }}
             whileHover={{ scale: 1.1 }}
-            className={`w-8 sm:w-9 h-8 sm:h-9 rounded-full flex items-center justify-center transition-all shadow-md backdrop-blur-md border cursor-pointer ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-md backdrop-blur-md border cursor-pointer min-h-[44px] min-w-[44px] ${
               liked
                 ? 'bg-rose-500 border-rose-600 text-white'
                 : 'bg-black/45 border-white/25 text-white hover:bg-black/65'
@@ -384,17 +417,17 @@ function DiaryCard({
             aria-label="Like story"
           >
             <Heart
-              size={16}
+              size={18}
               className={liked ? 'fill-white text-white' : 'text-white'}
               strokeWidth={2.2}
             />
           </motion.button>
-          <span className="text-[10px] sm:text-[11px] font-extrabold text-white drop-shadow-md mt-1 leading-none">
+          <span className="text-[11px] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mt-1 leading-none">
             {entry.likes_count || 0}
           </span>
         </div>
 
-        {/* Comment Button */}
+        {/* Comment Button (Consistent Label: 'Comment') */}
         <div className="flex flex-col items-center">
           <motion.button
             onClick={(e) => {
@@ -403,17 +436,17 @@ function DiaryCard({
             }}
             whileTap={{ scale: 1.3 }}
             whileHover={{ scale: 1.1 }}
-            className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65 flex items-center justify-center shadow-md cursor-pointer"
+            className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65 flex items-center justify-center shadow-md cursor-pointer min-h-[44px] min-w-[44px]"
             aria-label="Comment on story"
           >
-            <MessageCircle size={16} strokeWidth={2.2} />
+            <MessageCircle size={18} strokeWidth={2.2} />
           </motion.button>
-          <span className="text-[10px] sm:text-[11px] font-extrabold text-white drop-shadow-md mt-1 leading-none">
-            Chat
+          <span className="text-[11px] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mt-1 leading-none">
+            Comment
           </span>
         </div>
 
-        {/* Share Button (Web Share API) */}
+        {/* Share Button (Individual Diary Link) */}
         <div className="flex flex-col items-center">
           <motion.button
             onClick={(e) => {
@@ -422,28 +455,22 @@ function DiaryCard({
             }}
             whileTap={{ scale: 1.3 }}
             whileHover={{ scale: 1.1 }}
-            className="w-8 sm:w-9 h-8 sm:h-9 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65 flex items-center justify-center shadow-md cursor-pointer"
-            aria-label="Share story"
+            className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65 flex items-center justify-center shadow-md cursor-pointer min-h-[44px] min-w-[44px]"
+            aria-label="Share story link"
           >
-            <Share2 size={15} strokeWidth={2.2} className="ml-0.5" />
+            <Share2 size={17} strokeWidth={2.2} className="ml-0.5" />
           </motion.button>
-          <span className="text-[10px] sm:text-[11px] font-extrabold text-white drop-shadow-md mt-1 leading-none">
+          <span className="text-[11px] font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mt-1 leading-none">
             Share
           </span>
         </div>
       </div>
-
-      {/* Bottom left subtle badge for bottom framing */}
-      <div className="absolute bottom-3 left-2.5 sm:left-3 z-20 px-2.5 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/20 text-white/95 font-bold text-[10px] sm:text-[11px] flex items-center gap-1 shadow-sm pointer-events-none">
-        <BookOpen size={11} className="text-amber-300 flex-shrink-0" />
-        <span>Diaries</span>
-      </div>
     </motion.article>
   );
-}
+});
 
 /* ─── Fullscreen Diary View (Strict Light Mode + PWA Story Sheet) ──── */
-function DiaryFullscreen({
+export function DiaryFullscreen({
   entry,
   currentUserId,
   onClose,
@@ -461,11 +488,15 @@ function DiaryFullscreen({
   onShareClick: (entry: DiaryEntry) => void;
 }) {
   const [showPopHeart, setShowPopHeart] = useState(false);
+  const [showOverflowMenu, setShowOverflowMenu] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
   const isOwner = currentUserId && (entry.author?.id === currentUserId || (entry as any).author_id === currentUserId);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
   const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
+  const hasImage = !imageFailed && isValidDiaryImage(entry.image_url);
 
   const avatarUrl =
     entry.author?.avatar_url ||
@@ -483,7 +514,7 @@ function DiaryFullscreen({
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
-      style={{ background: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(12px)' }}
+      style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(16px)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -491,13 +522,9 @@ function DiaryFullscreen({
       onClick={onClose}
     >
       <motion.div
-        className="w-full max-w-md aspect-[9/16] min-h-[500px] max-h-[92vh] rounded-3xl border border-gray-200/80 shadow-[0_25px_80px_rgba(0,0,0,0.22)] overflow-hidden flex flex-col relative my-auto select-none bg-white"
+        className="w-full max-w-md aspect-[9/16] min-h-[500px] max-h-[92vh] rounded-3xl border border-gray-200/80 shadow-[0_25px_80px_rgba(0,0,0,0.28)] overflow-hidden flex flex-col relative my-auto select-none bg-white"
         style={{
-          background: entry.image_url
-            ? '#0F172A'
-            : paperBg !== '#FFFFFF'
-            ? `linear-gradient(150deg, ${paperBg}, #F8FAFC)`
-            : '#FFFFFF',
+          background: hasImage ? '#0F172A' : paperBg,
         }}
         initial={{ scale: 0.94, y: 20 }}
         animate={{ scale: 1, y: 0 }}
@@ -521,49 +548,94 @@ function DiaryFullscreen({
           )}
         </AnimatePresence>
 
-        {/* If image card, render background image edge-to-edge */}
-        {entry.image_url && (
+        {/* If image card, render background image edge-to-edge with error fallback */}
+        {hasImage && (
           <img
-            src={entry.image_url}
+            src={entry.image_url!}
             alt="Fullscreen memory"
+            onError={() => setImageFailed(true)}
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
-        {/* Top & Bottom Dark Gradient Overlay for legible author header & right engagement controls */}
-        <div className="absolute top-0 inset-x-0 pt-4 pb-20 px-5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
-        <div className="absolute bottom-0 inset-x-0 pt-32 pb-4 px-5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+        {/* Top & Bottom Dark Gradient Overlay strictly for Photo Stories */}
+        {hasImage && (
+          <>
+            <div className="absolute top-0 inset-x-0 pt-4 pb-24 px-5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+            <div className="absolute bottom-0 inset-x-0 pt-36 pb-6 px-5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
+          </>
+        )}
 
-        {/* Top bar with Author Info */}
-        <div className="relative z-20 flex items-center justify-between px-5 pt-4 pb-2">
+        {/* Top bar with Author Info & Calm Overflow Header */}
+        <div
+          className="relative z-30 flex items-center justify-between px-5 pb-2"
+          style={{ paddingTop: `calc(1rem + env(safe-area-inset-top, 0px))` }}
+        >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <img
               src={avatarUrl}
               alt={entry.author?.name}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md flex-shrink-0"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md shrink-0"
             />
             <div className="min-w-0 flex-1 font-sans">
-              <p className="text-sm font-extrabold text-white leading-tight truncate drop-shadow-md">
+              <p className={`text-sm font-extrabold leading-tight truncate ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-900'}`}>
                 {entry.author?.name || 'Student'}
               </p>
-              <p className="text-xs font-semibold text-white/90 mt-0.5 truncate drop-shadow-md">
+              <p className={`text-xs font-semibold mt-0.5 truncate ${hasImage ? 'text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-600'}`}>
                 {collegeName(entry.author?.college)} • {relativeTime(entry.created_at)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0 relative">
+            {/* Calm Overflow Menu instead of always-visible red Delete button */}
             {isOwner && (
-              <button
-                onClick={() => { onDelete(entry.id); onClose(); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-rose-400 bg-black/45 backdrop-blur-md border border-rose-400/50 transition-all cursor-pointer hover:bg-rose-500 hover:text-white"
-              >
-                <Trash2 size={13} strokeWidth={1.8} /> Delete
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowOverflowMenu(!showOverflowMenu)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
+                    hasImage
+                      ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
+                      : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
+                  }`}
+                  aria-label="Story options"
+                >
+                  <MoreHorizontal size={18} strokeWidth={2} />
+                </button>
+
+                <AnimatePresence>
+                  {showOverflowMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-12 w-44 bg-white/95 backdrop-blur-md rounded-2xl p-1.5 shadow-xl border border-gray-200 z-50 font-sans"
+                    >
+                      <button
+                        onClick={() => {
+                          setShowOverflowMenu(false);
+                          onDelete(entry.id);
+                          onClose();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                      >
+                        <Trash2 size={15} strokeWidth={2} />
+                        <span>Delete Story</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
+
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-black/45 hover:bg-black/65 border border-white/25 flex items-center justify-center text-white transition-all shadow-sm cursor-pointer active:scale-90"
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
+                hasImage
+                  ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
+                  : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
+              }`}
               aria-label="Close"
             >
               <X size={18} strokeWidth={2} />
@@ -571,13 +643,13 @@ function DiaryFullscreen({
           </div>
         </div>
 
-        {/* Content Area */}
-        <div className="relative z-10 flex-1 px-6 sm:px-8 py-8 flex flex-col justify-center items-center text-center overflow-y-auto">
+        {/* Content Area with Guaranteed Safe Content Zone away from Action Rail, Top Bar, and Bottom Edge */}
+        <div className="relative z-10 flex-1 pt-24 pb-20 pl-6 sm:pl-8 pr-20 sm:pr-24 flex flex-col justify-center items-center text-center overflow-y-auto scrollbar-none max-h-full">
           {entry.content?.trim() && (
             <div
               className={
-                entry.image_url
-                  ? 'bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl text-gray-900 border border-white/80 max-w-sm'
+                hasImage
+                  ? 'bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xl text-gray-900 border border-white/80 max-w-full'
                   : 'w-full'
               }
             >
@@ -585,8 +657,8 @@ function DiaryFullscreen({
                 className="leading-relaxed whitespace-pre-wrap break-words"
                 style={{
                   fontFamily: fontStyle,
-                  fontSize: Math.max(18, Math.round(21 * (entry.scale || 1))),
-                  color: entry.image_url ? '#1F2937' : textColor,
+                  fontSize: Math.min(30, Math.max(16, Math.round(22 * (entry.scale || 1)))),
+                  color: hasImage ? '#1F2937' : textColor,
                 }}
               >
                 {entry.content}
@@ -595,42 +667,53 @@ function DiaryFullscreen({
           )}
         </div>
 
-        {/* Stacked TikTok/Reels Engagement Bar on Right Edge inside Fullscreen */}
-        <div className="absolute bottom-6 right-4 z-20 flex flex-col items-center gap-3">
+        {/* Uniform Action Rail Stacked on Right Edge inside Fullscreen (Safe from text) */}
+        <div
+          className="absolute right-3.5 z-20 flex flex-col items-center gap-4"
+          style={{ bottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))` }}
+        >
           {/* Like */}
           <div className="flex flex-col items-center">
             <motion.button
               onClick={() => onLike(entry.id)}
               whileTap={{ scale: 1.5, rotate: [0, -15, 15, -10, 0] }}
               whileHover={{ scale: 1.1 }}
-              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg backdrop-blur-md border cursor-pointer ${
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg backdrop-blur-md border cursor-pointer min-h-[44px] min-w-[44px] ${
                 liked
                   ? 'bg-rose-500 border-rose-600 text-white'
-                  : 'bg-black/50 border-white/30 text-white hover:bg-black/70'
+                  : hasImage
+                  ? 'bg-black/50 border-white/30 text-white hover:bg-black/70'
+                  : 'bg-white/90 border-slate-200/80 text-slate-700 hover:bg-white'
               }`}
+              aria-label="Like story"
             >
               <Heart
                 size={20}
-                className={liked ? 'fill-white text-white' : 'text-white'}
+                className={liked ? 'fill-white text-white' : hasImage ? 'text-white' : 'text-slate-700'}
                 strokeWidth={2.2}
               />
             </motion.button>
-            <span className="text-xs font-extrabold text-white drop-shadow-md mt-1">
+            <span className={`text-xs font-extrabold mt-1.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
               {entry.likes_count || 0}
             </span>
           </div>
 
-          {/* Comment */}
+          {/* Comment (Consistent label: 'Comment') */}
           <div className="flex flex-col items-center">
             <motion.button
               onClick={() => onCommentClick(entry)}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md border border-white/30 text-white hover:bg-black/70 flex items-center justify-center shadow-lg cursor-pointer"
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg backdrop-blur-md border cursor-pointer min-h-[44px] min-w-[44px] ${
+                hasImage
+                  ? 'bg-black/50 border-white/30 text-white hover:bg-black/70'
+                  : 'bg-white/90 border-slate-200/80 text-slate-700 hover:bg-white'
+              }`}
+              aria-label="Comment on story"
             >
               <MessageCircle size={20} strokeWidth={2.2} />
             </motion.button>
-            <span className="text-xs font-extrabold text-white drop-shadow-md mt-1">
+            <span className={`text-xs font-extrabold mt-1.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
               Comment
             </span>
           </div>
@@ -641,11 +724,16 @@ function DiaryFullscreen({
               onClick={() => toast.success('Send reputation gift to support this author!')}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md border border-white/30 text-amber-300 hover:bg-black/70 flex items-center justify-center shadow-lg cursor-pointer"
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg backdrop-blur-md border cursor-pointer min-h-[44px] min-w-[44px] ${
+                hasImage
+                  ? 'bg-black/50 border-white/30 text-amber-300 hover:bg-black/70'
+                  : 'bg-white/90 border-slate-200/80 text-amber-600 hover:bg-white'
+              }`}
+              aria-label="Send gift"
             >
               <Gift size={20} strokeWidth={2.2} />
             </motion.button>
-            <span className="text-xs font-extrabold text-white drop-shadow-md mt-1">
+            <span className={`text-xs font-extrabold mt-1.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
               Gift
             </span>
           </div>
@@ -656,20 +744,19 @@ function DiaryFullscreen({
               onClick={() => onShareClick(entry)}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="w-11 h-11 rounded-full bg-black/50 backdrop-blur-md border border-white/30 text-white hover:bg-black/70 flex items-center justify-center shadow-lg cursor-pointer"
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg backdrop-blur-md border cursor-pointer min-h-[44px] min-w-[44px] ${
+                hasImage
+                  ? 'bg-black/50 border-white/30 text-white hover:bg-black/70'
+                  : 'bg-white/90 border-slate-200/80 text-slate-700 hover:bg-white'
+              }`}
+              aria-label="Share story"
             >
               <Share2 size={19} strokeWidth={2.2} className="ml-0.5" />
             </motion.button>
-            <span className="text-xs font-extrabold text-white drop-shadow-md mt-1">
+            <span className={`text-xs font-extrabold mt-1.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
               Share
             </span>
           </div>
-        </div>
-
-        {/* Bottom bar indicator */}
-        <div className="absolute bottom-4 left-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/25 text-white/95 font-bold text-xs pointer-events-none">
-          <BookOpen size={13} className="text-amber-300" />
-          <span>Campus Story PWA</span>
         </div>
       </motion.div>
     </motion.div>
@@ -683,6 +770,8 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
   newEntry,
 }) => {
   const profile = useAuthStore((s) => s.profile);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const diaryIdParam = searchParams.get('diaryId');
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -690,6 +779,62 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
   const [viewEntry, setViewEntry] = useState<DiaryEntry | null>(null);
   const [commentEntry, setCommentEntry] = useState<DiaryEntry | null>(null);
   const loadedRef = useRef(false);
+
+  // Sync individual diary link when URL parameter is present
+  useEffect(() => {
+    if (!diaryIdParam || viewEntry?.id === diaryIdParam) return;
+    const found = entries.find((e) => e.id === diaryIdParam);
+    if (found) {
+      setViewEntry(found);
+    } else if (!isLoading && entries.length > 0) {
+      supabase
+        .from('diary_entries')
+        .select('*, profiles:author_id(id, name, username, avatar_url, college)')
+        .eq('id', diaryIdParam)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            const formatted: DiaryEntry = {
+              id: data.id,
+              content: data.content,
+              font_family: data.font_family,
+              text_color: data.text_color,
+              bg_color: data.bg_color,
+              gradient: data.gradient,
+              image_url: data.image_url,
+              scale: data.scale || 1,
+              likes_count: data.likes_count || 0,
+              liked_by: data.liked_by || [],
+              created_at: data.created_at,
+              author: data.profiles
+                ? {
+                    id: data.profiles.id,
+                    name: data.profiles.name || data.profiles.username || 'Student',
+                    username: data.profiles.username || 'student',
+                    avatar_url: data.profiles.avatar_url,
+                    college: data.profiles.college,
+                  }
+                : undefined,
+            };
+            setViewEntry(formatted);
+          }
+        });
+    }
+  }, [diaryIdParam, entries, isLoading, viewEntry?.id]);
+
+  const handleCardClick = useCallback((entry: DiaryEntry) => {
+    setViewEntry(entry);
+    const params = new URLSearchParams(window.location.search);
+    params.set('diaryId', entry.id);
+    setSearchParams(params, { replace: true });
+  }, [setSearchParams]);
+
+  const handleCloseFullscreen = useCallback(() => {
+    setViewEntry(null);
+    const params = new URLSearchParams(window.location.search);
+    params.delete('diaryId');
+    setSearchParams(params, { replace: true });
+  }, [setSearchParams]);
 
   const load = useCallback(async (pageNum: number, resetEntries = false) => {
     setIsLoading(true);
@@ -774,26 +919,29 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
     const { error } = await deleteDiaryEntry(id, profile.id);
     if (error) { toast.error(error.message || 'Failed to delete'); return; }
     setEntries((prev) => prev.filter((e) => e.id !== id));
-    if (viewEntry?.id === id) setViewEntry(null);
+    if (viewEntry?.id === id) {
+      handleCloseFullscreen();
+    }
     toast.success('Diary entry removed');
   };
 
-  const handleShare = async (entry: DiaryEntry) => {
+  const handleShare = useCallback(async (entry: DiaryEntry) => {
+    const diaryUrl = `${window.location.origin}/student/community?diaryId=${entry.id}`;
     if (navigator.share) {
       try {
         await navigator.share({
           title: `Campus Diaries • ${entry.author?.name || 'Story'}`,
           text: entry.content || 'Check out this campus moment!',
-          url: window.location.href,
+          url: diaryUrl,
         });
       } catch (err) {
         // User cancelled or share dismissed
       }
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied! Share instantly to WhatsApp or other apps.');
+      navigator.clipboard.writeText(diaryUrl);
+      toast.success('Individual diary link copied! Share to WhatsApp or any app.');
     }
-  };
+  }, []);
 
   /* Custom Illustrated Empty State with stacked story card outlines */
   if (!isLoading && entries.length === 0) {
@@ -873,7 +1021,7 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
               currentUserId={profile?.id}
               onLike={handleLike}
               onDelete={handleDelete}
-              onClick={setViewEntry}
+              onClick={handleCardClick}
               onCommentClick={setCommentEntry}
               onShareClick={handleShare}
             />
@@ -906,7 +1054,7 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
           <DiaryFullscreen
             entry={viewEntry}
             currentUserId={profile?.id}
-            onClose={() => setViewEntry(null)}
+            onClose={handleCloseFullscreen}
             onDelete={handleDelete}
             onLike={handleLike}
             onCommentClick={setCommentEntry}

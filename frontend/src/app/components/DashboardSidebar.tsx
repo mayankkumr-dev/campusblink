@@ -6,6 +6,7 @@ import {
   Home,
   Search,
   Users,
+  BookOpen,
   Store,
   Coffee,
   Printer,
@@ -110,7 +111,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     {
       label: 'Diaries',
       path: '/student/community',
-      icon: Users,
+      icon: BookOpen,
       action: undefined,
     },
     {

@@ -9,7 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Flame, Sparkles, Users, User, Feather } from 'lucide-react';
+import { Flame, Sparkles, Users, User, Feather, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { getFollowingIds } from '../../api/follow';
@@ -130,54 +130,54 @@ export const CommunityFeed: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-gray-50 text-gray-900 font-sans select-none">
       {/* ── Sleek, Sticky Top Header Ribbon ──────────────────────── */}
-      <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/70 shadow-[0_4px_20px_rgba(0,0,0,0.025)] transition-all">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs pt-[env(safe-area-inset-top,0px)] transition-all">
         {/* Title row */}
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 pt-4 pb-2.5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center shadow-2xs">
-              <Feather size={19} className="text-gray-800" strokeWidth={2} />
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 pt-4 pb-2.5 gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center shadow-2xs shrink-0">
+              <BookOpen size={19} className="text-gray-800" strokeWidth={2} />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 leading-none">
+                <h1 className="text-xl md:text-2xl font-extrabold tracking-tight text-gray-900 leading-none truncate font-syne">
                   Campus Diaries
                 </h1>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200">
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
                   MAIT Stories
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">
+              <p className="text-xs md:text-sm text-gray-500 font-medium mt-1 truncate">
                 A visual journal of moments, memories, and stories from campus
               </p>
             </div>
           </div>
 
-          {/* Premium 'Create' / 'Write Entry' Button inside top header */}
+          {/* Premium Single 'Create' Button inside top header */}
           <motion.button
             onClick={() => setIsDiaryCreatorOpen(true)}
-            whileHover={{ scale: 1.04 }}
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
-            className="flex items-center gap-2 px-4.5 py-2 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex-shrink-0 border border-gray-800"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs sm:text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
             aria-label="Create new story entry"
           >
-            <Sparkles size={15} className="text-amber-300 animate-pulse" />
+            <Sparkles size={16} className="text-amber-300 animate-pulse shrink-0" />
             <span>Create</span>
           </motion.button>
         </div>
 
-        {/* Horizontally Scrollable Row of Floating, Soft-Shadowed Pills */}
+        {/* Horizontally Scrollable Row of Equal-Weight Pill Tabs with no clipping */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-0.5">
             {FILTER_TABS.map((tab) => {
               const isActive = activeFilter === tab.value;
               return (
                 <button
                   key={tab.value}
                   onClick={() => setActiveFilter(tab.value)}
-                  className={`relative px-4.5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-2 whitespace-nowrap flex-shrink-0 cursor-pointer ${
+                  className={`relative px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer min-h-[42px] ${
                     isActive
-                      ? 'bg-gray-900 text-white shadow-md border border-gray-900'
-                      : 'bg-white/90 text-gray-600 border border-gray-200/80 shadow-2xs hover:bg-white hover:text-gray-900 hover:shadow-sm'
+                      ? 'bg-gray-900 text-white shadow-sm border border-gray-900'
+                      : 'bg-white text-gray-600 border border-gray-200 shadow-2xs hover:bg-gray-50 hover:text-gray-900'
                   }`}
                   aria-pressed={isActive}
                 >
@@ -195,7 +195,7 @@ export const CommunityFeed: React.FC = () => {
       </header>
 
       {/* ── Feed Content Body ───────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto pt-6 pb-32">
+      <main className="max-w-7xl mx-auto pt-6 pb-6 md:pb-10">
         {/* Friends who wrote recently (if Friends tab is active) */}
         {activeFilter === 'friends' && <FriendsRow writers={friendWriters} />}
 
@@ -208,22 +208,6 @@ export const CommunityFeed: React.FC = () => {
           />
         </div>
       </main>
-      
-      {/* ── Prominent Floating Action Button (FAB) ──────────────── */}
-      <motion.button
-        onClick={() => setIsDiaryCreatorOpen(true)}
-        whileHover={{ scale: 1.05, y: -2 }}
-        whileTap={{ scale: 0.95 }}
-        className="group fixed right-4 md:right-8 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-8 z-40 px-6 py-3.5 rounded-full flex items-center gap-2.5 transition-all duration-300 select-none cursor-pointer bg-white text-gray-900 border border-gray-200/90 shadow-[0_12px_36px_rgba(0,0,0,0.09)] hover:shadow-[0_16px_44px_rgba(0,0,0,0.13)]"
-        aria-label="Write a new diary entry"
-      >
-        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-800 group-hover:rotate-12 transition-transform">
-          <Feather size={16} strokeWidth={2.2} />
-        </div>
-        <span className="text-gray-900 text-sm font-extrabold tracking-tight pr-0.5">
-          Write Entry
-        </span>
-      </motion.button>
 
       {/* ── Diary creator modal ──────────────────────────────────── */}
       <DiaryCreatorModal

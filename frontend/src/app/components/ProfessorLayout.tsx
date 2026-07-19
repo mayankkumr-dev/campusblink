@@ -9,8 +9,9 @@ import { PushPermissionBanner } from './PushPermissionBanner';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications } from '../../hooks/useRealtime';
 import { Logo } from './ui/Logo';
+import { BottomTabBar, TabBarItem } from '../../shared/components/BottomTabBar';
 
-const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
+const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { key?: React.Key, to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
   const location = useLocation();
   const isChatSection = location.pathname.includes('/messages');
   const isActive = exact
@@ -105,19 +106,12 @@ export const ProfessorLayout: React.FC = () => {
     { to: '/professor/profile', icon: User, label: 'My Profile', exact: false },
   ];
 
-  const mobileNavItems: Array<{
-    to: string;
-    icon: any;
-    label: string;
-    exact?: boolean;
-    isMenu?: boolean;
-    badgeCount?: number;
-  }> = [
-    { to: '/professor/home', icon: Home, label: 'Home', exact: true },
-    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
-    { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: false },
-    { to: '/professor/profile', icon: User, label: 'Profile', exact: false },
-    { to: '#menu', icon: Menu, label: 'Menu', isMenu: true },
+  const mobileNavItems: TabBarItem[] = [
+    { key: 'home', path: '/professor/home', icon: Home, label: 'Home', exact: true },
+    { key: 'attendance', path: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance' },
+    { key: 'messages', path: '/professor/messages', icon: MessageCircle, label: 'Messages' },
+    { key: 'notices', path: '/professor/notices', icon: Megaphone, label: 'Notices' },
+    { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
   ];
 
   const isChatSection = location.pathname.includes('/messages');
@@ -333,10 +327,10 @@ export const ProfessorLayout: React.FC = () => {
   );
 
   return (
-    <div className="flex h-dvh bg-[#FAFAFA] dark:bg-prof-bg-base flex-col md:flex-row font-sans text-gray-900 dark:text-prof-text-primary transition-colors duration-200 overflow-hidden">
+    <div className="flex h-screen w-full bg-gray-50 text-gray-900 font-sans overflow-hidden select-none no-touch-callout">
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between h-14 px-4 bg-white/95 dark:bg-prof-bg-surface/95 backdrop-blur-md border-b border-transparent dark:border-prof-border-subtle shadow-[0_2px_15px_rgba(0,0,0,0.03)] dark:shadow-none sticky top-0 z-50 select-none">
-        <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2">
+      <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-md px-4 md:hidden shadow-2xs select-none">
+        <Link to="/professor/home" className="no-underline cursor-pointer flex items-center gap-2 min-h-[44px] min-w-[44px] justify-start">
           <Logo alt="Campus Blink" className="h-6 w-auto object-contain" />
         </Link>
         <div className="flex items-center gap-2.5">
@@ -345,7 +339,7 @@ export const ProfessorLayout: React.FC = () => {
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
             aria-label="Open Notifications & Alerts"
-            className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50/80 dark:bg-prof-bg-surface-raised text-gray-700 dark:text-prof-text-primary hover:bg-gray-100 dark:hover:bg-prof-bg-surface-hover active:scale-95 transition-all"
+            className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
           >
             <Bell className="w-5 h-5" strokeWidth={1.5} />
             {unreadCount > 0 && (
@@ -356,7 +350,7 @@ export const ProfessorLayout: React.FC = () => {
             )}
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Drawer (Full-Screen Overlay) */}
       {isMobileOpen && (
@@ -365,76 +359,27 @@ export const ProfessorLayout: React.FC = () => {
             className="fixed inset-0 bg-gray-900/40 backdrop-blur-xs transition-opacity animate-fadeIn"
             onClick={() => setIsMobileOpen(false)}
           />
-          <div className="relative w-full max-w-full h-full bg-white dark:bg-prof-bg-surface shadow-[20px_0_50px_rgba(0,0,0,0.08)] dark:shadow-2xl flex flex-col z-10 animate-slideRight">
+          <div className="relative w-full max-w-full h-full bg-white shadow-[20px_0_50px_rgba(0,0,0,0.08)] flex flex-col z-10 animate-slideRight">
             {mobileDrawerContent}
           </div>
         </div>
       )}
 
       {/* Desktop Sidebar (Full Height Left) */}
-      <aside className={`hidden md:block fixed top-0 bottom-0 left-0 h-dvh bg-white dark:bg-prof-bg-surface border-r border-gray-100 dark:border-prof-border-subtle z-40 select-none transition-all duration-300 group/sidebar overflow-hidden ${
+      <aside className={`hidden md:block fixed top-0 bottom-0 left-0 h-dvh bg-white border-r border-gray-100 z-40 select-none transition-all duration-300 group/sidebar overflow-hidden ${
         isChatSection ? 'w-[88px] hover:w-[260px]' : 'w-[260px]'
       }`}>
         {sidebarContent}
       </aside>
 
       {/* Main Content + Bottom Nav Wrapper */}
-      <div className={`flex-1 flex flex-col w-full h-full md:pt-0 overflow-hidden transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
-        <main className="flex-1 overflow-y-auto w-full pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-6">
+      <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50 transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
+        <main className="flex-1 overflow-y-auto w-full pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0 pb-4 md:pb-8">
           <Outlet />
         </main>
 
-        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar */}
-        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-[60] rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
-          {mobileNavItems.map((item) => {
-            const isActive = item.isMenu
-              ? false
-              : item.exact
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
-
-            if (item.isMenu) {
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => setIsMobileOpen(true)}
-                  className="flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full text-slate-500 hover:text-slate-900 active:scale-90 transition-all"
-                >
-                  <item.icon size={20} strokeWidth={1.5} />
-                  <span className="text-[10px] font-semibold leading-none">
-                    {item.label}
-                  </span>
-                </button>
-              );
-            }
-
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={(e) => {
-                  if (item.to === '/professor/alerts') {
-                    e.preventDefault();
-                    setNotificationPanelOpen(true);
-                  }
-                  setIsMobileOpen(false);
-                }}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'}`}
-              >
-                <div className="relative flex items-center justify-center">
-                  <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
-                  {Number(item.badgeCount || 0) > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-                  )}
-                </div>
-                <span className="text-[10px] leading-none">
-                  {item.label}
-                </span>
-              </NavLink>
-            );
-          })}
-        </nav>
+        {/* Flush Native Bottom Navigation Bar (direct sibling below main) */}
+        <BottomTabBar items={mobileNavItems} onMenuClick={() => setIsMobileOpen(true)} />
       </div>
 
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />

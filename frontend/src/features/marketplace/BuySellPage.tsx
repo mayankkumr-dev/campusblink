@@ -406,7 +406,7 @@ export function BuySellPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface px-4 pt-6 pb-24 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-surface px-4 pt-6 pb-6 md:pb-10 sm:px-6 lg:px-8 font-sans">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Marketplace Header Card */}
         <section className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.04)]">

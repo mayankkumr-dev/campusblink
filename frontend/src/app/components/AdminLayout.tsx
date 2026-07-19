@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { getPendingProfessors } from '../../api/professor';
 import { AdminGlobalSearch } from './AdminGlobalSearch';
+import { BottomTabBar, TabBarItem } from '../../shared/components/BottomTabBar';
 
 /* ─────────────────────────────────────────────────────────
    SidebarNavLink — navigates via React Router
@@ -189,6 +190,14 @@ export const AdminLayout: React.FC = () => {
   const adminInitial = (profile?.name || profile?.email || 'A').charAt(0).toUpperCase();
   const adminName = profile?.name || 'Super Admin';
 
+  const adminNavItems: TabBarItem[] = [
+    { key: 'dashboard', path: '/admin', icon: Home, label: 'Dashboard', exact: true },
+    { key: 'notices', path: '/admin/notices', icon: Megaphone, label: 'Notices' },
+    { key: 'alerts', path: '/admin/alerts', icon: Bell, label: 'Alerts', hasDot: true },
+    { key: 'orders', path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+    { key: 'menu', icon: Menu, label: 'Menu', isMenu: true },
+  ];
+
   /* ── Sidebar content ─────────────────────────────────── */
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white dark:bg-admin-bg-surface border-r border-slate-200 dark:border-admin-border-subtle overflow-hidden transition-colors">
@@ -303,25 +312,25 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className="admin-theme h-dvh flex flex-col md:flex-row font-sans bg-slate-50 text-slate-900 dark:bg-admin-bg-base dark:text-admin-text-primary transition-colors overflow-hidden"
+      className="admin-theme h-screen flex flex-col md:flex-row font-sans bg-gray-50 text-gray-900 transition-colors overflow-hidden"
     >
       {/* ── Mobile Header ──────────────────────────────── */}
-      <div className="md:hidden shrink-0 flex items-center justify-between h-14 px-4 bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle z-50 safe-area-top shadow-sm transition-colors">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-amber-500 dark:bg-admin-accent flex items-center justify-center transition-colors">
-            <span className="text-white dark:text-admin-bg-surface-elevated font-syne font-extrabold text-xs transition-colors">CB</span>
+      <header className="md:hidden safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-md px-4 shadow-2xs select-none">
+        <div className="flex items-center gap-2 min-h-[44px] min-w-[44px]">
+          <div className="w-6 h-6 rounded-lg bg-amber-500 flex items-center justify-center transition-colors">
+            <span className="text-white font-syne font-extrabold text-xs">CB</span>
           </div>
-          <span className="font-syne font-extrabold text-sm text-slate-900 dark:text-admin-text-primary transition-colors">Admin</span>
+          <span className="font-syne font-extrabold text-sm text-slate-900">Admin</span>
         </div>
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 text-slate-600 dark:text-admin-text-secondary rounded-xl hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover transition-colors"
+          className="p-2 text-slate-600 rounded-xl hover:bg-slate-100 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
           aria-label="Open navigation"
         >
           <Menu className="w-5 h-5" />
         </button>
-      </div>
+      </header>
 
       {/* ── Mobile Drawer ──────────────────────────────── */}
       {isMobileOpen && (
@@ -330,30 +339,30 @@ export const AdminLayout: React.FC = () => {
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
             onClick={closeMenu}
           />
-          <div className="relative w-[85%] max-w-[320px] h-full shadow-2xl bg-white dark:bg-admin-bg-surface overflow-y-auto" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div className="relative w-[85%] max-w-[320px] h-full shadow-2xl bg-white overflow-y-auto" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
             {sidebarContent}
           </div>
         </div>
       )}
 
       {/* ── Desktop Sidebar ─────────────────────────────── */}
-      <div className="hidden md:block w-60 fixed top-0 bottom-0 left-0 z-40 select-none">
+      <div className="hidden md:block w-60 fixed top-0 bottom-0 left-0 z-40 select-none bg-white border-r border-gray-100">
         {sidebarContent}
       </div>
 
       {/* ── Main Content + Bottom Nav Wrapper ────────────────────────────────── */}
-      <div className="flex-1 md:ml-60 flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-admin-bg-base transition-colors">
+      <div className="flex-1 md:ml-60 flex flex-col h-full overflow-hidden bg-gray-50 transition-colors">
 
         {/* Top Header Bar */}
-        <header className="h-[64px] bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle hidden md:flex items-center justify-between px-5 lg:px-8 shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-none transition-colors">
+        <header className="h-[64px] bg-white border-b border-slate-200 hidden md:flex items-center justify-between px-5 lg:px-8 shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-colors">
 
           {/* Page Title + Breadcrumb */}
           <div className="flex items-center gap-2 min-w-0">
-            <div className="hidden md:flex items-center gap-1 text-slate-400 dark:text-admin-text-secondary text-xs font-medium transition-colors">
+            <div className="hidden md:flex items-center gap-1 text-slate-400 text-xs font-medium transition-colors">
               <span>Admin</span>
               <ChevronRight size={12} />
             </div>
-            <h1 className="font-syne font-extrabold text-base md:text-lg text-slate-900 dark:text-admin-text-primary tracking-tight truncate transition-colors">
+            <h1 className="font-syne font-extrabold text-base md:text-lg text-slate-900 tracking-tight truncate transition-colors">
               {pageTitle}
             </h1>
           </div>
@@ -362,14 +371,14 @@ export const AdminLayout: React.FC = () => {
           <div className="flex-1 max-w-sm mx-6 hidden lg:block">
             <button
               type="button"
-              className="w-full flex items-center justify-between gap-3 bg-slate-50 dark:bg-admin-bg-surface-raised border border-slate-200 dark:border-admin-border-subtle rounded-xl py-2 px-3.5 text-xs text-slate-400 dark:text-admin-text-tertiary hover:border-amber-300 dark:hover:border-admin-accent hover:bg-white dark:hover:bg-admin-bg-surface-hover transition-all group"
+              className="w-full flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3.5 text-xs text-slate-400 hover:border-amber-300 hover:bg-white transition-all group"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
             >
               <div className="flex items-center gap-2">
-                <Search size={13} className="text-slate-400 dark:text-admin-text-tertiary group-hover:text-amber-500 dark:group-hover:text-admin-accent transition-colors shrink-0" />
+                <Search size={13} className="text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
                 <span className="transition-colors">Search users, orders, logs…</span>
               </div>
-              <kbd className="hidden xl:flex items-center gap-0.5 rounded-md bg-white dark:bg-admin-bg-surface-hover border border-slate-200 dark:border-admin-border-subtle px-1.5 py-0.5 text-[10px] font-bold text-slate-400 dark:text-admin-text-tertiary shadow-sm dark:shadow-none transition-colors">
+              <kbd className="hidden xl:flex items-center gap-0.5 rounded-md bg-white border border-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-400 shadow-sm transition-colors">
                 ⌘K
               </kbd>
             </button>
@@ -380,7 +389,7 @@ export const AdminLayout: React.FC = () => {
             {/* Mobile search trigger */}
             <button
               type="button"
-              className="lg:hidden p-2 rounded-xl text-slate-500 dark:text-admin-text-secondary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
               aria-label="Search"
             >
@@ -391,68 +400,38 @@ export const AdminLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/admin/alerts')}
-              className="relative p-2 rounded-xl text-slate-500 dark:text-admin-text-secondary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover border border-transparent hover:border-slate-200 dark:hover:border-admin-border-subtle transition-all"
+              className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all"
               aria-label="Smart Alerts"
             >
               <Bell size={16} />
               {/* Red dot — always visible since alerts always exist */}
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-admin-bg-surface transition-colors" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white transition-colors" />
             </button>
 
             {/* Divider */}
-            <div className="w-px h-6 bg-slate-200 dark:bg-admin-border-subtle mx-1 transition-colors" />
+            <div className="w-px h-6 bg-slate-200 mx-1 transition-colors" />
 
             {/* Admin avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 dark:bg-admin-accent text-white dark:text-admin-bg-surface-elevated flex items-center justify-center font-syne font-extrabold text-sm shadow-sm shadow-amber-200 dark:shadow-none transition-colors">
+              <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-syne font-extrabold text-sm shadow-sm shadow-amber-200 transition-colors">
                 {adminInitial}
               </div>
               <div className="hidden xl:block">
-                <p className="text-[13px] font-semibold text-slate-900 dark:text-admin-text-primary leading-none transition-colors">{adminName}</p>
-                <p className="text-[10px] text-slate-400 dark:text-admin-text-secondary font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
+                <p className="text-[13px] font-semibold text-slate-900 leading-none transition-colors">{adminName}</p>
+                <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
               </div>
             </div>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-6 safe-area-bottom">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-6 pb-4 md:pb-8">
           <AdminGlobalSearch />
           <Outlet />
         </main>
 
-        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar */}
-        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
-          {[
-            { label: 'Dashboard', path: '/admin', icon: Home, exact: true },
-            { label: 'Notices', path: '/admin/notices', icon: Megaphone, exact: false },
-            { label: 'Alerts', path: '/admin/alerts', icon: Bell, exact: false },
-            { label: 'Orders', path: '/admin/shop-orders', icon: ShoppingBag, exact: false },
-            { label: 'Menu', path: '#', icon: Menu, isMenu: true }
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = item.isMenu ? false : item.exact ? location.pathname === item.path : location.pathname.startsWith(item.path);
-            return (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => {
-                  if (item.isMenu) {
-                    setIsMobileOpen(true);
-                  } else {
-                    navigate(item.path);
-                  }
-                }}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${
-                  isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'
-                }`}
-              >
-                <Icon size={20} className={isActive ? 'scale-110' : ''} />
-                <span className="text-[10px] leading-none tracking-tight">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+        {/* Flush Native Bottom Navigation Bar (direct sibling below main) */}
+        <BottomTabBar items={adminNavItems} onMenuClick={() => setIsMobileOpen(true)} />
       </div>
     </div>
   );

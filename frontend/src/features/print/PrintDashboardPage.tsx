@@ -464,7 +464,7 @@ export const PrintDashboardPage: React.FC = () => {
         {/* ========================================================
             MOBILE PWA VIEWPORT (<md) - Ultra-Minimalist & Isolated
         ======================================================== */}
-        <div className="md:hidden flex-1 overflow-y-auto pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))]">
+        <div className="md:hidden flex-1 overflow-y-auto pb-4">
           {activeView === 'Live Orders' && (
             <MobilePrintOrdersDashboard
               shop={shop}
@@ -490,8 +490,8 @@ export const PrintDashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Floating Pill-Shaped Glassmorphism Bottom Navigation Bar (<md) */}
-        <nav className="md:hidden fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 rounded-full bg-white/85 backdrop-blur-xl border border-white/60 shadow-[0_12px_36px_rgba(0,0,0,0.09)] px-2 py-2 flex items-center justify-around select-none">
+        {/* Flush Native Bottom Navigation Bar (<md) */}
+        <nav className="md:hidden shrink-0 w-full z-50 bg-white/95 backdrop-blur-md border-t border-gray-100 rounded-t-2xl sm:rounded-t-3xl pt-2 pb-[max(env(safe-area-inset-bottom,0px),0.5rem)] px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] flex items-center justify-around select-none">
           {navItems.map((item) => {
             const isActive = activeView === item.label;
             return (
@@ -499,18 +499,21 @@ export const PrintDashboardPage: React.FC = () => {
                 key={item.label}
                 type="button"
                 onClick={() => setActiveView(item.label)}
-                className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1 rounded-full active:scale-90 transition-all ${
-                  isActive ? 'text-blue-600 bg-blue-50/80 font-semibold' : 'text-slate-500 hover:text-slate-900 font-medium'
-                }`}
+                className="group flex-1 flex items-center justify-center h-[52px] rounded-2xl active:scale-95 transition-all relative focus:outline-none"
               >
-                <item.icon
-                  className={`w-5 h-5 transition-transform ${
-                    isActive ? 'scale-110 stroke-[2.2]' : 'stroke-[1.5]'
-                  }`}
-                />
-                <span className="text-[10px] leading-none">
-                  {item.label}
-                </span>
+                <div className="relative flex items-center justify-center">
+                  <item.icon
+                    size={24}
+                    strokeWidth={isActive ? 2.25 : 1.75}
+                    className={`transition-all duration-200 ${
+                      isActive ? 'text-gray-900 scale-105' : 'text-gray-400 group-hover:text-gray-600'
+                    }`}
+                  />
+                  {item.label === 'Live Orders' && newOrdersList.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse" />
+                  )}
+                </div>
+                <span className="sr-only">{item.label}</span>
               </button>
             );
           })}

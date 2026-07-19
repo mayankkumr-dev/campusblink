@@ -133,7 +133,6 @@ export const SearchPage: React.FC = () => {
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder="Search students, posts, listings..."
               className="h-10 w-full rounded-[6px] border border-[var(--border)] bg-[var(--bg-secondary)] pl-10 pr-4 text-[15px] font-sans text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--text-primary)] focus:bg-[var(--bg)] transition-colors"
-              autoFocus
             />
           </form>
 

@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Copy,
   ChevronRight,
+  ChevronDown,
   Store,
   Coffee,
   Printer,
@@ -20,7 +22,13 @@ import {
   ShoppingBag,
   Utensils,
   Flame,
-  BookOpen
+  BookOpen,
+  RefreshCw,
+  Gift,
+  PlusCircle,
+  TrendingUp,
+  ChevronUp,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useNotificationStore } from '../../store/notificationStore';
@@ -35,13 +43,25 @@ export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
   const profile = useAuthStore((state) => state.profile);
+  
+  // Data state
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [isActivityLoading, setIsActivityLoading] = useState(true);
   const [inviteData, setInviteData] = useState<any>(null);
   const [isInviteLoading, setIsInviteLoading] = useState(true);
   const [isRefreshingInvites, setIsRefreshingInvites] = useState(false);
+  const [isRefreshingAll, setIsRefreshingAll] = useState(false);
   const [clockNow, setClockNow] = useState(Date.now());
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  // UI state for tucked secondary section
+  const [secondaryTab, setSecondaryTab] = useState<'rewards' | 'invites'>('rewards');
+  const [isRewardsExpanded, setIsRewardsExpanded] = useState(false);
+
+  // Pull to refresh touch tracking
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+  const [pullDistance, setPullDistance] = useState<number>(0);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -57,13 +77,12 @@ export const StudentDashboard: React.FC = () => {
   const firstName = useMemo(() => getFirstName(profile?.name, 'Student'), [profile?.name]);
   const repBalance = Number(profile?.campus_credits ?? 0);
   const repToTrusted = Math.max(0, 300 - repBalance);
+  const repProgressPct = useMemo(() => Math.min(100, Math.max(8, Math.round((repBalance / 300) * 100))), [repBalance]);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadRecentActivity = async () => {
-      if (!profile?.id) return;
-
+  const loadRecentActivity = async () => {
+    if (!profile?.id) return;
+    setIsActivityLoading(true);
+    try {
       const [postsResp, listingsResp, canteenResp, printResp] = await Promise.all([
         supabase.from('posts').select('id, title, created_at').eq('author_id', profile.id).order('created_at', { ascending: false }).limit(2),
         supabase.from('listings').select('id, title, created_at, is_sold').eq('seller_id', profile.id).order('created_at', { ascending: false }).limit(2),
@@ -84,43 +103,46 @@ export const StudentDashboard: React.FC = () => {
           time: new Date(item.time).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
         }));
 
-      if (isMounted) {
-        setRecentActivity(combined);
-      }
-    };
+      setRecentActivity(combined);
+    } catch (e) {
+      console.error('Error loading recent activity:', e);
+    } finally {
+      setIsActivityLoading(false);
+    }
+  };
 
-    loadRecentActivity();
-    return () => {
-      isMounted = false;
-    };
-  }, [profile?.id]);
-
-  useEffect(() => {
+  const loadInvites = async () => {
     if (!profile?.id) return;
-
-    let isMounted = true;
-
-    const loadInvites = async () => {
-      setIsInviteLoading(true);
+    setIsInviteLoading(true);
+    try {
       const { data } = await getMyInviteOverview(profile.id);
-      if (isMounted && data) {
+      if (data) {
         setInviteData(data);
       }
-      if (isMounted) {
-        setIsInviteLoading(false);
-      }
-    };
+    } catch (e) {
+      console.error('Error loading invites:', e);
+    } finally {
+      setIsInviteLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    loadRecentActivity();
     loadInvites();
-    return () => {
-      isMounted = false;
-    };
   }, [profile?.id]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setClockNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  const handleRefreshAll = async () => {
+    if (isRefreshingAll) return;
+    setIsRefreshingAll(true);
+    await Promise.all([loadRecentActivity(), loadInvites()]);
+    setIsRefreshingAll(false);
+    toast.success('Dashboard refreshed');
+  };
 
   const cooldownMs = inviteData?.profile?.next_invite_refresh_at
     ? new Date(inviteData.profile.next_invite_refresh_at).getTime() - clockNow
@@ -179,451 +201,629 @@ export const StudentDashboard: React.FC = () => {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'Community':
-        return <Users className="w-5 h-5 text-accent-purple" />;
+        return <BookOpen className="w-4.5 h-4.5 text-purple-600 dark:text-purple-400" />;
       case 'Print':
-        return <Printer className="w-5 h-5 text-cyan-600 dark:text-cyan-400 transition-colors" />;
+        return <Printer className="w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" />;
       case 'Canteen':
-        return <Coffee className="w-5 h-5 text-accent-amber" />;
+        return <Coffee className="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" />;
       default:
-        return <Store className="w-5 h-5 text-accent-blue" />;
+        return <Store className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />;
     }
   };
 
   const getActivityIconBg = (type: string) => {
     switch (type) {
       case 'Community':
-        return 'bg-accent-purple/15 border border-purple-100';
+        return 'bg-purple-50 dark:bg-purple-950/40 border border-purple-200/50 dark:border-purple-800/50';
       case 'Print':
-        return 'bg-accent-teal/15 border border-cyan-100';
+        return 'bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200/50 dark:border-cyan-800/50';
       case 'Canteen':
-        return 'bg-accent-amber-soft border border-amber-100';
+        return 'bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-800/50';
       default:
-        return 'bg-accent-blue-soft border border-accent-blue-soft';
+        return 'bg-blue-50 dark:bg-blue-950/40 border border-blue-200/50 dark:border-blue-800/50';
     }
   };
 
   const getStatusBadgeStyle = (status: string) => {
     const s = (status || '').toLowerCase();
-    if (s === 'ready' || s === 'completed' || s === 'delivered') {
-      return 'bg-accent-green/15 text-accent-green border border-accent-green/20';
+    // Semantic Status: Green = Done/Ready/Delivered/Sold
+    if (s === 'ready' || s === 'completed' || s === 'delivered' || s === 'sold') {
+      return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20';
     }
+    // Semantic Status: Amber = Pending/Preparing/Placed
     if (s === 'preparing' || s === 'pending' || s === 'placed') {
-      return 'bg-accent-amber-soft text-accent-amber border border-accent-amber-soft/20';
+      return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20';
     }
+    // Semantic Status: Blue = Info/Posted/Active
     if (s === 'posted' || s === 'active') {
-      return 'bg-accent-blue-soft text-blue-700 border border-blue-200/60';
+      return 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20';
     }
-    return 'bg-surface-elevated text-text-primary border border-border-subtle';
+    return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
+  };
+
+  // Pull-to-refresh handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setTouchStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY !== null && window.scrollY === 0) {
+      const currentY = e.touches[0].clientY;
+      const diff = Math.max(0, currentY - touchStartY);
+      if (diff > 0) {
+        setPullDistance(Math.min(diff * 0.4, 80));
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullDistance > 50 && !isRefreshingAll) {
+      handleRefreshAll();
+    }
+    setTouchStartY(null);
+    setPullDistance(0);
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 bg-background min-h-full">
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 bg-background min-h-full font-sans pb-24 md:pb-12 text-slate-900 dark:text-slate-100 transition-colors"
+    >
+      {/* Pull-to-refresh Indicator */}
+      {pullDistance > 0 && (
+        <div
+          style={{ height: `${pullDistance}px`, opacity: pullDistance / 60 }}
+          className="flex items-center justify-center text-slate-400 transition-all duration-150 overflow-hidden"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <RefreshCw className={`w-4 h-4 ${pullDistance > 50 ? 'animate-spin text-slate-800 dark:text-white' : ''}`} />
+            <span>{pullDistance > 50 ? 'Release to refresh' : 'Pull down to refresh'}</span>
+          </div>
+        </div>
+      )}
+
       {/* Offline Status Banner */}
       {isOffline && (
-        <div className="bg-amber-500/15 dark:bg-amber-950/50 border border-amber-400/50 dark:border-amber-700/60 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm transition-all">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 dark:border-amber-700/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <WifiOff className="w-5 h-5" />
             </div>
             <div>
               <p className="text-sm font-bold text-amber-950 dark:text-amber-200 font-syne">
                 You are currently offline
               </p>
-              <p className="text-xs text-amber-800/90 dark:text-amber-300/80 font-medium">
-                Campus Blink is running in offline mode. Cached features are available and new actions will sync automatically when your connection is restored.
+              <p className="text-xs text-amber-800/80 dark:text-amber-300/70 font-medium">
+                Cached features available. New actions will sync when connection restores.
               </p>
             </div>
           </div>
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-white shadow-xs self-start sm:self-auto shrink-0">
+          <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500 text-white shadow-2xs self-start sm:self-auto shrink-0">
             Offline Mode
           </span>
-        </div>
+        </motion.div>
       )}
 
-      {/* Hero Header Card (Light Mode Premium SaaS Aesthetic) */}
-      <div className="md:bg-surface md:border md:border-border-subtle md:rounded-3xl max-md:bg-white max-md:border-none max-md:rounded-[24px] max-md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8 shadow-xs relative overflow-hidden">
-        {/* Subtle Decorative Light Pattern Accents */}
-        <div className="absolute -right-12 -top-12 w-64 h-64 bg-blue-50/60 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute right-32 -bottom-16 w-48 h-48 bg-amber-50/50 rounded-full blur-2xl pointer-events-none" />
+      {/* 1. Identity & Greeting Hero Card (Linear/Arc Consumer App Style) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
+      >
+        {/* Subtle Calm Gradient Glow */}
+        <div className="absolute -right-16 -top-16 w-64 h-64 bg-slate-100/60 dark:bg-slate-800/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 max-md:gap-4">
-          <div className="space-y-3 max-md:space-y-1.5">
-            <h1 className="font-syne font-extrabold text-3xl md:text-4xl max-md:text-2xl text-slate-900 tracking-tight leading-tight">
+        <div className="relative z-10 space-y-1.5 min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="font-syne font-extrabold text-2xl sm:text-3xl md:text-4xl text-slate-900 dark:text-white tracking-tight leading-tight truncate">
               Hello, {firstName}.
             </h1>
-            <p className="text-sm md:text-base text-slate-500 font-medium max-w-xl max-md:text-xs max-md:leading-relaxed">
-              Welcome back to your campus command center. Explore listings, track canteen & print requests, and connect with your peers.
-            </p>
+            <button
+              onClick={handleRefreshAll}
+              disabled={isRefreshingAll}
+              title="Refresh dashboard"
+              className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-500 hover:text-slate-900 dark:hover:text-white active:scale-[0.97] transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshingAll ? 'animate-spin' : ''}`} />
+            </button>
           </div>
+          <p className="text-xs sm:text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium max-w-lg leading-relaxed">
+            Your campus command center. Scan services, track live requests, and access daily essentials.
+          </p>
+        </div>
 
-          {/* Mini Reputation Snapshot Card */}
-          <div className="flex items-center gap-4 max-md:gap-3 bg-surface md:border md:border-border-subtle max-md:bg-slate-50 max-md:border-none rounded-2xl p-4 md:px-5 md:py-4 shrink-0 max-md:shadow-[0_2px_12px_rgb(0,0,0,0.03)] max-md:mt-2">
-            <div className="w-11 h-11 max-md:w-9 max-md:h-9 rounded-xl max-md:rounded-lg bg-amber-50 md:border md:border-amber-100 flex items-center justify-center text-amber-500 shrink-0">
-              <Award className="w-6 h-6 max-md:w-4 max-md:h-4" />
+        {/* Motivating Inline Reputation Stat */}
+        <div className="relative z-10 flex items-center justify-between sm:justify-start gap-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 rounded-2xl p-3.5 sm:px-5 sm:py-4 shrink-0 transition-all">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+              <Award className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] max-md:text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                Reputation Score
-              </p>
-              <div className="flex items-baseline gap-1.5 max-md:gap-1 mt-0.5 max-md:mt-0">
-                <span className="font-syne font-extrabold text-2xl max-md:text-lg text-slate-900">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400">
+                  Reputation Tier
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                  {repBalance >= 300 ? 'Trusted' : 'Member'}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-1 mt-0.5">
+                <span className="font-syne font-extrabold text-xl sm:text-2xl text-slate-900 dark:text-white">
                   {repBalance}
                 </span>
-                <span className="text-xs max-md:text-[10px] font-semibold text-slate-500">pts</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">pts</span>
               </div>
             </div>
           </div>
+
+          <button
+            onClick={handleRefreshAll}
+            disabled={isRefreshingAll}
+            title="Refresh dashboard"
+            className="hidden md:flex p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white active:scale-[0.97] transition-all ml-2 min-h-[44px] min-w-[44px] items-center justify-center"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshingAll ? 'animate-spin' : ''}`} />
+          </button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Asymmetric Bento Box Service Hierarchy */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* High-Traffic Bento Hub 1: Buy & Sell (Spans 2 columns) */}
+      {/* 2. The One or Two Things Needing Action Today (Quick Actions Layer) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.05 }}
+        className="grid grid-cols-2 sm:flex sm:items-center gap-3"
+      >
         <button
-          onClick={() => navigate('/student/buy-sell')}
-          className="sm:col-span-2 bg-gradient-to-br from-blue-50/90 via-white to-indigo-50/60 rounded-3xl p-5 sm:p-6 border border-blue-100 shadow-[0_4px_20px_rgba(37,99,235,0.06)] hover:shadow-[0_14px_36px_rgba(37,99,235,0.14)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[180px] text-left select-none"
+          onClick={() => navigate('/student/buy-sell?compose=1')}
+          className="flex-1 min-h-[46px] px-4 py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-sm hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.97] transition-all group select-none"
         >
-          {/* Subtle Graphic Aura Background */}
-          <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-blue-500/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-          
-          <div className="flex items-start justify-between relative z-10 w-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                <ShoppingBag className="w-6 h-6 stroke-[2]" />
-              </div>
-              <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100/80 text-blue-800 border border-blue-200/60">
-                  <Flame className="w-3 h-3 text-blue-600 fill-blue-600" /> High Activity
-                </span>
-                <h3 className="font-syne font-bold text-xl sm:text-2xl text-slate-900 mt-1">
-                  Campus Marketplace
-                </h3>
-              </div>
-            </div>
-            <div className="w-9 h-9 rounded-full bg-white/80 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-
-          <div className="mt-4 relative z-10 flex items-end justify-between">
-            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-[280px]">
-              Buy, sell & trade books, electronics, and essentials with verified peers across all colleges.
-            </p>
-            <span className="text-xs font-bold text-blue-600 underline underline-offset-4 group-hover:translate-x-1 transition-transform">
-              Explore listings →
-            </span>
-          </div>
+          <PlusCircle className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:scale-110 transition-transform" />
+          <span>Sell an Item</span>
+          <ChevronRight className="w-4 h-4 opacity-60 ml-auto sm:ml-1 group-hover:translate-x-0.5 transition-transform" />
         </button>
 
-        {/* High-Traffic Bento Hub 2: Canteen Orders (Spans 2 columns) */}
         <button
-          onClick={() => navigate('/student/canteen')}
-          className="sm:col-span-2 bg-gradient-to-br from-amber-50/90 via-white to-orange-50/60 rounded-3xl p-5 sm:p-6 border border-amber-100 shadow-[0_4px_20px_rgba(245,158,11,0.06)] hover:shadow-[0_14px_36px_rgba(245,158,11,0.14)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group flex flex-col justify-between min-h-[180px] text-left select-none"
+          onClick={() => navigate('/student/community?compose=1&type=notice')}
+          className="flex-1 min-h-[46px] px-4 py-3 rounded-2xl bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all group select-none"
         >
-          {/* Subtle Graphic Aura Background */}
-          <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-amber-500/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-          
-          <div className="flex items-start justify-between relative z-10 w-full">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                <Utensils className="w-6 h-6 stroke-[2]" />
+          <MessageSquare className="w-4 h-4 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors" />
+          <span>Post a Notice</span>
+          <ChevronRight className="w-4 h-4 text-slate-400 ml-auto sm:ml-1 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      </motion.div>
+
+      {/* 3. Compact Grid of Services (2×2 Icon Grid / Apple Wallet Shortcuts) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <div className="flex items-center justify-between mb-3 px-1">
+          <h2 className="font-syne font-bold text-sm sm:text-base text-slate-900 dark:text-white uppercase tracking-wider">
+            Campus Services
+          </h2>
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Tap to open
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+          {/* Tile 1: Marketplace */}
+          <button
+            onClick={() => navigate('/student/buy-sell')}
+            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform shrink-0">
+                <ShoppingBag className="w-5 h-5 stroke-[2]" />
               </div>
-              <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100/80 text-amber-800 border border-amber-200/60">
-                  <Clock className="w-3 h-3 text-amber-700" /> Instant Pickup
-                </span>
-                <h3 className="font-syne font-bold text-xl sm:text-2xl text-slate-900 mt-1">
-                  Canteen Food & Drinks
-                </h3>
+              <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="w-9 h-9 rounded-full bg-white/80 border border-amber-100 flex items-center justify-center text-amber-600 shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-all">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
 
-          <div className="mt-4 relative z-10 flex items-end justify-between">
-            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-[280px]">
-              Pre-order meals, skip long campus queues, and track your food status live in real time.
-            </p>
-            <span className="text-xs font-bold text-amber-600 underline underline-offset-4 group-hover:translate-x-1 transition-transform">
-              Order now →
-            </span>
-          </div>
-        </button>
-
-        {/* Secondary Bento Tile 3: Print Shop (Spans 1 col on sm, 2 cols on lg) */}
-        <button
-          onClick={() => navigate('/student/print')}
-          className="sm:col-span-1 lg:col-span-2 bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-[155px] group text-left select-none"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Printer className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:text-cyan-600 group-hover:bg-cyan-50 transition-all">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
-              Document Services
-            </span>
-            <h3 className="font-syne font-bold text-lg sm:text-xl text-slate-900 mt-1.5">
-              Print Shop Requests
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              Upload PDFs & pick up bound prints without waiting.
-            </p>
-          </div>
-        </button>
-
-        {/* Secondary Bento Tile 4: Campus Diaries & Community (Spans 1 col on sm, 2 cols on lg) */}
-        <button
-          onClick={() => navigate('/student/community')}
-          className="sm:col-span-1 lg:col-span-2 bg-white rounded-3xl p-5 border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between min-h-[155px] group text-left select-none"
-        >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5 stroke-[2]" />
-            </div>
-            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-slate-400 group-hover:text-purple-600 group-hover:bg-purple-50 transition-all">
-              <ArrowUpRight className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
-              Stories & Memories
-            </span>
-            <h3 className="font-syne font-bold text-lg sm:text-xl text-slate-900 mt-1.5">
-              Campus Diaries
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              Browse photo memories, secrets & stories across colleges.
-            </p>
-          </div>
-        </button>
-      </div>
-
-      {/* Main Content Split: Recent Activity & Quick Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Recent Activity (7 columns) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-syne font-bold text-xl text-slate-900 max-md:px-2">
-                Recent Activity
-              </h2>
-              <p className="text-xs text-slate-500 font-medium max-md:px-2">
-                Latest updates across your campus interactions
+            <div className="mt-3 sm:mt-4 space-y-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
+                <Flame className="w-3 h-3 text-blue-600 dark:text-blue-400 fill-blue-600 dark:fill-blue-400" /> High Activity
+              </span>
+              <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                Marketplace
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">
+                Buy, sell & trade items
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full max-md:bg-slate-50 md:bg-surface-elevated md:border md:border-border-subtle text-xs font-semibold text-slate-500">
-              <Activity className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-colors" />
-              Live
-            </span>
-          </div>
+          </button>
 
-          <div className="md:bg-surface md:border md:border-border-subtle max-md:bg-transparent max-md:border-none rounded-2xl p-0 md:p-6 md:shadow-xs">
-            {isInviteLoading && recentActivity.length === 0 ? (
-              <div className="space-y-4 py-2">
-                <PostSkeleton />
-                <PostSkeleton />
+          {/* Tile 2: Canteen */}
+          <button
+            onClick={() => navigate('/student/canteen')}
+            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-amber-500 group-hover:scale-105 transition-transform shrink-0">
+                <Utensils className="w-5 h-5 stroke-[2]" />
               </div>
-            ) : recentActivity.length === 0 ? (
-              <div className="py-12 text-center space-y-2 max-md:bg-white max-md:rounded-[24px] max-md:shadow-[0_4px_24px_rgb(0,0,0,0.03)]">
-                <div className="w-12 h-12 rounded-2xl bg-surface border border-border-subtle flex items-center justify-center mx-auto mb-3 text-slate-400">
-                  <Activity className="w-6 h-6" />
-                </div>
-                <p className="font-syne font-bold text-base text-slate-900">No recent activity</p>
-                <p className="text-xs text-slate-500 max-w-sm mx-auto px-4">
-                  Your campus activity including community discussions, canteen orders, and print requests will appear right here.
-                </p>
+              <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
-            ) : (
-              <div className="divide-y divide-slate-100 max-md:divide-none max-md:space-y-2">
-                {recentActivity.map((act, index) => (
-                  <div
-                    key={index}
-                    className="py-4 max-md:py-3 max-md:px-4 max-md:bg-white max-md:rounded-[20px] max-md:shadow-[0_2px_12px_rgb(0,0,0,0.02)] first:pt-0 max-md:first:pt-3 last:pb-0 max-md:last:pb-3 flex items-center justify-between gap-4 hover:bg-slate-50/60 md:-mx-2 md:px-2 md:rounded-xl transition-colors"
-                  >
-                    <div className="flex items-center gap-3 md:gap-3.5 min-w-0">
-                      <div className={`w-9 h-9 md:w-10 md:h-10 rounded-xl max-md:rounded-[12px] flex-shrink-0 flex items-center justify-center ${getActivityIconBg(act.type).replace('border', 'md:border')}`}>
-                        {getActivityIcon(act.type)}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="font-syne font-bold text-[13px] md:text-sm text-slate-900 truncate">
-                          {act.title}
-                        </h4>
-                        <p className="text-[10px] md:text-xs text-slate-500 truncate mt-0.5">
-                          {act.subtitle}
-                        </p>
-                      </div>
-                    </div>
+            </div>
 
-                    <div className="text-right flex-shrink-0 flex flex-col items-end">
-                      <span className="text-[9px] md:text-[11px] text-slate-400 font-medium mb-1">
-                        {act.time}
-                      </span>
-                      <span className={`inline-block px-2 py-0.5 md:px-2.5 md:py-0.5 rounded-full text-[9px] md:text-[11px] font-semibold capitalize ${getStatusBadgeStyle(act.status).replace('border', 'md:border')}`}>
-                        {act.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+            <div className="mt-3 sm:mt-4 space-y-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
+                <Clock className="w-3 h-3 text-amber-500" /> Instant Pickup
+              </span>
+              <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                Canteen
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">
+                Pre-order meals & skip queues
+              </p>
+            </div>
+          </button>
+
+          {/* Tile 3: Print Shop */}
+          <button
+            onClick={() => navigate('/student/print')}
+            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:scale-105 transition-transform shrink-0">
+                <Printer className="w-5 h-5 stroke-[2]" />
               </div>
-            )}
-          </div>
+              <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+
+            <div className="mt-3 sm:mt-4 space-y-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
+                Document Services
+              </span>
+              <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                Print Shop
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">
+                Upload PDFs & pickup bound prints
+              </p>
+            </div>
+          </button>
+
+          {/* Tile 4: Diaries & Community */}
+          <button
+            onClick={() => navigate('/student/community')}
+            className="bg-white dark:bg-[#161922] rounded-2xl p-4 sm:p-5 border border-slate-200/70 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 active:scale-[0.97] transition-all duration-200 flex flex-col justify-between min-h-[148px] sm:min-h-[160px] text-left group select-none relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between w-full">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform shrink-0">
+                <BookOpen className="w-5 h-5 stroke-[2]" />
+              </div>
+              <div className="w-7 h-7 rounded-full bg-slate-50 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+
+            <div className="mt-3 sm:mt-4 space-y-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-300">
+                Stories & Secrets
+              </span>
+              <h3 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">
+                Diaries
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 font-medium">
+                Browse memories & peer posts
+              </p>
+            </div>
+          </button>
         </div>
+      </motion.div>
 
-        {/* Right Column: Quick Insights & Actions Stack (5 columns) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Quick Actions Card */}
-          <div className="md:bg-surface md:border md:border-border-subtle rounded-2xl p-0 md:p-6 md:shadow-xs">
-            <h2 className="font-syne font-bold text-lg text-slate-900 mb-3 max-md:px-2">
-              Quick Actions
+      {/* 4. Recent Activity Feed (Clean List with Dividers) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-5 md:p-6 shadow-xs space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-syne font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              Recent Activity
             </h2>
-            <div className="flex md:flex-col gap-3 md:space-y-2.5 md:gap-0 overflow-x-auto snap-x hide-scrollbar max-md:-mx-4 max-md:px-4 max-md:pb-2">
-              <button
-                onClick={() => navigate('/student/community?compose=1&type=notice')}
-                className="snap-start shrink-0 max-md:w-[240px] p-3 md:p-3.5 rounded-[20px] md:rounded-xl bg-white md:bg-surface max-md:shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:bg-blue-50/50 md:border md:border-border-subtle hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
-              >
-                <span className="flex items-center gap-2.5 md:gap-3">
-                  <div className="w-8 h-8 rounded-lg max-md:bg-slate-50 md:bg-surface md:border md:border-border-subtle flex items-center justify-center text-slate-500 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
-                    <MessageSquare className="w-4 h-4 max-md:w-3.5 max-md:h-3.5" />
-                  </div>
-                  <span className="max-md:text-[13px]">Post a Notice</span>
-                </span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              <button
-                onClick={() => navigate('/student/buy-sell?compose=1')}
-                className="snap-start shrink-0 max-md:w-[240px] p-3 md:p-3.5 rounded-[20px] md:rounded-xl bg-white md:bg-surface max-md:shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:bg-blue-50/50 md:border md:border-border-subtle hover:border-blue-200 flex items-center justify-between text-sm font-semibold text-slate-900 hover:text-blue-700 transition-all group"
-              >
-                <span className="flex items-center gap-2.5 md:gap-3">
-                  <div className="w-8 h-8 rounded-lg max-md:bg-slate-50 md:bg-surface md:border md:border-border-subtle flex items-center justify-center text-slate-500 group-hover:text-blue-600 group-hover:border-blue-200 transition-colors">
-                    <Store className="w-4 h-4 max-md:w-3.5 max-md:h-3.5" />
-                  </div>
-                  <span className="max-md:text-[13px]">Sell an Item</span>
-                </span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-          </div>
-
-          {/* Your Invites Card */}
-          <div className="md:bg-surface md:border md:border-border-subtle max-md:bg-white max-md:border-none max-md:shadow-[0_4px_24px_rgb(0,0,0,0.03)] rounded-[24px] md:rounded-2xl p-5 md:p-6 md:shadow-xs space-y-4">
-            <div>
-              <h2 className="font-syne font-bold text-lg text-slate-900">
-                Your Invites
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Share invite codes with verified campus friends
-              </p>
-            </div>
-
-            {isInviteLoading ? (
-              <ListSkeleton rows={2} />
-            ) : availableCodes.length > 0 ? (
-              <div className="space-y-3">
-                {availableCodes.slice(0, 2).map((item: any) => (
-                  <div
-                    key={item.id}
-                    className="md:bg-surface md:border md:border-border-subtle max-md:bg-slate-50 max-md:border-none rounded-[16px] md:rounded-xl p-3.5 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-[13px] md:text-sm tracking-wider text-slate-900">
-                        {item.code}
-                      </span>
-                      <button
-                        onClick={() => handleCopyInvite(item.code)}
-                        className="p-1.5 rounded-lg hover:bg-slate-200/60 text-text-secondary hover:text-text-primary transition-colors"
-                        title="Copy code"
-                      >
-                        {copiedCode === item.code ? (
-                          <Check className="w-4 h-4 text-accent-green" />
-                        ) : (
-                          <Copy className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-border-subtle">
-                      <span className="text-[11px] font-medium text-slate-500">
-                        Ready to use
-                      </span>
-                      <button
-                        onClick={() => handleShareInvite(item.code)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg max-md:rounded-[10px] bg-slate-900 text-white font-semibold text-[11px] md:text-xs hover:bg-slate-800 transition-colors shadow-sm"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                        Share
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="md:bg-surface md:border md:border-border-subtle max-md:bg-slate-50 max-md:border-none rounded-[16px] md:rounded-xl p-4 text-center space-y-3">
-                <p className="text-[11px] md:text-xs text-slate-500 font-medium">
-                  You have helped {usedCodesCount} friends join Campus Blink!
-                </p>
-                {cooldownRemaining > 0 ? (
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-                      New invites available in
-                    </p>
-                    <p className="font-mono font-bold text-[13px] md:text-sm text-slate-900 mt-1">
-                      {cooldownHours}:{cooldownMinutes}:{cooldownSeconds}
-                    </p>
-                  </div>
-                ) : canRefreshNow ? (
-                  <button
-                    onClick={handleRefreshInvites}
-                    disabled={isRefreshingInvites}
-                    className="w-full py-2.5 px-3 rounded-[12px] md:rounded-xl bg-slate-900 text-white font-semibold text-[12px] hover:bg-slate-800 transition-colors shadow-sm"
-                  >
-                    {isRefreshingInvites ? 'Generating...' : 'Generate New Invites'}
-                  </button>
-                ) : null}
-              </div>
-            )}
-          </div>
-
-          {/* Reputation Progress Card */}
-          <div className="md:bg-surface md:border md:border-border-subtle max-md:bg-white max-md:border-none max-md:shadow-[0_4px_24px_rgb(0,0,0,0.03)] rounded-[24px] md:rounded-2xl p-5 md:p-6 md:shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-syne font-bold text-lg text-slate-900">
-                Reputation Points
-              </h2>
-              <span className="text-[10px] md:text-xs font-semibold text-accent-blue bg-accent-blue-soft border border-accent-blue-soft px-2.5 py-0.5 rounded-full">
-                Active
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2 mt-3">
-              <span className="font-syne font-extrabold text-3xl text-slate-900">
-                {repBalance}
-              </span>
-              <span className="text-xs text-slate-500 font-medium">
-                Campus Credits
-              </span>
-            </div>
-            <div className="h-2 md:h-2.5 w-full bg-slate-100 md:bg-surface-elevated border-none md:border md:border-border-subtle rounded-full overflow-hidden mt-3.5">
-              <div
-                className="h-full bg-blue-600 rounded-full transition-all duration-700"
-                style={{ width: `${Math.min(100, Math.max(5, (repBalance / 100) * 100))}%` }}
-              />
-            </div>
-            <p className="text-[10px] md:text-[11px] text-slate-400 mt-2.5 leading-relaxed">
-              {repToTrusted > 0
-                ? `${repToTrusted} more points to reach Trusted Campus Member status.`
-                : 'You have achieved Trusted Campus Member status!'}
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Today & this week across your campus interactions
             </p>
           </div>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+              <Activity className="w-3 h-3 text-slate-500" /> Live
+            </span>
+            <Link
+              to="/student/notifications"
+              className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors min-h-[44px] flex items-center"
+            >
+              View all
+            </Link>
+          </div>
         </div>
-      </div>
+
+        {/* List Content */}
+        <div>
+          {isActivityLoading ? (
+            <div className="py-2 space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between py-3 px-2">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                    <div className="space-y-1.5">
+                      <div className="w-36 h-4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                      <div className="w-24 h-3 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="w-16 h-6 bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : recentActivity.length === 0 ? (
+            <div className="py-10 text-center space-y-2.5">
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
+                <Activity className="w-5 h-5" />
+              </div>
+              <p className="font-syne font-bold text-sm text-slate-900 dark:text-white">No recent activity yet</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+                Your campus activity including community posts, orders, and print requests will appear right here as a clean scannable list.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
+              {recentActivity.map((act, index) => (
+                <div
+                  key={index}
+                  className="py-3.5 px-2 first:pt-1 last:pb-1 flex items-center justify-between gap-4 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 rounded-xl transition-colors"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${getActivityIconBg(act.type)}`}>
+                      {getActivityIcon(act.type)}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-syne font-bold text-sm text-slate-900 dark:text-white truncate">
+                        {act.title}
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        <span className="truncate">{act.subtitle}</span>
+                        <span>•</span>
+                        <span className="shrink-0">{act.time}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${getStatusBadgeStyle(act.status)}`}>
+                      {act.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* 5. Tucked Utility Section: Rewards & Invites (Accordion/Tab Widget) */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xs transition-all"
+      >
+        {/* Header Toggle Row */}
+        <div
+          onClick={() => setIsRewardsExpanded(!isRewardsExpanded)}
+          className="p-5 md:p-6 flex items-center justify-between cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors select-none min-h-[56px]"
+        >
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-center text-slate-700 dark:text-slate-300">
+              <Gift className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-syne font-bold text-base text-slate-900 dark:text-white">
+                  Rewards & Invites
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
+                  {availableCodes.length} Invites • {repBalance} pts
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Manage your campus reputation score and invite peers
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline">
+              {isRewardsExpanded ? 'Collapse' : 'See details'}
+            </span>
+            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+              {isRewardsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+          </div>
+        </div>
+
+        {/* Expandable Tabs Content */}
+        <AnimatePresence>
+          {isRewardsExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="border-t border-slate-200/80 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="p-5 md:p-6 space-y-6 bg-slate-50/40 dark:bg-slate-900/40">
+                {/* Secondary Section Switcher Tabs */}
+                <div className="flex items-center gap-2 border-b border-slate-200/70 dark:border-slate-800 pb-4">
+                  <button
+                    onClick={() => setSecondaryTab('rewards')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px] active:scale-[0.97] ${
+                      secondaryTab === 'rewards'
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xs'
+                        : 'bg-white dark:bg-[#161922] text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <Award className="w-4 h-4" />
+                    <span>Reputation Points</span>
+                  </button>
+                  <button
+                    onClick={() => setSecondaryTab('invites')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px] active:scale-[0.97] ${
+                      secondaryTab === 'invites'
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xs'
+                        : 'bg-white dark:bg-[#161922] text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Invite Friends ({availableCodes.length})</span>
+                  </button>
+                </div>
+
+                {/* Tab 1: Reputation Points Breakdown */}
+                {secondaryTab === 'rewards' && (
+                  <div className="space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          Current Balance
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-syne font-extrabold text-3xl text-slate-900 dark:text-white">
+                            {repBalance}
+                          </span>
+                          <span className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            Campus Credits
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="sm:text-right">
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                          {repToTrusted > 0 ? `${repToTrusted} pts to Trusted Member` : '✓ Trusted Campus Member'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Tier Progress Bar */}
+                    <div className="space-y-2 bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                        <span>Tier Progress</span>
+                        <span>{repProgressPct}% to next milestone</span>
+                      </div>
+                      <div className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-slate-900 dark:bg-white rounded-full transition-all duration-700"
+                          style={{ width: `${repProgressPct}%` }}
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-1 leading-relaxed">
+                        Earn reputation points by posting helpful marketplace items, contributing to community diaries, and inviting verified campus friends.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab 2: Your Invites */}
+                {secondaryTab === 'invites' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                        You have helped <strong className="text-slate-900 dark:text-white">{usedCodesCount} friends</strong> join Campus Blink.
+                      </p>
+                      {canRefreshNow && (
+                        <button
+                          onClick={handleRefreshInvites}
+                          disabled={isRefreshingInvites}
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.97] transition-all shadow-2xs shrink-0 min-h-[44px]"
+                        >
+                          {isRefreshingInvites ? 'Generating...' : 'Generate New Codes'}
+                        </button>
+                      )}
+                    </div>
+
+                    {isInviteLoading ? (
+                      <ListSkeleton rows={2} />
+                    ) : availableCodes.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {availableCodes.map((item: any) => (
+                          <div
+                            key={item.id}
+                            className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 space-y-3 shadow-2xs"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono font-bold text-sm tracking-wider text-slate-900 dark:text-white">
+                                {item.code}
+                              </span>
+                              <button
+                                onClick={() => handleCopyInvite(item.code)}
+                                className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white active:scale-[0.97] transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                title="Copy code"
+                              >
+                                {copiedCode === item.code ? (
+                                  <Check className="w-4 h-4 text-emerald-500" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                Ready to use
+                              </span>
+                              <button
+                                onClick={() => handleShareInvite(item.code)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.97] transition-all min-h-[44px]"
+                              >
+                                <Share2 className="w-3.5 h-3.5" />
+                                Share
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 text-center space-y-3">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                          No unused invite codes right now.
+                        </p>
+                        {cooldownRemaining > 0 ? (
+                          <div className="space-y-1">
+                            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                              New invites available in
+                            </p>
+                            <p className="font-mono font-bold text-sm text-slate-900 dark:text-white">
+                              {cooldownHours}:{cooldownMinutes}:{cooldownSeconds}
+                            </p>
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
-
