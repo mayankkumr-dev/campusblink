@@ -8,6 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
 import { cleanupOldPrintFiles, getShopPrintOrders, requestReorder, updatePrintOrderStatus, updatePrintShopAvailability } from '../../api/print';
 import { usePrintOrders, useShopStatus } from '../../hooks/useRealtime';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { extractCloudinaryPublicId } from '../../lib/cloudinary';
 import toast from 'react-hot-toast';
@@ -33,6 +34,7 @@ type InkMeta = {
 export const PrintDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('Live Orders');
+  const scrollDirection = useScrollDirection({ threshold: 12 });
   const profile = useAuthStore(state => state.profile);
   const user = useAuthStore(state => state.user);
 
@@ -464,7 +466,7 @@ export const PrintDashboardPage: React.FC = () => {
         {/* ========================================================
             MOBILE PWA VIEWPORT (<md) - Ultra-Minimalist & Isolated
         ======================================================== */}
-        <div className="md:hidden flex-1 overflow-y-auto pb-4">
+        <div className="md:hidden flex-1 overflow-y-auto pb-32">
           {activeView === 'Live Orders' && (
             <MobilePrintOrdersDashboard
               shop={shop}
@@ -490,8 +492,14 @@ export const PrintDashboardPage: React.FC = () => {
           )}
         </div>
 
-        {/* Flush Native Bottom Navigation Bar (<md) */}
-        <nav className="md:hidden shrink-0 w-full z-50 bg-white/95 backdrop-blur-md border-t border-gray-100 rounded-t-2xl sm:rounded-t-3xl pt-2 pb-[max(env(safe-area-inset-bottom,0px),0.5rem)] px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] flex items-center justify-around select-none">
+        {/* Uber-Style Floating Pill Bottom Navigation Bar (<md) */}
+        <nav
+          className={`md:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] w-[92%] max-w-md z-50 bg-white/90 backdrop-blur-xl border border-gray-100/80 ring-1 ring-gray-900/5 rounded-full px-3 py-2 shadow-2xl shadow-gray-200/50 flex items-center justify-around select-none transition-all duration-300 ease-in-out no-touch-callout ${
+            scrollDirection === 'down'
+              ? 'translate-y-[150%] opacity-0 pointer-events-none'
+              : 'translate-y-0 opacity-100 pointer-events-auto'
+          }`}
+        >
           {navItems.map((item) => {
             const isActive = activeView === item.label;
             return (
@@ -499,18 +507,20 @@ export const PrintDashboardPage: React.FC = () => {
                 key={item.label}
                 type="button"
                 onClick={() => setActiveView(item.label)}
-                className="group flex-1 flex items-center justify-center h-[52px] rounded-2xl active:scale-95 transition-all relative focus:outline-none"
+                className={`group flex-1 flex items-center justify-center h-[46px] rounded-full active:scale-95 transition-all relative focus:outline-none ${
+                  isActive ? 'bg-gray-100/80' : 'hover:bg-gray-50/60'
+                }`}
               >
                 <div className="relative flex items-center justify-center">
                   <item.icon
-                    size={24}
+                    size={22}
                     strokeWidth={isActive ? 2.25 : 1.75}
                     className={`transition-all duration-200 ${
-                      isActive ? 'text-gray-900 scale-105' : 'text-gray-400 group-hover:text-gray-600'
+                      isActive ? 'text-gray-900 scale-110' : 'text-gray-400 group-hover:text-gray-600'
                     }`}
                   />
                   {item.label === 'Live Orders' && newOrdersList.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse" />
                   )}
                 </div>
                 <span className="sr-only">{item.label}</span>

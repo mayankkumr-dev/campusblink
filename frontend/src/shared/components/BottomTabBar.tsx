@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router';
+import { useScrollDirection } from '../../hooks/useScrollDirection';
 
 export interface TabBarItem {
   key: string;
@@ -18,23 +19,27 @@ export interface BottomTabBarProps {
 }
 
 /**
- * Shared, icon-only, floating tab bar component used uniformly as the outer shell
+ * Shared, icon-only, Uber-style floating pill tab bar component used uniformly
  * across Student, Professor, and Admin dashboards.
  *
- * Adopts:
- * - Icon-only navigation with sr-only labels for clean, minimal aesthetics
- * - Solid black/white filled treatment (`fill="currentColor"`) for active tab, outline (`fill="none"`) at rest
- * - Small red status dot for notifications instead of numbered badges
- * - Generous 5-item spacing and comfortable touch targets
- * - Floating rounded bar with elevation/shadow and safe-area respecting positioning
+ * Features:
+ * - Dynamic scroll-reactive hide/show: slides down off-screen when scrolling down, instantly returns when scrolling up
+ * - Uber floating pill design: centered bottom capsule (`rounded-full`) with `bg-white/90 backdrop-blur-xl`
+ * - Pure whites and ultra-soft, diffused drop-shadows (`shadow-2xl shadow-gray-200/50`)
+ * - Icon-only navigation (`fill="currentColor"` when active) with small notification dots
  */
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }) => {
   const location = useLocation();
+  const scrollDirection = useScrollDirection({ threshold: 12 });
 
   return (
     <nav
       aria-label="Bottom Navigation"
-      className="md:hidden shrink-0 w-full z-50 bg-white/95 backdrop-blur-md border-t border-gray-100 rounded-t-2xl sm:rounded-t-3xl pt-2 pb-[max(env(safe-area-inset-bottom,0px),0.5rem)] px-3 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] flex items-center justify-around select-none transition-all duration-200 no-touch-callout"
+      className={`md:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] w-[92%] max-w-md z-50 bg-white/90 backdrop-blur-xl border border-gray-100/80 ring-1 ring-gray-900/5 rounded-full px-3 py-2 shadow-2xl shadow-gray-200/50 flex items-center justify-around select-none transition-all duration-300 ease-in-out no-touch-callout ${
+        scrollDirection === 'down'
+          ? 'translate-y-[150%] opacity-0 pointer-events-none'
+          : 'translate-y-0 opacity-100 pointer-events-auto'
+      }`}
     >
       {items.map((item) => {
         const Icon = item.icon;
@@ -50,23 +55,22 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
           <>
             <div className="relative flex items-center justify-center">
               <Icon
-                size={24}
+                size={22}
                 strokeWidth={isActive ? 2.25 : 1.75}
                 fill={isActive ? 'currentColor' : 'none'}
                 className={`transition-all duration-200 ${
                   isActive
-                    ? 'text-gray-900 scale-105'
+                    ? 'text-gray-900 scale-110'
                     : 'text-gray-400 group-hover:text-gray-600'
                 }`}
               />
               {item.hasDot && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse"
+                  className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white animate-pulse"
                   aria-hidden="true"
                 />
               )}
             </div>
-            {/* Screen-reader label only (No text labels under any icon) */}
             <span className="sr-only">{item.label}</span>
           </>
         );
@@ -81,7 +85,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
                 else if (item.isMenu && onMenuClick) onMenuClick();
               }}
               aria-label={item.label}
-              className="group flex-1 flex items-center justify-center h-[52px] rounded-2xl active:scale-95 transition-all relative focus:outline-none"
+              className={`group flex-1 flex items-center justify-center h-[46px] rounded-full active:scale-95 transition-all relative focus:outline-none ${
+                isActive ? 'bg-gray-100/80' : 'hover:bg-gray-50/60'
+              }`}
             >
               {content}
             </button>
@@ -96,7 +102,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
               if (item.onClick) item.onClick();
             }}
             aria-label={item.label}
-            className="group flex-1 flex items-center justify-center h-[52px] rounded-2xl active:scale-95 transition-all relative focus:outline-none"
+            className={`group flex-1 flex items-center justify-center h-[46px] rounded-full active:scale-95 transition-all relative focus:outline-none ${
+              isActive ? 'bg-gray-100/80' : 'hover:bg-gray-50/60'
+            }`}
           >
             {content}
           </NavLink>
@@ -105,3 +113,4 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
     </nav>
   );
 };
+

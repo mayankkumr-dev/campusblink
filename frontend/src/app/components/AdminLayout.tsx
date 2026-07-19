@@ -425,7 +425,7 @@ export const AdminLayout: React.FC = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-6 pb-4 md:pb-8">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-6 pb-32 md:pb-8">
           <AdminGlobalSearch />
           <Outlet />
         </main>

@@ -374,7 +374,7 @@ export const ProfessorLayout: React.FC = () => {
 
       {/* Main Content + Bottom Nav Wrapper */}
       <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50 transition-all duration-300 ${isChatSection ? 'md:ml-[88px]' : 'md:ml-[260px]'}`}>
-        <main className="flex-1 overflow-y-auto w-full pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0 pb-4 md:pb-8">
+        <main className="flex-1 overflow-y-auto w-full pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0 pb-32 md:pb-8">
           <Outlet />
         </main>
 
