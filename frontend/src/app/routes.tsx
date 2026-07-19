@@ -217,6 +217,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'community/create',
+            lazy: async () => ({
+              Component: (await import('../features/community/DiaryCreatorPage')).DiaryCreatorPage,
+            }),
+          },
+          {
             path: 'societies',
             lazy: async () => ({
               Component: (await import('../features/community/SocietiesFeedPage')).SocietiesFeedPage,
@@ -230,6 +236,12 @@ export const router = createBrowserRouter([
           },
           {
             path: 'profile',
+            lazy: async () => ({
+              Component: (await import('../features/profile/ProfilePage')).ProfilePage,
+            }),
+          },
+          {
+            path: 'profile/edit',
             lazy: async () => ({
               Component: (await import('../features/profile/ProfilePage')).ProfilePage,
             }),

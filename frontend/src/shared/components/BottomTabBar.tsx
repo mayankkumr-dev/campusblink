@@ -33,7 +33,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
   const location = useLocation();
   const scrollDirection = useScrollDirection({ threshold: 12 });
 
-  if (location.pathname.includes('/post/') || window.location.search.includes('diaryId') || document.body.classList.contains('diary-fullscreen-open')) {
+  if (location.pathname.includes('/post/') || window.location.search.includes('diaryId') || location.pathname.endsWith('/edit') || location.pathname.endsWith('/create')) {
     return null;
   }
 
@@ -117,6 +117,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
             to={item.path}
             onClick={() => {
               if (item.onClick) item.onClick();
+              if (location.pathname === item.path && item.path.includes('/search')) {
+                window.dispatchEvent(new CustomEvent('focus-search-bar'));
+              }
             }}
             aria-label={item.label}
             className="group flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] py-1.5 px-2 rounded-full active:scale-95 transition-all duration-200 relative focus:outline-none hover:bg-slate-100/60 dark:hover:bg-slate-800/50"

@@ -18,7 +18,7 @@ import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { AccessDenied } from '../../shared/components/AccessDenied';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { PostSkeleton } from '../../app/components/ui/Skeletons';
-import { DiaryCreatorModal } from './DiaryCreatorModal';
+
 import { DiaryMasonryGrid } from './DiaryMasonryGrid';
 import type { DiaryEntry } from './DiaryMasonryGrid';
 
@@ -84,12 +84,12 @@ function FriendsRow({ writers }: { writers: FriendWriter[] }) {
 
 /* ─── Main component ─────────────────────────────────────────────── */
 export const CommunityFeed: React.FC = () => {
+  const navigate = useNavigate();
   const profile = useAuthStore((s) => s.profile);
   const { hasAccess: hasCommunityAccess, isChecking: checkingCommunityAccess } =
     useFeatureAccess('community_access');
 
   const [activeFilter, setActiveFilter] = useState<DiaryFilter>('new');
-  const [isDiaryCreatorOpen, setIsDiaryCreatorOpen] = useState(false);
   const [newDiaryEntry, setNewDiaryEntry] = useState<DiaryEntry | null>(null);
   const [followingIds, setFollowingIds] = useState<string[]>([]);
   const [friendWriters, setFriendWriters] = useState<FriendWriter[]>([]);
@@ -112,10 +112,10 @@ export const CommunityFeed: React.FC = () => {
   }, [profile?.id]);
 
   useEffect(() => {
-    const handleOpenCreator = () => setIsDiaryCreatorOpen(true);
+    const handleOpenCreator = () => navigate('/student/community/create');
     window.addEventListener('open-diary-creator', handleOpenCreator);
     return () => window.removeEventListener('open-diary-creator', handleOpenCreator);
-  }, []);
+  }, [navigate]);
 
   if (checkingCommunityAccess) {
     return (
@@ -162,7 +162,7 @@ export const CommunityFeed: React.FC = () => {
           </div>
 
           <motion.button
-            onClick={() => setIsDiaryCreatorOpen(true)}
+            onClick={() => navigate('/student/community/create')}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
             className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
@@ -178,7 +178,7 @@ export const CommunityFeed: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-3 space-y-3">
         {/* Day Prompt Card matching screenshot */}
         <motion.div
-          onClick={() => setIsDiaryCreatorOpen(true)}
+          onClick={() => navigate('/student/community/create')}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800/90 shadow-md p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer text-white transition-all hover:border-slate-700 active:scale-[0.98]"
@@ -245,21 +245,10 @@ export const CommunityFeed: React.FC = () => {
             followingIds={followingIds}
             newEntry={newDiaryEntry}
             onFilterChange={(f: any) => setActiveFilter(f)}
-            onOpenCreate={() => setIsDiaryCreatorOpen(true)}
+            onOpenCreate={() => navigate('/student/community/create')}
           />
         </div>
       </main>
-
-      {/* ── Diary creator modal ──────────────────────────────────── */}
-      <DiaryCreatorModal
-        isOpen={isDiaryCreatorOpen}
-        onClose={() => setIsDiaryCreatorOpen(false)}
-        onCreated={(entry) => {
-          setNewDiaryEntry(entry as DiaryEntry);
-          setActiveFilter('mine');
-          setTimeout(() => setNewDiaryEntry(null), 800);
-        }}
-      />
     </div>
   );
 };

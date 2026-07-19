@@ -165,7 +165,7 @@ export const StudentLayout: React.FC = () => {
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
   ];
 
-  const isDiaryOpen = location.pathname.includes('/post/') || window.location.search.includes('diaryId') || document.body.classList.contains('diary-fullscreen-open');
+  const isDiaryOpen = location.pathname.includes('/post/') || window.location.search.includes('diaryId') || location.pathname.endsWith('/create');
 
   return (
     <div className="flex h-screen w-full bg-gray-50 text-gray-900 font-sans overflow-hidden select-none no-touch-callout">
