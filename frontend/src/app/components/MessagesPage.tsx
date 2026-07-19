@@ -272,7 +272,7 @@ export const MessagesPage: React.FC = () => {
     }
   }, [searchParams.get('chat'), activeConversations, requestConversations, activeChatId, newChatUserId]);
 
-  // ── Socket.io ────────────────────────────────────────────────────────────
+  // ── Socket.io + Supabase Realtime fallback ───────────────────────────────
   useEffect(() => {
     if (!profile?.id) return;
     const socket = socketIOClient(import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000', { withCredentials: true });
@@ -290,7 +290,47 @@ export const MessagesPage: React.FC = () => {
       loadConversations();
     });
     socket.on('newMessageRequest', () => loadConversations());
-    return () => { socket.disconnect(); };
+
+    // Supabase Realtime fallback when Socket.io is blocked by HTTPS mixed content
+    const channel = supabase
+      .channel(`direct_messages:${profile.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `receiver_id=eq.${profile.id}`
+      }, (payload) => {
+        const m = payload.new;
+        const formatted = {
+          _id: m.id,
+          conversationId: m.conversation_id,
+          senderId: m.sender_id,
+          receiverId: m.receiver_id,
+          text: m.message,
+          isRead: m.is_read,
+          createdAt: m.created_at,
+          deletedBy: m.deleted_by || [],
+          editedAt: m.edited_at || null,
+        };
+        setMessagesCache(prev => ({
+          ...prev,
+          [formatted.conversationId]: [...(prev[formatted.conversationId] || []), formatted]
+        }));
+        if (formatted.conversationId === activeChatId) {
+          setMessages(prev => {
+            if (prev.some(x => x._id === formatted._id)) return prev;
+            return [...prev, formatted];
+          });
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        }
+        loadConversations();
+      })
+      .subscribe();
+
+    return () => {
+      socket.disconnect();
+      supabase.removeChannel(channel);
+    };
   }, [profile?.id, activeChatId]);
 
   // ── Load messages when chat changes ─────────────────────────────────────
@@ -538,12 +578,6 @@ export const MessagesPage: React.FC = () => {
       {/* ── LEFT PANE ───────────────────────────────────────────────────── */}
       <div className={`flex flex-col w-full md:w-[380px] lg:w-[420px] flex-shrink-0 border-r border-border-subtle bg-surface ${rightPaneOpen ? 'hidden md:flex' : 'flex'}`}>
         <div className="px-6 pt-6 pb-4 bg-background/80 backdrop-blur-md sticky top-0 z-10 border-b border-border-subtle">
-          <div className="flex items-center justify-between mb-5">
-            <h1 className="font-syne text-2xl font-extrabold text-text-primary tracking-tight">Messages</h1>
-            <button className="h-9 w-9 flex items-center justify-center rounded-full hover:bg-surface-elevated transition-colors text-text-secondary">
-              <MoreVertical className="h-5 w-5" />
-            </button>
-          </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <Search className="h-4 w-4" />

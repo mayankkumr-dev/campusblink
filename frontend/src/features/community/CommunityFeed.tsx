@@ -111,6 +111,12 @@ export const CommunityFeed: React.FC = () => {
     return () => { mounted = false; };
   }, [profile?.id]);
 
+  useEffect(() => {
+    const handleOpenCreator = () => setIsDiaryCreatorOpen(true);
+    window.addEventListener('open-diary-creator', handleOpenCreator);
+    return () => window.removeEventListener('open-diary-creator', handleOpenCreator);
+  }, []);
+
   if (checkingCommunityAccess) {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-8">
@@ -238,6 +244,8 @@ export const CommunityFeed: React.FC = () => {
             filter={activeFilter}
             followingIds={followingIds}
             newEntry={newDiaryEntry}
+            onFilterChange={(f: any) => setActiveFilter(f)}
+            onOpenCreate={() => setIsDiaryCreatorOpen(true)}
           />
         </div>
       </main>

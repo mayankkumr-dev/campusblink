@@ -36,6 +36,8 @@ export interface DiaryMasonryGridProps {
   filter?: 'new' | 'popular' | 'friends' | 'mine';
   followingIds?: string[];
   newEntry?: DiaryEntry | null;
+  onFilterChange?: (filter: 'new' | 'popular' | 'friends' | 'mine') => void;
+  onOpenCreate?: () => void;
 }
 
 interface CommentItem {
@@ -631,6 +633,7 @@ function DiaryFullscreenCard({
   onLike,
   onCommentClick,
   onSendClick,
+  hideTopClose,
 }: {
   entry: DiaryEntry;
   currentUserId?: string;
@@ -639,6 +642,7 @@ function DiaryFullscreenCard({
   onLike: (id: string) => void | Promise<void>;
   onCommentClick: (entry: DiaryEntry) => void;
   onSendClick?: (entry: DiaryEntry) => void;
+  hideTopClose?: boolean;
 }) {
   const [showPopHeart, setShowPopHeart] = useState(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
@@ -667,7 +671,7 @@ function DiaryFullscreenCard({
   return (
     <div
       id={`fullscreen-card-${entry.id}`}
-      className="snap-start sm:snap-center w-full min-h-screen sm:min-h-[94vh] flex flex-col items-center justify-center p-2 sm:p-6 relative shrink-0 select-none"
+      className="snap-always snap-start sm:snap-center w-full h-[100dvh] sm:h-screen flex flex-col items-center justify-center p-0 sm:p-6 relative shrink-0 select-none"
       onClick={onClose}
     >
       <motion.div
@@ -776,17 +780,19 @@ function DiaryFullscreenCard({
               </div>
             )}
 
-            <button
-              onClick={onClose}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
-                hasImage
-                  ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
-                  : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
-              }`}
-              aria-label="Close"
-            >
-              <X size={18} strokeWidth={2} />
-            </button>
+            {!hideTopClose && (
+              <button
+                onClick={onClose}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
+                  hasImage
+                    ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
+                    : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
+                }`}
+                aria-label="Close"
+              >
+                <X size={18} strokeWidth={2} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -897,6 +903,9 @@ export function DiaryFullscreen({
   entry,
   allEntries = [],
   currentUserId,
+  currentFilter = 'new',
+  onFilterChange,
+  onOpenCreate,
   onClose,
   onDelete,
   onLike,
@@ -907,6 +916,9 @@ export function DiaryFullscreen({
   entry: DiaryEntry;
   allEntries?: DiaryEntry[];
   currentUserId?: string;
+  currentFilter?: string;
+  onFilterChange?: (filter: any) => void;
+  onOpenCreate?: () => void;
   onClose: () => void;
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
@@ -914,6 +926,7 @@ export function DiaryFullscreen({
   onShareClick: (entry: DiaryEntry) => void;
   onSendClick?: (entry: DiaryEntry) => void;
 }) {
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const listToRender = allEntries.length > 0 ? allEntries : [entry];
 
   useEffect(() => {
@@ -929,12 +942,81 @@ export function DiaryFullscreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col overflow-y-scroll snap-y snap-mandatory no-scrollbar bg-slate-950/90 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex flex-col overflow-y-scroll snap-y snap-mandatory snap-always no-scrollbar bg-slate-950/90 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
+      {/* Top Header Bar inside Fullscreen Reel */}
+      <div className="fixed top-0 inset-x-0 z-[60] flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-auto">
+        {/* Left: Filter selector dropdown */}
+        <div className="relative">
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowFilterDropdown((prev) => !prev); }}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/55 hover:bg-black/75 border border-white/25 text-white font-extrabold text-xs sm:text-sm transition-all cursor-pointer shadow-md min-h-[36px]"
+          >
+            <span>
+              {currentFilter === 'friends' || currentFilter === 'following'
+                ? 'Friends'
+                : currentFilter === 'popular'
+                ? 'Popular'
+                : currentFilter === 'mine'
+                ? 'My Stories'
+                : 'New'}
+            </span>
+            <ChevronDown size={14} className={`transition-transform duration-200 ${showFilterDropdown ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {showFilterDropdown && (
+            <div className="absolute top-full left-0 mt-2 w-36 bg-slate-900/95 border border-white/15 rounded-2xl shadow-2xl py-1.5 backdrop-blur-md overflow-hidden z-50">
+              {[
+                { id: 'friends', label: 'Friends', icon: '👥' },
+                { id: 'popular', label: 'Popular', icon: '🔥' },
+                { id: 'new', label: 'New', icon: '✨' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onFilterChange) onFilterChange(item.id as any);
+                    setShowFilterDropdown(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left flex items-center gap-2 text-xs sm:text-sm font-bold transition-colors cursor-pointer ${
+                    currentFilter === item.id || (currentFilter === 'following' && item.id === 'friends')
+                      ? 'bg-indigo-600/50 text-indigo-200 font-extrabold'
+                      : 'text-slate-200 hover:bg-white/10'
+                  }`}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right: Create Pill + Close X */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={(e) => { e.stopPropagation(); if (onOpenCreate) onOpenCreate(); else onClose(); }}
+            className="bg-white hover:bg-slate-100 text-slate-900 px-3.5 py-1.5 rounded-full font-extrabold text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-transform active:scale-95 cursor-pointer min-h-[36px]"
+          >
+            <span>✍️</span>
+            <span>Create</span>
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-black/55 hover:bg-black/75 border border-white/25 text-white transition-all shadow-md cursor-pointer active:scale-90 min-h-[36px] min-w-[36px]"
+            aria-label="Close"
+          >
+            <X size={18} strokeWidth={2.2} />
+          </button>
+        </div>
+      </div>
+
       {listToRender.map((item) => (
         <DiaryFullscreenCard
           key={item.id}
@@ -945,6 +1027,7 @@ export function DiaryFullscreen({
           onLike={onLike}
           onCommentClick={onCommentClick}
           onSendClick={onSendClick || onShareClick}
+          hideTopClose={true}
         />
       ))}
     </motion.div>
@@ -956,6 +1039,8 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
   filter = 'new',
   followingIds = [],
   newEntry,
+  onFilterChange,
+  onOpenCreate,
 }) => {
   const profile = useAuthStore((s) => s.profile);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1251,6 +1336,18 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
             entry={viewEntry}
             allEntries={entries}
             currentUserId={profile?.id}
+            currentFilter={filter}
+            onFilterChange={(newFilter) => {
+              if (onFilterChange) onFilterChange(newFilter);
+            }}
+            onOpenCreate={() => {
+              handleCloseFullscreen();
+              if (onOpenCreate) {
+                onOpenCreate();
+              } else {
+                window.dispatchEvent(new CustomEvent('open-diary-creator'));
+              }
+            }}
             onClose={handleCloseFullscreen}
             onDelete={handleDelete}
             onLike={handleLike}
