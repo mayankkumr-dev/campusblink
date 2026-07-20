@@ -49,6 +49,16 @@ export const SearchPage: React.FC = () => {
   const [listings, setListings] = useState<any[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleFocusSearch = () => {
+      inputRef.current?.focus();
+    };
+    window.addEventListener('focus-search-bar', handleFocusSearch);
+    return () => window.removeEventListener('focus-search-bar', handleFocusSearch);
+  }, []);
+
   const runSearch = useCallback(
     async (term: string) => {
       if (!term.trim()) {
@@ -128,6 +138,7 @@ export const SearchPage: React.FC = () => {
               className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
             />
             <input
+              ref={inputRef}
               type="text"
               value={inputValue}
               onChange={(e) => handleInputChange(e.target.value)}

@@ -252,8 +252,6 @@ export const LoginPage: React.FC = () => {
 
     setUser(data.user);
     setProfile(resolvedProfile);
-    toast.success(`Welcome back, ${getFirstName(data.profile?.name, 'Student')}! 👋`);
-
     const role = resolvedProfile?.role;
     const pendingTeacherRequest =
       data.user?.user_metadata?.requested_role === 'teacher' &&

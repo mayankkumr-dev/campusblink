@@ -207,7 +207,7 @@ function App() {
       {/* Secondary fallback banner — shown on subsequent visits if not yet subscribed */}
       <NotificationBanner />
       <RouterProvider router={router} />
-      <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
+      <Toaster position="bottom-center" toastOptions={{ duration: 3500 }} />
       <PWALayer />
       <OfflineOverlay />
     </>

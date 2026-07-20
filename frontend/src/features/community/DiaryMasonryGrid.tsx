@@ -138,22 +138,7 @@ function DiaryCommentSheet({
   entry: DiaryEntry;
   onClose: () => void;
 }) {
-  const [comments, setComments] = useState<CommentItem[]>([
-    {
-      id: '1',
-      authorName: 'Riya Sharma',
-      authorAvatar: getAvatarDataUrl({ name: 'Riya Sharma', seed: 'riya' }),
-      text: 'Such a relatable campus moment! 🔥',
-      time: '12m',
-    },
-    {
-      id: '2',
-      authorName: 'Aarav Gupta',
-      authorAvatar: getAvatarDataUrl({ name: 'Aarav Gupta', seed: 'aarav' }),
-      text: 'Loved the vibes here, where on campus is this? ✨',
-      time: '5m',
-    },
-  ]);
+  const [comments, setComments] = useState<CommentItem[]>([]);
   const [input, setInput] = useState('');
 
   const handleSend = (e: React.FormEvent) => {
@@ -558,65 +543,25 @@ const DiaryCard = React.memo<DiaryCardProps>(({
         </div>
       )}
 
-      {/* ── Compact Bottom Horizontal Action Row (Icon + Count Only, No Redundant Text) ── */}
-      <div className={`relative z-20 pb-2.5 px-3 sm:px-3.5 pt-2 flex items-center justify-between gap-2 shrink-0 ${
-        hasImage ? '' : 'border-t border-black/5 dark:border-white/10'
-      }`}>
-        <div className="flex items-center gap-2">
-          {/* Like Button + Count */}
-          <motion.button
-            onClick={(e) => {
-              e.stopPropagation();
-              onLike(entry.id);
-            }}
-            whileTap={{ scale: 1.3, rotate: [0, -15, 15, -10, 0] }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-all text-xs font-bold min-h-[40px] sm:min-h-[36px] cursor-pointer shadow-xs ${
-              liked
-                ? 'bg-rose-500 text-white ring-2 ring-rose-300'
-                : hasImage
-                ? 'bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65'
-                : 'bg-black/5 sm:bg-white/80 border border-black/10 text-slate-800 hover:bg-black/10'
-            }`}
-            aria-label="Like story"
-          >
-            <Heart size={15} className={liked ? 'fill-white text-white' : ''} strokeWidth={2.2} />
-            <span>{entry.likes_count || 0}</span>
-          </motion.button>
-
-          {/* Comment Button + Count (No Redundant 'Comment' Label) */}
-          <motion.button
-            onClick={(e) => {
-              e.stopPropagation();
-              onCommentClick(entry);
-            }}
-            whileTap={{ scale: 1.2 }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-all text-xs font-bold min-h-[40px] sm:min-h-[36px] cursor-pointer shadow-xs ${
-              hasImage
-                ? 'bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65'
-                : 'bg-black/5 sm:bg-white/80 border border-black/10 text-slate-800 hover:bg-black/10'
-            }`}
-            aria-label="Comments"
-          >
-            <MessageCircle size={15} strokeWidth={2.2} />
-            {Number(entry.comments_count || 0) > 0 && <span>{entry.comments_count}</span>}
-          </motion.button>
-        </div>
-
-        {/* Share/Send Button (Icon Only) */}
+      {/* ── Small Likes Count on Lower Right ── */}
+      <div className="relative z-20 pb-3 px-3 sm:px-3.5 pt-2 flex items-center justify-end shrink-0 mt-auto">
         <motion.button
           onClick={(e) => {
             e.stopPropagation();
-            onShareClick(entry);
+            onLike(entry.id);
           }}
-          whileTap={{ scale: 1.2 }}
-          className={`w-10 sm:w-9 h-10 sm:h-9 rounded-full transition-all flex items-center justify-center cursor-pointer shadow-xs min-h-[40px] sm:min-h-[36px] min-w-[40px] sm:min-w-[36px] ${
-            hasImage
-              ? 'bg-black/45 backdrop-blur-md border border-white/25 text-white hover:bg-black/65'
-              : 'bg-black/5 sm:bg-white/80 border border-black/10 text-slate-800 hover:bg-black/10'
+          whileTap={{ scale: 1.3, rotate: [0, -15, 15, -10, 0] }}
+          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full transition-all text-[11px] font-bold cursor-pointer shadow-sm ${
+            liked
+              ? 'bg-rose-500 text-white ring-1 ring-rose-300'
+              : hasImage
+              ? 'bg-black/40 backdrop-blur-md text-white border border-white/20'
+              : 'bg-black/5 sm:bg-white/60 border border-black/10 text-slate-700'
           }`}
-          aria-label="Send story"
+          aria-label="Like story"
         >
-          <Send size={15} strokeWidth={2.2} />
+          <Heart size={12} className={liked ? 'fill-white text-white' : ''} strokeWidth={2.2} />
+          <span>{entry.likes_count || 0}</span>
         </motion.button>
       </div>
     </motion.article>
@@ -1146,7 +1091,7 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
       );
       if (error) throw error;
       setEntries((prev) => (resetEntries || pageNum === 0) ? data : [...prev, ...data]);
-      setHasMore(data.length === 20);
+      setHasMore(data.length === 10);
     } catch (err: any) {
       toast.error(err?.message || 'Could not load campus diaries');
     } finally {

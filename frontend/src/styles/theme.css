@@ -338,12 +338,6 @@
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       user-select: none;
-      overscroll-behavior-y: none;
-      overscroll-behavior: none;
-    }
-    
-    html, body, #root {
-      overscroll-behavior: none;
     }
   }
 

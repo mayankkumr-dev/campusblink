@@ -12,7 +12,7 @@ const AUTHOR_SELECT = `
   author:profiles!author_id(id, name, username, avatar_url, college)
 `;
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 /**
  * Fetch global diary feed, paginated and filtered.

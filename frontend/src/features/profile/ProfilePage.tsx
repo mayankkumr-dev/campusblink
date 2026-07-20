@@ -32,7 +32,7 @@ export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile, setAuth, updateProfile: updateProfileStore } = useAuthStore();
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const isEditRoute = location.pathname.endsWith('/edit');
   const [isSaving, setIsSaving] = useState(false);
   const [peopleModal, setPeopleModal] = useState<'followers' | 'following' | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -77,8 +77,8 @@ export const ProfilePage: React.FC = () => {
     if (!profile?.id) return;
 
     const params = new URLSearchParams(location.search);
-    if (params.get('edit') === '1') setIsEditModalOpen(true);
-  }, [location.search, profile?.id]);
+    if (params.get('edit') === '1') navigate('/student/profile/edit', { replace: true });
+  }, [location.search, profile?.id, navigate]);
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -344,7 +344,7 @@ export const ProfilePage: React.FC = () => {
           : 'Profile updated.',
         { id: toastId }
       );
-      setIsEditModalOpen(false);
+      navigate('/student/profile');
       resetMediaState();
     } catch (error: any) {
       if (previousProfile) setAuth(user, previousProfile);
@@ -377,7 +377,7 @@ export const ProfilePage: React.FC = () => {
             removeCover={removeCover}
             visibleSocialLinks={visibleSocialLinks}
             onBack={() => navigate(-1)}
-            onOpenEditModal={() => setIsEditModalOpen(true)}
+            onOpenEditModal={() => navigate('/student/profile/edit')}
             onOpenFollowersModal={() => setPeopleModal('followers')}
             onOpenFollowingModal={() => setPeopleModal('following')}
             onBannerChange={handleBannerChange}
@@ -404,13 +404,13 @@ export const ProfilePage: React.FC = () => {
       />
 
       <ProfileEditModal
-        isOpen={isEditModalOpen}
+        isOpen={isEditRoute}
         isSaving={isSaving}
         formData={formData}
         onFormDataChange={setFormData}
         socialLinks={socialLinks}
         onSocialLinksChange={setSocialLinks}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={() => navigate('/student/profile')}
         onSave={handleSaveProfile}
       />
 

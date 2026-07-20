@@ -522,7 +522,7 @@ export const MessagesPage: React.FC = () => {
     const p = profiles[otherId];
     return {
       id: chat._id, otherId,
-      name: p?.name || p?.username || 'Unknown User',
+      name: p ? (p.name || p.username || 'Unknown User') : '...',
       avatar: p?.avatar_url || getAvatarDataUrl({ name: p?.name || 'User', seed: otherId }),
       lastMessage: chat.lastMessage,
       timestamp: chat.lastMessageAt ? new Date(chat.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
