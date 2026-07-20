@@ -181,27 +181,27 @@ export const CommunityFeed: React.FC = () => {
           onClick={() => navigate('/student/community/create')}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
-          className="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800/90 shadow-md p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer text-white transition-all hover:border-slate-700 active:scale-[0.98]"
+          className="group relative overflow-hidden rounded-2xl bg-[#F4F6F9] border border-gray-200/60 shadow-sm p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer transition-all hover:border-gray-300 active:scale-[0.98]"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="flex flex-col items-center justify-center rounded-xl overflow-hidden shrink-0 shadow-sm border border-slate-700/60 w-12 sm:w-14">
-              <span className="bg-sky-500 text-white font-syne font-bold text-[10px] sm:text-[11px] px-2 py-0.5 w-full text-center tracking-wide uppercase">
+            <div className="flex flex-col items-center justify-center rounded-xl overflow-hidden shrink-0 shadow-sm border border-gray-200/80 w-12 sm:w-14 bg-white">
+              <span className="bg-[#3FA2F6] text-white font-syne font-bold text-[10px] sm:text-[11px] px-2 py-0.5 w-full text-center tracking-wide uppercase">
                 Day
               </span>
-              <span className="bg-slate-800 text-white font-syne font-extrabold text-sm sm:text-base px-2 py-1 w-full text-center">
+              <span className="bg-white text-gray-900 font-syne font-extrabold text-sm sm:text-base px-2 py-1 w-full text-center">
                 {daysOnApp}
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-syne font-bold text-sm sm:text-base text-white truncate group-hover:text-amber-200 transition-colors">
-                Treasuring my peaceful ti...
+              <h2 className="font-syne font-bold text-sm sm:text-base text-gray-900 truncate">
+                Getting there ✨
               </h2>
-              <p className="font-sans text-xs text-slate-300/80 mt-0.5 flex items-center gap-1">
+              <p className="font-sans text-xs text-gray-500 mt-0.5 flex items-center gap-1">
                 <span>Share your story ✍️</span>
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-white/10 text-slate-300 group-hover:bg-white/20 group-hover:text-white transition-all">
+          <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-transparent text-gray-500 group-hover:bg-gray-200/50 group-hover:text-gray-800 transition-all">
             <span className="text-sm font-bold">→</span>
           </div>
         </motion.div>

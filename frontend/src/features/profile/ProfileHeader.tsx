@@ -80,94 +80,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       {/* Sticky Top Header Bar */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-border-subtle px-6 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center justify-center h-9 w-9 rounded-xl border border-border-subtle bg-surface text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
-            aria-label="Back"
-          >
-            <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
-          </button>
           <div>
             <h1 className="font-syne font-bold text-base text-text-primary leading-tight">
               {profile.name}
             </h1>
-            <p className="text-xs text-text-secondary">
-              Diaries
-            </p>
           </div>
-        </div>
-
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setProfileMenuOpen((value) => !value)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-surface text-text-primary shadow-2xs hover:bg-surface-elevated transition-all"
-            aria-label="Open profile menu"
-          >
-            <Menu className="h-4 w-4" strokeWidth={1.8} />
-          </button>
-          {profileMenuOpen && (
-            <>
-              <button
-                type="button"
-                aria-label="Close profile menu"
-                className="fixed inset-0 z-40 cursor-default"
-                onClick={() => setProfileMenuOpen(false)}
-              />
-              <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-2xl border border-border-subtle bg-surface shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/student/bookmarks');
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated border-b border-border-subtle/50"
-                >
-                  <Bookmark className="h-4 w-4 text-text-secondary/70" /> Bookmarks
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/student/settings');
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated"
-                >
-                  <Settings className="h-4 w-4 text-text-secondary/70" /> Settings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/student/settings/notifications');
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated"
-                >
-                  <Bell className="h-4 w-4 text-text-secondary/70" /> Notifications
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/student/settings/password');
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated"
-                >
-                  <Lock className="h-4 w-4 text-text-secondary/70" /> Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProfileMenuOpen(false);
-                    navigate('/student/settings/feedback');
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-elevated"
-                >
-                  <MessageCircle className="h-4 w-4 text-text-secondary/70" /> Feedback
-                </button>
-              </div>
-            </>
-          )}
         </div>
       </div>
 
@@ -300,10 +217,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 </button>
                 <button
                   onClick={() => navigate('/student/bookmarks')}
-                  className="rounded-xl border border-border-subtle bg-surface px-4 py-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300 flex items-center gap-1.5"
+                  className="rounded-xl border border-border-subtle bg-surface p-2 text-xs font-semibold text-text-primary shadow-2xs transition-all hover:bg-surface-elevated hover:border-slate-300 flex items-center justify-center"
+                  aria-label="Bookmarks"
+                  title="Bookmarks"
                 >
-                  <Bookmark className="h-3.5 w-3.5 text-text-secondary" />
-                  Bookmarks
+                  <Bookmark className="h-4 w-4 text-text-secondary" />
                 </button>
               </div>
               {visibleSocialLinks.length ? (

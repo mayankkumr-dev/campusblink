@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router';
 
 export type ScrollDirection = 'up' | 'down';
 
@@ -20,6 +21,13 @@ export function useScrollDirection(options: UseScrollDirectionOptions = {}): Scr
   const { threshold = 12, initialDirection = 'up' } = options;
   const [scrollDir, setScrollDir] = useState<ScrollDirection>(initialDirection);
   const prevScrollYRef = useRef<number>(0);
+  const location = useLocation();
+
+  // Reset to 'up' when path changes (user navigates to a new page, which is at the top)
+  useEffect(() => {
+    setScrollDir('up');
+    prevScrollYRef.current = 0;
+  }, [location.pathname]);
 
   useEffect(() => {
     let ticking = false;
