@@ -79,6 +79,12 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'diary/create',
+        lazy: async () => ({
+          Component: (await import('../features/diary/CreateDiaryFlow')).CreateDiaryFlow,
+        }),
+      },
+      {
         path: 'community/:postId',
         lazy: async () => ({
           Component: (await import('../features/community/PostDetailPage')).PostDetailPage,
@@ -229,6 +235,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'societies/:societyId',
+            lazy: async () => ({
+              Component: (await import('../features/community/SocietyProfilePage')).SocietyProfilePage,
+            }),
+          },
+          {
             path: 'notifications',
             lazy: async () => ({
               Component: (await import('./components/StudentNotificationsPage')).StudentNotificationsPage,
@@ -308,6 +320,12 @@ export const router = createBrowserRouter([
             path: 'notices/admin',
             lazy: async () => ({
               Component: (await import('./components/NoticeAdminPage')).NoticeAdminPage,
+            }),
+          },
+          {
+            path: 'notices/admin/published',
+            lazy: async () => ({
+              Component: (await import('./components/PublishedNoticesAdminPage')).PublishedNoticesAdminPage,
             }),
           },
           {

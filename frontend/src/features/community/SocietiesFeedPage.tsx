@@ -26,8 +26,10 @@ import {
   getSocieties,
   reportContent,
   togglePostLike,
+  getDiscoverableSocieties,
 } from "../../api/community";
-import { getFollowingIds, getFollowingPosts } from "../../api/follow";
+import { getFollowingPosts } from "../../api/follow";
+import { useFollowStore } from "../../store/followStore";
 import { useCommunityFeed } from "../../hooks/useRealtime";
 import { useFeatureAccess } from "../../hooks/useFeatureAccess";
 import { AccessDenied } from "../../shared/components/AccessDenied";
@@ -37,6 +39,26 @@ import { getOptimizedImageUrl } from "../../lib/imageOpt";
 import { AdaptivePostImage } from "../../app/components/AdaptivePostImage";
 import { FollowButton } from "../../shared/components/FollowButton";
 import { ListSkeleton } from "../../app/components/ui/Skeletons";
+
+const SocietyPostSkeleton = () => (
+  <div className="mb-3 animate-pulse rounded-[16px] border border-black/10 bg-white p-4 shadow-sm md:p-5">
+    <div className="flex gap-3">
+      <div className="mt-1 h-11 w-11 shrink-0 rounded-full bg-gray-200/50" />
+      <div className="min-w-0 flex-1 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-32 rounded bg-gray-200/50" />
+          <div className="h-4 w-24 rounded bg-gray-200/50" />
+        </div>
+        <div className="h-3 w-48 rounded bg-gray-200/50" />
+        <div className="mt-4 space-y-2">
+          <div className="h-3 w-full rounded bg-gray-200/50" />
+          <div className="h-3 w-5/6 rounded bg-gray-200/50" />
+        </div>
+        <div className="mt-4 h-48 w-full rounded-[14px] bg-gray-200/50" />
+      </div>
+    </div>
+  </div>
+);
 
 const ONLY_COLLEGE = "Maharaja Agrasen Institute of Technology (MAIT)";
 const POST_IMAGE_DELIMITER = "|||";
@@ -520,8 +542,9 @@ export const SocietiesFeedPage: React.FC = () => {
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [discoverableSocieties, setDiscoverableSocieties] = useState<any[]>([]);
 
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+  const { followingIds, initialize: initFollowStore } = useFollowStore();
   const [noFollows, setNoFollows] = useState(false);
   const composeParams = new URLSearchParams(
     typeof window !== "undefined" ? window.location.search : "",
@@ -541,14 +564,8 @@ export const SocietiesFeedPage: React.FC = () => {
   // Load which users we follow
   useEffect(() => {
     if (!profile?.id) return;
-    let mounted = true;
-    getFollowingIds(profile.id).then(({ data }) => {
-      if (mounted) setFollowingIds(new Set(data || []));
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [profile?.id]);
+    initFollowStore(profile.id);
+  }, [profile?.id, initFollowStore]);
 
   useEffect(() => {
     const params = new URLSearchParams(
@@ -601,17 +618,27 @@ export const SocietiesFeedPage: React.FC = () => {
   useEffect(() => {
     if (collegeFilter === "all") {
       setPosts(allPosts);
-      return;
+    } else {
+      setPosts(
+        allPosts.filter(
+          (post) =>
+            (post.author?.college || "").toLowerCase() ===
+            collegeFilter.toLowerCase(),
+        ),
+      );
     }
-
-    setPosts(
-      allPosts.filter(
-        (post) =>
-          (post.author?.college || "").toLowerCase() ===
-          collegeFilter.toLowerCase(),
-      ),
-    );
   }, [allPosts, collegeFilter]);
+
+  // Injector logic: fetch discoverable societies if feed is sparse
+  useEffect(() => {
+    if (activeTab === "Following" && profile?.id && !isLoading && posts.length < 3) {
+      getDiscoverableSocieties(profile.id, 6).then(({ data }) => {
+        setDiscoverableSocieties(data || []);
+      });
+    } else {
+      setDiscoverableSocieties([]);
+    }
+  }, [activeTab, profile?.id, isLoading, posts.length]);
 
   useCommunityFeed((newPost: any) => {
     if (activeTab === "Following") {
@@ -770,12 +797,6 @@ export const SocietiesFeedPage: React.FC = () => {
   };
 
   const handleFollowChange = (userId: string, nextFollowing: boolean) => {
-    setFollowingIds((prev) => {
-      const next = new Set(prev);
-      if (nextFollowing) next.add(userId);
-      else next.delete(userId);
-      return next;
-    });
     if (!nextFollowing && activeTab === "Following") {
       setAllPosts((prev) => prev.filter((p) => p.author_id !== userId));
     }
@@ -856,7 +877,8 @@ export const SocietiesFeedPage: React.FC = () => {
                         return (
                           <div
                             key={society.id}
-                            className="bg-surface rounded-2xl p-5 border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-all flex flex-col justify-between"
+                            onClick={() => navigate(`/student/societies/${society.id}`)}
+                            className="bg-surface cursor-pointer rounded-2xl p-5 border border-border-subtle shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-all flex flex-col justify-between"
                           >
                             <div>
                               <div className="flex items-start justify-between gap-3">
@@ -903,8 +925,9 @@ export const SocietiesFeedPage: React.FC = () => {
                             </div>
 
                             <button
-                              onClick={() => {
-                                window.location.href = `/student/profile/${society.id}`;
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/student/societies/${society.id}`);
                               }}
                               className="mt-4 w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 shadow-xs transition-colors text-center"
                             >
@@ -943,10 +966,54 @@ export const SocietiesFeedPage: React.FC = () => {
                 />
               )}
 
+              {activeTab === "Following" && discoverableSocieties.length > 0 && (
+                <div className="mb-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-syne text-lg font-bold text-text-primary">
+                      Discover Campus Societies
+                    </h2>
+                  </div>
+                  <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 hide-scrollbar">
+                    {discoverableSocieties.map((society) => (
+                      <div
+                        key={society.id}
+                        className="min-w-[240px] snap-center shrink-0 rounded-2xl border border-black/5 bg-white p-4 shadow-sm transition-all hover:shadow-md flex flex-col justify-between"
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          <div className="mb-3 h-16 w-16 overflow-hidden rounded-full border border-black/10 bg-gray-50">
+                            {society.avatar_url ? (
+                              <img
+                                src={society.avatar_url}
+                                alt={society.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center font-syne text-xl font-bold text-text-primary bg-gray-100">
+                                {society.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-syne font-bold text-text-primary line-clamp-1">{society.name}</h3>
+                          <p className="mt-1 text-xs text-text-secondary line-clamp-2">{society.bio || "Campus society"}</p>
+                        </div>
+                        <FollowButton
+                          targetUserId={society.id}
+                          targetRole="society"
+                          isJoin={true}
+                          variant="primary"
+                          size="sm"
+                          className="mt-4 w-full"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {isLoading ? (
                 <div className="space-y-3">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <ListSkeleton key={`societies-feed-skeleton-${index}`} rows={1} />
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <SocietyPostSkeleton key={`societies-feed-skeleton-${index}`} />
                   ))}
                 </div>
               ) : posts.length > 0 ? (
@@ -971,7 +1038,7 @@ export const SocietiesFeedPage: React.FC = () => {
                       />
                     </div>
                   )}
-                />
+                  />
               ) : activeTab === "Following" && noFollows ? (
                 <div className="px-6 py-16 text-center">
                   <Users className="mx-auto mb-3 h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
