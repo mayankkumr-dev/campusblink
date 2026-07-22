@@ -29,12 +29,19 @@ function extractS3Key(urlOrKey) {
   return str;
 }
 
+/** Generate a unique, collision-proof S3 object key */
+function makeKey(folder, userId, filename) {
+  const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `campus-blink/${folder}/${userId}/${ts}-${rand}-${filename}`;
+}
+
 const s3Service = {
   // Upload image buffer from multer
   uploadImage: async (file, folder, userId) => {
     ensureS3Configured();
     const cleanedName = sanitizeFilename(file.originalname || 'image.jpg');
-    const key = `campus-blink/${folder}/${userId}/${Date.now()}-${cleanedName}`;
+    const key = makeKey(folder, userId, cleanedName);
 
     const command = new PutObjectCommand({
       Bucket: bucketName,
@@ -51,13 +58,31 @@ const s3Service = {
   uploadPDF: async (file, folder, userId) => {
     ensureS3Configured();
     const cleanedName = sanitizeFilename(file.originalname || 'document.pdf');
-    const key = `campus-blink/${folder}/${userId}/${Date.now()}-${cleanedName}`;
+    const key = makeKey(folder, userId, cleanedName);
 
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype || 'application/pdf',
+      ContentDisposition: 'inline',
+    });
+
+    await s3Client.send(command);
+    return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+  },
+
+  // Upload any generic file type (Word, Excel, text, etc.)
+  uploadGeneric: async (file, folder, userId) => {
+    ensureS3Configured();
+    const cleanedName = sanitizeFilename(file.originalname || 'file');
+    const key = makeKey(folder, userId, cleanedName);
+
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype || 'application/octet-stream',
       ContentDisposition: 'inline',
     });
 
@@ -115,11 +140,12 @@ const s3Service = {
     }
   },
 
-  // Generate Presigned URL for direct client-to-S3 uploads
+  // Generate Pre-signed URL for direct client-to-S3 PUT uploads.
+  // The client receives this URL and PUTs the raw file directly — no server bandwidth used.
   generatePresignedUrl: async (filename, filetype, folder, userId) => {
     ensureS3Configured();
     const cleanedName = sanitizeFilename(filename || 'upload');
-    const key = `campus-blink/${folder}/${userId}/${Date.now()}-${cleanedName}`;
+    const key = makeKey(folder, userId, cleanedName);
 
     const command = new PutObjectCommand({
       Bucket: bucketName,
@@ -127,6 +153,7 @@ const s3Service = {
       ContentType: filetype || 'application/octet-stream',
     });
 
+    // Pre-signed URL expires in 10 minutes
     const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 600 });
     const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
 

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { uploadAttachment } from '../lib/s3';
 
 const NOTICES_LAST_SEEN_KEY = 'campus_blink_notices_last_seen';
 
@@ -333,30 +334,21 @@ export async function togglePinNotice(noticeId, isPinned, pinExpiresAt = null) {
 }
 
 /**
- * Upload a notice attachment to Supabase Storage.
+ * Upload a notice attachment to AWS S3.
+ *
+ * Previously used Supabase Storage ('notice-attachments' bucket).
+ * Now uses S3 pre-signed URL direct upload for speed and consistency.
+ *
+ * Supports images, PDFs, Word, Excel, and other document types.
+ * Images are automatically compressed before upload.
+ *
+ * @param {File} file - The file to upload
+ * @param {string} authorId - The uploader's user ID (used for S3 folder path)
+ * @param {{ onProgress?: (percent: number) => void }} [options]
+ * @returns {Promise<{ data: { name: string, url: string, type: string, size: number } | null, error: Error | null }>}
  */
-export async function uploadNoticeAttachment(file, authorId) {
-  try {
-    const ext = file.name.split('.').pop();
-    const path = `${authorId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('notice-attachments')
-      .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supabase.storage
-      .from('notice-attachments')
-      .getPublicUrl(path);
-
-    return {
-      data: { name: file.name, url: urlData.publicUrl, type: file.type, size: file.size },
-      error: null,
-    };
-  } catch (error) {
-    return { data: null, error };
-  }
+export async function uploadNoticeAttachment(file, authorId, options = {}) {
+  return uploadAttachment(file, `notices/${authorId}`, options);
 }
 
 /**

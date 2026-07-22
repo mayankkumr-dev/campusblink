@@ -30,6 +30,7 @@ import {
   togglePinNotice,
   uploadNoticeAttachment,
 } from '../../api/notices';
+import { FileProgressBar } from '../../shared/components/UploadOverlay';
 import toast from 'react-hot-toast';
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -141,9 +142,10 @@ interface FileUploaderProps {
   files: File[];
   onChange: (files: File[]) => void;
   uploading: boolean;
+  fileProgress?: Record<number, number | 'done' | 'error'>;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading, fileProgress = {} }) => {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -207,17 +209,24 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading 
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((file, idx) => (
-            <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border-subtle shadow-2xs">
-              {getFileIcon(file.type)}
-              <span className="flex-1 text-xs font-semibold text-text-primary truncate min-w-0">{file.name}</span>
-              <span className="text-[10px] text-text-secondary/70 font-medium shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+            <div key={idx}>
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border-subtle shadow-2xs">
+                {getFileIcon(file.type)}
+                <span className="flex-1 text-xs font-semibold text-text-primary truncate min-w-0">{file.name}</span>
+                <span className="text-[10px] text-text-secondary/70 font-medium shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                  className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <FileProgressBar
+                progress={typeof fileProgress[idx] === 'number' ? fileProgress[idx] as number : 0}
+                done={fileProgress[idx] === 'done'}
+                error={fileProgress[idx] === 'error'}
+              />
             </div>
           ))}
         </div>
@@ -249,6 +258,7 @@ export const AdminNoticesPage: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [fileProgress, setFileProgress] = useState<Record<number, number | 'done' | 'error'>>({})
 
   // ── Published notices ────────────────────────────────────────────────────────
   const [notices, setNotices] = useState<any[]>([]);
@@ -285,18 +295,36 @@ export const AdminNoticesPage: React.FC = () => {
 
     setIsSubmitting(true);
     const attachments: any[] = [];
+    setFileProgress({});
 
     if (files.length > 0) {
       setIsUploading(true);
-      for (const file of files) {
-        const { data, error } = await uploadNoticeAttachment(file, profile.id);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setFileProgress((prev) => ({ ...prev, [i]: 0 }));
+
+        const { data, error } = await uploadNoticeAttachment(file, profile.id, {
+          onProgress: (percent: number) => {
+            setFileProgress((prev) => ({ ...prev, [i]: percent }));
+          },
+        });
+
         if (error) {
-          toast.error(`Failed to upload ${file.name}`);
+          setFileProgress((prev) => ({ ...prev, [i]: 'error' }));
+          toast.error(
+            (error as any).message?.includes('paused') || (error as any).message?.includes('connection')
+              ? 'Upload paused. Check your connection.'
+              : `Failed to upload ${file.name}`
+          );
           setIsUploading(false);
           setIsSubmitting(false);
           return;
         }
-        if (data) attachments.push(data);
+
+        if (data) {
+          attachments.push(data);
+          setFileProgress((prev) => ({ ...prev, [i]: 'done' }));
+        }
       }
       setIsUploading(false);
     }
@@ -323,6 +351,7 @@ export const AdminNoticesPage: React.FC = () => {
     setTargetYear('all');
     setIsPinned(false);
     setFiles([]);
+    setFileProgress({});
     setIsSubmitting(false);
     await loadNotices();
   };
@@ -503,7 +532,7 @@ export const AdminNoticesPage: React.FC = () => {
                     <label className="block text-[11px] font-bold text-text-primary uppercase tracking-wider mb-2">
                       Attachments (optional)
                     </label>
-                    <FileUploader files={files} onChange={setFiles} uploading={isUploading} />
+                    <FileUploader files={files} onChange={setFiles} uploading={isUploading} fileProgress={fileProgress} />
                   </div>
 
                   {/* Action Dock (Desktop inline, Mobile sticky bottom) */}

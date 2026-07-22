@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Calendar, FileText, Download, ExternalLink, Shield, Plus, UploadCloud, X, Users, Megaphone, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { getNoticesForFaculty, createNotice, uploadNoticeAttachment } from '../../api/notices';
+import { FileProgressBar } from '../../shared/components/UploadOverlay';
 import toast from 'react-hot-toast';
 
 const ACCEPTED_TYPES = 'image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv';
@@ -12,7 +13,7 @@ function formatDate(iso: string) {
   });
 }
 
-const FileUploader: React.FC<{ files: File[], onChange: (files: File[]) => void, uploading: boolean }> = ({ files, onChange, uploading }) => {
+const FileUploader: React.FC<{ files: File[], onChange: (files: File[]) => void, uploading: boolean, fileProgress?: Record<number, number | 'done' | 'error'> }> = ({ files, onChange, uploading, fileProgress = {} }) => {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -31,32 +32,39 @@ const FileUploader: React.FC<{ files: File[], onChange: (files: File[]) => void,
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`relative rounded-2xl border-2 border-dashed p-6 flex flex-col items-center gap-2 cursor-pointer transition-all ${
-          dragging ? 'border-indigo-400 dark:border-prof-accent-blue bg-indigo-50 dark:bg-prof-accent-blue-soft-bg' : 'border-gray-200 dark:border-prof-border-strong bg-gray-50 dark:bg-prof-bg-surface-raised hover:border-indigo-300 dark:hover:border-prof-accent-blue/50 hover:bg-indigo-50/50 dark:hover:bg-prof-accent-blue/5'
+          dragging ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50/50'
         }`}
       >
-        <UploadCloud className={`w-7 h-7 ${dragging ? 'text-indigo-500 dark:text-prof-accent-blue' : 'text-gray-400 dark:text-prof-text-tertiary'}`} />
-        <p className="text-sm font-bold text-gray-700 dark:text-prof-text-primary">
-          Drag files here or <span className="text-indigo-600 dark:text-prof-accent-blue">browse</span>
+        <UploadCloud className={`w-7 h-7 ${dragging ? 'text-indigo-500' : 'text-gray-400'}`} />
+        <p className="text-sm font-bold text-gray-700">
+          Drag files here or <span className="text-indigo-600">browse</span>
         </p>
         <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES} onChange={(e) => {
           onChange([...files, ...Array.from(e.target.files || [])]);
           e.target.value = '';
         }} className="sr-only" />
         {uploading && (
-          <div className="absolute inset-0 bg-white/80 dark:bg-prof-bg-surface/80 rounded-2xl flex items-center justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-prof-accent-blue" />
+          <div className="absolute inset-0 bg-white/80 rounded-2xl flex items-center justify-center">
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
           </div>
         )}
       </div>
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((f, i) => (
-            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-prof-bg-surface border border-gray-100 dark:border-prof-border-subtle shadow-sm dark:shadow-none">
-              <FileText className="w-4 h-4 text-indigo-500 dark:text-prof-accent-blue" />
-              <span className="flex-1 text-xs font-semibold text-gray-700 dark:text-prof-text-primary truncate min-w-0">{f.name}</span>
-              <button type="button" onClick={(e) => { e.stopPropagation(); onChange(files.filter((_, idx) => idx !== i)); }} className="text-gray-400 hover:text-red-500">
-                <X className="w-4 h-4" />
-              </button>
+            <div key={i}>
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-100 shadow-sm">
+                <FileText className="w-4 h-4 text-indigo-500" />
+                <span className="flex-1 text-xs font-semibold text-gray-700 truncate min-w-0">{f.name}</span>
+                <button type="button" onClick={(e) => { e.stopPropagation(); onChange(files.filter((_, idx) => idx !== i)); }} className="text-gray-400 hover:text-red-500">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <FileProgressBar
+                progress={typeof fileProgress[i] === 'number' ? fileProgress[i] as number : 0}
+                done={fileProgress[i] === 'done'}
+                error={fileProgress[i] === 'error'}
+              />
             </div>
           ))}
         </div>
@@ -102,6 +110,7 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
   const [content, setContent] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileProgress, setFileProgress] = useState<Record<number, number | 'done' | 'error'>>({});
 
   const loadNotices = useCallback(async () => {
     setIsLoading(true);
@@ -116,13 +125,31 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return toast.error('Title and content required.');
     setIsSubmitting(true);
-    
+    setFileProgress({});
+
     const attachments: any[] = [];
     if (files.length > 0) {
-      for (const file of files) {
-        const { data, error } = await uploadNoticeAttachment(file, profile?.id);
-        if (error) { toast.error(`Upload failed: ${file.name}`); setIsSubmitting(false); return; }
-        if (data) attachments.push(data);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setFileProgress((prev) => ({ ...prev, [i]: 0 }));
+
+        const { data, error } = await uploadNoticeAttachment(file, profile?.id, {
+          onProgress: (percent: number) => {
+            setFileProgress((prev) => ({ ...prev, [i]: percent }));
+          },
+        });
+
+        if (error) {
+          setFileProgress((prev) => ({ ...prev, [i]: 'error' }));
+          toast.error(`Upload failed: ${file.name}`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (data) {
+          attachments.push(data);
+          setFileProgress((prev) => ({ ...prev, [i]: 'done' }));
+        }
       }
     }
 
@@ -132,9 +159,9 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
 
     setIsSubmitting(false);
     if (error) return toast.error('Publish failed.');
-    
+
     toast.success('Shared with faculty!');
-    setTitle(''); setContent(''); setFiles([]); setShowCompose(false);
+    setTitle(''); setContent(''); setFiles([]); setFileProgress({}); setShowCompose(false);
     loadNotices();
   };
 
@@ -177,7 +204,7 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-2">Attach Documents (Optional)</label>
-                <FileUploader files={files} onChange={setFiles} uploading={isSubmitting && files.length > 0} />
+                <FileUploader files={files} onChange={setFiles} uploading={isSubmitting && files.length > 0} fileProgress={fileProgress} />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl bg-indigo-600 dark:bg-prof-accent-blue hover:bg-indigo-700 dark:hover:bg-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-md dark:shadow-none disabled:opacity-60">
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Shield className="w-5 h-5" />} Securely Publish

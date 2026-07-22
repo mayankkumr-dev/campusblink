@@ -13,7 +13,9 @@ import {
   getWishlistIds,
   toggleWishlist,
 } from '../../api/marketplace';
+import { uploadImage } from '../../lib/s3';
 import { ImageWithFallback } from '../../shared/components/ImageWithFallback';
+import { UploadOverlay } from '../../shared/components/UploadOverlay';
 import {
   MARKETPLACE_CATEGORIES,
   MARKETPLACE_CONDITIONS,
@@ -58,6 +60,7 @@ function CreateListingModal({
   files,
   previewUrls,
   isSubmitting,
+  photoProgress,
   onClose,
   onChange,
   onFilesChange,
@@ -68,6 +71,8 @@ function CreateListingModal({
   files: File[];
   previewUrls: string[];
   isSubmitting: boolean;
+  /** Per-photo upload progress: index → 0-100 (undefined = not uploading) */
+  photoProgress: Record<number, number | 'done' | 'error'>;
   onClose: () => void;
   onChange: (field: keyof ListingDraft, value: string) => void;
   onFilesChange: (nextFiles: File[]) => void;
@@ -198,17 +203,34 @@ function CreateListingModal({
                 </label>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {(previewUrls.length ? previewUrls : new Array(4).fill(null)).map((preview, index) => (
-                    <div key={`${preview || 'placeholder'}-${index}`} className="aspect-square overflow-hidden rounded-[24px] bg-[var(--bg-3)]">
-                      {preview ? (
-                        <ImageWithFallback src={preview} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-3)]">
-                          Photo {index + 1}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {(previewUrls.length ? previewUrls : new Array(4).fill(null)).map((preview, index) => {
+                    const progress = photoProgress[index];
+                    const isDone = progress === 'done';
+                    const isError = progress === 'error';
+                    const isUploading = typeof progress === 'number';
+                    return (
+                      <div
+                        key={`${preview || 'placeholder'}-${index}`}
+                        className="relative aspect-square overflow-hidden rounded-[24px] bg-[var(--bg-3)]"
+                      >
+                        {preview ? (
+                          <ImageWithFallback src={preview} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-3)]">
+                            Photo {index + 1}
+                          </div>
+                        )}
+                        {/* Upload progress overlay — shown during active upload */}
+                        {preview && (isUploading || isDone || isError) && (
+                          <UploadOverlay
+                            progress={typeof progress === 'number' ? progress : 100}
+                            done={isDone}
+                            error={isError}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="rounded-[28px] bg-[var(--accent)] p-5 text-white">
@@ -224,7 +246,12 @@ function CreateListingModal({
                   disabled={isSubmitting}
                   className="w-full rounded-md bg-[var(--accent)] px-5 py-3.5 text-sm font-black uppercase tracking-[0.2em] text-white transition hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSubmitting ? 'Publishing...' : `Publish ${files.length ? `(${files.length} photos)` : ''}`}
+                  {isSubmitting
+                    ? files.length > 0
+                      ? `Uploading photos…`
+                      : 'Publishing…'
+                    : `Publish${files.length ? ` (${files.length} photo${files.length > 1 ? 's' : ''})` : ''}`
+                  }
                 </button>
               </div>
             </div>
@@ -253,6 +280,8 @@ export function BuySellPage() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
+  /** Per-photo S3 upload progress: index → 0-100 | 'done' | 'error' */
+  const [photoProgress, setPhotoProgress] = useState<Record<number, number | 'done' | 'error'>>({});
 
   const placeholderWords = ['Electronics', 'Books', 'Cycle', 'Hostel essentials', 'Furniture'];
 
@@ -378,6 +407,42 @@ export function BuySellPage() {
     }
 
     setIsSubmitting(true);
+    setPhotoProgress({});
+
+    // ── Upload each photo to S3 directly with per-thumbnail progress ────────
+    const imageUrls: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setPhotoProgress((prev) => ({ ...prev, [i]: 0 }));
+
+      const { data: uploadData, error: uploadError } = await uploadImage(
+        file,
+        `listings/${profile.id}`,
+        {
+          onProgress: (percent: number) => {
+            setPhotoProgress((prev) => ({ ...prev, [i]: percent }));
+          },
+        }
+      );
+
+      if (uploadError) {
+        setPhotoProgress((prev) => ({ ...prev, [i]: 'error' }));
+        toast.error(
+          uploadError.message?.includes('paused') || uploadError.message?.includes('connection')
+            ? 'Upload paused. Check your connection.'
+            : `Photo ${i + 1} failed to upload. Try again.`
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (uploadData?.url) {
+        imageUrls.push(uploadData.url);
+        setPhotoProgress((prev) => ({ ...prev, [i]: 'done' }));
+      }
+    }
+
+    // ── Create the listing record in Supabase with S3 image URLs ────────────
     const { data, error } = await createListing(
       {
         seller_id: profile.id,
@@ -387,8 +452,9 @@ export function BuySellPage() {
         condition: draft.condition,
         price: Number(draft.price),
         college: profile.college,
+        images: imageUrls,
       },
-      files
+      [] // Files already uploaded above — pass empty array to skip createListing's internal upload
     );
     setIsSubmitting(false);
 
@@ -402,7 +468,8 @@ export function BuySellPage() {
     setShowComposer(false);
     setDraft(INITIAL_DRAFT);
     setFiles([]);
-    toast.success('Listing published.');
+    setPhotoProgress({});
+    toast.success('Listing published! 🎉');
   }
 
   return (
@@ -672,6 +739,7 @@ export function BuySellPage() {
         files={files}
         previewUrls={previewUrls}
         isSubmitting={isSubmitting}
+        photoProgress={photoProgress}
         onClose={() => setShowComposer(false)}
         onChange={(field, value) => setDraft((current) => ({ ...current, [field]: value }))}
         onFilesChange={setFiles}
