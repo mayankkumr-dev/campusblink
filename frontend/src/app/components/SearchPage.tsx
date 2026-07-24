@@ -128,7 +128,7 @@ export const SearchPage: React.FC = () => {
 
   return (
     <SearchResultsSkeleton loading={isLoading && Boolean(activeQuery)} name="search-page-results">
-    <div className="min-h-full bg-[var(--bg-primary)] pb-24">
+    <div className="min-h-full bg-[var(--bg-primary)] pb-32">
       <div className="mx-auto max-w-[860px] px-4 py-6 md:px-6">
         {/* Header */}
         <div className="mb-6">

@@ -14,6 +14,8 @@ import {
   ChevronUp,
   ExternalLink,
   Trash2,
+  Search,
+  ArrowLeft,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import {
@@ -102,17 +104,39 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
 // ─── Deleted Notice Placeholder ──────────────────────────────────────────────
 
 const DeletedNoticePlaceholder: React.FC = () => (
-  <article className="bg-surface rounded-3xl border border-border-subtle p-5">
+  <article className="bg-white rounded-2xl shadow-sm p-5">
     <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-border-subtle flex items-center justify-center shrink-0">
-        <Trash2 className="w-4 h-4 text-text-secondary/70" />
+      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+        <Trash2 className="w-4 h-4 text-gray-400" />
       </div>
-      <p className="text-sm text-text-secondary font-medium italic">
+      <p className="text-sm text-gray-500 font-medium italic">
         This message has been deleted.
       </p>
     </div>
   </article>
 );
+
+// ─── Notice Categories & Colors ──────────────────────────────────────────────
+
+function getNoticeCategory(title: string) {
+  if (!title) return 'general';
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('urgent') || lowerTitle.includes('important') || lowerTitle.includes('deadline') || lowerTitle.includes('alert')) {
+    return 'urgent';
+  }
+  if (lowerTitle.includes('event') || lowerTitle.includes('workshop') || lowerTitle.includes('webinar') || lowerTitle.includes('competition')) {
+    return 'event';
+  }
+  return 'general';
+}
+
+function getCategoryColorClass(category: string) {
+  switch (category) {
+    case 'urgent': return 'bg-red-500';
+    case 'event': return 'bg-green-500';
+    default: return 'bg-blue-500';
+  }
+}
 
 // ─── Single Notice Card ──────────────────────────────────────────────────────
 
@@ -120,21 +144,21 @@ const NoticeCard: React.FC<{
   notice: any;
   isAdmin: boolean;
   onSoftDelete: (id: string) => void;
-}> = ({ notice, isAdmin, onSoftDelete }) => {
+  index: number;
+  isUnread?: boolean;
+}> = ({ notice, isAdmin, onSoftDelete, index, isUnread }) => {
   const [expanded, setExpanded] = useState(false);
   const [deletingId, setDeletingId] = useState(false);
-  const isLong = notice.content.length > 280;
-  const displayContent = isLong && !expanded
-    ? notice.content.slice(0, 280) + '…'
-    : notice.content;
+  const isLong = notice.content?.length > 200;
 
   const attachments: any[] = Array.isArray(notice.attachments) ? notice.attachments : [];
   const pinActive = isPinnedAndActive(notice);
+  const category = getNoticeCategory(notice.title || '');
+  const stripColor = getCategoryColorClass(category);
 
   const handleSoftDelete = async () => {
     if (!window.confirm('Delete this notice? Students will see "This message has been deleted" in its place.')) return;
     setDeletingId(true);
-    // Note: We don't have profile here directly, we need to get it from useAuthStore
     const profile = useAuthStore.getState().profile;
     const { error } = await softDeleteNotice(notice.id, profile?.id);
     setDeletingId(false);
@@ -147,63 +171,75 @@ const NoticeCard: React.FC<{
   };
 
   return (
-    <article className={`bg-surface rounded-3xl border shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.07)] transition-all ${
-      pinActive ? 'border-accent-amber-soft ring-1 ring-amber-100' : 'border-border-subtle'
-    }`}>
+    <article 
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] active:bg-gray-50 relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 ${
+        pinActive ? 'ring-1 ring-amber-100' : ''
+      }`}
+      style={{ animationFillMode: 'both', animationDelay: `${index * 75}ms` }}
+    >
+      {/* Absolute Vertical Color Strip */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${stripColor}`} />
+
+      {/* Unread Indicator */}
+      {isUnread && (
+        <div className="absolute top-4 right-4 w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+      )}
+
       {/* Pinned Banner */}
       {pinActive && (
-        <div className="flex items-center gap-2 px-5 pt-4 pb-0">
-          <Pin className="w-3.5 h-3.5 text-accent-amber fill-amber-600" />
-          <span className="text-[11px] font-bold text-accent-amber uppercase tracking-widest">
+        <div className="flex items-center gap-2 px-5 pt-4 pb-0 pl-6">
+          <Pin className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+          <span className="text-[11px] font-bold text-amber-500 uppercase tracking-widest">
             Pinned Notice
           </span>
           {notice.pin_expires_at && (
-            <span className="ml-auto text-[10px] text-accent-amber font-medium">
+            <span className="ml-auto text-[10px] text-amber-500 font-medium">
               Expires {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
             </span>
           )}
         </div>
       )}
 
-      <div className="p-5 md:p-6">
-        {/* Header Row */}
-        <div className="flex items-start justify-between gap-4 mb-3">
-          <h2 className="font-syne text-base sm:text-lg font-extrabold text-text-primary leading-snug flex-1">
-            {notice.title}
-          </h2>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              notice.target_year === 'all'
-                ? 'bg-surface-elevated text-text-secondary'
-                : 'bg-accent-amber-soft text-accent-amber border border-amber-100'
-            }`}>
-              <Users className="w-3 h-3" />
-              {yearLabel(notice.target_year)}
-            </span>
-            {/* Notice admin soft-delete button */}
-            {isAdmin && (
-              <button
-                type="button"
-                title="Delete notice"
-                onClick={handleSoftDelete}
-                disabled={deletingId}
-                className="w-7 h-7 rounded-lg bg-surface-elevated hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 flex items-center justify-center transition-colors"
-              >
-                {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              </button>
-            )}
-          </div>
+      <div className="p-5 md:p-6 relative pl-6 md:pl-7">
+        {/* Metadata */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            {yearLabel(notice.target_year)}
+          </span>
+          <span className="text-gray-300">•</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            {formatDate(notice.created_at)}
+          </span>
         </div>
 
+        {/* Title & Delete Button */}
+        <div className="flex items-start justify-between gap-4 mb-2 pr-8">
+          <h2 className="text-lg font-extrabold text-gray-900 leading-tight">
+            {notice.title}
+          </h2>
+        </div>
+
+        {isAdmin && (
+          <button
+            type="button"
+            title="Delete notice"
+            onClick={handleSoftDelete}
+            disabled={deletingId}
+            className="w-8 h-8 rounded-full hover:bg-gray-100 text-gray-400 hover:text-rose-600 flex items-center justify-center transition-colors absolute top-5 right-5 opacity-0 group-hover:opacity-100 sm:opacity-100 z-10"
+          >
+            {deletingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+          </button>
+        )}
+
         {/* Content */}
-        <p className="text-sm text-text-primary font-medium leading-relaxed whitespace-pre-wrap">
-          {displayContent}
+        <p className={`text-sm text-gray-600 leading-relaxed whitespace-pre-wrap ${!expanded && isLong ? 'line-clamp-2' : ''}`}>
+          {notice.content}
         </p>
         {isLong && (
           <button
             type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-accent-amber hover:text-amber-900 transition-colors"
+            onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+            className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
           >
             {expanded
               ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
@@ -214,20 +250,12 @@ const NoticeCard: React.FC<{
 
         {/* Attachments */}
         {attachments.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-3 relative z-10">
             {attachments.map((att, idx) => (
               <AttachmentCard key={idx} att={att} />
             ))}
           </div>
         )}
-
-        {/* Footer: Date only — no author shown */}
-        <div className="mt-4 pt-4 border-t border-border-subtle flex items-center justify-end">
-          <div className="flex items-center gap-1.5 text-[11px] text-text-secondary/70 font-medium">
-            <Calendar className="w-3.5 h-3.5" />
-            {formatDate(notice.created_at)}
-          </div>
-        </div>
       </div>
     </article>
   );
@@ -236,18 +264,15 @@ const NoticeCard: React.FC<{
 // ─── Skeleton Loader ─────────────────────────────────────────────────────────
 
 const NoticeSkeleton = () => (
-  <div className="bg-surface rounded-3xl border border-border-subtle p-6 animate-pulse">
-    <div className="flex justify-between gap-4 mb-3">
-      <div className="h-5 bg-surface-elevated rounded-lg w-3/4" />
-      <div className="h-6 bg-surface-elevated rounded-full w-20 shrink-0" />
+  <div className="bg-white rounded-2xl shadow-sm p-6 animate-pulse">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="h-3 bg-gray-200 rounded w-16" />
+      <div className="h-3 bg-gray-200 rounded w-20" />
     </div>
+    <div className="h-5 bg-gray-200 rounded-lg w-3/4 mb-4" />
     <div className="space-y-2">
-      <div className="h-3 bg-surface-elevated rounded w-full" />
-      <div className="h-3 bg-surface-elevated rounded w-5/6" />
-      <div className="h-3 bg-surface-elevated rounded w-4/6" />
-    </div>
-    <div className="mt-5 pt-4 border-t border-border-subtle flex justify-end">
-      <div className="h-3 bg-surface-elevated rounded w-24" />
+      <div className="h-3 bg-gray-200 rounded w-full" />
+      <div className="h-3 bg-gray-200 rounded w-5/6" />
     </div>
   </div>
 );
@@ -259,9 +284,12 @@ export const NoticesPage: React.FC = () => {
   const [notices, setNotices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [initialLastSeen, setInitialLastSeen] = useState<string | null>(null);
 
   const isAdmin = Boolean(profile?.is_notice_admin) || profile?.role === 'admin';
-  const studyYearLabel = profile?.study_year ? profile.study_year.split(':')[0].trim() : null;
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setIsRefreshing(true);
@@ -277,8 +305,9 @@ export const NoticesPage: React.FC = () => {
     else setIsLoading(false);
   }, [profile?.college, profile?.study_year]);
 
-  // Mark notices as seen when the page mounts → resets unread badge
   useEffect(() => {
+    // Capture the initial last seen time to show unread dots before it's updated
+    setInitialLastSeen(localStorage.getItem('campus_blink_notices_last_seen'));
     markNoticesAsSeen();
     // Dispatch a custom event so the sidebar can reset its count
     window.dispatchEvent(new CustomEvent('notices-seen'));
@@ -294,65 +323,89 @@ export const NoticesPage: React.FC = () => {
     );
   };
 
+  const filterBySearch = (list: any[]) => {
+    if (!searchQuery) return list;
+    const lowerQ = searchQuery.toLowerCase();
+    return list.filter(n => n.title?.toLowerCase().includes(lowerQ) || n.content?.toLowerCase().includes(lowerQ));
+  };
+
   // Split: is_deleted notices always show as placeholder, pinned first otherwise
   const activeNotices = notices.filter((n) => !n.is_deleted);
   const deletedNotices = notices.filter((n) => n.is_deleted);
 
-  const pinned = activeNotices.filter(isPinnedAndActive);
-  const regular = activeNotices.filter((n) => !isPinnedAndActive(n));
+  const filteredActive = filterBySearch(activeNotices);
+  const filteredDeleted = filterBySearch(deletedNotices);
+
+  const pinned = filteredActive.filter(isPinnedAndActive);
+  const regular = filteredActive.filter((n) => !isPinnedAndActive(n));
+
+  const checkIsUnread = (createdAt: string) => {
+    if (!initialLastSeen) return true;
+    return new Date(createdAt) > new Date(initialLastSeen);
+  };
+
+  let globalIndex = 0;
 
   return (
-    <div className="min-h-full bg-background px-4 py-6 pb-12 md:px-6 md:py-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Page Header */}
-        <div className="flex items-start justify-between gap-4 mb-8">
-          <div>
-            <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-9 h-9 rounded-xl bg-accent-amber-soft border border-amber-100 flex items-center justify-center text-accent-amber">
-                <Megaphone className="w-4.5 h-4.5" />
+    <div className="min-h-full bg-gray-50 pb-12 relative">
+      {/* Unified Sticky App Bar */}
+      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm transition-all">
+        <div className="max-w-2xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
+          {!isSearchActive ? (
+            <>
+              <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Notices</h1>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => setIsSearchActive(true)}
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => load(true)}
+                  disabled={isRefreshing}
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </button>
               </div>
-              <div className="text-[11px] font-bold text-accent-amber uppercase tracking-widest">
-                Official Communications
-              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-right-4 duration-200">
+              <button 
+                onClick={() => { setIsSearchActive(false); setSearchQuery(''); }}
+                className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search notices..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-gray-100/50 border-none text-gray-900 px-4 py-2 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all placeholder:text-gray-400"
+              />
             </div>
-            <h1 className="font-syne text-3xl font-extrabold text-text-primary tracking-tight">
-              Notices
-            </h1>
-            <p className="text-sm text-text-secondary font-medium mt-1">
-              {studyYearLabel ? (
-                <>Showing notices for <span className="font-bold text-text-primary">{studyYearLabel}</span> & all students at your college.</>
-              ) : (
-                'Official notices from your college administration.'
-              )}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => load(true)}
-            disabled={isRefreshing}
-            className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated text-xs font-bold transition-all shadow-2xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+          )}
         </div>
+      </div>
 
-        {/* Notice Admin Quick Link */}
+      <div className="max-w-2xl mx-auto px-4 md:px-6 pt-6">
+        {/* Notice Admin Quick Link - Refined Banner */}
         {isAdmin && (
           <Link
             to="/student/notices/admin"
-            className="mb-6 flex items-center justify-between px-5 py-3.5 rounded-2xl bg-accent-amber-soft border border-accent-amber-soft hover:bg-amber-100/60 transition-colors"
+            className="mb-6 flex items-center gap-3 px-4 py-3 bg-orange-50/50 rounded-2xl border border-orange-100/50 hover:bg-orange-50 transition-colors group animate-in fade-in slide-in-from-bottom-4"
           >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-white">
-                <Megaphone className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-amber-900">Notice Admin Panel</p>
-                <p className="text-xs text-accent-amber font-medium">Compose and manage official notices</p>
-              </div>
+            <div className="w-8 h-8 rounded-full bg-orange-100/80 flex items-center justify-center text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+              <Megaphone className="w-4 h-4" />
             </div>
-            <ExternalLink className="w-4 h-4 text-accent-amber" />
+            <div className="flex-1">
+              <p className="text-sm font-bold text-orange-900">Notice Admin Panel</p>
+            </div>
+            <ExternalLink className="w-4 h-4 text-orange-400 shrink-0 group-hover:text-orange-500 transition-colors" />
           </Link>
         )}
 
@@ -366,12 +419,24 @@ export const NoticesPage: React.FC = () => {
         {/* Empty */}
         {!isLoading && notices.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-surface border border-border-subtle flex items-center justify-center text-text-secondary/70 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-400 mb-4">
               <Bell className="w-7 h-7 stroke-[1.5]" />
             </div>
-            <p className="font-syne text-lg font-bold text-text-primary">No notices yet</p>
-            <p className="text-sm text-text-secondary font-medium mt-1 max-w-xs">
+            <p className="font-syne text-lg font-bold text-gray-900">No notices yet</p>
+            <p className="text-sm text-gray-500 font-medium mt-1 max-w-xs">
               Official notices from your college administration will appear here.
+            </p>
+          </div>
+        )}
+
+        {/* Empty Search Results */}
+        {!isLoading && notices.length > 0 && filteredActive.length === 0 && filteredDeleted.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-4">
+              <Search className="w-5 h-5" />
+            </div>
+            <p className="text-sm text-gray-500 font-medium max-w-xs">
+              No notices match your search "{searchQuery}".
             </p>
           </div>
         )}
@@ -379,33 +444,41 @@ export const NoticesPage: React.FC = () => {
         {/* Pinned */}
         {!isLoading && pinned.length > 0 && (
           <div className="space-y-4 mb-4">
-            {pinned.map((notice) => (
-              <NoticeCard key={notice.id} notice={notice} isAdmin={isAdmin} onSoftDelete={handleSoftDelete} />
-            ))}
+            {pinned.map((notice) => {
+              const isUnread = checkIsUnread(notice.created_at);
+              const comp = <NoticeCard key={notice.id} index={globalIndex} notice={notice} isAdmin={isAdmin} onSoftDelete={handleSoftDelete} isUnread={isUnread} />;
+              globalIndex++;
+              return comp;
+            })}
           </div>
         )}
 
         {/* Divider */}
-        {!isLoading && pinned.length > 0 && (regular.length > 0 || deletedNotices.length > 0) && (
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-border-subtle" />
-            <span className="text-[11px] font-bold text-text-secondary/70 uppercase tracking-widest">Recent</span>
-            <div className="flex-1 h-px bg-border-subtle" />
+        {!isLoading && pinned.length > 0 && (regular.length > 0 || filteredDeleted.length > 0) && (
+          <div className="flex items-center gap-3 my-6 animate-in fade-in" style={{ animationDelay: `${globalIndex * 75}ms` }}>
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Recent</span>
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
         )}
 
         {/* Regular + deleted (interleaved by created_at order) */}
-        {!isLoading && (regular.length > 0 || deletedNotices.length > 0) && (
+        {!isLoading && (regular.length > 0 || filteredDeleted.length > 0) && (
           <div className="space-y-4">
-            {[...regular, ...deletedNotices]
+            {[...regular, ...filteredDeleted]
               .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-              .map((notice) =>
-                notice.is_deleted ? (
-                  <DeletedNoticePlaceholder key={notice.id} />
+              .map((notice) => {
+                const isUnread = checkIsUnread(notice.created_at);
+                const comp = notice.is_deleted ? (
+                  <div key={notice.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationFillMode: 'both', animationDelay: `${globalIndex * 75}ms` }}>
+                    <DeletedNoticePlaceholder />
+                  </div>
                 ) : (
-                  <NoticeCard key={notice.id} notice={notice} isAdmin={isAdmin} onSoftDelete={handleSoftDelete} />
-                )
-              )
+                  <NoticeCard key={notice.id} index={globalIndex} notice={notice} isAdmin={isAdmin} onSoftDelete={handleSoftDelete} isUnread={isUnread} />
+                );
+                globalIndex++;
+                return comp;
+              })
             }
           </div>
         )}

@@ -8,6 +8,7 @@ import {
   Home,
   LogOut,
   Menu,
+  Layout,
   MessageCircle,
   Printer,
   Search,
@@ -24,12 +25,13 @@ import {
   Sparkles,
   ClipboardCheck,
   ChevronRight,
+  Megaphone,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';
 import { getActiveAnnouncementForUser } from '../../api/announcements';
-import { SearchSlidePanel } from './SearchBar';
+import { SearchOverlay } from './SearchOverlay';
 import { AlertSlidePanel } from './AlertSlidePanel';
 import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { Logo } from './ui/Logo';
@@ -58,6 +60,7 @@ function getMobileHeaderTitle(pathname: string) {
   if (pathname.startsWith('/student/canteen')) return 'Canteen';
   if (pathname.startsWith('/student/print')) return 'Print';
   if (pathname.startsWith('/student/societies')) return 'Societies';
+  if (pathname.startsWith('/student/notices')) return 'Notices';
   if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell')) return 'Marketplace';
   return null;
 }
@@ -98,6 +101,24 @@ export const StudentLayout: React.FC = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  // Support hardware back button for search overlay
+  useEffect(() => {
+    if (!searchPanelOpen) return;
+    window.history.pushState({ panel: 'search_overlay' }, '');
+    const handlePopState = () => { setSearchPanelOpen(false); };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [searchPanelOpen]);
+
+  const closeSearchPanel = () => {
+    setSearchPanelOpen(false);
+    if (window.history.state?.panel === 'search_overlay') {
+      window.history.back();
+    }
+  };
 
   const { disabledFeatures } = useFeatureAccess(profile);
 
@@ -161,7 +182,7 @@ export const StudentLayout: React.FC = () => {
     { key: 'home', icon: Home, path: '/student/home', label: 'Home', exact: true },
     { key: 'messages', icon: MessageCircle, path: '/student/messages', label: 'Chat' },
     { key: 'community', icon: BookOpen, path: '/student/community', label: 'Diaries' },
-    { key: 'search', icon: Search, path: '/student/search', label: 'Search' },
+    { key: 'notices', icon: Megaphone, path: '/student/notices', label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
   ];
 
@@ -184,13 +205,15 @@ export const StudentLayout: React.FC = () => {
             </Link>
           );
         })()}
-        <div className="flex items-center gap-2">
-          {location.pathname.startsWith('/student/community') && (
-            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white font-syne font-bold text-xs shadow-2xs border border-slate-700">
-              <span className="text-amber-400">🪙</span>
-              <span>{profile?.campus_credits || 38}</span>
-            </div>
-          )}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            type="button"
+            onClick={() => setSearchPanelOpen(true)}
+            className="relative rounded-full p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 transition-colors hover:bg-gray-100 active:scale-[0.97]"
+            aria-label="Search"
+          >
+            <Search size={20} strokeWidth={2} />
+          </button>
           <button
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
@@ -207,7 +230,7 @@ export const StudentLayout: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/student/profile')}
-            className="h-9 w-9 min-h-[44px] min-w-[44px] overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center"
+            className="h-9 w-9 min-h-[44px] min-w-[44px] overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center ml-1"
             aria-label="Open profile"
           >
             {profile?.avatar_url ? (
@@ -247,6 +270,14 @@ export const StudentLayout: React.FC = () => {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.8 }}
+              onDragEnd={(e, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setIsMobileMenuOpen(false);
+                }
+              }}
               className="relative w-full max-h-[85vh] bg-white rounded-t-[28px] shadow-[0_-16px_50px_rgba(0,0,0,0.15)] flex flex-col z-10 overflow-hidden border-t border-gray-100 pb-[env(safe-area-inset-bottom,16px)]"
             >
               {/* Drawer Handle */}
@@ -268,6 +299,7 @@ export const StudentLayout: React.FC = () => {
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-1.5">Campus Services</p>
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
                     {[
+                      { icon: Layout, label: 'Campus Notices', path: '/student/notices' },
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
@@ -396,8 +428,8 @@ export const StudentLayout: React.FC = () => {
 
 
 
-      {/* Instagram-style Search Slide Panel */}
-      <SearchSlidePanel isOpen={searchPanelOpen} onClose={() => setSearchPanelOpen(false)} />
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={searchPanelOpen} onClose={closeSearchPanel} />
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
       <PushPermissionBanner />
     </div>
