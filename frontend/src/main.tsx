@@ -3,6 +3,7 @@
   import { registerSW } from "virtual:pwa-register";
   import App from "./app/App.tsx";
   import { ThemeProvider } from "next-themes";
+  import { Analytics } from "@vercel/analytics/react";
   import "./styles/index.css";
 
   try {
@@ -51,6 +52,7 @@
   createRoot(document.getElementById("root")!).render(
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <App />
+      <Analytics />
     </ThemeProvider>
   );
   
