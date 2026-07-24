@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import { motion } from 'motion/react';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
+import { useAuthStore } from '../../store/authStore';
+import { useChatStore } from '../../store/chatStore';
 
 export interface TabBarItem {
   key: string;
@@ -32,15 +34,33 @@ export interface BottomTabBarProps {
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }) => {
   const location = useLocation();
   const scrollDirection = useScrollDirection({ threshold: 12 });
+  const { profile } = useAuthStore();
+  const fetchConversations = useChatStore((state) => state.fetchConversations);
+  const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  if (location.pathname.includes('/post/') || window.location.search.includes('diaryId') || location.pathname.endsWith('/edit') || location.pathname.endsWith('/create')) {
+  if (
+    location.pathname.includes('/post/') ||
+    location.search.includes('diaryId') ||
+    location.pathname.endsWith('/edit') ||
+    location.pathname.endsWith('/create') ||
+    (location.pathname.includes('/messages') && (location.search.includes('chat=') || location.search.includes('newChat=')))
+  ) {
     return null;
   }
+
+  const handlePrefetch = (path?: string) => {
+    if (path && (path.includes('/messages') || path.includes('/chat')) && profile?.id) {
+      if (prefetchTimeoutRef.current) clearTimeout(prefetchTimeoutRef.current);
+      prefetchTimeoutRef.current = setTimeout(() => {
+        fetchConversations(profile.id);
+      }, 50); // Small debounce
+    }
+  };
 
   return (
     <nav
       aria-label="Bottom Navigation"
-      className={`md:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(0.65rem+env(safe-area-inset-bottom,0px))] w-[94%] max-w-md z-50 bg-white/75 dark:bg-slate-900/75 backdrop-blur-2xl saturate-[180%] border border-white/40 dark:border-white/10 ring-1 ring-gray-900/5 dark:ring-white/5 rounded-full px-2 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex items-center justify-around select-none transition-all duration-300 ease-in-out no-touch-callout min-h-[58px] ${
+      className={`md:hidden fixed left-1/2 -translate-x-1/2 bottom-[calc(0.65rem+env(safe-area-inset-bottom,0px))] w-[94%] max-w-md z-50 bg-white/75 backdrop-blur-2xl saturate-[180%] border border-white/40 ring-1 ring-gray-900/5 rounded-full px-5 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex items-center justify-between select-none transition-all duration-300 ease-in-out min-h-[58px] ${
         scrollDirection === 'down'
           ? 'translate-y-[160%] opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
@@ -62,7 +82,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
               <motion.div
                 layoutId="activeBottomTabPill"
                 transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-                className="absolute inset-0 bg-slate-900 dark:bg-white rounded-full shadow-sm z-0"
+                className="absolute inset-0 bg-slate-900 rounded-full shadow-sm z-0"
               />
             )}
             <div className="relative z-10 flex items-center justify-center">
@@ -71,13 +91,13 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
                 strokeWidth={isActive ? 2.3 : 1.8}
                 className={`transition-all duration-200 ${
                   isActive
-                    ? 'text-white dark:text-slate-900 scale-105'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+                    ? 'text-white scale-105'
+                    : 'text-slate-500 hover:text-slate-800'
                 }`}
               />
               {item.hasDot && (
                 <span
-                  className="absolute -top-1 -right-1.5 min-w-[8px] h-2 px-0.5 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900 animate-pulse"
+                  className="absolute -top-1 -right-1.5 min-w-[8px] h-2 px-0.5 rounded-full bg-rose-500 ring-2 ring-white animate-pulse"
                   aria-hidden="true"
                 />
               )}
@@ -85,8 +105,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
             <span
               className={`relative z-10 text-[10px] sm:text-[11px] font-bold tracking-tight leading-none truncate max-w-[64px] transition-all duration-200 ${
                 isActive
-                  ? 'text-white dark:text-slate-900 font-extrabold'
-                  : 'text-slate-500 dark:text-slate-400 font-semibold'
+                  ? 'text-white font-extrabold'
+                  : 'text-slate-500 font-semibold'
               }`}
             >
               {item.label}
@@ -104,7 +124,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
                 else if (item.isMenu && onMenuClick) onMenuClick();
               }}
               aria-label={item.label}
-              className="group flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] py-1.5 px-2 rounded-full active:scale-95 transition-all duration-200 relative focus:outline-none hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
+              className="group flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] py-1.5 px-2 rounded-full active:scale-95 transition-all duration-200 relative focus:outline-none hover:bg-slate-100/60"
             >
               {content}
             </button>
@@ -121,8 +141,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
                 window.dispatchEvent(new CustomEvent('focus-search-bar'));
               }
             }}
+            onMouseEnter={() => handlePrefetch(item.path)}
+            onTouchStart={() => handlePrefetch(item.path)}
             aria-label={item.label}
-            className="group flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] py-1.5 px-2 rounded-full active:scale-95 transition-all duration-200 relative focus:outline-none hover:bg-slate-100/60 dark:hover:bg-slate-800/50"
+            className="group flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] py-1.5 px-2 rounded-full active:scale-95 transition-all duration-200 relative focus:outline-none hover:bg-slate-100/60"
           >
             {content}
           </NavLink>

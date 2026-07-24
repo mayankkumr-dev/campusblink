@@ -18,6 +18,7 @@ export interface DiaryEntry {
   bg_color: string;
   gradient?: string | null;
   image_url?: string | null;
+  thumbnail_url?: string | null;
   scale: number;
   likes_count: number;
   comments_count?: number;
@@ -422,7 +423,8 @@ const DiaryCard = React.memo<DiaryCardProps>(({
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
   const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
-  const hasImage = !imageFailed && isValidDiaryImage(entry.image_url);
+  const hasImage = !imageFailed && (isValidDiaryImage(entry.image_url) || !!entry.thumbnail_url);
+  const displayImageUrl = entry.thumbnail_url || entry.image_url;
 
   const rotations = ['-0.6deg', '0.5deg', '-0.3deg', '0.6deg', '-0.5deg', '0.4deg'];
   const baseRotate = rotations[index % rotations.length];
@@ -467,7 +469,7 @@ const DiaryCard = React.memo<DiaryCardProps>(({
       {/* ── Media / Background stretching Edge-to-Edge ──────────────── */}
       {hasImage ? (
         <img
-          src={entry.image_url!}
+          src={displayImageUrl!}
           alt="Diary moment"
           onError={() => setImageFailed(true)}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -551,16 +553,14 @@ const DiaryCard = React.memo<DiaryCardProps>(({
             onLike(entry.id);
           }}
           whileTap={{ scale: 1.3, rotate: [0, -15, 15, -10, 0] }}
-          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full transition-all text-[11px] font-bold cursor-pointer shadow-sm ${
-            liked
-              ? 'bg-rose-500 text-white ring-1 ring-rose-300'
-              : hasImage
+          className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full transition-all text-[11px] font-bold cursor-pointer shadow-sm active:scale-90 ${
+            hasImage
               ? 'bg-black/40 backdrop-blur-md text-white border border-white/20'
-              : 'bg-black/5 sm:bg-white/60 border border-black/10 text-slate-700'
+              : 'bg-gray-100 sm:bg-white border border-gray-200 text-slate-700'
           }`}
           aria-label="Like story"
         >
-          <Heart size={12} className={liked ? 'fill-white text-white' : ''} strokeWidth={2.2} />
+          <Heart size={12} className={liked ? 'fill-rose-500 text-rose-500' : 'fill-transparent text-slate-500'} strokeWidth={2.2} />
           <span>{entry.likes_count || 0}</span>
         </motion.button>
       </div>
@@ -598,7 +598,8 @@ function DiaryFullscreenCard({
   const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
   const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
-  const hasImage = !imageFailed && isValidDiaryImage(entry.image_url);
+  const hasImage = !imageFailed && (isValidDiaryImage(entry.image_url) || !!entry.thumbnail_url);
+  const displayImageUrl = entry.thumbnail_url || entry.image_url;
 
   const avatarUrl =
     entry.author?.avatar_url ||
@@ -648,7 +649,7 @@ function DiaryFullscreenCard({
         {/* If image card, render background image edge-to-edge with error fallback */}
         {hasImage && (
           <img
-            src={entry.image_url!}
+            src={displayImageUrl!}
             alt="Fullscreen memory"
             onError={() => setImageFailed(true)}
             className="absolute inset-0 w-full h-full object-cover"

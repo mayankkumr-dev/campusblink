@@ -712,6 +712,37 @@ export async function reportContent(targetType, targetId, reporterId, reason, de
 }
 
 
+export async function getDiscoverableSocieties(userId, limit = 5) {
+  try {
+    const { data: follows, error: followError } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', userId);
+      
+    if (followError) throw followError;
+    
+    const followingIds = (follows || []).map(f => f.following_id);
+    
+    let query = supabase
+      .from('profiles')
+      .select('id, name, username, bio, avatar_url, college, theme_color')
+      .eq('role', 'society')
+      .order('name')
+      .limit(limit);
+      
+    if (followingIds.length > 0) {
+      query = query.not('id', 'in', `(${followingIds.join(',')})`);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw error;
+    
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 export async function getSocieties() {
   try {
     const { data, error } = await supabase

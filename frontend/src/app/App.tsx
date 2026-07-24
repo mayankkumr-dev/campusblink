@@ -10,7 +10,7 @@ import { PWALayer } from './components/PWALayer';
 import { NotificationBanner } from './components/NotificationBanner';
 import { PushOnboardingModal } from './components/PushOnboardingModal';
 import { Toaster } from 'react-hot-toast';
-import { OfflineOverlay } from './components/OfflineOverlay';
+import { OfflineBanner } from './components/OfflineBanner';
 import { useThemeColor } from '../hooks/useThemeColor';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'contactus.mayank@gmail.com').toLowerCase();
@@ -209,7 +209,7 @@ function App() {
       <RouterProvider router={router} />
       <Toaster position="bottom-center" toastOptions={{ duration: 3500 }} />
       <PWALayer />
-      <OfflineOverlay />
+      <OfflineBanner />
     </>
   );
 }

@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 const AUTHOR_SELECT = `
   id, content, font_family, text_color, bg_color, gradient, scale,
   likes_count, liked_by, image_url, created_at,
+  canvas_json, thumbnail_url, visibility, is_anonymous, tags, location_tag, unlock_at, published_at,
   author:profiles!author_id(id, name, username, avatar_url, college)
 `;
 
@@ -29,8 +30,7 @@ export async function getDiaryFeed(
 ) {
   const from = page * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
-
-  let query = supabase.from('diary_entries').select(AUTHOR_SELECT).or('status.eq.active,status.is.null');
+  let query = supabase.from('vw_diary_feed').select(AUTHOR_SELECT).or('status.eq.active,status.is.null');
 
   if (filter === 'popular') {
     query = query.order('likes_count', { ascending: false }).order('created_at', { ascending: false });
@@ -84,7 +84,7 @@ export async function getUserDiaryEntries(userId) {
   if (!userId) return { data: [], error: new Error('userId required') };
 
   const { data, error } = await supabase
-    .from('diary_entries')
+    .from('vw_diary_feed')
     .select(AUTHOR_SELECT)
     .eq('author_id', userId)
     .or('status.eq.active,status.is.null')

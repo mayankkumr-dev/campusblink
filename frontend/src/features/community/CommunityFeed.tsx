@@ -82,6 +82,15 @@ function FriendsRow({ writers }: { writers: FriendWriter[] }) {
   );
 }
 
+/* ─── Utils ──────────────────────────────────────────────────────── */
+function calculateDaysOnApp(createdAtStr?: string): number {
+  if (!createdAtStr) return 1;
+  const createdAt = new Date(createdAtStr);
+  const today = new Date();
+  const diffTime = Math.abs(today.getTime() - createdAt.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
 /* ─── Main component ─────────────────────────────────────────────── */
 export const CommunityFeed: React.FC = () => {
   const navigate = useNavigate();
@@ -134,7 +143,7 @@ export const CommunityFeed: React.FC = () => {
   }
 
   const daysOnApp = profile?.created_at
-    ? Math.max(1, Math.ceil((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24)))
+    ? calculateDaysOnApp(profile.created_at)
     : ((profile as any)?.streak_days || 15);
 
   return (
@@ -162,7 +171,7 @@ export const CommunityFeed: React.FC = () => {
           </div>
 
           <motion.button
-            onClick={() => navigate('/student/community/create')}
+            onClick={() => navigate('/diary/create')}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
             className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
@@ -178,7 +187,7 @@ export const CommunityFeed: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 pb-3 space-y-3">
         {/* Day Prompt Card matching screenshot */}
         <motion.div
-          onClick={() => navigate('/student/community/create')}
+          onClick={() => navigate('/diary/create')}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           className="group relative overflow-hidden rounded-2xl bg-[#F4F6F9] border border-gray-200/60 shadow-sm p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer transition-all hover:border-gray-300 active:scale-[0.98]"

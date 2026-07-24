@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Check, Loader2, UserPlus } from 'lucide-react';
-import toast from 'react-hot-toast';
+import React, { useEffect, useState } from 'react';
+import { Check, UserPlus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { toggleFollow } from '../../api/follow';
+import { useFollowStore } from '../../store/followStore';
 
 interface FollowButtonProps {
   targetUserId?: string | null;
   targetRole?: string | null;
   initialFollowing?: boolean;
-  onChange?: (nextFollowing: boolean, counts?: { followers_count?: number; following_count?: number }) => void;
+  onChange?: (nextFollowing: boolean) => void;
   size?: 'sm' | 'md';
   variant?: 'primary' | 'ghost' | 'inline' | 'soft';
   className?: string;
+  isJoin?: boolean;
 }
 
 const SIZE_CLASSES = {
@@ -38,7 +38,6 @@ const VARIANT_CLASSES = {
   },
 };
 
-
 export const FollowButton: React.FC<FollowButtonProps> = ({
   targetUserId,
   targetRole,
@@ -47,14 +46,21 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
   size = 'md',
   variant = 'primary',
   className = '',
+  isJoin = false,
 }) => {
   const profile = useAuthStore((state) => state.profile);
-  const [isFollowing, setIsFollowing] = useState(Boolean(initialFollowing));
-  const [isLoading, setIsLoading] = useState(false);
+  const { followingIds, toggleFollowOptimistic, isInitialized } = useFollowStore();
+  const [localFollowing, setLocalFollowing] = useState(initialFollowing);
 
-  React.useEffect(() => {
-    setIsFollowing(Boolean(initialFollowing));
-  }, [initialFollowing]);
+  const isFollowing = targetUserId 
+    ? (isInitialized ? followingIds.has(targetUserId) : localFollowing) 
+    : false;
+
+  useEffect(() => {
+    if (!isInitialized) {
+      setLocalFollowing(initialFollowing);
+    }
+  }, [initialFollowing, isInitialized]);
 
   if (!targetUserId || !profile?.id || targetUserId === profile.id || targetRole === 'professor') {
     return null;
@@ -62,47 +68,36 @@ export const FollowButton: React.FC<FollowButtonProps> = ({
 
   const handleClick = async (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (isLoading) return;
-
-    const previous = isFollowing;
-    setIsFollowing(!previous);
-    setIsLoading(true);
-
-    const { data, error } = await toggleFollow(profile.id, targetUserId);
-
-    if (error) {
-      setIsFollowing(previous);
-      toast.error((error as any).message || 'Could not update follow status.');
-    } else {
-      const nextFollowing = Boolean(data?.is_following);
-      setIsFollowing(nextFollowing);
-      onChange?.(nextFollowing, data as any);
-      toast.success(nextFollowing ? 'Following updated.' : 'Unfollowed.');
+    
+    // Optimistic fallback for when store isn't fully ready
+    if (!isInitialized) {
+      setLocalFollowing(!localFollowing);
     }
-
-    setIsLoading(false);
+    
+    onChange?.(!isFollowing);
+    await toggleFollowOptimistic(profile.id, targetUserId);
   };
 
   const appearance = isFollowing ? VARIANT_CLASSES[variant].active : VARIANT_CLASSES[variant].idle;
+  
+  const activeText = isJoin ? 'Joined' : 'Following';
+  const idleText = isJoin ? 'Join' : 'Follow';
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      disabled={isLoading}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${SIZE_CLASSES[size]} ${appearance} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 rounded-md font-semibold transition-colors ${SIZE_CLASSES[size]} ${appearance} ${className}`}
     >
-      {isLoading ? (
-        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-      ) : isFollowing ? (
+      {isFollowing ? (
         <>
           <Check className="h-3.5 w-3.5" />
-          Following
+          {activeText}
         </>
       ) : (
         <>
           <UserPlus className="h-3.5 w-3.5" />
-          Follow
+          {idleText}
         </>
       )}
     </button>
