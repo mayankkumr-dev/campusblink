@@ -172,6 +172,160 @@ const supabaseService = {
 
     if (error) throw new Error(`Failed to create audit log: ${error.message}`);
   },
+
+  /**
+   * promoteBatch — Batch-promote 1st-year students to 2nd year.
+   *
+   * For each row in `rows`:
+   *  - Look up the active profile matching (branch, section, fromYear, rollNumber)
+   *  - Validate enrollmentNumber / collegeEmail aren't already used elsewhere
+   *  - On match: update profile, close roll_number_history row
+   *  - On no-match or conflict: push to unmatchedRows for manual review
+   *
+   * Writes a batch_promotions audit record and an admin_audit_log entry.
+   *
+   * @returns {{ matchedCount, unmatchedCount, unmatchedRows }}
+   */
+  promoteBatch: async ({ adminId, branch, section, fromYear, toYear, rows }) => {
+    if (!adminId || !branch || !section || !fromYear || !toYear || !Array.isArray(rows)) {
+      throw new Error('Missing required fields for batch promotion');
+    }
+
+    const matchedProfiles = [];
+    const unmatchedRows   = [];
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    for (const row of rows) {
+      const { rollNumber, enrollmentNumber, collegeEmail } = row;
+
+      if (!rollNumber || !enrollmentNumber || !collegeEmail) {
+        unmatchedRows.push({ ...row, reason: 'missing_fields' });
+        continue;
+      }
+
+      // 1. Find the active profile matching this roll-slot
+      const { data: profile, error: lookupErr } = await supabaseAdmin
+        .from('profiles')
+        .select('id, roll_number, enrollment_number, college_email, academic_year')
+        .eq('branch',            branch)
+        .eq('section',           section)
+        .eq('academic_year',     fromYear)
+        .eq('roll_number',       rollNumber)
+        .eq('enrollment_status', 'active')
+        .maybeSingle();
+
+      if (lookupErr) {
+        unmatchedRows.push({ ...row, reason: 'lookup_error', detail: lookupErr.message });
+        continue;
+      }
+
+      if (!profile) {
+        unmatchedRows.push({ ...row, reason: 'no_match' });
+        continue;
+      }
+
+      // 2. Check enrollment_number isn't already used by a DIFFERENT profile
+      if (enrollmentNumber) {
+        const { data: enConflict } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('enrollment_number', enrollmentNumber)
+          .neq('id', profile.id)
+          .maybeSingle();
+
+        if (enConflict) {
+          unmatchedRows.push({ ...row, reason: 'enrollment_number_conflict' });
+          continue;
+        }
+      }
+
+      // 3. Check college_email isn't already used by a DIFFERENT profile
+      if (collegeEmail) {
+        const { data: emailConflict } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('college_email', collegeEmail)
+          .neq('id', profile.id)
+          .maybeSingle();
+
+        if (emailConflict) {
+          unmatchedRows.push({ ...row, reason: 'college_email_conflict' });
+          continue;
+        }
+      }
+
+      // 4. Update the profile: set enrollment_number, college_email, academic_year
+      const { error: updateErr } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          enrollment_number: enrollmentNumber,
+          college_email:     collegeEmail,
+          academic_year:     toYear,
+        })
+        .eq('id', profile.id);
+
+      if (updateErr) {
+        unmatchedRows.push({ ...row, reason: 'update_failed', detail: updateErr.message });
+        continue;
+      }
+
+      // 5. Close the active roll_number_history row for this profile
+      await supabaseAdmin
+        .from('roll_number_history')
+        .update({ valid_to: today })
+        .eq('profile_id', profile.id)
+        .is('valid_to', null); // Only close the currently-open row
+
+      matchedProfiles.push({ profileId: profile.id, rollNumber, enrollmentNumber, collegeEmail });
+    }
+
+    // 6. Write the batch_promotions audit record
+    const { error: bpErr } = await supabaseAdmin
+      .from('batch_promotions')
+      .insert({
+        run_by:          adminId,
+        branch,
+        section,
+        from_year:       fromYear,
+        to_year:         toYear,
+        total_rows:      rows.length,
+        matched_count:   matchedProfiles.length,
+        unmatched_count: unmatchedRows.length,
+        unmatched_rows:  unmatchedRows.length > 0 ? unmatchedRows : null,
+      });
+
+    if (bpErr) {
+      console.error('[supabaseService.promoteBatch] batch_promotions insert failed:', bpErr.message);
+      // Non-fatal: don't abort — data is already updated. Just warn.
+    }
+
+    // 7. Write admin_audit_log entry (consistent with all other admin actions)
+    const { error } = await supabaseAdmin
+      .from('admin_audit_log')
+      .insert({
+        admin_id: adminId,
+        action:   'batch_promotion',
+        details: {
+          branch,
+          section,
+          from_year:       fromYear,
+          to_year:         toYear,
+          total_rows:      rows.length,
+          matched_count:   matchedProfiles.length,
+          unmatched_count: unmatchedRows.length,
+        },
+      });
+
+    if (error) {
+      console.error('[supabaseService.promoteBatch] admin_audit_log insert failed:', error.message);
+    }
+
+    return {
+      matchedCount:   matchedProfiles.length,
+      unmatchedCount: unmatchedRows.length,
+      unmatchedRows,
+    };
+  },
 };
 
 module.exports = supabaseService;

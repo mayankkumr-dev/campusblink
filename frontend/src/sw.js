@@ -46,10 +46,11 @@ registerRoute(
 );
 
 registerRoute(
-  ({ request }) =>
-    request.destination === 'style' ||
+  ({ url, request }) =>
+    !url.pathname.startsWith('/_vercel/') &&
+    (request.destination === 'style' ||
     request.destination === 'script' ||
-    request.destination === 'worker',
+    request.destination === 'worker'),
   new CacheFirst({
     cacheName: 'cb-app-shell-assets-v2',
     plugins: [

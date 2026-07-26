@@ -199,9 +199,21 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'attendance',
+            lazy: async () => ({
+              Component: (await import('./components/StudentAttendancePage')).StudentAttendancePage,
+            }),
+          },
+          {
             path: 'canteen/reorder/:orderId',
             lazy: async () => ({
               Component: (await import('../features/canteen/CanteenReorderPage')).CanteenReorderPage,
+            }),
+          },
+          {
+            path: 'orders',
+            lazy: async () => ({
+              Component: (await import('../shared/components/OrderHistory/MyOrdersPage')).MyOrdersPage,
             }),
           },
           {
@@ -399,6 +411,12 @@ export const router = createBrowserRouter([
             path: 'print',
             lazy: async () => ({
               Component: (await import('./components/ProfessorPrintPage')).ProfessorPrintPage,
+            }),
+          },
+          {
+            path: 'orders',
+            lazy: async () => ({
+              Component: (await import('../shared/components/OrderHistory/MyOrdersPage')).MyOrdersPage,
             }),
           },
           {

@@ -5,6 +5,7 @@ import {
   Bell,
   BookOpen,
   Building2,
+  CalendarCheck,
   Home,
   LogOut,
   Menu,
@@ -298,13 +299,14 @@ export const StudentLayout: React.FC = () => {
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-1.5">Campus Services</p>
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
-                    {[
+                    {([
                       { icon: Layout, label: 'Campus Notices', path: '/student/notices' },
+                      { icon: CalendarCheck, label: 'Attendance', path: '/student/attendance' },
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
                       { icon: Building2, label: 'Societies & Clubs', path: '/student/societies' },
-                    ].map((link, idx) => {
+                    ] as { icon: any; label: string; path: string; badge?: string }[]).map((link, idx) => {
                       const IconComp = link.icon;
                       return (
                         <button

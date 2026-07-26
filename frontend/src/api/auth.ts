@@ -205,7 +205,9 @@ export async function signUp(
   requestedRole: string = 'student',
   professorData: { staffRoomNumber?: string | null } = {},
   studyYear: string | number | null = null,
-  branch: string | null = null
+  branch: string | null = null,
+  section: string | null = null,
+  expectedRollNumber: string | null = null
 ): Promise<ApiResponse<any>> {
   try {
     const normalizedName = normalizeName(name);
@@ -266,6 +268,14 @@ export async function signUp(
           staff_room_number: normalizedRequestedRole === 'teacher' ? (professorData?.staffRoomNumber || null) : null,
           study_year: studyYear,
           branch: branch,
+          // Enrollment lifecycle fields — only present for roster-tied 1st-year invites.
+          // The Postgres trigger reads these from raw_user_meta_data and copies them to
+          // the profiles row (plus inserts the first roll_number_history entry).
+          section: section || null,
+          roll_number: expectedRollNumber || null,
+          academic_year: studyYear ? Number(studyYear) : null,
+          // batch_year is the admission calendar year — immutable once set.
+          batch_year: normalizedRequestedRole !== 'teacher' ? new Date().getFullYear() : null,
         },
         emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
       }

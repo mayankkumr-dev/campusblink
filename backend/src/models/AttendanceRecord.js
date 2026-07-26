@@ -54,6 +54,24 @@ const attendanceRecordSchema = new mongoose.Schema(
       type: [editHistorySubSchema],
       default: [],
     },
+
+    // ── Enrollment snapshot fields ──────────────────────────────────────────
+    // These capture the student's identity info at the moment attendance is
+    // marked. Historical sheets remain correct even after roll_number /
+    // enrollment_number on the profiles row changes during promotion.
+    // studentId (above) still references profiles.id — the permanent anchor.
+    rollNumberAtMarking: {
+      type: String,
+      default: null,
+    },
+    enrollmentNumberAtMarking: {
+      type: String,
+      default: null,
+    },
+    academicYearAtMarking: {
+      type: Number,
+      default: null,
+    },
   },
   {
     timestamps: true,

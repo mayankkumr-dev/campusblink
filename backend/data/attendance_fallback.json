@@ -69,6 +69,17 @@
       "status": "draft",
       "createdAt": "2026-07-17T16:04:53.866Z",
       "updatedAt": "2026-07-17T16:04:53.866Z"
+    },
+    {
+      "_id": "sess_1785073176905_me9ql2",
+      "subjectId": "CS301",
+      "sectionId": "Group A",
+      "professorId": "a71c8eb9-17a4-493f-8b41-724199146125",
+      "date": "2026-07-26T00:00:00.000Z",
+      "timeSlot": "10:00-11:00",
+      "status": "draft",
+      "createdAt": "2026-07-26T13:39:36.905Z",
+      "updatedAt": "2026-07-26T13:39:36.905Z"
     }
   ],
   "records": [

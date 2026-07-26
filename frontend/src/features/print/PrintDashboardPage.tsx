@@ -16,6 +16,7 @@ import { decorateShopStatus } from '../../lib/shopStatus';
 import { Logo } from '../../app/components/ui/Logo';
 import { ListSkeleton } from '../../app/components/ui/Skeletons';
 import { FeatureErrorBoundary } from '../../shared/components/FeatureErrorBoundary';
+import { ShopOrderHistoryList } from '../../shared/components/OrderHistory/ShopOrderHistoryList';
 import {
   MobilePrintOrdersDashboard,
   MobilePrintOrderHistory,
@@ -1014,111 +1015,8 @@ export const PrintDashboardPage: React.FC = () => {
             )}
 
             {activeView === 'Order History' && (
-              <div className="mx-auto max-w-7xl">
-                <div className="overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none">
-                  {historyOrders.length === 0 ? (
-                    <div className="px-6 py-24 text-center">
-                      <p className="font-syne text-base font-bold text-text-primary dark:text-shop-text-primary">
-                        No print order history available yet
-                      </p>
-                      <p className="mt-1 text-xs text-text-secondary dark:text-shop-text-secondary">
-                        Past completed, reordered, and cancelled print jobs will be recorded here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left font-sans">
-                        <thead>
-                          <tr className="border-b border-border-subtle dark:border-shop-border-subtle bg-slate-50/80 dark:bg-slate-800/50 text-[11px] font-bold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4">Student</th>
-                            <th className="px-6 py-4">Order ID</th>
-                            <th className="px-6 py-4">File Name</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Revenue</th>
-                            <th className="px-6 py-4 text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                          {historyOrders.map((order, i) => (
-                            <tr
-                              key={i}
-                              className="transition-colors hover:bg-slate-50/60 dark:hover:bg-shop-bg-surface-hover"
-                            >
-                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary">
-                                {new Date(order.created_at).toLocaleDateString([], {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric',
-                                })}
-                              </td>
-                              <td className="px-6 py-4.5 text-xs font-bold text-text-primary dark:text-shop-text-primary">
-                                {getStudentProfile(order).name || 'Student'}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4.5 text-xs font-mono text-text-secondary dark:text-shop-text-secondary">
-                                #{order.id.slice(0, 6)}
-                              </td>
-                              <td className="px-6 py-4.5 text-xs font-semibold text-text-primary dark:text-shop-text-primary max-w-xs truncate">
-                                {order.file_name}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4.5">
-                                {order.status === 'collected' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/30 bg-accent-green/15 dark:bg-emerald-900/20 px-3 py-1 text-[11px] font-bold text-accent-green">
-                                    Completed
-                                  </span>
-                                ) : order.status === 'reorder_requested' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-3 py-1 text-[11px] font-bold text-accent-amber">
-                                    Reorder Sent
-                                  </span>
-                                ) : order.status === 'reorder_completed' ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft dark:bg-blue-900/20 px-3 py-1 text-[11px] font-bold text-blue-700 dark:text-blue-400">
-                                    Reordered
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 dark:border-red-900/30 bg-accent-red/15 dark:bg-red-900/20 px-3 py-1 text-[11px] font-bold text-accent-red">
-                                    Cancelled
-                                  </span>
-                                )}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4.5 text-right font-syne text-sm font-extrabold text-text-primary dark:text-shop-text-primary">
-                                {order.status === 'collected' ||
-                                order.status === 'reorder_requested' ||
-                                order.status === 'reorder_completed' ? (
-                                  `₹${order.total_price}`
-                                ) : (
-                                  <span className="text-text-secondary/70 dark:text-shop-text-tertiary line-through">
-                                    ₹{order.total_price}
-                                  </span>
-                                )}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4.5 text-center">
-                                {order.status === 'collected' && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRequestReorder(order)}
-                                    className="inline-flex items-center gap-1.5 rounded-xl border border-accent-amber-soft dark:border-amber-900/30 bg-accent-amber-soft dark:bg-amber-900/20 px-3.5 py-1.5 text-xs font-bold text-accent-amber transition-colors hover:bg-amber-100 dark:hover:bg-amber-900/40"
-                                  >
-                                    <RotateCcw className="h-3 w-3" /> Request Reorder
-                                  </button>
-                                )}
-                                {order.status === 'reorder_requested' && (
-                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent-amber">
-                                    <RotateCcw className="h-3 w-3 animate-spin" /> Awaiting student
-                                  </span>
-                                )}
-                                {order.status === 'reorder_completed' && (
-                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-accent-blue dark:text-blue-400">
-                                    <Check className="h-3.5 w-3.5" /> Reordered
-                                  </span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
+              <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <ShopOrderHistoryList shopId={shop?.id} type="print" />
               </div>
             )}
 

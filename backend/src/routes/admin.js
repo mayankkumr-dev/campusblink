@@ -440,4 +440,57 @@ router.post('/feature-access', authMiddleware, adminOnlyMiddleware, async (req, 
   }
 });
 
+/**
+ * POST /api/admin/promote-batch
+ *
+ * Batch-promote students from one academic year to the next.
+ * Runs through supabaseAdmin (service-role) — never exposes the key to the client.
+ *
+ * Body: {
+ *   branch:   string,
+ *   section:  string,
+ *   fromYear: number,
+ *   toYear:   number,
+ *   rows: [{ rollNumber, enrollmentNumber, collegeEmail }]
+ * }
+ *
+ * Returns: { matchedCount, unmatchedCount, unmatchedRows }
+ */
+router.post('/promote-batch', authMiddleware, adminOnlyMiddleware, async (req, res) => {
+  try {
+    const { branch, section, fromYear, toYear, rows } = req.body;
+
+    if (!branch || !section || !fromYear || !toYear) {
+      return res.status(400).json({ error: 'branch, section, fromYear, and toYear are required' });
+    }
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ error: 'rows must be a non-empty array' });
+    }
+
+    if (rows.length > 500) {
+      return res.status(400).json({ error: 'Maximum 500 rows per promotion run' });
+    }
+
+    const result = await supabaseService.promoteBatch({
+      adminId: req.user.id,
+      branch,
+      section,
+      fromYear: Number(fromYear),
+      toYear:   Number(toYear),
+      rows,
+    });
+
+    res.json({
+      message:        `Promotion complete: ${result.matchedCount} matched, ${result.unmatchedCount} unmatched`,
+      matchedCount:   result.matchedCount,
+      unmatchedCount: result.unmatchedCount,
+      unmatchedRows:  result.unmatchedRows,
+    });
+  } catch (error) {
+    console.error('Error running batch promotion:', error);
+    res.status(500).json({ error: error.message || 'Failed to run batch promotion' });
+  }
+});
+
 module.exports = router;

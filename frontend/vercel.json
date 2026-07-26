@@ -2,6 +2,10 @@
   "installCommand": "npm install --legacy-peer-deps",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "http://3.229.71.36/api/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -122,20 +122,25 @@ async function getRosterForSession(sessionId) {
     throw new Error('Attendance session not found');
   }
 
-  // Fetch student profiles from Supabase or generate sample student roster if empty
+  // Fetch student profiles from Supabase — only active enrolled students
   let students = [];
   try {
     if (supabaseAdmin) {
       let query = supabaseAdmin
         .from('profiles')
-        .select('id, name, full_name, roll_number, email, role, section')
-        .eq('role', 'student');
+        .select('id, name, full_name, roll_number, enrollment_number, email, role, section, branch, academic_year, enrollment_status')
+        .eq('role', 'student')
+        // Only include currently-enrolled students. Dropped students are
+        // automatically excluded — their existing AttendanceRecords remain
+        // correctly keyed to profiles.id and are unaffected.
+        .eq('enrollment_status', 'active');
 
       if (session.sectionId && session.sectionId !== 'ALL') {
-        // Also allow section filtering if section column matches
+        // Section filtering can be enabled here once all students have the
+        // section field populated via the enrollment lifecycle system.
         // query = query.eq('section', session.sectionId);
       }
-      const { data, error } = await query.limit(100);
+      const { data, error } = await query.limit(200);
       if (!error && data && data.length > 0) {
         students = data;
       }
@@ -196,10 +201,31 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
 
   const timestamp = new Date();
 
+  // Pre-fetch profile snapshots for all students in this batch to avoid N+1 queries.
+  // These snapshot values are stored on new AttendanceRecord documents so historical
+  // sheets display correctly even after a student's profile changes during promotion.
+  const studentIds = [...new Set(records.map(r => String(r.studentId)))];
+  const profileSnapshotMap = new Map();
+  try {
+    if (supabaseAdmin && studentIds.length > 0) {
+      const { data: profileRows } = await supabaseAdmin
+        .from('profiles')
+        .select('id, roll_number, enrollment_number, academic_year')
+        .in('id', studentIds);
+      if (profileRows) {
+        profileRows.forEach(p => profileSnapshotMap.set(String(p.id), p));
+      }
+    }
+  } catch (err) {
+    // Non-fatal: snapshot fields will be null for this batch if the lookup fails.
+    console.warn('[AttendanceService] Profile snapshot fetch failed:', err.message);
+  }
+
   if (isDBConnected()) {
     const updated = [];
     for (const item of records) {
       const { studentId, status } = item;
+      const snapshot = profileSnapshotMap.get(String(studentId)) || {};
       let record = await AttendanceRecord.findOne({ sessionId, studentId });
       if (record) {
         if (record.status !== status) {
@@ -214,6 +240,8 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
           record.lastEditedBy = editedBy;
           await record.save();
         }
+        // Note: we do NOT update snapshot fields on existing records — they are
+        // intentionally frozen at the time the record was first created.
       } else {
         record = await AttendanceRecord.create({
           sessionId,
@@ -229,6 +257,10 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
               reason,
             },
           ],
+          // Enrollment snapshot — frozen at time of marking
+          rollNumberAtMarking:       snapshot.roll_number       || null,
+          enrollmentNumberAtMarking: snapshot.enrollment_number || null,
+          academicYearAtMarking:     snapshot.academic_year     || null,
         });
       }
       updated.push(record);
@@ -239,6 +271,7 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
     const updated = [];
     for (const item of records) {
       const { studentId, status } = item;
+      const snapshot = profileSnapshotMap.get(String(studentId)) || {};
       let record = db.records.find(
         r => String(r.sessionId) === String(sessionId) && String(r.studentId) === String(studentId)
       );
@@ -255,6 +288,7 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
           record.status = status;
           record.lastEditedBy = editedBy;
         }
+        // Snapshot fields are not updated on existing records
       } else {
         record = {
           _id: `rec_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
@@ -271,6 +305,10 @@ async function bulkUpdateRecords({ sessionId, records, editedBy, reason = 'Class
               reason,
             },
           ],
+          // Enrollment snapshot — frozen at time of marking
+          rollNumberAtMarking:       snapshot.roll_number       || null,
+          enrollmentNumberAtMarking: snapshot.enrollment_number || null,
+          academicYearAtMarking:     snapshot.academic_year     || null,
           createdAt: timestamp.toISOString(),
           updatedAt: timestamp.toISOString(),
         };

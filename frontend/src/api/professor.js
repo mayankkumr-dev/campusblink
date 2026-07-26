@@ -367,21 +367,14 @@ async function getAuthHeader() {
 const HEROKU_API_URL = 'https://campus-blink-api-server-b8fe7246b471.herokuapp.com';
 
 async function fetchWithScheduleFallback(endpoint, options = {}) {
-  const primaryUrl = import.meta.env.VITE_BACKEND_URL || (
-    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3000'
-      : HEROKU_API_URL
-  );
-
+  // Use relative URLs to allow Vercel rewrites (production) and Vite proxies (development)
+  // to handle routing. This avoids Mixed Content errors when Vercel is HTTPS but backend is HTTP.
   try {
-    const res = await fetch(`${primaryUrl}${endpoint}`, options);
+    const res = await fetch(endpoint, options);
     return res;
   } catch (err) {
-    if (primaryUrl !== HEROKU_API_URL) {
-      console.warn(`Local backend unreachable at ${primaryUrl}, falling back to Heroku API`);
-      return await fetch(`${HEROKU_API_URL}${endpoint}`, options);
-    }
-    throw err;
+    console.warn(`Fetch to ${endpoint} failed, falling back to Heroku API`);
+    return await fetch(`${HEROKU_API_URL}${endpoint}`, options);
   }
 }
 

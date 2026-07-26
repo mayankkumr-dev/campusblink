@@ -698,3 +698,64 @@ export async function sendInviteToWaitlist(adminProfile, waitlistId, params = {}
     return { data: null, error: normalizeSupabaseError(error) || 'Could not generate waitlist invite.' };
   }
 }
+
+/**
+ * adminGenerateRosterInvites — Generate one roster-tied invite code per entry.
+ *
+ * Each code is pre-bound to a specific student slot from the official admission
+ * list. When a student redeems such a code, the registration flow uses the
+ * embedded metadata to pre-populate and/or auto-set their branch, section,
+ * academic_year, and roll_number on the profiles row.
+ *
+ * @param {object} adminProfile - The admin's profile (for access check)
+ * @param {Array<{
+ *   branch: string,
+ *   section: string,
+ *   academicYear: number,
+ *   expectedRollNumber: string,
+ *   expiry?: string,        // '24h' | '7d' | '30d' | ISO date | 'none'
+ *   note?: string
+ * }>} rosterRows
+ * @returns {{ data: createdCodes[], error: string|null }}
+ */
+export async function adminGenerateRosterInvites(adminProfile, rosterRows) {
+  try {
+    if (!isAdminProfile(adminProfile)) return { data: null, error: 'Admin access required.' };
+
+    if (!Array.isArray(rosterRows) || rosterRows.length === 0) {
+      return { data: null, error: 'rosterRows must be a non-empty array.' };
+    }
+
+    if (rosterRows.length > 500) {
+      return { data: null, error: 'Maximum 500 roster rows per batch.' };
+    }
+
+    // Validate each row has required fields before attempting any inserts
+    for (const row of rosterRows) {
+      if (!row.branch || !row.section || !row.academicYear || !row.expectedRollNumber) {
+        return {
+          data: null,
+          error: `Row is missing required fields (branch, section, academicYear, expectedRollNumber): ${JSON.stringify(row)}`,
+        };
+      }
+    }
+
+    // Build one insert row per roster entry
+    const insertRows = rosterRows.map((row) => ({
+      created_by:           null,   // Admin-generated; not tied to a specific inviter profile
+      is_admin_generated:   true,
+      expires_at:           getExpiryValue(row.expiry || '30d'),
+      note:                 row.note || `Roster invite — ${row.branch} ${row.section} Roll#${row.expectedRollNumber}`,
+      // New roster metadata columns
+      branch:               row.branch,
+      section:              row.section,
+      academic_year:        Number(row.academicYear),
+      expected_roll_number: String(row.expectedRollNumber),
+    }));
+
+    const created = await createCodesWithRetry(insertRows, rosterRows.length * 10);
+    return { data: created, error: null };
+  } catch (error) {
+    return { data: null, error: normalizeSupabaseError(error) || 'Could not generate roster invite codes.' };
+  }
+}

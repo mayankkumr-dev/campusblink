@@ -9,7 +9,8 @@ import { AdminInvitesPage } from './AdminInvitesPage';
 import { AdminPrintShopsPage } from './AdminPrintShopsPage';
 import { AdminProfessorsPendingPage } from './AdminProfessorsPendingPage';
 import { AdminSocietiesPage } from './AdminSocietiesPage';
-import { Users, GraduationCap, Store, Building2, Ticket, Printer, Clock, Ban, Shield } from 'lucide-react';
+import { AdminBatchPromotionPage } from './AdminBatchPromotionPage';
+import { Users, GraduationCap, Store, Building2, Ticket, Printer, Clock, Ban, Shield, ArrowUpCircle } from 'lucide-react';
 
 const PRIMARY_TABS = [
   { id: 'users', label: 'Users & Roles', icon: Users },
@@ -20,10 +21,11 @@ const PRIMARY_TABS = [
 
 const SUB_TABS: Record<string, { id: string; label: string; icon?: React.ElementType }[]> = {
   users: [
-    { id: 'users', label: 'All Users', icon: Users },
-    { id: 'banned', label: 'Banned Accounts', icon: Ban },
-    { id: 'roles', label: 'Role Permissions', icon: Shield },
-    { id: 'invites', label: 'Invitations', icon: Ticket },
+    { id: 'users',     label: 'All Users',       icon: Users },
+    { id: 'banned',    label: 'Banned Accounts', icon: Ban },
+    { id: 'roles',     label: 'Role Permissions',icon: Shield },
+    { id: 'invites',   label: 'Invitations',     icon: Ticket },
+    { id: 'promotion', label: 'Batch Promotion', icon: ArrowUpCircle },
   ],
   professors: [
     { id: 'professors', label: 'All Professors', icon: GraduationCap },
@@ -115,15 +117,16 @@ export const AdminAccountsHub: React.FC = () => {
 
       {/* Content Area */}
       <div className="pb-10">
-        {activeSubTab === 'users' && <AdminUsersPage />}
+        {activeSubTab === 'users'     && <AdminUsersPage />}
         {activeSubTab === 'professors' && <AdminProfessorsPage />}
         {activeSubTab === 'professors_pending' && <AdminProfessorsPendingPage />}
         {activeSubTab === 'societies' && <AdminSocietiesPage />}
-        {activeSubTab === 'canteens' && <AdminCanteensPage />}
-        {activeSubTab === 'print' && <AdminPrintShopsPage />}
-        {activeSubTab === 'roles' && <AdminRolesPage />}
-        {activeSubTab === 'banned' && <AdminBannedUsersPage />}
-        {activeSubTab === 'invites' && <AdminInvitesPage />}
+        {activeSubTab === 'canteens'  && <AdminCanteensPage />}
+        {activeSubTab === 'print'     && <AdminPrintShopsPage />}
+        {activeSubTab === 'roles'     && <AdminRolesPage />}
+        {activeSubTab === 'banned'    && <AdminBannedUsersPage />}
+        {activeSubTab === 'invites'   && <AdminInvitesPage />}
+        {activeSubTab === 'promotion' && <AdminBatchPromotionPage />}
       </div>
     </div>
   );
