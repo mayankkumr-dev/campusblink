@@ -346,6 +346,14 @@ export const router = createBrowserRouter([
               Component: (await import('./components/SearchPage')).SearchPage,
             }),
           },
+          {
+            path: 'admin/*',
+            Component: () => <Navigate to="/admin" replace />,
+          },
+          {
+            path: 'admin',
+            Component: () => <Navigate to="/admin" replace />,
+          },
         ],
       },
       {

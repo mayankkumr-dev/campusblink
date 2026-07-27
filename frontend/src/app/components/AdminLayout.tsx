@@ -312,15 +312,15 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className="admin-theme h-screen flex flex-col md:flex-row font-sans bg-gray-50 text-gray-900 transition-colors overflow-hidden"
+      className="admin-theme h-screen flex flex-col md:flex-row font-sans bg-gray-50 dark:bg-admin-bg-base text-gray-900 dark:text-admin-text-primary transition-colors overflow-hidden"
     >
       {/* ── Mobile Header ──────────────────────────────── */}
-      <header className="md:hidden safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-md px-4 shadow-2xs select-none">
+      <header className="md:hidden safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 dark:border-admin-border-subtle bg-white/95 dark:bg-admin-bg-surface/95 backdrop-blur-md px-4 shadow-2xs select-none transition-colors">
         <div className="flex items-center gap-2 min-h-[44px] min-w-[44px]">
           <div className="w-6 h-6 rounded-lg bg-amber-500 flex items-center justify-center transition-colors">
             <span className="text-white font-syne font-extrabold text-xs">CB</span>
           </div>
-          <span className="font-syne font-extrabold text-sm text-slate-900">Admin</span>
+          <span className="font-syne font-extrabold text-sm text-slate-900 dark:text-white">Admin</span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -357,23 +357,23 @@ export const AdminLayout: React.FC = () => {
       )}
 
       {/* ── Desktop Sidebar ─────────────────────────────── */}
-      <div className="hidden md:block w-60 fixed top-0 bottom-0 left-0 z-40 select-none bg-white border-r border-gray-100">
+      <div className="hidden md:block w-60 fixed top-0 bottom-0 left-0 z-40 select-none bg-white dark:bg-admin-bg-surface border-r border-gray-100 dark:border-admin-border-subtle">
         {sidebarContent}
       </div>
 
       {/* ── Main Content + Bottom Nav Wrapper ────────────────────────────────── */}
-      <div className="flex-1 md:ml-60 flex flex-col h-full overflow-hidden bg-gray-50 transition-colors">
+      <div className="flex-1 md:ml-60 flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-admin-bg-base transition-colors">
 
         {/* Top Header Bar */}
-        <header className="h-[64px] bg-white border-b border-slate-200 hidden md:flex items-center justify-between px-5 lg:px-8 shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-colors">
+        <header className="h-[64px] bg-white dark:bg-admin-bg-surface border-b border-slate-200 dark:border-admin-border-subtle hidden md:flex items-center justify-between px-5 lg:px-8 shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.04)] dark:shadow-none transition-colors">
 
           {/* Page Title + Breadcrumb */}
           <div className="flex items-center gap-2 min-w-0">
-            <div className="hidden md:flex items-center gap-1 text-slate-400 text-xs font-medium transition-colors">
+            <div className="hidden md:flex items-center gap-1 text-slate-400 dark:text-admin-text-tertiary text-xs font-medium transition-colors">
               <span>Admin</span>
               <ChevronRight size={12} />
             </div>
-            <h1 className="font-syne font-extrabold text-base md:text-lg text-slate-900 tracking-tight truncate transition-colors">
+            <h1 className="font-syne font-extrabold text-base md:text-lg text-slate-900 dark:text-admin-text-primary tracking-tight truncate transition-colors">
               {pageTitle}
             </h1>
           </div>
@@ -382,14 +382,14 @@ export const AdminLayout: React.FC = () => {
           <div className="flex-1 max-w-sm mx-6 hidden lg:block">
             <button
               type="button"
-              className="w-full flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl py-2 px-3.5 text-xs text-slate-400 hover:border-amber-300 hover:bg-white transition-all group"
+              className="w-full flex items-center justify-between gap-3 bg-slate-50 dark:bg-admin-bg-surface-raised border border-slate-200 dark:border-admin-border-subtle rounded-xl py-2 px-3.5 text-xs text-slate-400 dark:text-admin-text-tertiary hover:border-amber-300 dark:hover:border-admin-accent hover:bg-white dark:hover:bg-admin-bg-surface transition-all group"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
             >
               <div className="flex items-center gap-2">
-                <Search size={13} className="text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
+                <Search size={13} className="text-slate-400 dark:text-admin-text-tertiary group-hover:text-amber-500 dark:group-hover:text-admin-accent transition-colors shrink-0" />
                 <span className="transition-colors">Search users, orders, logs…</span>
               </div>
-              <kbd className="hidden xl:flex items-center gap-0.5 rounded-md bg-white border border-slate-200 px-1.5 py-0.5 text-[10px] font-bold text-slate-400 shadow-sm transition-colors">
+              <kbd className="hidden xl:flex items-center gap-0.5 rounded-md bg-white dark:bg-admin-bg-surface-hover border border-slate-200 dark:border-admin-border-strong px-1.5 py-0.5 text-[10px] font-bold text-slate-400 dark:text-admin-text-tertiary shadow-sm dark:shadow-none transition-colors">
                 ⌘K
               </kbd>
             </button>
@@ -400,7 +400,7 @@ export const AdminLayout: React.FC = () => {
             {/* Mobile search trigger */}
             <button
               type="button"
-              className="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-2 rounded-xl text-slate-500 dark:text-admin-text-secondary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover transition-colors"
               onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
               aria-label="Search"
             >
@@ -411,25 +411,25 @@ export const AdminLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/admin/alerts')}
-              className="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all"
+              className="relative p-2 rounded-xl text-slate-500 dark:text-admin-text-secondary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover border border-transparent hover:border-slate-200 dark:hover:border-admin-border-subtle transition-all"
               aria-label="Smart Alerts"
             >
               <Bell size={16} />
               {/* Red dot — always visible since alerts always exist */}
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white transition-colors" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full ring-2 ring-white dark:ring-admin-bg-surface transition-colors" />
             </button>
 
             {/* Divider */}
-            <div className="w-px h-6 bg-slate-200 mx-1 transition-colors" />
+            <div className="w-px h-6 bg-slate-200 dark:bg-admin-border-subtle mx-1 transition-colors" />
 
             {/* Admin avatar */}
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-syne font-extrabold text-sm shadow-sm shadow-amber-200 transition-colors">
+              <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center font-syne font-extrabold text-sm shadow-sm shadow-amber-200 dark:shadow-none transition-colors">
                 {adminInitial}
               </div>
               <div className="hidden xl:block">
-                <p className="text-[13px] font-semibold text-slate-900 leading-none transition-colors">{adminName}</p>
-                <p className="text-[10px] text-slate-400 font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
+                <p className="text-[13px] font-semibold text-slate-900 dark:text-admin-text-primary leading-none transition-colors">{adminName}</p>
+                <p className="text-[10px] text-slate-400 dark:text-admin-text-tertiary font-medium leading-none mt-0.5 transition-colors">Super Admin</p>
               </div>
             </div>
           </div>

@@ -150,32 +150,28 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
   };
 
   const handleWarnFromReveal = async () => {
-    if (!adminProfile?.id || !revealResult?.author?.id) return;
-
-    const warningTitle = 'Community guideline warning';
-    const warningMessage = `Your post (${revealResult.post.id}) has been flagged by admin. Please review community rules.`;
+    if (!revealResult?.author?.id) return;
+    const reason = prompt('Enter warning reason for this author:', 'Inappropriate community post');
+    if (!reason) return;
 
     const loading = toast.loading('Sending warning...');
-    const { error } = await sendUserWarning(adminProfile.id, revealResult.author.id, warningTitle, warningMessage);
-
+    const { error } = await sendUserWarning(revealResult.author.id, reason);
     if (error) {
       toast.error((error as any)?.message || 'Failed to send warning.', { id: loading });
       return;
     }
 
-    toast.success('Warning sent.', { id: loading });
+    toast.success('Warning sent to user.', { id: loading });
   };
 
-  const handleStatusFromReveal = async (nextStatus: 'restricted' | 'banned' | 'active') => {
-    if (!adminProfile?.id || !revealResult?.author?.id) return;
+  const handleStatusFromReveal = async (nextStatus: 'active' | 'restricted' | 'banned') => {
+    if (!revealResult?.author?.id) return;
+    if (!confirm(`Change status of ${revealResult.author.name || 'user'} to ${nextStatus.toUpperCase()}?`)) return;
 
-    const loading = toast.loading(
-      nextStatus === 'restricted' ? 'Restricting account...' : nextStatus === 'banned' ? 'Banning account...' : 'Removing restriction...'
-    );
-    const { error } = await updateUserStatus(adminProfile.id, revealResult.author.id, nextStatus, `Updated from post reveal ${revealResult.post.id}`);
-
+    const loading = toast.loading('Updating user status...');
+    const { error } = await updateUserStatus(revealResult.author.id, nextStatus);
     if (error) {
-      toast.error((error as any)?.message || `Failed to ${nextStatus} user.`, { id: loading });
+      toast.error((error as any)?.message || 'Failed to update user status.', { id: loading });
       return;
     }
 
@@ -199,7 +195,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
   const StatusBadge = ({ reports }: { reports: number }) => {
     if (reports > 0) {
       return (
-        <span className="inline-flex items-center rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-600">
+        <span className="inline-flex items-center rounded bg-rose-100 dark:bg-rose-950/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
           <Flag className="mr-1 h-3 w-3" /> {reports} Reports
         </span>
       );
@@ -211,17 +207,17 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
   return (
     <div className="animate-in space-y-6 fade-in duration-500">
       {title && (
-        <div className="rounded-lg border border-black/[0.08] bg-white p-4">
-          <h2 className="font-syne text-xl font-bold text-slate-900">{title}</h2>
+        <div className="rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface p-4">
+          <h2 className="font-syne text-xl font-bold text-slate-900 dark:text-text-primary">{title}</h2>
         </div>
       )}
 
       {/* Reveal Author Tool */}
-      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all">
-        <p className="mb-3 font-syne text-[13px] font-extrabold text-slate-900 tracking-tight">Paste post URL or ID to reveal author</p>
+      <div className="rounded-2xl border border-slate-100 dark:border-border-subtle bg-white dark:bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all">
+        <p className="mb-3 font-syne text-[13px] font-extrabold text-slate-900 dark:text-text-primary tracking-tight">Paste post URL or ID to reveal author</p>
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1 group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-text-secondary group-focus-within:text-amber-500 transition-colors" />
             <input
               type="text"
               placeholder="e.g. http://localhost:5173/community/c8c4e779..."
@@ -230,7 +226,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleRevealSearch();
               }}
-              className="w-full rounded-xl border border-slate-200/80 bg-slate-50/50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:bg-white focus:outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+              className="w-full rounded-xl border border-slate-200/80 dark:border-border-subtle bg-slate-50/50 dark:bg-surface-elevated py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 dark:text-text-primary placeholder-slate-400 dark:placeholder-text-secondary focus:border-amber-400 focus:bg-white dark:focus:bg-surface focus:outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
             />
           </div>
           <button
@@ -243,28 +239,28 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
           </button>
         </div>
 
-        {revealError && <p className="mt-3 text-sm font-medium text-rose-600">{revealError}</p>}
+        {revealError && <p className="mt-3 text-sm font-medium text-rose-600 dark:text-rose-400">{revealError}</p>}
 
         {revealResult && (
-          <div className="mt-4 rounded-lg border border-black/[0.08] bg-slate-50 p-4">
+          <div className="mt-4 rounded-lg border border-black/[0.08] dark:border-border-subtle bg-slate-50 dark:bg-surface-elevated p-4">
             <div className="grid gap-4 lg:grid-cols-2">
-              <section className="rounded-lg border border-black/[0.08] bg-white p-4">
-                <h3 className="mb-3 font-syne text-sm font-bold uppercase tracking-wider text-slate-900">Post Information</h3>
+              <section className="rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface p-4">
+                <h3 className="mb-3 font-syne text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-text-primary">Post Information</h3>
                 <div className="space-y-2 text-sm">
-                  <p className="text-slate-500">
-                    <span className="font-bold text-slate-900">Post ID:</span> {revealResult.post.id}
+                  <p className="text-slate-500 dark:text-text-secondary">
+                    <span className="font-bold text-slate-900 dark:text-text-primary">Post ID:</span> {revealResult.post.id}
                   </p>
-                  <p className="text-slate-500">
-                    <span className="font-bold text-slate-900">Posted at:</span> {new Date(revealResult.post.created_at).toLocaleString()}
+                  <p className="text-slate-500 dark:text-text-secondary">
+                    <span className="font-bold text-slate-900 dark:text-text-primary">Posted at:</span> {new Date(revealResult.post.created_at).toLocaleString()}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-900">{revealResult.post.type || 'General'}</span>
-                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-rose-100 text-rose-600' : 'bg-accent-green/15 text-accent-green'}`}>
+                    <span className="rounded-md bg-slate-100 dark:bg-surface-elevated px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-900 dark:text-text-primary">{revealResult.post.type || 'General'}</span>
+                    <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${revealResult.post.is_anonymous ? 'bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.post.is_anonymous ? 'Anonymous' : 'Public'}
                     </span>
                   </div>
-                  <p className="whitespace-pre-wrap text-slate-900">{revealResult.post.content}</p>
-                  <div className="flex flex-wrap gap-3 text-xs font-bold text-slate-500">
+                  <p className="whitespace-pre-wrap text-slate-900 dark:text-text-primary">{revealResult.post.content}</p>
+                  <div className="flex flex-wrap gap-3 text-xs font-bold text-slate-500 dark:text-text-secondary">
                     <span>Likes: {revealResult.post.like_count || 0}</span>
                     <span>Comments: {revealResult.post.comment_count || 0}</span>
                     <span>Reports: {revealResult.post.report_count || 0}</span>
@@ -272,58 +268,58 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                 </div>
               </section>
 
-              <section className="rounded-lg border border-black/[0.08] bg-white p-4">
-                <h3 className="mb-3 font-syne text-sm font-bold uppercase tracking-wider text-slate-900">Real Author Information</h3>
+              <section className="rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface p-4">
+                <h3 className="mb-3 font-syne text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-text-primary">Real Author Information</h3>
                 <div className="mb-3 flex items-center gap-3">
                   <img
                     src={revealResult.author.avatar_url || '/logo2/Blue_transparent.png?v=4'}
                     alt={revealResult.author.name || 'User'}
-                    className="h-12 w-12 rounded-full border border-black/10 object-cover"
+                    className="h-12 w-12 rounded-full border border-black/10 dark:border-border-subtle object-cover"
                   />
                   <div>
-                    <p className="font-bold text-slate-900">{revealResult.author.name || 'Unknown user'}</p>
-                    <p className="text-xs text-slate-500">@{revealResult.author.username || 'unknown'}</p>
+                    <p className="font-bold text-slate-900 dark:text-text-primary">{revealResult.author.name || 'Unknown user'}</p>
+                    <p className="text-xs text-slate-500 dark:text-text-secondary">@{revealResult.author.username || 'unknown'}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-2 text-sm text-slate-500">
-                  <p><span className="font-bold text-slate-900">Email:</span> {revealResult.author.email || 'N/A'}</p>
-                  <p><span className="font-bold text-slate-900">College:</span> {revealResult.author.college_name || 'N/A'}{revealResult.author.college_short ? ` (${revealResult.author.college_short})` : ''}</p>
-                  <p><span className="font-bold text-slate-900">Role:</span> <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase">{revealResult.author.role || 'student'}</span></p>
+                <div className="grid grid-cols-1 gap-2 text-sm text-slate-500 dark:text-text-secondary">
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">Email:</span> {revealResult.author.email || 'N/A'}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">College:</span> {revealResult.author.college_name || 'N/A'}{revealResult.author.college_short ? ` (${revealResult.author.college_short})` : ''}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">Role:</span> <span className="rounded bg-slate-100 dark:bg-surface-elevated px-2 py-0.5 text-[10px] font-bold uppercase text-slate-900 dark:text-text-primary">{revealResult.author.role || 'student'}</span></p>
                   <p>
-                    <span className="font-bold text-slate-900">Status:</span>{' '}
-                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-rose-100 text-rose-600' : revealResult.author.status === 'restricted' ? 'bg-amber-100 text-amber-800' : 'bg-accent-green/15 text-accent-green'}`}>
+                    <span className="font-bold text-slate-900 dark:text-text-primary">Status:</span>{' '}
+                    <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${revealResult.author.status === 'banned' ? 'bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400' : revealResult.author.status === 'restricted' ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300' : 'bg-accent-green/15 text-accent-green'}`}>
                       {revealResult.author.status || 'active'}
                     </span>
                   </p>
-                  <p><span className="font-bold text-slate-900">Joined:</span> {revealResult.author.joined_at ? new Date(revealResult.author.joined_at).toLocaleDateString() : 'N/A'}</p>
-                  <p><span className="font-bold text-slate-900">Reputation:</span> ⭐ {revealResult.author.campus_credits || 0} Reputation</p>
-                  <p><span className="font-bold text-slate-900">No show count:</span> {revealResult.author.no_show_count || 0}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">Joined:</span> {revealResult.author.joined_at ? new Date(revealResult.author.joined_at).toLocaleDateString() : 'N/A'}</p>
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">Reputation:</span> ⭐ {revealResult.author.campus_credits || 0} Reputation</p>
+                  <p><span className="font-bold text-slate-900 dark:text-text-primary">No show count:</span> {revealResult.author.no_show_count || 0}</p>
                 </div>
               </section>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-black/[0.08] pt-4">
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-black/[0.08] dark:border-border-subtle pt-4">
               <button
                 onClick={() => window.open(`/community/${revealResult.post.id}`, '_blank')}
-                className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-slate-100"
+                className="inline-flex items-center gap-2 rounded-lg border border-black/10 dark:border-border-subtle bg-white dark:bg-surface px-3 py-2 text-xs font-bold text-slate-900 dark:text-text-primary hover:bg-slate-100 dark:hover:bg-surface-elevated"
               >
                 <ExternalLink className="h-4 w-4" /> View Post
               </button>
               <button
                 onClick={() => navigate(`/admin/users/${revealResult.author.id}`)}
-                className="rounded-lg border border-black/10 bg-white px-3 py-2 text-xs font-bold text-slate-900 hover:bg-slate-100"
+                className="rounded-lg border border-black/10 dark:border-border-subtle bg-white dark:bg-surface px-3 py-2 text-xs font-bold text-slate-900 dark:text-text-primary hover:bg-slate-100 dark:hover:bg-surface-elevated"
               >
                 View Full Profile
               </button>
               <button
                 onClick={handleWarnFromReveal}
-                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800 hover:bg-[#92400E] hover:text-slate-900"
+                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 dark:bg-amber-950/40 px-3 py-2 text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-[#92400E] hover:text-white"
               >
                 <AlertTriangle className="h-4 w-4" /> Send Warning
               </button>
               <button
                 onClick={() => handleStatusFromReveal('restricted')}
-                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800 hover:bg-[#92400E] hover:text-slate-900"
+                className="inline-flex items-center gap-2 rounded-lg border border-amber-800/20 bg-amber-100 dark:bg-amber-950/40 px-3 py-2 text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-[#92400E] hover:text-white"
               >
                 <ShieldAlert className="h-4 w-4" /> Restrict Account
               </button>
@@ -337,13 +333,13 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               ) : null}
               <button
                 onClick={() => handleStatusFromReveal('banned')}
-                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 dark:bg-rose-950/40 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white"
               >
                 <UserX className="h-4 w-4" /> Ban Account
               </button>
               <button
                 onClick={() => handleDeleteThread(revealResult.post.id, revealResult.post.content || '')}
-                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-rose-600/20 bg-rose-100 dark:bg-rose-950/40 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white"
               >
                 <Trash2 className="h-4 w-4" /> Delete Post
               </button>
@@ -352,20 +348,20 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
         )}
       </div>
 
-      <div className="flex flex-col justify-between gap-4 rounded-lg border border-black/[0.08] bg-white p-4 lg:flex-row lg:items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface p-4 lg:flex-row lg:items-center">
         <div className="group relative w-full lg:w-96">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-amber-500 dark:text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition-colors group-focus-within:text-amber-500 dark:text-text-secondary" />
           <input
             type="text"
             placeholder="Search posts, authors, keywords..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border border-black/10 bg-slate-100 py-2 pl-9 pr-4 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-amber-400/50 focus:outline-none"
+            className="w-full rounded-lg border border-black/10 dark:border-border-subtle bg-slate-100 dark:bg-surface-elevated py-2 pl-9 pr-4 text-sm text-slate-900 dark:text-text-primary placeholder-slate-400 dark:placeholder-text-secondary transition-colors focus:border-amber-400/50 focus:outline-none"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-2 font-sans text-xs font-bold uppercase tracking-wider text-slate-500">Filters:</span>
+          <span className="mr-2 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary">Filters:</span>
           {(['All Threads', 'Flagged'] as const).map((pill) => (
             <button
               key={pill}
@@ -373,7 +369,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               className={`rounded-lg px-3 py-1.5 font-sans text-[10px] font-bold uppercase tracking-wider transition-colors ${
                 filterStatus === pill
                   ? 'bg-amber-500 text-slate-900'
-                  : 'border border-black/[0.08] bg-slate-100 text-slate-500 hover:border-black/20 hover:text-slate-900'
+                  : 'border border-black/[0.08] dark:border-border-subtle bg-slate-100 dark:bg-surface-elevated text-slate-500 dark:text-text-secondary hover:border-black/20 dark:hover:border-border-subtle hover:text-slate-900 dark:hover:text-text-primary'
               }`}
             >
               {pill}
@@ -382,7 +378,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
           <select
             value={collegeFilter}
             onChange={(e) => setCollegeFilter(e.target.value)}
-            className="ml-2 rounded-lg border border-black/10 bg-slate-100 px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-900"
+            className="ml-2 rounded-lg border border-black/10 dark:border-border-subtle bg-slate-100 dark:bg-surface-elevated px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-text-primary"
           >
             <option value="all">All Colleges</option>
             {collegeOptions.map((college) => (
@@ -397,7 +393,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
       {/* ── MOBILE VIEWPORT ONLY ── */}
       <div className="md:hidden space-y-3 pb-6">
         {noticeMode && (
-          <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 font-sans text-xs font-semibold text-blue-900 shadow-sm flex gap-3 items-start">
+          <div className="mb-4 rounded-xl border border-blue-200 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-950/40 p-4 font-sans text-xs font-semibold text-blue-900 dark:text-blue-200 shadow-sm flex gap-3 items-start">
             <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5 dark:text-blue-400 transition-colors" />
             <div>
               <p className="font-bold text-sm mb-0.5">Notice Mode Active</p>
@@ -410,23 +406,23 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
             <Loader2 className="h-8 w-8 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center flex flex-col items-center shadow-[0_2px_12px_rgba(0,0,0,0.02)] mt-4">
-            <div className="p-4 bg-slate-50 rounded-full mb-3">
-              <MessageSquare className="h-8 w-8 text-slate-300" />
+          <div className="rounded-3xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface p-10 text-center flex flex-col items-center shadow-[0_2px_12px_rgba(0,0,0,0.02)] mt-4">
+            <div className="p-4 bg-slate-50 dark:bg-surface-elevated rounded-full mb-3">
+              <MessageSquare className="h-8 w-8 text-slate-300 dark:text-text-secondary" />
             </div>
-            <p className="text-sm font-bold text-slate-900">No posts found</p>
-            <p className="text-xs font-medium text-slate-500 mt-1 max-w-[200px]">Adjust your filters to see results.</p>
+            <p className="text-sm font-bold text-slate-900 dark:text-text-primary">No posts found</p>
+            <p className="text-xs font-medium text-slate-500 dark:text-text-secondary mt-1 max-w-[200px]">Adjust your filters to see results.</p>
           </div>
         ) : (
           filteredPosts.map((post) => (
-            <div key={post.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] relative">
+            <div key={post.id} className="rounded-2xl border border-slate-100 dark:border-border-subtle bg-white dark:bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] relative">
               {/* Top: Author & Date */}
-              <div className="flex items-start justify-between mb-2 border-b border-slate-100/80 pb-2">
+              <div className="flex items-start justify-between mb-2 border-b border-slate-100/80 dark:border-border-subtle pb-2">
                 <div>
-                  <h4 className="font-sans text-[13px] font-bold text-slate-900 leading-tight">
+                  <h4 className="font-sans text-[13px] font-bold text-slate-900 dark:text-text-primary leading-tight">
                     {post.author?.name || 'Unknown author'}
                   </h4>
-                  <p className="text-[10px] font-semibold text-slate-500 mt-0.5 uppercase tracking-wider">
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-text-secondary mt-0.5 uppercase tracking-wider">
                     {new Date(post.created_at).toLocaleDateString()} • {post.is_anonymous ? 'Anonymous' : 'Public'}
                   </p>
                 </div>
@@ -434,36 +430,36 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               
               {/* Middle: Post Preview */}
               <div className="mb-4">
-                <p className="font-sans text-sm leading-relaxed text-slate-800 line-clamp-3">
+                <p className="font-sans text-sm leading-relaxed text-slate-800 dark:text-text-primary line-clamp-3">
                   "{post.content}"
                 </p>
               </div>
 
               {/* Bottom: Engagement, Health, Mod Action */}
-              <div className="flex items-center justify-between border-t border-slate-100/80 pt-3">
+              <div className="flex items-center justify-between border-t border-slate-100/80 dark:border-border-subtle pt-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1 text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+                  <div className="flex items-center gap-1 text-[11px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-1 rounded-lg">
                     <MessageSquare className="h-3 w-3" /> {post.comment_count || 0}
                   </div>
                   <StatusBadge reports={post.report_count} />
                 </div>
                 <button
                   onClick={() => setActiveDropdown(activeDropdown === post.id ? null : post.id)}
-                  className="flex items-center gap-1.5 rounded-xl bg-slate-50 px-3 py-1.5 font-sans text-[11px] font-extrabold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  className="flex items-center gap-1.5 rounded-xl bg-slate-50 dark:bg-surface-elevated px-3 py-1.5 font-sans text-[11px] font-extrabold text-slate-600 dark:text-text-secondary transition-colors hover:bg-slate-100 dark:hover:bg-surface hover:text-slate-900 dark:hover:text-text-primary"
                 >
-                  Mod <ShieldAlert className="h-3.5 w-3.5 text-slate-400" />
+                  Mod <ShieldAlert className="h-3.5 w-3.5 text-slate-400 dark:text-text-secondary" />
                 </button>
               </div>
 
               {/* Mod Action Dropdown Overlay */}
               {activeDropdown === post.id && (
-                <div className="absolute right-4 bottom-12 z-20 w-48 animate-in overflow-hidden rounded-2xl border border-slate-200 bg-white py-1.5 text-left font-sans text-xs shadow-xl zoom-in-95 duration-100">
-                  <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Sanctions</span>
+                <div className="absolute right-4 bottom-12 z-20 w-48 animate-in overflow-hidden rounded-2xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface py-1.5 text-left font-sans text-xs shadow-xl zoom-in-95 duration-100">
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-border-subtle mb-1">
+                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-text-secondary">Sanctions</span>
                   </div>
                   <button
                     onClick={() => { handleDeleteThread(post.id, post.content); setActiveDropdown(null); }}
-                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left font-sans text-xs font-bold text-rose-600 hover:bg-rose-50"
+                    className="flex w-full items-center gap-2 px-4 py-2.5 text-left font-sans text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                   >
                     <Trash2 className="h-4 w-4" /> Delete Thread
                   </button>
@@ -475,9 +471,9 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
       </div>
 
       {/* ── DESKTOP PC VIEWPORT ONLY ── */}
-      <div className="hidden md:block min-h-[400px] overflow-x-auto rounded-lg border border-black/[0.08] bg-white">
+      <div className="hidden md:block min-h-[400px] overflow-x-auto rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface">
         {noticeMode && (
-          <div className="m-4 rounded-lg border border-amber-400/30 bg-[#FEF3C7] p-4 font-sans text-sm font-medium text-slate-900">
+          <div className="m-4 rounded-lg border border-amber-400/30 bg-[#FEF3C7] dark:bg-amber-950/40 p-4 font-sans text-sm font-medium text-slate-900 dark:text-amber-200">
             Notice mode is active. Use this page to identify important threads, then create a pinned campus notice in Announcements.
           </div>
         )}
@@ -487,32 +483,43 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
           </div>
         ) : (
           <table className="w-full border-collapse text-left">
-            <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
-              <tr className="border-b border-black/[0.08] bg-slate-100 hover:bg-slate-50 transition-colors duration-150">
-                <th className="p-4 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Post Preview</th>
-                <th className="p-4 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Author Information</th>
-                <th className="flex items-center gap-2 p-4 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">
-                  <MessageSquare className="h-3.5 w-3.5" /> Engagement
+            <thead className="bg-slate-50 dark:bg-surface-elevated border-b border-black/[0.08] dark:border-border-subtle">
+              <tr className="bg-slate-100 dark:bg-surface-elevated">
+                <th className="px-4 py-3 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary text-left">
+                  Post Preview
                 </th>
-                <th className="p-4 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Health</th>
-                <th className="w-16 p-4 text-center font-sans text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
+                <th className="px-4 py-3 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary text-left">
+                  Author Information
+                </th>
+                <th className="px-4 py-3 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary text-left">
+                  <div className="flex items-center gap-1.5">
+                    <MessageSquare className="h-3.5 w-3.5" />
+                    <span>Engagement</span>
+                  </div>
+                </th>
+                <th className="px-4 py-3 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary text-left">
+                  Health
+                </th>
+                <th className="w-20 px-4 py-3 font-sans text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary text-center">
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className="relative divide-y divide-black/[0.06]">
+            <tbody className="relative divide-y divide-black/[0.06] dark:divide-border-subtle">
               {filteredPosts.map((post) => (
-                <tr key={post.id} className="group transition-colors hover:bg-slate-100">
+                <tr key={post.id} className="group transition-colors hover:bg-slate-100 dark:hover:bg-surface-elevated/70">
                   <td className="max-w-md min-w-[300px] p-4">
-                    <div className="mb-1.5 line-clamp-2 font-sans text-sm leading-relaxed text-slate-900">"{post.content}"</div>
+                    <div className="mb-1.5 line-clamp-2 font-sans text-sm leading-relaxed text-slate-900 dark:text-text-primary">"{post.content}"</div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded border border-black/[0.08] bg-slate-100 px-1.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      <span className="rounded border border-black/[0.08] dark:border-border-subtle bg-slate-100 dark:bg-surface-elevated px-1.5 py-0.5 font-sans text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary">
                         {post.is_anonymous ? 'Anonymous' : 'Public'}
                       </span>
-                      <span className="font-sans text-[10px] uppercase tracking-wider text-slate-500">{new Date(post.created_at).toLocaleDateString()}</span>
+                      <span className="font-sans text-[10px] uppercase tracking-wider text-slate-500 dark:text-text-secondary">{new Date(post.created_at).toLocaleDateString()}</span>
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="mb-0.5 font-sans text-sm font-medium text-slate-900">{post.author?.name || 'Unknown author'}</div>
-                    <div className="font-sans text-xs text-slate-500">{post.author?.email || post.author?.college || 'No details'}</div>
+                    <div className="mb-0.5 font-sans text-sm font-medium text-slate-900 dark:text-text-primary">{post.author?.name || 'Unknown author'}</div>
+                    <div className="font-sans text-xs text-slate-500 dark:text-text-secondary">{post.author?.email || post.author?.college || 'No details'}</div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-4">
@@ -528,20 +535,20 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => setActiveDropdown(activeDropdown === post.id ? null : post.id)}
-                        className="flex items-center gap-1 rounded-lg border border-black/[0.08] bg-slate-100 p-1.5 font-sans text-xs font-bold text-slate-900 transition-colors hover:bg-black/[0.06]"
+                        className="flex items-center gap-1 rounded-lg border border-black/[0.08] dark:border-border-subtle bg-slate-100 dark:bg-surface-elevated p-1.5 font-sans text-xs font-bold text-slate-900 dark:text-text-primary transition-colors hover:bg-black/[0.06] dark:hover:bg-surface"
                       >
                         Mod <ShieldAlert className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400 transition-colors" />
                       </button>
                     </div>
 
                     {activeDropdown === post.id && (
-                      <div className="absolute right-4 top-12 z-20 w-52 animate-in overflow-hidden rounded-lg border border-black/[0.08] bg-white py-1 text-left font-sans text-sm shadow-md zoom-in-95 duration-100">
-                        <div className="px-3 py-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sanctions</span>
+                      <div className="absolute right-4 top-12 z-20 w-52 animate-in overflow-hidden rounded-lg border border-black/[0.08] dark:border-border-subtle bg-white dark:bg-surface py-1 text-left font-sans text-sm shadow-md zoom-in-95 duration-100">
+                        <div className="px-3 py-2 border-b border-slate-100 dark:border-border-subtle">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-text-secondary">Sanctions</span>
                         </div>
                         <button
                           onClick={() => handleDeleteThread(post.id, post.content)}
-                          className="flex w-full items-center gap-2 px-4 py-2 text-left font-sans text-xs font-bold text-rose-600 hover:bg-rose-100"
+                          className="flex w-full items-center gap-2 px-4 py-2 text-left font-sans text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/40"
                         >
                           <Trash2 className="h-4 w-4" /> Delete Thread
                         </button>
@@ -552,7 +559,7 @@ export const AdminCommunityPage: React.FC<AdminCommunityPageProps> = ({ initialF
               ))}
               {filteredPosts.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center font-sans text-slate-500">
+                  <td colSpan={5} className="p-8 text-center font-sans text-slate-500 dark:text-text-secondary">
                     No posts found matching your filters.
                   </td>
                 </tr>

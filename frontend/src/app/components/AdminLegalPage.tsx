@@ -220,45 +220,45 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
-            <Download className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400 transition-colors" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-admin-bg-surface-raised transition-colors">
+            <Download className="h-4.5 w-4.5 text-slate-600 dark:text-admin-text-secondary transition-colors" />
           </div>
           <div>
-            <h2 className="font-syne text-xl font-extrabold text-slate-900">{title || 'Data Export'}</h2>
-            <p className="text-sm text-slate-500">Export legal records and policy documents for compliance</p>
+            <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary transition-colors">{title || 'Data Export'}</h2>
+            <p className="text-sm text-slate-500 dark:text-admin-text-tertiary transition-colors">Export legal records and policy documents for compliance</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-5 shadow-sm dark:shadow-none transition-colors">
             <div className="flex items-center gap-2.5 mb-3">
               <FileText className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400 transition-colors" />
-              <h3 className="font-semibold text-slate-900">Legal Documents Package</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">Legal Documents Package</h3>
             </div>
-            <p className="text-sm text-slate-500 mb-4">
+            <p className="text-sm text-slate-500 dark:text-admin-text-secondary mb-4 transition-colors">
               Export all legal documents (Terms, Privacy Policy, Vendor Agreement, Community Guidelines) as a text file.
             </p>
             <button
               type="button"
               onClick={handleExportAll}
               disabled={isExporting}
-              className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm shadow-amber-200 hover:bg-amber-600 disabled:opacity-60 transition-all"
+              className="inline-flex items-center gap-2 rounded-xl bg-amber-500 dark:bg-admin-accent px-5 py-2.5 text-sm font-bold text-white dark:text-admin-bg-surface-elevated shadow-sm shadow-amber-200 dark:shadow-none hover:bg-amber-600 disabled:opacity-60 transition-all"
             >
               {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               Generate Export Package
             </button>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-5 shadow-sm dark:shadow-none transition-colors">
             <div className="flex items-center gap-2.5 mb-3">
               <History className="h-4.5 w-4.5 text-violet-600 dark:text-violet-400 transition-colors" />
-              <h3 className="font-semibold text-slate-900">Document Status</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-admin-text-primary transition-colors">Document Status</h3>
             </div>
             <div className="space-y-2">
               {BUILT_IN_DOCS.map(d => (
                 <div key={d.key} className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600">{d.title}</span>
-                  <span className={`flex items-center gap-1 text-[11px] font-bold ${docs[d.key] ? 'text-emerald-600' : 'text-slate-400'}`}>
+                  <span className="text-slate-600 dark:text-admin-text-secondary transition-colors">{d.title}</span>
+                  <span className={`flex items-center gap-1 text-[11px] font-bold ${docs[d.key] ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-admin-text-tertiary'}`}>
                     {docs[d.key] ? <><Check size={11} /> Saved</> : 'Default'}
                   </span>
                 </div>
@@ -274,21 +274,21 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
-          <FileText className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400 transition-colors" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-admin-bg-surface-raised transition-colors">
+          <FileText className="h-4.5 w-4.5 text-slate-600 dark:text-admin-text-secondary transition-colors" />
         </div>
         <div>
-          <h2 className="font-syne text-xl font-extrabold text-slate-900">{title || 'Terms & Legal Documents'}</h2>
-          <p className="text-sm text-slate-500">Edit and publish platform legal documents</p>
+          <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary transition-colors">{title || 'Terms & Legal Documents'}</h2>
+          <p className="text-sm text-slate-500 dark:text-admin-text-tertiary transition-colors">Edit and publish platform legal documents</p>
         </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-5">
         {/* Document List */}
         <div className="w-full lg:w-56 shrink-0">
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Documents</h3>
+          <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+            <div className="px-4 py-3 border-b border-slate-100 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised transition-colors">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">Documents</h3>
             </div>
             <div className="p-2 space-y-0.5">
               {BUILT_IN_DOCS.map(d => {
@@ -301,13 +301,13 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
                     onClick={() => setSelectedKey(d.key)}
                     className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all flex items-center justify-between gap-2 ${
                       isSelected
-                        ? 'bg-amber-500 text-white shadow-sm'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        ? 'bg-amber-500 dark:bg-admin-accent text-white dark:text-admin-bg-surface-elevated font-bold shadow-sm'
+                        : 'text-slate-600 dark:text-admin-text-secondary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover hover:text-slate-900 dark:hover:text-admin-text-primary'
                     }`}
                   >
                     <span className="truncate">{d.title}</span>
                     {isSaved && (
-                      <Check size={11} className={isSelected ? 'text-white/70' : 'text-emerald-500'} />
+                      <Check size={11} className={isSelected ? 'text-white/70 dark:text-admin-bg-surface' : 'text-emerald-500 dark:text-emerald-400'} />
                     )}
                   </button>
                 );
@@ -317,12 +317,12 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
         </div>
 
         {/* Editor */}
-        <div className="flex-1 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+        <div className="flex-1 rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden flex flex-col transition-colors">
           {/* Editor header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 border-b border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
             <div>
-              <h3 className="font-syne font-bold text-lg text-slate-900">{selectedTitle}</h3>
-              <p className="text-[11px] text-slate-400">
+              <h3 className="font-syne font-bold text-lg text-slate-900 dark:text-admin-text-primary transition-colors">{selectedTitle}</h3>
+              <p className="text-[11px] text-slate-400 dark:text-admin-text-tertiary transition-colors">
                 {selectedDoc
                   ? `Last updated ${new Date(selectedDoc.updated_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} by ${selectedDoc.updated_by || 'admin'}`
                   : 'Showing default content — save to persist changes'
@@ -331,7 +331,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
             </div>
             <div className="flex items-center gap-2">
               {hasUnsavedChanges && (
-                <span className="flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
+                <span className="flex items-center gap-1 rounded-full border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-admin-accent-soft-bg px-2.5 py-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
                   <AlertCircle size={10} /> Unsaved changes
                 </span>
               )}
@@ -339,7 +339,7 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || !hasUnsavedChanges}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-amber-200 hover:bg-amber-600 disabled:opacity-50 transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 dark:bg-admin-accent px-4 py-2 text-xs font-bold text-white dark:text-admin-bg-surface-elevated shadow-sm shadow-amber-200 dark:shadow-none hover:bg-amber-600 disabled:opacity-50 transition-all"
               >
                 {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 {isSaving ? 'Saving…' : 'Save Changes'}
@@ -357,21 +357,21 @@ export const AdminLegalPage: React.FC<AdminLegalPageProps> = ({ mode = 'editor',
               <textarea
                 value={editContent}
                 onChange={e => setEditContent(e.target.value)}
-                className="w-full h-full min-h-[500px] rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-800 font-mono leading-relaxed focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all resize-none"
+                className="w-full h-full min-h-[500px] rounded-xl border border-slate-200 dark:border-admin-border-strong bg-slate-50 dark:bg-admin-bg-surface-raised p-5 text-sm text-slate-800 dark:text-admin-text-primary font-mono leading-relaxed focus:border-amber-400 dark:focus:border-admin-accent focus:bg-white dark:focus:bg-admin-bg-surface focus:ring-2 focus:ring-amber-100 dark:focus:ring-admin-accent/20 outline-none transition-all resize-none"
               />
             )}
           </div>
 
           {/* Footer info */}
-          <div className="px-6 py-3 border-t border-slate-100 bg-slate-50 flex items-center gap-3">
-            <p className="text-[11px] text-slate-400">
-              Changes are saved to <code className="text-amber-600">platform_settings</code> table.
+          <div className="px-6 py-3 border-t border-slate-100 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised flex items-center gap-3 transition-colors">
+            <p className="text-[11px] text-slate-400 dark:text-admin-text-tertiary transition-colors">
+              Changes are saved to <code className="text-amber-600 dark:text-admin-accent">platform_settings</code> table.
               Content is displayed on the public Terms and Privacy pages.
             </p>
             <button
               type="button"
               onClick={handleExportAll}
-              className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition-colors shrink-0"
+              className="ml-auto flex items-center gap-1 text-[11px] font-semibold text-slate-400 dark:text-admin-text-tertiary hover:text-slate-700 dark:hover:text-admin-text-primary transition-colors shrink-0"
             >
               <Download size={11} /> Export All
             </button>

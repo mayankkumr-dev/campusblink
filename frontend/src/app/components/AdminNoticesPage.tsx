@@ -17,7 +17,6 @@ import {
   Calendar,
   AlertTriangle,
   Clock,
-  CheckCircle2,
   User,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -37,9 +36,9 @@ import toast from 'react-hot-toast';
 
 const YEAR_OPTIONS = [
   { value: 'all', label: 'All Students', color: 'bg-surface-elevated text-text-primary border-border-subtle' },
-  { value: '1st Year', label: '1st Year', color: 'bg-accent-blue-soft text-blue-700 border-accent-blue-soft' },
-  { value: '2nd Year', label: '2nd Year', color: 'bg-accent-purple/15 text-purple-700 border-purple-200' },
-  { value: '3rd Year', label: '3rd Year', color: 'bg-accent-green/15 text-accent-green border-emerald-200' },
+  { value: '1st Year', label: '1st Year', color: 'bg-accent-blue-soft text-blue-700 dark:text-blue-300 border-accent-blue-soft' },
+  { value: '2nd Year', label: '2nd Year', color: 'bg-accent-purple/15 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900/40' },
+  { value: '3rd Year', label: '3rd Year', color: 'bg-accent-green/15 text-accent-green border-emerald-200 dark:border-emerald-900/40' },
   { value: '4th Year', label: '4th Year', color: 'bg-accent-amber-soft text-accent-amber border-accent-amber-soft' },
 ];
 
@@ -91,13 +90,13 @@ const PinDurationModal: React.FC<PinDurationModalProps> = ({ onConfirm, onCancel
     <div className="fixed inset-0 z-[200] flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
         onClick={onCancel}
       />
       {/* Modal */}
       <div className="relative bg-surface rounded-3xl border border-border-subtle shadow-[0_32px_80px_rgba(0,0,0,0.15)] p-6 w-full max-w-sm mx-4">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-accent-amber-soft border border-amber-100 flex items-center justify-center text-accent-amber">
+          <div className="w-9 h-9 rounded-xl bg-accent-amber-soft border border-amber-100 dark:border-amber-900/40 flex items-center justify-center text-accent-amber">
             <Clock className="w-4.5 h-4.5" />
           </div>
           <h3 className="font-syne text-lg font-extrabold text-text-primary">
@@ -114,7 +113,7 @@ const PinDurationModal: React.FC<PinDurationModalProps> = ({ onConfirm, onCancel
               key={opt.hours}
               type="button"
               onClick={() => handleSelect(opt.hours)}
-              className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border border-border-subtle bg-surface hover:bg-amber-50 hover:border-amber-200 text-left transition-all group"
+              className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl border border-border-subtle bg-surface hover:bg-amber-50 dark:hover:bg-amber-950/40 text-left transition-all group"
             >
               <span className="text-sm font-bold text-text-primary group-hover:text-accent-amber">
                 {opt.label}
@@ -169,10 +168,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
         onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={(e) => { e.preventDefault(); setDragging(false); }}
         onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`hidden md:flex relative rounded-2xl border-2 border-dashed p-6 flex-col items-center gap-2 cursor-pointer transition-all ${
-          dragging ? 'border-amber-400 bg-accent-amber-soft' : 'border-border-subtle bg-slate-50/60 hover:border-amber-300 hover:bg-amber-50/40'
+          dragging ? 'border-amber-400 bg-accent-amber-soft' : 'border-border-subtle bg-slate-50/60 dark:bg-surface-elevated/40 hover:border-amber-300'
         }`}
       >
         <UploadCloud className={`w-7 h-7 ${dragging ? 'text-accent-amber' : 'text-text-secondary/70'}`} />
@@ -183,7 +181,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
           PDFs, images, Word, Excel — up to 25 MB each
         </p>
         {uploading && (
-          <div className="absolute inset-0 bg-white/70 rounded-2xl flex items-center justify-center">
+          <div className="absolute inset-0 bg-white/70 dark:bg-surface/80 rounded-2xl flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-accent-amber" />
           </div>
         )}
@@ -192,160 +190,148 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
       {/* ── MOBILE VIEWPORT ── */}
       <div
         onClick={() => fileInputRef.current?.click()}
-        className={`md:hidden relative w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface hover:bg-slate-100 dark:hover:bg-admin-bg-surface-hover p-3 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm dark:shadow-none ${uploading ? 'opacity-70 pointer-events-none' : ''}`}
+        className={`md:hidden relative w-full rounded-xl border border-slate-200 dark:border-border-subtle bg-slate-50 dark:bg-surface-elevated hover:bg-slate-100 dark:hover:bg-surface p-3 flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm dark:shadow-none ${uploading ? 'opacity-70 pointer-events-none' : ''}`}
       >
         {uploading ? (
           <Loader2 className="w-4 h-4 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
         ) : (
-          <UploadCloud className="w-4 h-4 text-slate-500 dark:text-admin-text-secondary" />
+          <UploadCloud className="w-4 h-4 text-slate-500 dark:text-text-secondary" />
         )}
-        <span className="text-[11px] font-bold text-slate-700 dark:text-admin-text-primary uppercase tracking-wider transition-colors">
-          {uploading ? 'Uploading...' : 'Choose File'}
+        <span className="text-xs font-bold text-slate-700 dark:text-text-primary">
+          {uploading ? 'Uploading...' : 'Attach documents or images'}
         </span>
       </div>
-      
-      <input ref={fileInputRef} type="file" multiple accept={ACCEPTED_TYPES} onChange={handleFileInput} className="sr-only" />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept={ACCEPTED_TYPES}
+        onChange={handleFileInput}
+        className="hidden"
+      />
 
       {files.length > 0 && (
         <div className="space-y-2">
-          {files.map((file, idx) => (
-            <div key={idx}>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border-subtle shadow-2xs">
-                {getFileIcon(file.type)}
-                <span className="flex-1 text-xs font-semibold text-text-primary truncate min-w-0">{file.name}</span>
-                <span className="text-[10px] text-text-secondary/70 font-medium shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+          {files.map((file, i) => {
+            const progress = fileProgress[i];
+
+            return (
+              <div key={i} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-surface border border-border-subtle shadow-2xs">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {getFileIcon(file.type)}
+                    <span className="text-xs font-bold text-text-primary truncate">{file.name}</span>
+                    <span className="text-[10px] text-text-secondary font-semibold shrink-0">
+                      ({(file.size / (1024 * 1024)).toFixed(1)} MB)
+                    </span>
+                  </div>
+
+                  {!uploading && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                      className="p-1 rounded-lg text-text-secondary hover:text-accent-red hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {uploading && progress !== undefined && progress !== 'done' && (
+                  <FileProgressBar
+                    progress={typeof progress === 'number' ? progress : 0}
+                    error={progress === 'error'}
+                    done={false}
+                  />
+                )}
               </div>
-              <FileProgressBar
-                progress={typeof fileProgress[idx] === 'number' ? fileProgress[idx] as number : 0}
-                done={fileProgress[idx] === 'done'}
-                error={fileProgress[idx] === 'error'}
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   );
 };
 
-// ─── Super Admin Notice Panel ────────────────────────────────────────────────────────
+// ─── AdminNoticesPage Main Component ──────────────────────────────────────────
 
 export const AdminNoticesPage: React.FC = () => {
+  const { profile } = useAuthStore() as any;
   const navigate = useNavigate();
-  const profile = useAuthStore((state) => state.profile);
 
-  const isPlatformAdmin = profile?.role === 'admin';
+  const [notices, setNotices] = useState<any[]>([]);
+  const [isLoadingNotices, setIsLoadingNotices] = useState(true);
 
-  // Guard
-  useEffect(() => {
-    if (profile && profile.role !== 'admin') {
-      navigate('/student/home', { replace: true });
-    }
-  }, [profile, navigate]);
-
-  // ── Form state ───────────────────────────────────────────────────────────────
+  // Form states
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetYear, setTargetYear] = useState('all');
   const [isPinned, setIsPinned] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [fileProgress, setFileProgress] = useState<Record<number, number | 'done' | 'error'>>({})
 
-  // ── Published notices ────────────────────────────────────────────────────────
-  const [notices, setNotices] = useState<any[]>([]);
-  const [isLoadingNotices, setIsLoadingNotices] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileProgress, setFileProgress] = useState<Record<number, number | 'done' | 'error'>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Actions loading state
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  // ── Pin duration modal ───────────────────────────────────────────────────────
+  // Modal for duration pin selection
   const [pinModalForNoticeId, setPinModalForNoticeId] = useState<string | null>(null);
 
   const loadNotices = useCallback(async () => {
     setIsLoadingNotices(true);
-    const { data, error } = await getNoticesForAdmin(null);
-    if (error) {
-      toast.error('Failed to load admin notices: ' + (error.message || 'Unknown error'));
-      console.error('Admin notices load error:', error);
-    }
-    setNotices(data || []);
+    const { data } = await getNoticesForAdmin();
+    if (data) setNotices(data);
     setIsLoadingNotices(false);
   }, []);
 
-  useEffect(() => { loadNotices(); }, [loadNotices]);
+  useEffect(() => {
+    loadNotices();
+  }, [loadNotices]);
 
-  // ── Submit new notice ────────────────────────────────────────────────────────
+  // ── Form Submit ─────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      toast.error('Title and content are required.');
-      return;
-    }
-    if (!profile?.id || !profile?.college) {
-      toast.error('Your profile is incomplete. Cannot post notice.');
-      return;
-    }
+    if (!title.trim() || !content.trim()) return;
 
     setIsSubmitting(true);
-    const attachments: any[] = [];
-    setFileProgress({});
 
+    const attachments: any[] = [];
     if (files.length > 0) {
       setIsUploading(true);
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        setFileProgress((prev) => ({ ...prev, [i]: 0 }));
-
-        const { data, error } = await uploadNoticeAttachment(file, profile.id, {
-          onProgress: (percent: number) => {
-            setFileProgress((prev) => ({ ...prev, [i]: percent }));
-          },
-        });
-
-        if (error) {
+        setFileProgress((prev) => ({ ...prev, [i]: 10 }));
+        const { data, error } = await uploadNoticeAttachment(file);
+        if (error || !data) {
           setFileProgress((prev) => ({ ...prev, [i]: 'error' }));
-          toast.error(
-            (error as any).message?.includes('paused') || (error as any).message?.includes('connection')
-              ? 'Upload paused. Check your connection.'
-              : `Failed to upload ${file.name}`
-          );
-          setIsUploading(false);
-          setIsSubmitting(false);
-          return;
-        }
-
-        if (data) {
-          attachments.push(data);
+          toast.error(`Failed to upload ${file.name}`);
+        } else {
           setFileProgress((prev) => ({ ...prev, [i]: 'done' }));
+          attachments.push(data);
         }
       }
       setIsUploading(false);
     }
 
-    const { error } = await createNotice({
-      authorId: profile.id,
-      college: profile.college,
+    const { data, error } = await createNotice({
       title: title.trim(),
       content: content.trim(),
       targetYear,
-      attachments,
       isPinned,
+      attachments,
+      authorId: profile?.id,
     });
 
-    if (error) {
-      toast.error((error as any).message || 'Could not publish notice.');
+    if (error || !data) {
+      toast.error('Failed to publish notice. Please try again.');
       setIsSubmitting(false);
       return;
     }
 
-    toast.success('Notice published!');
+    toast.success('Notice published successfully!');
     setTitle('');
     setContent('');
     setTargetYear('all');
@@ -356,10 +342,9 @@ export const AdminNoticesPage: React.FC = () => {
     await loadNotices();
   };
 
-  // ── Soft delete (notice admin) ───────────────────────────────────────────────
+  // ── Soft delete ─────────────────────────────────────────────────────────────
   const handleSoftDelete = async (notice: any) => {
     if (notice.is_deleted) {
-      // Already deleted — restore it
       setActionLoadingId(notice.id);
       const { error } = await restoreNotice(notice.id);
       setActionLoadingId(null);
@@ -378,7 +363,7 @@ export const AdminNoticesPage: React.FC = () => {
     setNotices((prev) => prev.map((n) => n.id === notice.id ? { ...n, is_deleted: true } : n));
   };
 
-  // ── Hard remove (platform admin only) ───────────────────────────────────────
+  // ── Hard remove ─────────────────────────────────────────────────────────────
   const handleHardRemove = async (noticeId: string) => {
     if (!window.confirm('Permanently remove this notice? Students will see nothing at all — the deletion message will vanish too.')) return;
     setActionLoadingId(noticeId);
@@ -389,10 +374,9 @@ export const AdminNoticesPage: React.FC = () => {
     setNotices((prev) => prev.filter((n) => n.id !== noticeId));
   };
 
-  // ── Pin (shows duration modal) ───────────────────────────────────────────────
+  // ── Pin ──────────────────────────────────────────────────────────────────────
   const handlePinClick = (notice: any) => {
     if (isPinnedAndActive(notice)) {
-      // Already pinned — unpin immediately
       handleUnpin(notice.id);
     } else {
       setPinModalForNoticeId(notice.id);
@@ -436,14 +420,14 @@ export const AdminNoticesPage: React.FC = () => {
         />
       )}
 
-      <div className="min-h-full bg-background px-4 py-6 pb-12 md:px-6 md:py-8">
+      <div className="min-h-full bg-background text-text-primary px-4 py-6 pb-12 md:px-6 md:py-8 transition-colors">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <button
               type="button"
               onClick={() => navigate('/student/notices')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated text-xs font-bold transition-all shadow-2xs"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface border border-border-subtle text-text-secondary hover:bg-surface-elevated text-xs font-bold transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
@@ -465,7 +449,7 @@ export const AdminNoticesPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* ── LEFT: Compose form ──────────────────────────────────────── */}
             <div>
-              <div className="bg-surface rounded-3xl border border-border-subtle shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+              <div className="bg-surface rounded-3xl border border-border-subtle shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-border-subtle">
                   <div className="flex items-center gap-2">
                     <Plus className="w-4 h-4 text-accent-amber" />
@@ -484,7 +468,7 @@ export const AdminNoticesPage: React.FC = () => {
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Mid-term Examination Schedule"
                       required
-                      className="w-full h-11 rounded-xl border border-border-subtle bg-surface px-4 text-sm font-semibold text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400"
+                      className="w-full h-11 rounded-xl border border-border-subtle bg-surface-elevated px-4 text-sm font-semibold text-text-primary outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-text-placeholder"
                     />
                   </div>
 
@@ -499,7 +483,7 @@ export const AdminNoticesPage: React.FC = () => {
                       placeholder="Write the full content of the notice here..."
                       required
                       rows={7}
-                      className="w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-sm font-medium text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400 resize-none leading-relaxed"
+                      className="w-full rounded-xl border border-border-subtle bg-surface-elevated px-4 py-3 text-sm font-medium text-text-primary outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-text-placeholder resize-none leading-relaxed"
                     />
                   </div>
 
@@ -517,7 +501,7 @@ export const AdminNoticesPage: React.FC = () => {
                           className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-[11px] md:text-xs font-bold transition-all shadow-sm ${
                             targetYear === opt.value
                               ? 'ring-2 ring-amber-500 ring-offset-1 ' + opt.color
-                              : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                              : 'bg-surface border-border-subtle text-text-secondary hover:border-slate-300 dark:hover:border-border-subtle hover:text-text-primary'
                           }`}
                         >
                           <Users className="w-3.5 h-3.5" />
@@ -549,11 +533,11 @@ export const AdminNoticesPage: React.FC = () => {
                       )}
                     </button>
                   </div>
-                  <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-admin-bg-base/95 backdrop-blur-md border-t border-slate-100 dark:border-admin-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-none z-40 pb-safe transition-colors">
+                  <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-surface/95 backdrop-blur-md border-t border-border-subtle shadow-lg z-40 pb-safe transition-colors">
                     <button
                       type="submit"
                       disabled={isSubmitting || isUploading}
-                      className="w-full h-12 rounded-xl bg-amber-500 active:bg-amber-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-200/50 disabled:opacity-60"
+                      className="w-full h-12 rounded-xl bg-amber-500 active:bg-amber-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
                     >
                       {isSubmitting ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
@@ -568,7 +552,7 @@ export const AdminNoticesPage: React.FC = () => {
 
             {/* ── RIGHT: Published notices list ───────────────────────────── */}
             <div>
-              <div className="bg-surface rounded-3xl border border-border-subtle shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+              <div className="bg-surface rounded-3xl border border-border-subtle shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-border-subtle">
                   <h2 className="font-syne text-base font-extrabold text-text-primary">
                     Published Notices
@@ -578,7 +562,7 @@ export const AdminNoticesPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="flex md:block flex-row overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-3 p-4 md:p-0 md:divide-y md:divide-slate-100 dark:md:divide-admin-border-subtle md:max-h-[calc(100vh-280px)] md:overflow-y-auto hide-scrollbar -mx-4 md:mx-0 transition-colors">
+                <div className="flex md:block flex-row overflow-x-auto md:overflow-x-visible snap-x snap-mandatory gap-3 p-4 md:p-0 md:divide-y md:divide-border-subtle md:max-h-[calc(100vh-280px)] md:overflow-y-auto hide-scrollbar -mx-4 md:mx-0 transition-colors">
                   {isLoadingNotices && (
                     <div className="flex items-center justify-center py-10 md:py-20 w-full shrink-0 snap-center">
                       <Loader2 className="w-5 h-5 animate-spin text-accent-amber" />
@@ -586,9 +570,9 @@ export const AdminNoticesPage: React.FC = () => {
                   )}
 
                   {!isLoadingNotices && notices.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-10 md:py-16 text-center px-6 w-full shrink-0 snap-center border border-slate-100 dark:border-admin-border-subtle rounded-2xl md:border-0 md:rounded-none transition-colors">
-                      <Megaphone className="w-8 h-8 text-slate-300 dark:text-admin-text-tertiary mb-3 stroke-[1.5] transition-colors" />
-                      <p className="text-sm font-bold text-slate-900 dark:text-admin-text-primary transition-colors">No notices yet</p>
+                    <div className="flex flex-col items-center justify-center py-10 md:py-16 text-center px-6 w-full shrink-0 snap-center border border-border-subtle rounded-2xl md:border-0 md:rounded-none transition-colors">
+                      <Megaphone className="w-8 h-8 text-text-secondary mb-3 stroke-[1.5] transition-colors" />
+                      <p className="text-sm font-bold text-text-primary transition-colors">No notices yet</p>
                     </div>
                   )}
 
@@ -597,37 +581,37 @@ export const AdminNoticesPage: React.FC = () => {
                     const isActionLoading = actionLoadingId === notice.id;
 
                     return (
-                      <div key={notice.id} className={`w-[85vw] md:w-auto shrink-0 snap-center rounded-2xl md:rounded-none border border-slate-100 dark:border-admin-border-subtle md:border-0 p-4 md:p-5 transition-colors shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none bg-white dark:bg-admin-bg-surface ${notice.is_deleted ? 'md:bg-surface opacity-80' : 'md:hover:bg-slate-50/50'}`}>
+                      <div key={notice.id} className={`w-[85vw] md:w-auto shrink-0 snap-center rounded-2xl md:rounded-none border border-border-subtle md:border-0 p-4 md:p-5 transition-colors bg-surface ${notice.is_deleted ? 'opacity-80' : 'md:hover:bg-surface-elevated/50'}`}>
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 h-full">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap mb-1">
                               {pinActive && <Pin className="w-3 h-3 text-amber-500 fill-amber-500 shrink-0 dark:text-amber-400 transition-colors" />}
                               {notice.is_deleted && (
-                                <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 text-[9px] font-extrabold uppercase tracking-wider">
+                                <span className="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[9px] font-extrabold uppercase tracking-wider">
                                   Deleted
                                 </span>
                               )}
-                              <h3 className={`font-syne text-[13px] md:text-sm font-bold leading-snug line-clamp-2 transition-colors ${notice.is_deleted ? 'line-through text-slate-400 dark:text-admin-text-tertiary' : 'text-slate-900 dark:text-admin-text-primary'}`}>
+                              <h3 className={`font-syne text-[13px] md:text-sm font-bold leading-snug line-clamp-2 transition-colors ${notice.is_deleted ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
                                 {notice.title}
                               </h3>
                             </div>
 
                             {!notice.is_deleted && (
-                              <p className="text-[11px] md:text-xs text-slate-500 font-medium line-clamp-2 mt-1 mb-2">
+                              <p className="text-[11px] md:text-xs text-text-secondary font-medium line-clamp-2 mt-1 mb-2">
                                 {notice.content}
                               </p>
                             )}
 
                             <div className="flex items-center gap-2 flex-wrap mt-auto pt-2">
-                              <div className="flex items-center gap-1 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                              <div className="flex items-center gap-1 text-[9px] text-text-secondary font-bold uppercase tracking-wider">
                                 <Calendar className="w-3 h-3" />
                                 {formatDate(notice.created_at)}
                               </div>
-                              <span className="px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 text-[9px] font-extrabold uppercase tracking-wider border border-slate-100">
+                              <span className="px-1.5 py-0.5 rounded bg-surface-elevated text-text-secondary text-[9px] font-extrabold uppercase tracking-wider border border-border-subtle">
                                 {yearLabel(notice.target_year)}
                               </span>
                               {pinActive && notice.pin_expires_at && (
-                                <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[9px] font-extrabold uppercase tracking-wider border border-amber-100">
+                                <span className="px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 text-[9px] font-extrabold uppercase tracking-wider border border-amber-100 dark:border-amber-900/40">
                                   <Clock className="w-2.5 h-2.5 inline mr-0.5" />
                                   Exp {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                                 </span>
@@ -635,22 +619,22 @@ export const AdminNoticesPage: React.FC = () => {
                             </div>
 
                             {/* Author & Deleter visibility */}
-                            <div className="mt-3 p-2 rounded-xl bg-slate-50/50 border border-slate-100 text-[9px] font-semibold text-slate-500 flex flex-col gap-1 uppercase tracking-wider">
-                                <div className="flex items-center gap-1.5 truncate">
-                                  <User className="w-3 h-3 text-slate-400" />
-                                  <span className="font-extrabold text-slate-700">By:</span> {notice.author?.name || notice.author?.email || 'Unknown'}
-                                </div>
-                                {notice.is_deleted && notice.deleted_by && (
-                                  <div className="flex items-center gap-1.5 text-rose-500 truncate">
-                                    <Trash2 className="w-3 h-3" />
-                                    <span className="font-extrabold">Del:</span> {notice.deleted_by?.name || notice.deleted_by?.email || 'Unknown'}
-                                  </div>
-                                )}
+                            <div className="mt-3 p-2 rounded-xl bg-surface-elevated/50 border border-border-subtle text-[9px] font-semibold text-text-secondary flex flex-col gap-1 uppercase tracking-wider">
+                              <div className="flex items-center gap-1.5 truncate">
+                                <User className="w-3 h-3 text-text-secondary" />
+                                <span className="font-extrabold text-text-primary">By:</span> {notice.author?.name || notice.author?.email || 'Unknown'}
                               </div>
+                              {notice.is_deleted && notice.deleted_by && (
+                                <div className="flex items-center gap-1.5 text-rose-500 dark:text-rose-400 truncate">
+                                  <Trash2 className="w-3 h-3" />
+                                  <span className="font-extrabold">Del:</span> {notice.deleted_by?.name || notice.deleted_by?.email || 'Unknown'}
+                                </div>
+                              )}
+                            </div>
                           </div>
 
                           {/* Actions */}
-                          <div className="flex items-center gap-2 shrink-0 md:flex-col pt-3 border-t border-slate-100 dark:border-admin-border-subtle md:pt-0 md:border-0 mt-3 md:mt-0 transition-colors">
+                          <div className="flex items-center gap-2 shrink-0 md:flex-col pt-3 border-t border-border-subtle md:pt-0 md:border-0 mt-3 md:mt-0 transition-colors">
                             {/* Pin / Unpin button */}
                             {!notice.is_deleted && (
                               <button
@@ -659,7 +643,7 @@ export const AdminNoticesPage: React.FC = () => {
                                 onClick={() => handlePinClick(notice)}
                                 disabled={isActionLoading}
                                 className={`flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1 ${
-                                  pinActive ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'
+                                  pinActive ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' : 'bg-surface-elevated text-text-secondary hover:text-text-primary'
                                 }`}
                               >
                                 {isActionLoading ? (
@@ -680,8 +664,8 @@ export const AdminNoticesPage: React.FC = () => {
                               disabled={isActionLoading}
                               className={`flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1 ${
                                 notice.is_deleted
-                                  ? 'bg-emerald-50 text-emerald-600'
-                                  : 'bg-slate-50 text-slate-500 hover:text-rose-600 hover:bg-rose-50'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
+                                  : 'bg-surface-elevated text-text-secondary hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40'
                               }`}
                             >
                               {isActionLoading ? (
@@ -695,18 +679,18 @@ export const AdminNoticesPage: React.FC = () => {
 
                             {/* Hard remove */}
                             <button
-                                type="button"
-                                title="Permanently remove"
-                                onClick={() => handleHardRemove(notice.id)}
-                                disabled={isActionLoading}
-                                className="flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1"
-                              >
-                                {isActionLoading ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                ) : (
-                                  <><X className="w-3.5 h-3.5" /><span className="md:hidden">Remove</span></>
-                                )}
-                              </button>
+                              type="button"
+                              title="Permanently remove"
+                              onClick={() => handleHardRemove(notice.id)}
+                              disabled={isActionLoading}
+                              className="flex-1 md:flex-none h-8 md:w-8 md:h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center transition-colors disabled:opacity-50 text-[10px] font-bold gap-1"
+                            >
+                              {isActionLoading ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <><X className="w-3.5 h-3.5" /><span className="md:hidden">Remove</span></>
+                              )}
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -720,18 +704,18 @@ export const AdminNoticesPage: React.FC = () => {
                 <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-surface border border-border-subtle">
                   <Trash2 className="w-4 h-4 text-text-secondary shrink-0 mt-0.5" />
                   <p className="text-[11px] text-text-secondary font-medium leading-relaxed">
-                    <strong>Soft-delete</strong> shows "This message has been deleted" to students.
+                    <strong className="text-text-primary">Soft-delete</strong> shows "This message has been deleted" to students.
                   </p>
                 </div>
-                <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-accent-red/15 border border-rose-100">
-                    <X className="w-4 h-4 text-accent-red shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-accent-red font-medium leading-relaxed">
+                <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40">
+                    <X className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium leading-relaxed">
                       <strong>Hard remove</strong> (red X) fully erases the notice — no placeholder is shown. Platform admin only.
                     </p>
                 </div>
-                <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-accent-amber-soft border border-amber-100">
-                  <AlertTriangle className="w-4 h-4 text-accent-amber shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-accent-amber font-medium leading-relaxed">
+                <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/40">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
                     Notices are only visible to students at <strong>All Colleges</strong> matching the target year.
                   </p>
                 </div>

@@ -156,20 +156,20 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${modeConfig.bg}`}>
-            <ModeIcon className={`h-4.5 w-4.5 ${modeConfig.accent}`} />
+          <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${modeConfig.bg} dark:bg-admin-bg-surface-raised transition-colors`}>
+            <ModeIcon className={`h-4.5 w-4.5 ${modeConfig.accent} dark:text-admin-accent`} />
           </div>
           <div>
-            <h2 className="font-syne text-xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary tracking-tight transition-colors">
               {title || modeConfig.label}
             </h2>
-            <p className="text-xs text-slate-400">Campus Blink financial data · All in INR</p>
+            <p className="text-xs text-slate-400 dark:text-admin-text-tertiary transition-colors">Campus Blink financial data · All in INR</p>
           </div>
         </div>
         <button
           type="button"
           onClick={handleExportCSV}
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface px-4 py-2 text-xs font-bold text-slate-600 dark:text-admin-text-secondary hover:bg-slate-50 dark:hover:bg-admin-bg-surface-hover transition-colors shadow-sm dark:shadow-none"
         >
           <Download className="h-3.5 w-3.5" />
           Export CSV
@@ -181,15 +181,15 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
         {statCards.map(card => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-all">
+            <div key={card.label} className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-3 sm:p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none transition-all">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3">
-                <div className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border ${card.bg} ${card.border} mb-2 sm:mb-0`}>
-                  <Icon className={`h-4 w-4 ${card.accent}`} />
+                <div className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border ${card.bg} ${card.border} dark:bg-admin-bg-surface-raised dark:border-admin-border-subtle mb-2 sm:mb-0`}>
+                  <Icon className={`h-4 w-4 ${card.accent} dark:text-admin-accent`} />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">{card.label}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">{card.label}</span>
               </div>
-              <p className="font-syne text-lg sm:text-2xl font-extrabold text-slate-900">{card.value}</p>
-              <div className={`mt-1.5 flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold ${card.trendColor}`}>
+              <p className="font-syne text-lg sm:text-2xl font-extrabold text-slate-900 dark:text-admin-text-primary transition-colors">{card.value}</p>
+              <div className={`mt-1.5 flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold ${card.trendColor} dark:text-admin-text-secondary`}>
                 {card.trend}
               </div>
             </div>
@@ -200,15 +200,15 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
       {/* Search + Filter */}
       <div className="flex flex-col sm:flex-row gap-3 items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-admin-text-tertiary transition-colors" />
           <input
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             placeholder="Search by transaction ID, user name, or email…"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100 outline-none transition-all"
+            className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 dark:placeholder-admin-text-tertiary focus:border-amber-400 dark:focus:border-admin-accent focus:bg-white dark:focus:bg-admin-bg-surface outline-none transition-all"
           />
         </div>
-        <span className="text-xs font-semibold text-slate-400 shrink-0">
+        <span className="text-xs font-semibold text-slate-400 dark:text-admin-text-tertiary shrink-0 transition-colors">
           {modeFilteredTransactions.length.toLocaleString()} transactions
         </span>
       </div>
@@ -258,9 +258,9 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
         </div>
 
         {/* Desktop Viewport */}
-        <div className="hidden md:block rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-slate-100 bg-slate-50">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="hidden md:block rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+          <div className="px-5 py-3.5 border-b border-slate-100 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised transition-colors">
+            <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
               {mode === 'credits' ? 'Reputation Credit History' : mode === 'revenue' ? 'Revenue Transactions' : 'All Transactions'}
             </h3>
           </div>
@@ -268,38 +268,38 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead>
-                <tr className="border-b border-slate-100">
+                <tr className="border-b border-slate-100 dark:border-admin-border-subtle transition-colors">
                   {['Transaction ID', 'User', 'Type', 'Credit Change', 'Date'].map(h => (
-                    <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-admin-border-subtle transition-colors">
                 {modeFilteredTransactions.length > 0 ? (
                   modeFilteredTransactions.map(t => {
                     const change = Number(t.credits_change || 0);
                     return (
-                      <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-5 py-3.5 font-mono text-[12px] text-amber-600">{t.id}</td>
-                        <td className="px-5 py-3.5 text-slate-800 font-medium">
+                      <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-admin-bg-surface-hover transition-colors">
+                        <td className="px-5 py-3.5 font-mono text-[12px] text-amber-600 dark:text-admin-accent transition-colors">{t.id}</td>
+                        <td className="px-5 py-3.5 text-slate-800 dark:text-admin-text-primary font-medium transition-colors">
                           {t.user_profile?.name || t.user_id || 'Unknown'}
                           {t.user_profile?.email && (
-                            <p className="text-[11px] text-slate-400 font-normal">{t.user_profile.email}</p>
+                            <p className="text-[11px] text-slate-400 dark:text-admin-text-tertiary font-normal transition-colors">{t.user_profile.email}</p>
                           )}
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">
+                          <span className="rounded-full border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-surface-raised px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500 dark:text-admin-text-secondary transition-colors">
                             {formatActionType(t.action_type)}
                           </span>
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className={`font-bold ${change > 0 ? 'text-emerald-600' : change < 0 ? 'text-rose-600' : 'text-slate-500'}`}>
+                          <span className={`font-bold ${change > 0 ? 'text-emerald-600 dark:text-emerald-400' : change < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-500 dark:text-admin-text-secondary'}`}>
                             {change > 0 ? '+' : ''}{change} ⭐
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 text-[12px] text-slate-400">
+                        <td className="px-5 py-3.5 text-[12px] text-slate-400 dark:text-admin-text-tertiary transition-colors">
                           {new Date(t.created_at).toLocaleString()}
                         </td>
                       </tr>
@@ -307,8 +307,8 @@ export const AdminFinancePage: React.FC<AdminFinancePageProps> = ({ mode = 'all'
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="px-5 py-14 text-center text-sm text-slate-400">
-                      <BarChart3 className="h-8 w-8 text-slate-200 mx-auto mb-3" />
+                    <td colSpan={5} className="px-5 py-14 text-center text-sm text-slate-400 dark:text-admin-text-tertiary">
+                      <BarChart3 className="h-8 w-8 text-slate-200 dark:text-admin-text-tertiary mx-auto mb-3 transition-colors" />
                       No transactions match the current filter.
                     </td>
                   </tr>

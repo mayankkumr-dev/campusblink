@@ -13,6 +13,7 @@ interface ChatState {
   
   // Actions
   setHydrated: (state: boolean) => void;
+  setProfiles: (updater: Record<string, any> | ((prev: Record<string, any>) => Record<string, any>)) => void;
   fetchConversations: (userId: string) => Promise<void>;
   fetchMessagesForChat: (conversationId: string) => Promise<void>;
   addMessage: (conversationId: string, message: any) => void;
@@ -32,6 +33,10 @@ export const useChatStore = create<ChatState>()(
       isHydrated: false,
       
       setHydrated: (state) => set({ isHydrated: state }),
+      setProfiles: (updater) =>
+        set((state) => ({
+          profiles: typeof updater === 'function' ? updater(state.profiles) : { ...state.profiles, ...updater },
+        })),
 
       fetchConversations: async (userId: string) => {
         if (!userId) return;

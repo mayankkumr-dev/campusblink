@@ -172,8 +172,8 @@ const NoticeCard: React.FC<{
 
   return (
     <article 
-      className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] active:bg-gray-50 relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 ${
-        pinActive ? 'ring-1 ring-amber-100' : ''
+      className={`bg-white dark:bg-surface border border-gray-100 dark:border-border-subtle rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 active:scale-[0.98] active:bg-gray-50 dark:active:bg-surface-elevated relative overflow-hidden group animate-in fade-in slide-in-from-bottom-4 ${
+        pinActive ? 'ring-1 ring-amber-100 dark:ring-amber-500/20' : ''
       }`}
       style={{ animationFillMode: 'both', animationDelay: `${index * 75}ms` }}
     >
@@ -203,18 +203,18 @@ const NoticeCard: React.FC<{
       <div className="p-5 md:p-6 relative pl-6 md:pl-7">
         {/* Metadata */}
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-gray-400 dark:text-text-secondary uppercase tracking-wider">
             {yearLabel(notice.target_year)}
           </span>
-          <span className="text-gray-300">•</span>
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          <span className="text-gray-300 dark:text-border-subtle">•</span>
+          <span className="text-[10px] font-bold text-gray-400 dark:text-text-secondary uppercase tracking-wider">
             {formatDate(notice.created_at)}
           </span>
         </div>
 
         {/* Title & Delete Button */}
         <div className="flex items-start justify-between gap-4 mb-2 pr-8">
-          <h2 className="text-lg font-extrabold text-gray-900 leading-tight">
+          <h2 className="text-lg font-extrabold text-gray-900 dark:text-text-primary leading-tight transition-colors">
             {notice.title}
           </h2>
         </div>
@@ -347,17 +347,17 @@ export const NoticesPage: React.FC = () => {
   let globalIndex = 0;
 
   return (
-    <div className="min-h-full bg-gray-50 pb-12 relative">
+    <div className="min-h-full bg-gray-50 dark:bg-background pb-12 relative transition-colors">
       {/* Unified Sticky App Bar */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm transition-all">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-surface/80 backdrop-blur-xl border-b border-gray-100 dark:border-border-subtle shadow-sm transition-all">
         <div className="max-w-2xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
           {!isSearchActive ? (
             <>
-              <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Notices</h1>
+              <h1 className="text-xl font-extrabold text-gray-900 dark:text-text-primary tracking-tight transition-colors">Notices</h1>
               <div className="flex items-center gap-1">
                 <button 
                   onClick={() => setIsSearchActive(true)}
-                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-600 dark:text-text-secondary transition-colors"
                 >
                   <Search className="w-5 h-5" />
                 </button>
@@ -365,7 +365,7 @@ export const NoticesPage: React.FC = () => {
                   type="button"
                   onClick={() => load(true)}
                   disabled={isRefreshing}
-                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50"
+                  className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-600 dark:text-text-secondary transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
@@ -375,7 +375,7 @@ export const NoticesPage: React.FC = () => {
             <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-right-4 duration-200">
               <button 
                 onClick={() => { setIsSearchActive(false); setSearchQuery(''); }}
-                className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-600 transition-colors"
+                className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-600 dark:text-text-secondary transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -385,7 +385,7 @@ export const NoticesPage: React.FC = () => {
                 placeholder="Search notices..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-gray-100/50 border-none text-gray-900 px-4 py-2 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all placeholder:text-gray-400"
+                className="flex-1 bg-gray-100/50 dark:bg-surface-elevated border-none text-gray-900 dark:text-text-primary px-4 py-2 rounded-full text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-border-subtle transition-all placeholder:text-gray-400 dark:placeholder:text-text-secondary"
               />
             </div>
           )}
@@ -397,13 +397,13 @@ export const NoticesPage: React.FC = () => {
         {isAdmin && (
           <Link
             to="/student/notices/admin"
-            className="mb-6 flex items-center gap-3 px-4 py-3 bg-orange-50/50 rounded-2xl border border-orange-100/50 hover:bg-orange-50 transition-colors group animate-in fade-in slide-in-from-bottom-4"
+            className="mb-6 flex items-center gap-3 px-4 py-3 bg-orange-50/50 dark:bg-orange-950/20 rounded-2xl border border-orange-100/50 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors group animate-in fade-in slide-in-from-bottom-4"
           >
-            <div className="w-8 h-8 rounded-full bg-orange-100/80 flex items-center justify-center text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-orange-100/80 dark:bg-orange-900/40 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
               <Megaphone className="w-4 h-4" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-orange-900">Notice Admin Panel</p>
+              <p className="text-sm font-bold text-orange-900 dark:text-orange-300">Notice Admin Panel</p>
             </div>
             <ExternalLink className="w-4 h-4 text-orange-400 shrink-0 group-hover:text-orange-500 transition-colors" />
           </Link>

@@ -67,15 +67,15 @@ export const AdminContactIssuesPage: React.FC = () => {
             <Wrench className="h-4.5 w-4.5 text-orange-600 dark:text-orange-400 transition-colors" />
           </div>
           <div>
-            <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-admin-text-primary tracking-tight transition-colors">Contact Issues</h2>
-            <p className="text-xs text-slate-500 dark:text-admin-text-secondary transition-colors">User-reported issues submitted through the contact form · {issues.length} total</p>
+            <h2 className="font-syne text-xl font-extrabold text-slate-900 dark:text-text-primary tracking-tight transition-colors">Contact Issues</h2>
+            <p className="text-xs text-slate-500 dark:text-text-secondary transition-colors">User-reported issues submitted through the contact form · {issues.length} total</p>
           </div>
         </div>
         <button
           type="button"
           onClick={loadIssues}
           disabled={isLoading}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface px-4 py-2 text-xs font-bold text-slate-600 dark:text-admin-text-secondary hover:bg-slate-50 dark:hover:bg-admin-bg-surface-hover shadow-sm dark:shadow-none transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface px-4 py-2 text-xs font-bold text-slate-600 dark:text-text-secondary hover:bg-slate-50 dark:hover:bg-surface-elevated shadow-sm dark:shadow-none transition-colors disabled:opacity-50"
         >
           <RefreshCw size={12} className={isLoading ? 'animate-spin' : ''} />
           Refresh
@@ -85,16 +85,16 @@ export const AdminContactIssuesPage: React.FC = () => {
       {/* Search + Filters */}
       <div className="flex flex-col md:flex-row gap-3 items-center transition-colors">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-admin-text-tertiary transition-colors" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-text-secondary transition-colors" />
           <input
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search by name, email, subject, or message…"
-            className="w-full rounded-xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 dark:placeholder:text-admin-text-tertiary focus:border-amber-400 dark:focus:border-admin-accent focus:ring-2 focus:ring-amber-100 dark:focus:ring-admin-accent/20 outline-none transition-all shadow-sm dark:shadow-none"
+            className="w-full rounded-xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface py-2.5 pl-10 pr-4 text-sm text-slate-900 dark:text-text-primary placeholder-slate-400 dark:placeholder:text-text-secondary focus:border-amber-400 dark:focus:border-amber-500 focus:ring-2 focus:ring-amber-100 dark:focus:ring-amber-500/20 outline-none transition-all shadow-sm dark:shadow-none"
           />
         </div>
         <div className="flex items-center gap-2 shrink-0 overflow-x-auto hide-scrollbar pb-1 -mx-4 px-4 md:mx-0 md:px-0 w-full md:w-auto">
-          <Filter size={12} className="text-slate-400 dark:text-admin-text-tertiary shrink-0 hidden md:block transition-colors" />
+          <Filter size={12} className="text-slate-400 dark:text-text-secondary shrink-0 hidden md:block transition-colors" />
           {STATUS_OPTIONS.map(status => (
             <button
               key={status}
@@ -102,8 +102,8 @@ export const AdminContactIssuesPage: React.FC = () => {
               onClick={() => setStatusFilter(status)}
               className={`shrink-0 rounded-full md:rounded-xl border px-4 py-2 md:px-3.5 md:py-2 text-[11px] font-bold capitalize transition-all ${
                 statusFilter === status
-                  ? 'bg-amber-500 dark:bg-admin-accent border-amber-500 dark:border-admin-accent text-white dark:text-admin-bg-surface-elevated shadow-sm shadow-amber-200 dark:shadow-none'
-                  : 'border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface text-slate-500 dark:text-admin-text-secondary hover:border-amber-300 dark:hover:border-admin-accent/50 hover:text-amber-600 dark:hover:text-amber-500'
+                  ? 'bg-amber-500 dark:bg-amber-500 border-amber-500 dark:border-amber-500 text-white dark:text-slate-950 shadow-sm shadow-amber-200 dark:shadow-none'
+                  : 'border-slate-200 dark:border-border-subtle bg-white dark:bg-surface text-slate-500 dark:text-text-secondary hover:border-amber-300 dark:hover:border-amber-500/50 hover:text-amber-600 dark:hover:text-amber-400'
               }`}
             >
               {status.replace('_', ' ')}
@@ -113,7 +113,7 @@ export const AdminContactIssuesPage: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
+      <div className="rounded-2xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface shadow-sm dark:shadow-none overflow-hidden transition-colors">
         {isLoading ? (
           <div className="flex h-52 items-center justify-center">
             <Loader2 className="h-7 w-7 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
@@ -121,8 +121,8 @@ export const AdminContactIssuesPage: React.FC = () => {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center transition-colors">
             <CheckCircle2 className="h-10 w-10 text-emerald-400 dark:text-emerald-500 mb-3 transition-colors" />
-            <p className="font-semibold text-slate-500 dark:text-admin-text-primary transition-colors">No contact issues found.</p>
-            <p className="text-sm text-slate-400 dark:text-admin-text-tertiary mt-1 transition-colors">
+            <p className="font-semibold text-slate-500 dark:text-text-primary transition-colors">No contact issues found.</p>
+            <p className="text-sm text-slate-400 dark:text-text-secondary mt-1 transition-colors">
               {query ? 'Try adjusting your search query.' : 'No issues match the current filter.'}
             </p>
           </div>
@@ -130,37 +130,37 @@ export const AdminContactIssuesPage: React.FC = () => {
           <>
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 border-b border-slate-100">
+                <thead className="bg-slate-50 dark:bg-surface-elevated border-b border-slate-100 dark:border-border-subtle">
                   <tr>
                     {['User', 'Category', 'Subject & Message', 'Status', 'Date', 'Actions'].map(h => (
-                      <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      <th key={h} className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-text-secondary">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-border-subtle">
                   {filtered.map(issue => (
-                    <tr key={issue.id} className="align-top hover:bg-slate-50 transition-colors">
+                    <tr key={issue.id} className="align-top hover:bg-slate-50 dark:hover:bg-surface-elevated/70 transition-colors">
                       <td className="px-5 py-4">
-                        <p className="font-semibold text-slate-800">{issue.name || issue.user?.name || 'Unknown'}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{issue.email || issue.user?.email}</p>
+                        <p className="font-semibold text-slate-800 dark:text-text-primary">{issue.name || issue.user?.name || 'Unknown'}</p>
+                        <p className="text-[11px] text-slate-400 dark:text-text-secondary mt-0.5">{issue.email || issue.user?.email}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500">
+                        <span className="rounded-full border border-slate-200 dark:border-border-subtle bg-slate-50 dark:bg-surface-elevated px-2.5 py-0.5 text-[10px] font-bold uppercase text-slate-500 dark:text-text-secondary">
                           {issue.category || 'general'}
                         </span>
                       </td>
                       <td className="px-5 py-4 max-w-xs">
-                        <p className="font-semibold text-slate-800 text-[13px] mb-1">{issue.subject || 'No subject'}</p>
-                        <p className="text-[12px] text-slate-400 line-clamp-2 leading-relaxed">{issue.message}</p>
+                        <p className="font-semibold text-slate-800 dark:text-text-primary text-[13px] mb-1">{issue.subject || 'No subject'}</p>
+                        <p className="text-[12px] text-slate-400 dark:text-text-secondary line-clamp-2 leading-relaxed">{issue.message}</p>
                       </td>
                       <td className="px-5 py-4">
                         <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLES[issue.status || 'open'] || STATUS_STYLES.open}`}>
                           {String(issue.status || 'open').replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-[11px] text-slate-400 whitespace-nowrap">
+                      <td className="px-5 py-4 text-[11px] text-slate-400 dark:text-text-secondary whitespace-nowrap">
                         {new Date(issue.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-5 py-4">
@@ -170,7 +170,7 @@ export const AdminContactIssuesPage: React.FC = () => {
                               type="button"
                               disabled={updatingId === issue.id}
                               onClick={() => setIssueStatus(issue.id, 'in_progress')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-[10px] font-bold uppercase text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-60"
+                              className="inline-flex items-center gap-1 rounded-lg border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1.5 text-[10px] font-bold uppercase text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors disabled:opacity-60"
                             >
                               <Wrench className="h-3 w-3" />
                               In Progress
@@ -181,7 +181,7 @@ export const AdminContactIssuesPage: React.FC = () => {
                               type="button"
                               disabled={updatingId === issue.id}
                               onClick={() => setIssueStatus(issue.id, 'resolved')}
-                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[10px] font-bold uppercase text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-60"
+                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1.5 text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors disabled:opacity-60"
                             >
                               {updatingId === issue.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
                               Resolve
@@ -196,29 +196,29 @@ export const AdminContactIssuesPage: React.FC = () => {
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden space-y-3 p-4 bg-slate-50/50 dark:bg-admin-bg-base/50 transition-colors">
+            <div className="md:hidden space-y-3 p-4 bg-slate-50/50 dark:bg-background/50 transition-colors">
               {filtered.map(issue => (
-                <div key={issue.id} className="rounded-2xl border border-slate-200 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col gap-3 transition-colors">
+                <div key={issue.id} className="rounded-2xl border border-slate-200 dark:border-border-subtle bg-white dark:bg-surface p-4 shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col gap-3 transition-colors">
                   {/* Header */}
-                  <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-admin-border-subtle pb-3 transition-colors">
-                    <p className="font-bold text-slate-900 dark:text-admin-text-primary text-sm truncate transition-colors">
+                  <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-border-subtle pb-3 transition-colors">
+                    <p className="font-bold text-slate-900 dark:text-text-primary text-sm truncate transition-colors">
                       {issue.name || issue.user?.name || 'Unknown'}
                     </p>
-                    <span className="shrink-0 rounded-full border border-slate-200 dark:border-admin-border-subtle bg-slate-50 dark:bg-admin-bg-base px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-admin-text-secondary transition-colors">
+                    <span className="shrink-0 rounded-full border border-slate-200 dark:border-border-subtle bg-slate-50 dark:bg-surface-elevated px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-text-secondary transition-colors">
                       {issue.category || 'general'}
                     </span>
                   </div>
                   
                   {/* Body */}
                   <div>
-                    <p className="font-syne font-bold text-slate-800 dark:text-admin-text-primary text-[13px] mb-1.5 transition-colors">{issue.subject || 'No subject'}</p>
-                    <p className="text-[11px] text-slate-500 dark:text-admin-text-secondary line-clamp-3 leading-relaxed transition-colors">{issue.message}</p>
+                    <p className="font-syne font-bold text-slate-800 dark:text-text-primary text-[13px] mb-1.5 transition-colors">{issue.subject || 'No subject'}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-text-secondary line-clamp-3 leading-relaxed transition-colors">{issue.message}</p>
                   </div>
                   
                   {/* Footer */}
-                  <div className="flex flex-col gap-3 pt-3 border-t border-slate-100 dark:border-admin-border-subtle mt-1 transition-colors">
+                  <div className="flex flex-col gap-3 pt-3 border-t border-slate-100 dark:border-border-subtle mt-1 transition-colors">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-admin-text-tertiary transition-colors">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-text-secondary transition-colors">
                         {new Date(issue.created_at).toLocaleDateString()}
                       </span>
                       <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${STATUS_STYLES[issue.status || 'open'] || STATUS_STYLES.open}`}>
@@ -258,8 +258,8 @@ export const AdminContactIssuesPage: React.FC = () => {
           </>
         )}
         {!isLoading && filtered.length > 0 && (
-          <div className="px-5 py-3 border-t border-slate-100 bg-slate-50">
-            <p className="text-[11px] text-slate-400">
+          <div className="px-5 py-3 border-t border-slate-100 dark:border-border-subtle bg-slate-50 dark:bg-surface-elevated">
+            <p className="text-[11px] text-slate-400 dark:text-text-secondary">
               {filtered.length} of {issues.length} issues
             </p>
           </div>

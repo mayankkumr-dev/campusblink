@@ -288,7 +288,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
 
             {/* Unified Floating Stats Card combining Diaries, Followers, Following & Reputation */}
-            <div className="my-6 rounded-2xl border border-border-subtle bg-white/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-4 hover:shadow-[0_12px_40px_rgba(0,0,0,0.09)] transition-all duration-300">
+            <div className="my-6 rounded-2xl border border-border-subtle bg-surface/90 dark:bg-surface-elevated/90 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] p-4 hover:shadow-[0_12px_40px_rgba(0,0,0,0.09)] transition-all duration-300">
               <div className="grid grid-cols-4 divide-x divide-border-subtle/80">
                 <div className="flex flex-col items-center justify-center px-2 py-1">
                   <div className="flex items-center gap-1 font-syne font-extrabold text-xl sm:text-2xl text-text-primary">

@@ -158,11 +158,11 @@ export function MediaEditorModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-surface px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] px-6 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-black/10 bg-[var(--bg)] px-4 py-2 text-sm font-bold text-[var(--text-primary)]"
+            className="rounded-xl px-4 py-2.5 text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
           >
             Cancel
           </button>
@@ -170,7 +170,7 @@ export function MediaEditorModal({
             type="button"
             onClick={onSubmit}
             disabled={isSaving}
-            className="rounded-md bg-[var(--text-primary)] px-5 py-2.5 text-sm font-bold text-white hover:bg-[var(--yellow)] hover:text-[var(--text-primary)] disabled:opacity-60"
+            className="rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 py-2.5 text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? 'Saving...' : 'Use this image'}
           </button>

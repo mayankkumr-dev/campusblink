@@ -190,10 +190,10 @@ export const StudentLayout: React.FC = () => {
   const isDiaryOpen = location.pathname.includes('/post/') || window.location.search.includes('diaryId') || location.pathname.endsWith('/create');
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 text-gray-900 font-sans overflow-hidden select-none no-touch-callout">
+    <div className="flex h-screen w-full bg-gray-50 dark:bg-[#101113] text-gray-900 dark:text-white font-sans overflow-hidden select-none no-touch-callout transition-colors">
       {/* Refined Native Top Header */}
       {!isDiaryOpen && (
-      <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 bg-white/95 backdrop-blur-md px-4 md:hidden shadow-2xs select-none">
+      <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 dark:border-slate-800 bg-white/95 dark:bg-[#101113]/95 backdrop-blur-md px-4 md:hidden shadow-2xs select-none transition-colors">
         {(() => {
           const title = getMobileHeaderTitle(location.pathname);
           return title ? (
@@ -386,7 +386,7 @@ export const StudentLayout: React.FC = () => {
       </AnimatePresence>
 
       {/* Main Content + Header + Bottom Nav Wrapper */}
-      <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50 ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
+      <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50 dark:bg-[#101113] text-slate-900 dark:text-slate-100 transition-colors ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
         {/* Scrollable main content */}
         <main className="flex-1 overflow-y-auto w-full pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0 pb-32 md:pb-8">
           {activeAnnouncement && (

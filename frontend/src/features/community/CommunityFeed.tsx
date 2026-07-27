@@ -147,24 +147,24 @@ export const CommunityFeed: React.FC = () => {
     : ((profile as any)?.streak_days || 15);
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 text-gray-900 font-sans select-none">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-text-primary font-sans select-none transition-colors">
       {/* ── Desktop-Only Title Ribbon (Mobile uses native top bar 'Diaries') ── */}
-      <header className="hidden md:block sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs pt-[env(safe-area-inset-top,0px)] transition-all">
+      <header className="hidden md:block sticky top-0 z-30 bg-white/95 dark:bg-surface/95 backdrop-blur-md border-b border-gray-200/80 dark:border-border-subtle shadow-xs pt-[env(safe-area-inset-top,0px)] transition-all">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 pt-4 pb-3 gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200/80 flex items-center justify-center shadow-2xs shrink-0">
-              <BookOpen size={19} className="text-gray-800" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-surface-elevated border border-gray-200/80 dark:border-border-subtle flex items-center justify-center shadow-2xs shrink-0 transition-colors">
+              <BookOpen size={19} className="text-gray-800 dark:text-text-primary transition-colors" strokeWidth={2} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none truncate font-syne">
+                <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-text-primary leading-none truncate font-syne transition-colors">
                   Campus Diaries
                 </h1>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-700 border border-gray-200 shrink-0">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-text-secondary border border-gray-200 dark:border-border-subtle shrink-0 transition-colors">
                   MAIT Stories
                 </span>
               </div>
-              <p className="text-sm text-gray-500 font-medium mt-1 truncate">
+              <p className="text-sm text-gray-500 dark:text-text-secondary font-medium mt-1 truncate transition-colors">
                 A visual journal of moments, memories, and stories from campus
               </p>
             </div>
@@ -174,10 +174,10 @@ export const CommunityFeed: React.FC = () => {
             onClick={() => navigate('/diary/create')}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 min-h-[44px] min-w-[44px]"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-gray-900 dark:bg-amber-500 hover:bg-gray-800 dark:hover:bg-amber-600 text-white dark:text-slate-950 font-extrabold text-sm shadow-sm transition-all cursor-pointer shrink-0 border border-gray-800 dark:border-amber-400 min-h-[44px] min-w-[44px]"
             aria-label="Create new story entry"
           >
-            <Sparkles size={16} className="text-amber-300 animate-pulse shrink-0" />
+            <Sparkles size={16} className="text-amber-300 dark:text-slate-950 animate-pulse shrink-0" />
             <span>Create</span>
           </motion.button>
         </div>
@@ -190,27 +190,27 @@ export const CommunityFeed: React.FC = () => {
           onClick={() => navigate('/diary/create')}
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
-          className="group relative overflow-hidden rounded-2xl bg-[#F4F6F9] border border-gray-200/60 shadow-sm p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer transition-all hover:border-gray-300 active:scale-[0.98]"
+          className="group relative overflow-hidden rounded-2xl bg-[#F4F6F9] dark:bg-surface border border-gray-200/60 dark:border-border-subtle shadow-sm p-3 sm:p-4 flex items-center justify-between gap-3 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-border-subtle active:scale-[0.98]"
         >
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="flex flex-col items-center justify-center rounded-xl overflow-hidden shrink-0 shadow-sm border border-gray-200/80 w-12 sm:w-14 bg-white">
+            <div className="flex flex-col items-center justify-center rounded-xl overflow-hidden shrink-0 shadow-sm border border-gray-200/80 dark:border-border-subtle w-12 sm:w-14 bg-white dark:bg-surface-elevated transition-colors">
               <span className="bg-[#3FA2F6] text-white font-syne font-bold text-[10px] sm:text-[11px] px-2 py-0.5 w-full text-center tracking-wide uppercase">
                 Day
               </span>
-              <span className="bg-white text-gray-900 font-syne font-extrabold text-sm sm:text-base px-2 py-1 w-full text-center">
+              <span className="bg-white dark:bg-surface-elevated text-gray-900 dark:text-text-primary font-syne font-extrabold text-sm sm:text-base px-2 py-1 w-full text-center transition-colors">
                 {daysOnApp}
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-syne font-bold text-sm sm:text-base text-gray-900 truncate">
+              <h2 className="font-syne font-bold text-sm sm:text-base text-gray-900 dark:text-text-primary truncate transition-colors">
                 Getting there ✨
               </h2>
-              <p className="font-sans text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+              <p className="font-sans text-xs text-gray-500 dark:text-text-secondary mt-0.5 flex items-center gap-1 transition-colors">
                 <span>Share your story ✍️</span>
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-transparent text-gray-500 group-hover:bg-gray-200/50 group-hover:text-gray-800 transition-all">
+          <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-full bg-transparent text-gray-500 dark:text-text-secondary group-hover:bg-gray-200/50 dark:group-hover:bg-surface-elevated group-hover:text-gray-800 dark:group-hover:text-text-primary transition-all">
             <span className="text-sm font-bold">→</span>
           </div>
         </motion.div>
@@ -225,12 +225,12 @@ export const CommunityFeed: React.FC = () => {
                 onClick={() => setActiveFilter(tab.value)}
                 className={`relative px-2 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shrink-0 cursor-pointer min-h-[42px] ${
                   isActive
-                    ? 'bg-gray-900 text-white shadow-sm border border-gray-900 font-extrabold'
-                    : 'bg-white text-gray-600 border border-gray-200/90 shadow-2xs hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-gray-900 dark:bg-amber-500 text-white dark:text-slate-950 shadow-sm border border-gray-900 dark:border-amber-400 font-extrabold'
+                    : 'bg-white dark:bg-surface text-gray-600 dark:text-text-secondary border border-gray-200/90 dark:border-border-subtle shadow-2xs hover:bg-gray-50 dark:hover:bg-surface-elevated hover:text-gray-900 dark:hover:text-text-primary'
                 }`}
                 aria-pressed={isActive}
               >
-                <span className={`transition-colors shrink-0 ${isActive ? 'text-white' : 'text-gray-400'}`}>
+                <span className={`transition-colors shrink-0 ${isActive ? 'text-white dark:text-slate-950' : 'text-gray-400 dark:text-text-secondary'}`}>
                   {tab.icon}
                 </span>
                 <span className="tracking-tight truncate">
