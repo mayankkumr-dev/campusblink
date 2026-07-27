@@ -38,6 +38,7 @@ const usernameLimiter = rateLimit({
   max: 120,                   // 120 requests per minute per IP
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { default: false },
   message: {
     error: 'Too many username checks. Please slow down.',
     retryAfter: 60,

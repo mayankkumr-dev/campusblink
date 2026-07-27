@@ -317,6 +317,27 @@ async function restoreFlaggedDiary(req, res) {
   }
 }
 
+/**
+ * GET /api/diary/daily-prompt — Fetch today's writing prompt
+ */
+async function getDailyPrompt(req, res) {
+  try {
+    const prompts = [
+      { id: '1', title: 'My imaginary assistant', emoji: '🦜', category: 'Creative' },
+      { id: '2', title: 'Campus life in 3 words', emoji: '🎓', category: 'Campus' },
+      { id: '3', title: 'Late night library thoughts', emoji: '🌙', category: 'Reflection' },
+      { id: '4', title: 'Best cup of coffee today', emoji: '☕', category: 'Daily' },
+      { id: '5', title: 'Unfiltered moment of the day', emoji: '✨', category: 'Mood' },
+    ];
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+    const prompt = prompts[dayOfYear % prompts.length];
+    return res.json({ success: true, prompt });
+  } catch (err) {
+    console.error('[DiaryController] getDailyPrompt error:', err.message);
+    return res.status(500).json({ error: 'Failed to fetch daily prompt' });
+  }
+}
+
 module.exports = {
   getDiaryFeed,
   getUserDiaryEntries,
@@ -326,4 +347,5 @@ module.exports = {
   getFlaggedDiaries,
   deleteAdminDiaryEntry,
   restoreFlaggedDiary,
+  getDailyPrompt,
 };

@@ -4,7 +4,9 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const { authLimiter, adminMutationLimiter, generalLimiter } = require('./middleware/rateLimit');
 const bloomFilter = require('./utils/bloomFilter');

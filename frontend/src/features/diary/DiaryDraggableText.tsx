@@ -1,67 +1,96 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Rnd } from 'react-rnd';
-import { CanvasElement } from './DiaryEditor';
+import { Trash2 } from 'lucide-react';
+import { CanvasElement } from './types';
 
 interface Props {
   element: CanvasElement;
   isActive: boolean;
   onFocus: () => void;
+  onBlur?: () => void;
   onChange: (updates: Partial<CanvasElement>) => void;
   onDelete: () => void;
 }
 
-const FONTS = ['Caveat, cursive', 'Inter, sans-serif', 'Playfair Display, serif', 'Courier New, monospace'];
+const FONTS = [
+  'Caveat, cursive',
+  'Playfair Display, serif',
+  'Inter, sans-serif',
+  'monospace',
+];
 
-export function DiaryDraggableText({ element, isActive, onFocus, onChange, onDelete }: Props) {
+export function DiaryDraggableText({
+  element,
+  isActive,
+  onFocus,
+  onBlur,
+  onChange,
+  onDelete,
+}: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (isActive && textareaRef.current) {
       textareaRef.current.focus();
-    } else if (!isActive && textareaRef.current) {
-      textareaRef.current.blur();
     }
   }, [isActive]);
 
-  const handleBlur = () => {
-    // If empty and blurred, remove it
+  const handleBlur = (e: React.FocusEvent) => {
     if (!element.content.trim()) {
       onDelete();
+    } else if (onBlur) {
+      onBlur();
     }
   };
 
   const getBgClass = () => {
-    switch (element.bgMode) {
-      case 'solid-white': return 'bg-white rounded-xl shadow-sm p-3';
-      case 'solid-color': return 'rounded-xl shadow-sm p-3';
-      default: return 'bg-transparent p-3';
-    }
+    if (element.bgMode === 'solid-white') return 'bg-white rounded-xl shadow-sm p-3';
+    if (element.bgMode === 'solid-color') return 'rounded-xl shadow-sm p-3';
+    return 'bg-transparent p-3';
   };
 
   const getContainerStyle = () => {
     if (element.bgMode === 'solid-color') {
       return { backgroundColor: element.color || '#000000' };
     }
+    if (isActive && element.bgMode === 'transparent') {
+      return { border: '1.5px dashed var(--parchment-border)', borderRadius: '6px' };
+    }
     return {};
   };
 
   const getTextColorStyle = () => {
-    if (element.bgMode === 'solid-color') {
-      return { color: '#FFFFFF' };
+    if (element.bgMode === 'solid-white') {
+      return { color: '#1E293B' };
     }
-    return { color: element.color || '#000000' };
+    return { color: element.color || 'var(--parchment-text-primary)' };
   };
+
+  const parseNumeric = (val: string | number | undefined, fallback: number) => {
+    if (typeof val === 'number') return val;
+    if (typeof val === 'string') {
+      const parsed = parseInt(val, 10);
+      if (!isNaN(parsed)) return parsed;
+    }
+    return fallback;
+  };
+
+  const xNum = parseNumeric(element.x, 20);
+  const yNum = parseNumeric(element.y, 40);
+  const widthNum = parseNumeric(element.width, 300);
+  const heightNum = parseNumeric(element.height, 120);
 
   return (
     <Rnd
       default={{
-        x: element.x,
-        y: element.y,
-        width: element.width || 200,
-        height: element.height || 100,
+        x: xNum,
+        y: yNum,
+        width: widthNum,
+        height: heightNum,
       }}
-      bounds="parent"
-      onDragStop={(e, d) => onChange({ x: d.x, y: d.y })}
+      onDragStop={(e, d) => {
+        onChange({ x: d.x, y: d.y });
+      }}
       onResizeStop={(e, direction, ref, delta, position) => {
         onChange({
           width: ref.offsetWidth,
@@ -76,8 +105,6 @@ export function DiaryDraggableText({ element, isActive, onFocus, onChange, onDel
       }}
       disableDragging={isActive}
       className={`group ${isActive ? 'z-50' : 'z-10'}`}
-      onMouseDown={onFocus}
-      onTouchStart={onFocus}
     >
       <div 
         className={`relative w-full h-full flex flex-col justify-center ${getBgClass()} transition-all cursor-text`}

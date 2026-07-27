@@ -1,20 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const rawUrl = import.meta.env.VITE_SUPABASE_URL;
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase URL or Anon Key is missing. Ensure you have created a .env file based on the VITE requirements.');
+const supabaseUrl = rawUrl && rawUrl.startsWith('http') ? rawUrl : 'https://placeholder.supabase.co';
+const supabaseAnonKey = rawKey || 'placeholder-anon-key';
+
+if (!rawUrl || !rawKey) {
+  console.warn('Supabase URL or Anon Key is missing or invalid in frontend/.env. Using fallback client.');
 }
 
-let supabaseClient = null;
-if (supabaseUrl && supabaseAnonKey) {
-  try {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-  }
+let supabaseClient;
+try {
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error);
+  supabaseClient = createClient('https://placeholder.supabase.co', 'placeholder-anon-key');
 }
 
 export const supabase = supabaseClient;
-

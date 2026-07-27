@@ -61,6 +61,20 @@
   --shop-text-tertiary: #94A3B8;
   --shop-accent: #EAB308;
   --shop-accent-soft-bg: #FEF9C3;
+
+  /* Vintage Diary Parchment Tokens (Light Mode - Warm Sepia/Cream) */
+  --parchment-bg: #F4EAD5;
+  --parchment-texture-gradient: radial-gradient(circle at 50% 50%, rgba(255, 253, 245, 0.6) 0%, rgba(244, 234, 213, 0.95) 80%, rgba(225, 205, 175, 0.9) 100%);
+  --parchment-border: #D7C4A5;
+  --parchment-shadow: 0 12px 40px rgba(70, 45, 25, 0.18);
+  --parchment-text-primary: #3E2723;
+  --parchment-text-secondary: #6D4C41;
+  --parchment-card-bg: rgba(215, 196, 165, 0.45);
+  --parchment-card-border: rgba(141, 110, 99, 0.3);
+  --parchment-toolbar-bg: rgba(244, 234, 213, 0.88);
+  --parchment-accent: #8D6E63;
+  --parchment-accent-soft: rgba(141, 110, 99, 0.15);
+  --parchment-outer-bg: #EAE1D0;
 }
 
 .dark {
@@ -217,6 +231,20 @@
   --color-teal-500: #2DD4BF;
   --color-teal-600: #2DD4BF;
   --color-teal-700: #14B8A6;
+
+  /* Vintage Diary Parchment Tokens (Dark Mode - Aged Dark Leather / Warm Lamplight) */
+  --parchment-bg: #1C1814;
+  --parchment-texture-gradient: radial-gradient(circle at 50% 50%, rgba(42, 34, 27, 0.9) 0%, rgba(28, 24, 20, 0.98) 75%, rgba(18, 14, 11, 1) 100%);
+  --parchment-border: #3A3025;
+  --parchment-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --parchment-text-primary: #E8DCC4;
+  --parchment-text-secondary: #B09E85;
+  --parchment-card-bg: rgba(58, 48, 37, 0.55);
+  --parchment-card-border: rgba(180, 150, 120, 0.2);
+  --parchment-toolbar-bg: rgba(28, 24, 20, 0.92);
+  --parchment-accent: #D4A373;
+  --parchment-accent-soft: rgba(212, 163, 115, 0.2);
+  --parchment-outer-bg: #0F0C0A;
 }
 
 .dark .admin-theme {
