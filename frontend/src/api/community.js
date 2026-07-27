@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { addCredits } from './credits';
-import { uploadImage, extractCloudinaryPublicId } from '../lib/cloudinary';
+import { uploadImage, deleteFile, extractCloudinaryPublicId } from '../lib/cloudinary';
 import { createNotification } from './notifications';
 
 const REQUEST_TIMEOUT_MS = 20000;
@@ -387,19 +387,8 @@ export async function deletePost(id) {
     if (post && post.image_url) {
       const urls = post.image_url.split('|||');
       for (const url of urls) {
-        const publicId = extractCloudinaryPublicId(url);
-        if (publicId && import.meta.env.VITE_BACKEND_URL) {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.access_token) {
-            await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/uploads/file`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
-              },
-              body: JSON.stringify({ publicId })
-            }).catch(err => console.error('Cloudinary cleanup error', err));
-          }
+        if (url) {
+          deleteFile(url).catch(err => console.error('S3 cleanup error', err));
         }
       }
     }

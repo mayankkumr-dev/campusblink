@@ -21,16 +21,9 @@ import toast from 'react-hot-toast';
 function getBackendUrl() {
   const envUrl = import.meta.env.VITE_BACKEND_URL;
   if (typeof window !== 'undefined') {
-    if (window.location.protocol === 'https:') {
-      // If browser is on HTTPS and envUrl is HTTP (e.g. http://3.229.71.36),
-      // use relative path "" so Vercel HTTPS proxy rewrites /api calls safely
-      if (!envUrl || (envUrl.startsWith('http://') && !envUrl.includes('localhost'))) {
-        return '';
-      }
-    }
-    // In local development or when using Vite proxy, if VITE_BACKEND_URL is empty,
-    // return '' so requests go to current origin (/api/...) which Vite proxies to localhost:3000
-    if (!envUrl) {
+    // If envUrl is empty, or uses unencrypted http:// to an IP/remote host (e.g. http://3.229.71.36),
+    // return relative path "" so Vercel HTTPS proxy rewrites /api calls or Vite proxy handles them safely.
+    if (!envUrl || (envUrl.startsWith('http://') && !envUrl.includes('localhost'))) {
       return '';
     }
   }
