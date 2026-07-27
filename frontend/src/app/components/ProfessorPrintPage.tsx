@@ -31,7 +31,7 @@ async function analyzePdfInk(file: File): Promise<InkAnalysis> {
       if (!context) { pageDarkRatios.push(0.03); continue; }
       canvas.width = Math.max(1, Math.floor(viewport.width));
       canvas.height = Math.max(1, Math.floor(viewport.height));
-      await page.render({ canvasContext: context as any, viewport: viewport as any }).promise;
+      await page.render({ canvasContext: context as any, viewport: viewport as any, canvas: canvas as any }).promise;
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
       let darkPixels = 0;
       const step = 4 * 16;

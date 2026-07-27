@@ -7,7 +7,7 @@ interface FollowButtonProps {
   targetUserId?: string | null;
   targetRole?: string | null;
   initialFollowing?: boolean;
-  onChange?: (nextFollowing: boolean) => void;
+  onChange?: (nextFollowing: boolean, counts?: { followers_count?: number; following_count?: number }) => void;
   size?: 'sm' | 'md';
   variant?: 'primary' | 'ghost' | 'inline' | 'soft';
   className?: string;

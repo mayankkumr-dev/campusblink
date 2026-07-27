@@ -61,7 +61,7 @@ async function analyzePdfInk(file: File): Promise<InkAnalysis> {
       canvas.width = Math.max(1, Math.floor(viewport.width));
       canvas.height = Math.max(1, Math.floor(viewport.height));
 
-      await page.render({ canvasContext: context, viewport }).promise;
+      await page.render({ canvasContext: context, viewport, canvas }).promise;
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
       let darkPixels = 0;

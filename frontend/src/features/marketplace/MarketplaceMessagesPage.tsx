@@ -335,7 +335,7 @@ export function MarketplaceMessagesPage() {
                             <img src={otherProfile.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center font-bold text-text-secondary/70">
-                              {(otherProfile?.name || otherProfile?.email || '?').charAt(0).toUpperCase()}
+                              {(otherProfile?.name || otherProfile?.username || '?').charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
@@ -388,7 +388,7 @@ export function MarketplaceMessagesPage() {
                         <img src={peerProfile.avatar_url} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center font-bold text-text-secondary/70">
-                          {(peerProfile?.name || peerProfile?.email || '?').charAt(0).toUpperCase()}
+                          {(peerProfile?.name || peerProfile?.username || '?').charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>

@@ -20,14 +20,21 @@ import toast from 'react-hot-toast';
 
 function getBackendUrl() {
   const envUrl = import.meta.env.VITE_BACKEND_URL;
-  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    // If browser is on HTTPS and envUrl is HTTP (e.g. http://3.229.71.36),
-    // use relative path "" so Vercel HTTPS proxy rewrites /api calls safely
-    if (!envUrl || (envUrl.startsWith('http://') && !envUrl.includes('localhost'))) {
+  if (typeof window !== 'undefined') {
+    if (window.location.protocol === 'https:') {
+      // If browser is on HTTPS and envUrl is HTTP (e.g. http://3.229.71.36),
+      // use relative path "" so Vercel HTTPS proxy rewrites /api calls safely
+      if (!envUrl || (envUrl.startsWith('http://') && !envUrl.includes('localhost'))) {
+        return '';
+      }
+    }
+    // In local development or when using Vite proxy, if VITE_BACKEND_URL is empty,
+    // return '' so requests go to current origin (/api/...) which Vite proxies to localhost:3000
+    if (!envUrl) {
       return '';
     }
   }
-  return envUrl || 'http://localhost:3000';
+  return envUrl || '';
 }
 
 // ─── Compression Config ────────────────────────────────────────────────────────
@@ -285,15 +292,21 @@ async function uploadToS3(file, resourceType, folder, onProgress) {
 
   // ── Attempt 3: Supabase Storage direct upload (failsafe) ─────────────────────
   try {
-    const cleanFolder = String(folder || 'uploads').replace(/^campus-blink\//, '');
-    const filePath = `campus-blink/${cleanFolder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExtension}`;
-    
+    let bucketName = 'campus-blink';
+    let cleanFolder = String(folder || 'uploads');
+
+    if (cleanFolder.startsWith('campus-blink/')) {
+      cleanFolder = cleanFolder.replace(/^campus-blink\//, '');
+    }
+
+    const filePath = `${cleanFolder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExtension}`;
+
     const { data: supaData, error: supaErr } = await supabase.storage
-      .from('public')
+      .from(bucketName)
       .upload(filePath, file, { upsert: true, contentType });
 
     if (!supaErr && supaData) {
-      const { data: urlData } = supabase.storage.from('public').getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
       if (urlData?.publicUrl) {
         return {
           url: urlData.publicUrl,
@@ -302,6 +315,32 @@ async function uploadToS3(file, resourceType, folder, onProgress) {
           format: fileExtension,
           resourceType,
         };
+      }
+    } else {
+      console.warn(`[S3 Upload] Supabase storage upload to bucket "${bucketName}" failed:`, supaErr?.message || supaErr);
+
+      // Fallback for specific buckets if 'campus-blink' bucket does not exist or has restrictive RLS
+      const folderSegment = cleanFolder.split('/')[0];
+      const knownBuckets = ['diaries', 'notice-attachments', 'print-files', 'quarantine'];
+      if (knownBuckets.includes(folderSegment)) {
+        const altBucket = folderSegment;
+        const altPath = cleanFolder.slice(altBucket.length + 1) || `${Date.now()}.${fileExtension}`;
+        const { data: altData, error: altErr } = await supabase.storage
+          .from(altBucket)
+          .upload(altPath, file, { upsert: true, contentType });
+
+        if (!altErr && altData) {
+          const { data: altUrlData } = supabase.storage.from(altBucket).getPublicUrl(altPath);
+          if (altUrlData?.publicUrl) {
+            return {
+              url: altUrlData.publicUrl,
+              publicId: altPath,
+              key: altPath,
+              format: fileExtension,
+              resourceType,
+            };
+          }
+        }
       }
     }
   } catch (supaErr) {
@@ -416,8 +455,9 @@ export async function deleteFile(publicIdOrKey) {
 
     const authHeaders = await getAuthHeaders();
     const key = extractS3Key(publicIdOrKey) || publicIdOrKey;
+    const baseUrl = getBackendUrl();
 
-    const response = await fetch(`${backendUrl}/api/uploads/file`, {
+    const response = await fetch(`${baseUrl}/api/uploads/file`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
