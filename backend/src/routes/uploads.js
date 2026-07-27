@@ -35,7 +35,7 @@ router.post('/presigned-url', authMiddleware, async (req, res) => {
     }
 
     // Validate folder to prevent path traversal
-    const safeFolder = String(folder).replace(/[^a-zA-Z0-9\-_/]/g, '').slice(0, 80) || 'uploads';
+    const safeFolder = String(folder).replace(/[^a-zA-Z0-9\-_/]/g, '').slice(0, 150) || 'uploads';
 
     const result = await s3Service.generatePresignedUrl(
       filename.trim(),
@@ -209,7 +209,7 @@ router.delete('/file', authMiddleware, async (req, res) => {
       extractedUserId = parts[2];
     }
 
-    const isOwner = extractedUserId && extractedUserId === req.user.id;
+    const isOwner = (extractedUserId && extractedUserId === req.user.id) || parts.includes(req.user.id);
     const isAdmin = req.profile?.role === 'admin';
 
     if (!isOwner && !isAdmin) {

@@ -33,7 +33,11 @@ function extractS3Key(urlOrKey) {
 function makeKey(folder, userId, filename) {
   const ts = Date.now();
   const rand = Math.random().toString(36).slice(2, 8);
-  return `campus-blink/${folder}/${userId}/${ts}-${rand}-${filename}`;
+  let cleanFolder = String(folder || 'uploads').replace(/^campus-blink\//, '');
+  if (userId) {
+    cleanFolder = cleanFolder.replace(new RegExp(`/${userId}$`), '').replace(new RegExp(`^${userId}/`), '');
+  }
+  return `campus-blink/${cleanFolder}/${userId}/${ts}-${rand}-${filename}`;
 }
 
 const s3Service = {

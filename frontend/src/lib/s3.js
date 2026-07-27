@@ -18,7 +18,17 @@ import imageCompression from 'browser-image-compression';
 import { supabase } from './supabase';
 import toast from 'react-hot-toast';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+function getBackendUrl() {
+  const envUrl = import.meta.env.VITE_BACKEND_URL;
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    // If browser is on HTTPS and envUrl is HTTP (e.g. http://3.229.71.36),
+    // use relative path "" so Vercel HTTPS proxy rewrites /api calls safely
+    if (!envUrl || (envUrl.startsWith('http://') && !envUrl.includes('localhost'))) {
+      return '';
+    }
+  }
+  return envUrl || 'http://localhost:3000';
+}
 
 // ─── Compression Config ────────────────────────────────────────────────────────
 
@@ -178,10 +188,11 @@ async function uploadToS3(file, resourceType, folder, onProgress) {
   const authHeaders = await getAuthHeaders();
   const fileExtension = file.name ? file.name.split('.').pop() : resourceType === 'image' ? 'jpg' : 'pdf';
   const contentType = file.type || (resourceType === 'image' ? 'image/jpeg' : 'application/pdf');
+  const baseUrl = getBackendUrl();
 
   // ── Attempt 1: Pre-signed URL direct PUT ────────────────────────────────────
   try {
-    const presignResponse = await fetch(`${backendUrl}/api/uploads/presigned-url`, {
+    const presignResponse = await fetch(`${baseUrl}/api/uploads/presigned-url`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -239,53 +250,65 @@ async function uploadToS3(file, resourceType, folder, onProgress) {
   }
 
   // ── Attempt 2: Backend Express upload (fallback) ─────────────────────────────
-  // CRITICAL FIX: Do NOT set Content-Type header on FormData.
-  // The browser automatically adds: multipart/form-data; boundary=xxxx
-  // Setting it manually strips the boundary, causing a 400 Bad Request.
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);
 
-  const endpoint = `${backendUrl}/api/uploads/${resourceType === 'image' ? 'image' : 'pdf'}`;
+  const endpoint = `${baseUrl}/api/uploads/${resourceType === 'image' ? 'image' : 'pdf'}`;
 
-  let fallbackResponse;
   try {
-    fallbackResponse = await fetch(endpoint, {
+    const fallbackResponse = await fetch(endpoint, {
       method: 'POST',
-      // ⚠️ No Content-Type header — let browser set multipart/form-data + boundary
       headers: {
         ...authHeaders,
       },
       body: formData,
     });
-  } catch (networkErr) {
-    showNetworkErrorToast();
-    throw new Error('Upload paused. Check your connection.');
-  }
 
-  if (!fallbackResponse.ok) {
-    let errorMessage = `Upload failed (${fallbackResponse.status})`;
-    try {
-      const errorBody = await fallbackResponse.json();
-      errorMessage = errorBody?.error || errorMessage;
-    } catch {
-      // ignore json parse error
+    if (fallbackResponse.ok) {
+      const fallbackResult = await fallbackResponse.json();
+      if (fallbackResult?.url && !fallbackResult.error) {
+        return {
+          url: fallbackResult.url,
+          publicId: fallbackResult.url,
+          key: fallbackResult.url,
+          format: fileExtension,
+          resourceType,
+        };
+      }
+    } else {
+      console.warn(`[S3 Upload] Backend fallback responded with status ${fallbackResponse.status}`);
     }
-    throw new Error(errorMessage);
+  } catch (networkErr) {
+    console.warn('[S3 Upload] Backend Express fallback network error:', networkErr.message);
   }
 
-  const fallbackResult = await fallbackResponse.json();
-  if (fallbackResult?.error) {
-    throw new Error(fallbackResult.error);
+  // ── Attempt 3: Supabase Storage direct upload (failsafe) ─────────────────────
+  try {
+    const cleanFolder = String(folder || 'uploads').replace(/^campus-blink\//, '');
+    const filePath = `campus-blink/${cleanFolder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExtension}`;
+    
+    const { data: supaData, error: supaErr } = await supabase.storage
+      .from('public')
+      .upload(filePath, file, { upsert: true, contentType });
+
+    if (!supaErr && supaData) {
+      const { data: urlData } = supabase.storage.from('public').getPublicUrl(filePath);
+      if (urlData?.publicUrl) {
+        return {
+          url: urlData.publicUrl,
+          publicId: filePath,
+          key: filePath,
+          format: fileExtension,
+          resourceType,
+        };
+      }
+    }
+  } catch (supaErr) {
+    console.warn('[S3 Upload] Supabase storage fallback error:', supaErr);
   }
 
-  return {
-    url: fallbackResult.url,
-    publicId: fallbackResult.url,
-    key: fallbackResult.url,
-    format: fileExtension,
-    resourceType,
-  };
+  throw new Error('Upload failed. Unable to connect to storage service.');
 }
 
 // ─── Public API ────────────────────────────────────────────────────────────────
