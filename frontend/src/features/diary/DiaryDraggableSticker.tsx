@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { X } from 'lucide-react';
 import { CanvasElement } from './types';
@@ -14,6 +14,8 @@ interface Props {
 export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, onDelete }: Props) {
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const pinchStartDist = useRef<number | null>(null);
+  const startSize = useRef<{ width: number; height: number } | null>(null);
 
   const parseNumeric = (val: string | number | undefined, fallback: number) => {
     if (typeof val === 'number') return val;
@@ -36,6 +38,42 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
     element.content.startsWith('data:') ||
     element.content.startsWith('/');
 
+  // Multi-touch pinch-to-scale helpers
+  const getTouchDistance = (touches: React.TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsHovered(true);
+    if (onFocus) onFocus();
+
+    if (e.touches.length === 2) {
+      pinchStartDist.current = getTouchDistance(e.touches);
+      startSize.current = { width: widthNum, height: heightNum };
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStartDist.current && startSize.current) {
+      const currentDist = getTouchDistance(e.touches);
+      const scaleRatio = currentDist / pinchStartDist.current;
+      const newWidth = Math.max(40, Math.min(400, Math.round(startSize.current.width * scaleRatio)));
+      const newHeight = Math.max(40, Math.min(400, Math.round(startSize.current.height * scaleRatio)));
+      onChange({ width: newWidth, height: newHeight });
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.touches.length < 2) {
+      pinchStartDist.current = null;
+      startSize.current = null;
+    }
+    setTimeout(() => setIsHovered(false), 2500);
+  };
+
   return (
     <Rnd
       default={{
@@ -45,7 +83,10 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
         height: heightNum,
       }}
       lockAspectRatio={true}
-      onDragStart={() => setIsDragging(true)}
+      onDragStart={() => {
+        setIsDragging(true);
+        if (onFocus) onFocus();
+      }}
       onDragStop={(e, d) => {
         setIsDragging(false);
         onChange({ x: d.x, y: d.y });
@@ -58,32 +99,55 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
           y: position.y,
         });
       }}
-      className={`group ${isDragging ? 'z-50' : 'z-30'} cursor-grab active:cursor-grabbing`}
+      enableResizing={{
+        top: true,
+        right: true,
+        bottom: true,
+        left: true,
+        topRight: true,
+        bottomRight: true,
+        bottomLeft: true,
+        topLeft: true,
+      }}
+      className={`group ${isDragging || isActive ? 'z-50' : 'z-30'} cursor-grab active:cursor-grabbing`}
     >
-      <div 
-        className="relative w-full h-full p-1"
+      <div
+        className="relative w-full h-full p-1 select-none cursor-grab active:cursor-grabbing"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onTouchStart={() => setIsHovered(true)}
-        onTouchEnd={() => setTimeout(() => setIsHovered(false), 2000)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onFocus) onFocus();
+        }}
       >
-        {/* Delete Button (Only visible on hover/touch) */}
-        {isHovered && !isDragging && (
-          <button 
-            onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
-            onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(); }}
-            className="absolute -top-3 -right-3 p-1.5 bg-white shadow-md text-red-500 rounded-full z-10 capture-ignore hover:scale-110 active:scale-95 transition-transform"
+        {/* Delete Button */}
+        {(isHovered || isActive) && !isDragging && (
+          <button
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="absolute -top-3 -right-3 p-1.5 bg-white shadow-md text-red-500 rounded-full z-20 capture-ignore hover:scale-110 active:scale-95 transition-transform cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         )}
 
         {isImageUrl ? (
-          <img 
-            src={element.content} 
-            alt="sticker" 
-            className="w-full h-full object-contain drop-shadow-sm pointer-events-none select-none" 
-            draggable={false} 
+          <img
+            src={element.content}
+            alt="sticker"
+            className="w-full h-full object-contain drop-shadow-sm pointer-events-none select-none"
+            draggable={false}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl sm:text-6xl drop-shadow-md select-none pointer-events-none">

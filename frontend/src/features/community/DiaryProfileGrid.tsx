@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { getUserDiaryEntries, deleteDiaryEntry, toggleDiaryLike } from '../../api/diary';
-import { getAvatarDataUrl } from '../../lib/avatar';
 import { DiaryFullscreen, isValidDiaryImage } from './DiaryMasonryGrid';
 
 /* ─── Helpers ───────────────────────────────────────────────────────── */
@@ -65,7 +63,7 @@ function DiaryThumbnail({
       transition={{ type: 'spring', damping: 22, stiffness: 300 }}
       className="aspect-square w-full rounded-xl overflow-hidden relative shadow-sm cursor-pointer border border-gray-100 flex flex-col justify-between select-none group"
       style={{ background: hasImage ? '#0F172A' : background }}
-      aria-label={`View diary: ${entry.content.slice(0, 30)}`}
+      aria-label={`View diary: ${entry.content?.slice(0, 30) || 'Story'}`}
     >
       {hasImage ? (
         <img
@@ -78,13 +76,13 @@ function DiaryThumbnail({
       ) : null}
 
       <div className="relative z-10 inset-0 flex-1 flex items-center justify-center p-2.5 w-full">
-        {entry.content?.trim() && (
+        {!hasImage && entry.content?.trim() && (
           <p
-            className={`text-center line-clamp-4 leading-snug break-words ${hasImage ? 'bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-lg shadow-sm text-gray-900 font-semibold' : ''}`}
+            className="text-center line-clamp-4 leading-snug break-words"
             style={{
-              fontFamily: `'${entry.font_family}', serif`,
+              fontFamily: `'${entry.font_family || 'Caveat'}', serif`,
               fontSize,
-              color: hasImage ? '#1F2937' : entry.text_color,
+              color: entry.text_color || '#1E293B',
             }}
           >
             {entry.content}
@@ -99,7 +97,7 @@ function DiaryThumbnail({
           style={{
             background: hasImage ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)',
             backdropFilter: 'blur(4px)',
-            color: hasImage ? '#FFFFFF' : entry.text_color,
+            color: hasImage ? '#FFFFFF' : entry.text_color || '#1E293B',
             opacity: 0.9,
           }}
         >
@@ -128,17 +126,9 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
   const [entries, setEntries] = useState<DiaryEntry[]>(preloadedEntries || []);
   const [isLoading, setIsLoading] = useState(!preloadedEntries);
   const [viewEntry, setViewEntry] = useState<DiaryEntry | null>(null);
-  const loadedRef = useRef(false);
 
-  useEffect(() => {
-    if (preloadedEntries) {
-      setEntries(preloadedEntries);
-      setIsLoading(false);
-      return;
-    }
-    if (!userId || loadedRef.current) return;
-    loadedRef.current = true;
-
+  const fetchUserEntries = useCallback(() => {
+    if (!userId) return;
     setIsLoading(true);
     getUserDiaryEntries(userId)
       .then(({ data, error }) => {
@@ -149,7 +139,20 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
         setEntries(data || []);
       })
       .finally(() => setIsLoading(false));
-  }, [userId, preloadedEntries]);
+  }, [userId]);
+
+  useEffect(() => {
+    if (preloadedEntries) {
+      setEntries(preloadedEntries);
+      setIsLoading(false);
+      return;
+    }
+    fetchUserEntries();
+    
+    // Auto-reload profile grid when a new diary is published
+    window.addEventListener('diary_published', fetchUserEntries);
+    return () => window.removeEventListener('diary_published', fetchUserEntries);
+  }, [userId, preloadedEntries, fetchUserEntries]);
 
   const handleDelete = async (id: string) => {
     if (!currentProfile?.id) return;
@@ -180,30 +183,9 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 px-6 text-center max-w-sm mx-auto select-none">
-        {/* Soft-Tinted Vector Card Stack Illustration */}
         <div className="relative w-28 h-32 mb-6 flex items-center justify-center">
           <div className="absolute -inset-3 rounded-full bg-gradient-to-tr from-violet-500/10 via-pink-500/10 to-blue-500/10 blur-xl pointer-events-none" />
-          
-          {/* Rotated back card outline */}
-          <div className="absolute w-20 h-24 rounded-xl bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-200/80 shadow-xs -rotate-12 -translate-x-3 translate-y-1 p-2 opacity-85 flex flex-col justify-between">
-            <div className="w-3.5 h-3.5 rounded-full bg-violet-200/80" />
-            <div className="space-y-1">
-              <div className="w-full h-1 bg-violet-200/80 rounded" />
-              <div className="w-2/3 h-1 bg-violet-200/60 rounded" />
-            </div>
-          </div>
-
-          {/* Rotated front/right card outline */}
-          <div className="absolute w-20 h-24 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 shadow-xs rotate-12 translate-x-3 translate-y-1 p-2 opacity-85 flex flex-col justify-between">
-            <div className="w-3.5 h-3.5 rounded-full bg-blue-200/80" />
-            <div className="space-y-1">
-              <div className="w-full h-1 bg-blue-200/80 rounded" />
-              <div className="w-2/3 h-1 bg-blue-200/60 rounded" />
-            </div>
-          </div>
-
-          {/* Center main card illustration */}
-          <div className="relative z-10 w-22 h-26 rounded-xl bg-white border border-gray-200 shadow-md flex flex-col justify-between p-2.5 transform hover:scale-105 transition-transform duration-300">
+          <div className="relative z-10 w-22 h-26 rounded-xl bg-white border border-gray-200 shadow-md flex flex-col justify-between p-2.5">
             <div className="flex items-center gap-1.5">
               <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white shadow-2xs">
                 <span className="text-[10px]">✨</span>
@@ -216,12 +198,6 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
             <div className="my-auto space-y-1 flex flex-col items-center">
               <div className="w-4/5 h-1.5 bg-gray-100 rounded" />
               <div className="w-full h-1.5 bg-gray-100 rounded" />
-              <div className="w-3/5 h-1.5 bg-gray-100 rounded" />
-            </div>
-            <div className="flex justify-end pt-1">
-              <div className="w-4 h-4 rounded-full bg-rose-50 flex items-center justify-center text-[8px] text-rose-500">
-                ❤️
-              </div>
             </div>
           </div>
         </div>

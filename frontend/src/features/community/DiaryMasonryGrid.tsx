@@ -518,18 +518,7 @@ const DiaryCard = React.memo<DiaryCardProps>(({
 
       {/* ── Content Body Rendered Directly on Card ───────────────────── */}
       {hasImage ? (
-        entry.content?.trim() ? (
-          <div className="relative z-10 mb-14 mx-3 mt-auto">
-            <div className="bg-white/95 backdrop-blur-md rounded-xl py-2 px-3 shadow-lg border border-white/80 text-center">
-              <p
-                className="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-3 leading-relaxed break-words"
-                style={{ fontFamily: fontStyle }}
-              >
-                {entry.content}
-              </p>
-            </div>
-          </div>
-        ) : <div className="mt-auto" />
+        <div className="mt-auto" />
       ) : (
         <div className="relative z-10 flex-1 px-4 sm:px-5 py-6 flex flex-col items-center justify-center text-center overflow-hidden">
           <p
@@ -744,20 +733,14 @@ function DiaryFullscreenCard({
 
         {/* Content Area with Guaranteed Safe Content Zone away from Action Rail, Top Bar, and Bottom Edge */}
         <div className="relative z-10 flex-1 pt-24 pb-20 pl-6 sm:pl-8 pr-20 sm:pr-24 flex flex-col justify-center items-center text-center overflow-y-auto scrollbar-none max-h-full">
-          {entry.content?.trim() && (
-            <div
-              className={
-                hasImage
-                  ? 'bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xl text-gray-900 border border-white/80 max-w-full'
-                  : 'w-full'
-              }
-            >
+          {!hasImage && entry.content?.trim() && (
+            <div className="w-full">
               <p
                 className="leading-relaxed whitespace-pre-wrap break-words"
                 style={{
                   fontFamily: fontStyle,
                   fontSize: Math.min(30, Math.max(16, Math.round(22 * (entry.scale || 1)))),
-                  color: hasImage ? '#1F2937' : textColor,
+                  color: textColor,
                 }}
               >
                 {entry.content}
@@ -1112,6 +1095,12 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
       loadedRef.current = true;
       load(0, true);
     }
+
+    const handlePublished = () => {
+      load(0, true);
+    };
+    window.addEventListener('diary_published', handlePublished);
+    return () => window.removeEventListener('diary_published', handlePublished);
   }, [load]);
 
   // Prepend new entry

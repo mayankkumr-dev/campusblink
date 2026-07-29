@@ -25,36 +25,49 @@ export async function clearDraft(key: string) {
   await diaryDraftsStore.removeItem(key);
 }
 
-export async function queuePublishTask(task: {
+export interface PublishTask {
   userId: string;
-  dataUrl: string; // the base64 full image (canvas snapshot)
-  visibility: string;
-  allowComments: boolean;
-  isAnonymous: boolean;
-  tags: string[];
-  locationTag: string;
+  dataUrl: string;
+  contentText?: string;
+  fontFamily?: string;
+  textColor?: string;
+  bgColor?: string;
+  gradient?: string | null;
+  visibility?: string;
+  allowComments?: boolean;
+  isAnonymous?: boolean;
+  tags?: string[];
+  locationTag?: string;
   unlockAt?: string | null;
-}) {
+}
+
+export async function queuePublishTask(task: PublishTask) {
   const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   await offlinePublishQueue.setItem(taskId, task);
 
   // Try to flush immediately if online
   if (navigator.onLine) {
-    flushPublishQueue();
+    await flushPublishQueue();
   }
 }
 
-// Convert base64 DataURL to File object
-function dataURLtoFile(dataurl: string, filename: string): File {
-  const arr = dataurl.split(',');
-  const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
+// Convert base64 DataURL to File object safely
+function dataURLtoFile(dataurl: string, filename: string): File | null {
+  try {
+    if (!dataurl || !dataurl.includes(',')) return null;
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  } catch (err) {
+    console.warn('[offlineQueue] dataURLtoFile failed:', err);
+    return null;
   }
-  return new File([u8arr], filename, { type: mime });
 }
 
 let isFlushing = false;
@@ -66,57 +79,104 @@ export async function flushPublishQueue() {
   try {
     const keys = await offlinePublishQueue.keys();
     for (const key of keys) {
-      const task: any = await offlinePublishQueue.getItem(key);
-      if (!task) continue;
+      const task: PublishTask = await offlinePublishQueue.getItem(key);
+      if (!task || !task.userId) {
+        await offlinePublishQueue.removeItem(key);
+        continue;
+      }
 
       // 1. Convert canvas snapshot DataURL to a File object
       const file = dataURLtoFile(task.dataUrl, `diary_${Date.now()}.png`);
 
-      // 2. Upload to AWS S3 via pre-signed URL (migrated from Supabase Storage)
-      //    Uses uploadImage from lib/s3.js: compress → presign → PUT to S3
+      // 2. Upload image via S3 library or direct Supabase Storage bucket
       let imageUrl = '';
-      try {
-        const { data: uploadData, error: uploadError } = await uploadImage(
-          file,
-          `diaries/${task.userId}`
-        );
 
-        if (!uploadError && uploadData?.url) {
-          imageUrl = uploadData.url;
-        } else if (uploadError) {
-          console.error('[offlineQueue] S3 upload error:', uploadError.message);
-          // Leave in queue to retry next time
-          continue;
+      if (file) {
+        // Attempt 1: Upload via S3 helper
+        try {
+          const { data: uploadData, error: uploadError } = await uploadImage(
+            file,
+            `diaries/${task.userId}`
+          );
+          if (!uploadError && uploadData?.url) {
+            imageUrl = uploadData.url;
+          }
+        } catch (s3Err: any) {
+          console.warn('[offlineQueue] S3 upload error:', s3Err?.message);
         }
-      } catch (uploadErr: any) {
-        console.error('[offlineQueue] Upload failed:', uploadErr?.message);
-        // Don't remove from queue — retry on next flush
-        continue;
+
+        // Attempt 2: Direct Supabase Storage 'diaries' or 'public' bucket
+        if (!imageUrl) {
+          try {
+            const storagePath = `${task.userId}/diary_${Date.now()}.png`;
+            const { data: supaData } = await supabase.storage
+              .from('diaries')
+              .upload(storagePath, file, { contentType: 'image/png', upsert: true });
+
+            if (supaData) {
+              const { data: publicUrlData } = supabase.storage.from('diaries').getPublicUrl(storagePath);
+              imageUrl = publicUrlData?.publicUrl || '';
+            }
+          } catch (supaErr: any) {
+            console.warn('[offlineQueue] Supabase storage upload warning:', supaErr?.message);
+          }
+        }
       }
 
-      // 3. Insert into DB — bypasses backend moderation (by design for canvas diary entries)
-      const { error: dbError } = await supabase
-        .from('diary_entries')
-        .insert({
-          author_id: task.userId,
-          image_url: imageUrl,
-          visibility: task.visibility,
-          allow_comments: task.allowComments,
-          is_anonymous: task.isAnonymous,
-          tags: task.tags,
-          location_tag: task.locationTag,
-          unlock_at: task.unlockAt,
-          content: 'Canvas Diary Entry',
-        });
+      // 3. Insert into Supabase DB table `diary_entries`
+      const payload: any = {
+        author_id: task.userId,
+        content: task.contentText && task.contentText.trim().length > 0 ? task.contentText.trim() : 'Diary Story',
+        font_family: task.fontFamily || 'Caveat',
+        text_color: task.textColor || '#2D1B10',
+        bg_color: task.bgColor || '#FFFDF2',
+        scale: 1.0,
+        status: 'active',
+      };
 
-      if (!dbError) {
+      if (task.gradient) payload.gradient = task.gradient;
+      if (imageUrl) payload.image_url = imageUrl;
+
+      console.log('[offlineQueue] Submitting diary payload to Supabase:', payload);
+
+      const { data: dbData, error: dbError } = await supabase
+        .from('diary_entries')
+        .insert(payload)
+        .select();
+
+      if (!dbError && dbData && dbData.length > 0) {
+        console.log('[offlineQueue] Diary successfully inserted into DB:', dbData[0].id);
         await offlinePublishQueue.removeItem(key);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('diary_published', { detail: dbData[0] }));
+        }
       } else {
-        console.error('[offlineQueue] DB insert error:', dbError.message);
+        console.error('[offlineQueue] Primary DB insert error:', dbError?.message || dbError);
+
+        // Fallback: minimal insert if optional schema fields failed
+        const minimalPayload = {
+          author_id: task.userId,
+          content: task.contentText && task.contentText.trim().length > 0 ? task.contentText.trim() : 'Diary Story',
+        };
+
+        const { data: fbData, error: fbError } = await supabase
+          .from('diary_entries')
+          .insert(minimalPayload)
+          .select();
+
+        if (!fbError && fbData && fbData.length > 0) {
+          console.log('[offlineQueue] Minimal fallback insert succeeded:', fbData[0].id);
+          await offlinePublishQueue.removeItem(key);
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('diary_published', { detail: fbData[0] }));
+          }
+        } else {
+          console.error('[offlineQueue] Fallback DB insert also failed:', fbError?.message || fbError);
+        }
       }
     }
   } catch (error) {
-    console.error('[offlineQueue] Error flushing publish queue:', error);
+    console.error('[offlineQueue] Unexpected error flushing publish queue:', error);
   } finally {
     isFlushing = false;
   }

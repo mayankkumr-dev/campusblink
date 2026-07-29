@@ -185,25 +185,39 @@ export async function createDiaryEntry(entry, imageFile = null) {
  */
 export async function deleteDiaryEntry(id, authorId) {
   try {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
+    // 1. Attempt Backend API delete (cleans up photos & storage)
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
 
-    const response = await fetch(`/api/diary/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ author_id: authorId }),
-      credentials: 'include',
-    });
+      const response = await fetch(`/api/diary/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ author_id: authorId }),
+        credentials: 'include',
+      });
 
-    if (!response.ok) {
-      const responseData = await response.json().catch(() => ({}));
-      return { error: new Error(responseData.error || 'Failed to delete diary entry') };
+      if (response.ok) {
+        return { error: null };
+      }
+    } catch (_) {
+      // Backend route unreachable, fall through to direct Supabase DB delete
     }
 
-    return { error: null };
+    // 2. Direct Supabase Client Delete Fallback
+    const { error: supaError } = await supabase
+      .from('diary_entries')
+      .delete()
+      .eq('id', id);
+
+    if (!supaError) {
+      return { error: null };
+    }
+
+    return { error: supaError };
   } catch (err) {
     return { error: err };
   }

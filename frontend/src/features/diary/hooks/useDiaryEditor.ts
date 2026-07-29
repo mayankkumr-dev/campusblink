@@ -10,7 +10,28 @@ const FALLBACK_PROMPTS: DailyPrompt[] = [
 ];
 
 export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorProps, 'initialState' | 'onSaveDraft'>) {
-  const [elements, setElements] = useState<CanvasElement[]>(initialState?.elements || []);
+  const getInitialElements = (): CanvasElement[] => {
+    const prevElements = initialState?.elements || [];
+    const hasText = prevElements.some((el) => el.type === 'text');
+    if (hasText) {
+      return prevElements;
+    }
+    const defaultPageText: CanvasElement = {
+      id: 'main-page-text',
+      type: 'text',
+      content: '',
+      x: 0,
+      y: 0,
+      fontFamily: 'Caveat, cursive',
+      bgMode: 'transparent',
+      color: 'var(--parchment-text-primary)',
+      fontSize: 32,
+      textAlign: 'center',
+    };
+    return [defaultPageText, ...prevElements];
+  };
+
+  const [elements, setElements] = useState<CanvasElement[]>(getInitialElements);
   const [selectedBg, setSelectedBg] = useState<any>(initialState?.selectedBg || { id: 'parchment-default' });
   const [visibility, setVisibility] = useState<VisibilityOption>((initialState?.visibility as VisibilityOption) || 'public');
   const [allowComments, setAllowComments] = useState<boolean>(initialState?.allowComments ?? true);
@@ -34,7 +55,6 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
         }
       })
       .catch(() => {
-        // Graceful fallback to static prompt
         const dayIndex = new Date().getDate() % FALLBACK_PROMPTS.length;
         if (isMounted) setDailyPrompt(FALLBACK_PROMPTS[dayIndex]);
       });
@@ -52,26 +72,40 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
     return () => clearTimeout(timer);
   }, [elements, selectedBg, visibility, allowComments, onSaveDraft]);
 
-  const activeElement = elements.find((el) => el.id === activeNodeId) || null;
-  const isTextActive = activeElement?.type === 'text';
+  const mainTextNode = elements.find((el) => el.type === 'text') || elements[0];
+  const activeElement = elements.find((el) => el.id === activeNodeId) || (activeNodeId === null ? null : mainTextNode);
+  const isTextActive = activeNodeId !== null && activeElement?.type === 'text';
 
   const addTextNode = useCallback((initialContent: string = '') => {
-    const newEl: CanvasElement = {
-      id: Math.random().toString(36).substring(2, 9),
-      type: 'text',
-      content: initialContent,
-      x: 20,
-      y: 40,
-      width: 300,
-      height: 140,
-      fontFamily: 'Caveat, cursive',
-      bgMode: 'transparent',
-      color: 'var(--parchment-text-primary)',
-      fontSize: 32,
-      textAlign: 'center',
-    };
-    setElements((prev) => [...prev, newEl]);
-    setActiveNodeId(newEl.id);
+    setElements((prev) => {
+      const textIdx = prev.findIndex((el) => el.type === 'text');
+      if (textIdx !== -1) {
+        const existing = prev[textIdx];
+        const updatedContent = initialContent
+          ? existing.content
+            ? `${existing.content}\n${initialContent}`
+            : initialContent
+          : existing.content;
+        const updated = [...prev];
+        updated[textIdx] = { ...existing, content: updatedContent };
+        setActiveNodeId(existing.id);
+        return updated;
+      }
+      const newEl: CanvasElement = {
+        id: 'main-page-text',
+        type: 'text',
+        content: initialContent,
+        x: 0,
+        y: 0,
+        fontFamily: 'Caveat, cursive',
+        bgMode: 'transparent',
+        color: 'var(--parchment-text-primary)',
+        fontSize: 32,
+        textAlign: 'center',
+      };
+      setActiveNodeId(newEl.id);
+      return [newEl, ...prev];
+    });
   }, []);
 
   const addImageNode = useCallback((url: string) => {

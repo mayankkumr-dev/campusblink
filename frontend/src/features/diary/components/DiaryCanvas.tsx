@@ -29,20 +29,28 @@ export function DiaryCanvas({
 }: DiaryCanvasProps) {
   const getCanvasStyle = (): React.CSSProperties => {
     if (selectedBg?.background) {
+      const bgVal = selectedBg.background;
       return {
-        background: selectedBg.background,
-        boxShadow: selectedBg.boxShadow || 'var(--parchment-shadow)',
+        background: bgVal,
+        backgroundColor: typeof bgVal === 'string' && bgVal.startsWith('#') ? bgVal : '#1e293b',
+        boxShadow: selectedBg.boxShadow || '0 20px 45px rgba(0, 0, 0, 0.2)',
       };
     }
+
+    // Default Aged Vintage Parchment Paper Theme (with explicit fallbacks for html-to-image)
     return {
-      backgroundColor: 'var(--parchment-bg)',
-      backgroundImage: 'var(--parchment-texture-gradient)',
-      boxShadow: 'var(--parchment-shadow)',
+      backgroundColor: '#f5ead6',
+      backgroundImage: 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0.5) 0%, rgba(215, 185, 145, 0.4) 100%)',
+      boxShadow: '0 20px 45px rgba(101, 74, 42, 0.25)',
     };
   };
 
+  const textElement = elements.find((el) => el.type === 'text');
+  const stickerElements = elements.filter((el) => el.type !== 'text');
+  const isContentEmpty = !textElement || !textElement.content.trim();
+
   return (
-    <div className="relative w-full h-full flex items-center justify-center p-3 sm:p-6 bg-[var(--parchment-outer-bg)] transition-colors duration-300">
+    <div className="relative w-full h-full flex items-center justify-center p-3 pt-20 pb-20 sm:p-6 sm:pt-24 sm:pb-24 bg-[var(--parchment-outer-bg)] transition-colors duration-300">
       {/* Central Parchment Container with Torn Edges */}
       <div
         ref={canvasRef}
@@ -60,46 +68,46 @@ export function DiaryCanvas({
           </svg>
         </div>
 
-        {/* Parchment Paper Inner Surface */}
-        <div 
-          className="relative w-full h-full overflow-hidden flex-1 cursor-default"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              onFocusNode('');
-            }
+        {/* Parchment Paper Inner Surface (Full Page Scrollable Container) */}
+        <div
+          className="relative w-full flex-1 min-h-0 h-0 overflow-y-auto scroll-smooth cursor-text p-4 pt-6 text-page-scrollbar"
+          onClick={() => {
+            if (textElement) onFocusNode(textElement.id);
           }}
         >
-          {/* Show Daily Prompt Card when no elements exist */}
-          {elements.length === 0 && (
-            <DiaryPromptCard prompt={dailyPrompt} onParticipate={onParticipatePrompt} />
+          {/* Show Daily Prompt Card when text content is empty */}
+          {isContentEmpty && (
+            <div className="mb-4">
+              <DiaryPromptCard prompt={dailyPrompt} onParticipate={onParticipatePrompt} />
+            </div>
           )}
 
-          {/* Render Elements */}
-          {elements.map((el) => {
-            if (el.type === 'text') {
-              return (
-                <DiaryDraggableText
-                  key={el.id}
+          {/* Render Full Page Text Editor */}
+          {textElement && (
+            <DiaryDraggableText
+              key={textElement.id}
+              element={textElement}
+              isActive={activeNodeId === textElement.id || !activeNodeId}
+              onFocus={() => onFocusNode(textElement.id)}
+              onChange={(updates) => onUpdateNode(textElement.id, updates)}
+              onDelete={() => onDeleteNode(textElement.id)}
+            />
+          )}
+
+          {/* Render Floating Overlay Stickers & Images */}
+          <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+            {stickerElements.map((el) => (
+              <div key={el.id} className="pointer-events-auto">
+                <DiaryDraggableSticker
                   element={el}
                   isActive={activeNodeId === el.id}
                   onFocus={() => onFocusNode(el.id)}
                   onChange={(updates) => onUpdateNode(el.id, updates)}
                   onDelete={() => onDeleteNode(el.id)}
                 />
-              );
-            }
-
-            return (
-              <DiaryDraggableSticker
-                key={el.id}
-                element={el}
-                isActive={activeNodeId === el.id}
-                onFocus={() => onFocusNode(el.id)}
-                onChange={(updates) => onUpdateNode(el.id, updates)}
-                onDelete={() => onDeleteNode(el.id)}
-              />
-            );
-          })}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottom Deckled / Torn SVG Edge Graphic */}
@@ -113,6 +121,26 @@ export function DiaryCanvas({
           </svg>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .text-page-scrollbar::-webkit-scrollbar {
+          width: 8px !important;
+          height: 8px !important;
+          display: block !important;
+        }
+        .text-page-scrollbar::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.08) !important;
+          border-radius: 9999px !important;
+        }
+        .text-page-scrollbar::-webkit-scrollbar-thumb {
+          background: #8b5cf6 !important;
+          border-radius: 9999px !important;
+          border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        }
+        .text-page-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #7c3aed !important;
+        }
+      ` }} />
     </div>
   );
 }
