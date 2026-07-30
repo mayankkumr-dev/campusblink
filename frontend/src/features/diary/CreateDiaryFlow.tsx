@@ -21,23 +21,29 @@ export function CreateDiaryFlow() {
   }, []);
 
   const handlePublish = async (dataUrl: string, visibility: string, canvasState: any) => {
-    if (!user) return;
+    // Dynamically get user ID from auth store or Supabase session
+    const authUser = (await supabase.auth.getUser())?.data?.user;
+    const currentUserId = user?.id || authUser?.id;
+
+    if (!currentUserId) {
+      toast.error('Please log in to publish your diary entry.');
+      navigate('/login');
+      return;
+    }
     
     // Save final state before publishing
     await saveDraft('current_diary_draft', canvasState);
 
     // Extract text content and styling from canvasState
-    const textNode = canvasState?.elements?.find((el: any) => el.type === 'text');
+    const textNode = canvasState?.elements?.find((el: any) => el?.type === 'text');
     const contentText = textNode?.content?.trim() || '';
     const fontFamily = textNode?.fontFamily || 'Caveat';
-    const textColor = textNode?.textColor || '#2D1B10';
-    const bgColor = canvasState?.bgColor || '#FFFDF2';
-    const gradient = canvasState?.gradient || null;
+    const textColor = textNode?.color || textNode?.textColor || '#2D1B10';
+    const selectedBgVal = canvasState?.selectedBg?.background;
+    const bgColor = typeof selectedBgVal === 'string' && selectedBgVal.startsWith('#') ? selectedBgVal : '#FFFDF2';
+    const gradient = typeof selectedBgVal === 'string' && selectedBgVal.includes('gradient') ? selectedBgVal : null;
 
     try {
-      const authUser = (await supabase.auth.getUser()).data.user;
-      const currentUserId = authUser?.id || user.id;
-
       await queuePublishTask({
         userId: currentUserId,
         dataUrl,
@@ -54,16 +60,20 @@ export function CreateDiaryFlow() {
       });
 
       // Flush queue immediately so DB row is created right now
-      await flushPublishQueue();
+      const success = await flushPublishQueue();
+      if (!success && navigator.onLine) {
+        throw new Error('Failed to save diary entry to database.');
+      }
 
       // Clear draft on success
       await clearDraft('current_diary_draft');
       
       toast.success(navigator.onLine ? 'Published successfully!' : 'Saved to offline queue.');
       navigate('/student/community');
-    } catch (e) {
+    } catch (e: any) {
       console.error('[CreateDiaryFlow] Publish error:', e);
-      toast.error('Failed to publish entry.');
+      toast.error(e?.message || 'Failed to publish entry.');
+      throw e;
     }
   };
 

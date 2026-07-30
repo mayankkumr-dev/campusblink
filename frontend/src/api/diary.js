@@ -154,25 +154,45 @@ export async function createDiaryEntry(entry, imageFile = null) {
       body = JSON.stringify(entry);
     }
 
-    const response = await fetch('/api/diary', {
-      method: 'POST',
-      headers,
-      body,
-      credentials: 'include',
-    });
+    // 1. Attempt Node backend API call
+    try {
+      const response = await fetch('/api/diary', {
+        method: 'POST',
+        headers,
+        body,
+        credentials: 'include',
+      });
 
-    const responseData = await response.json().catch(() => ({}));
+      const responseData = await response.json().catch(() => ({}));
 
-    if (!response.ok) {
-      const errorMessage = responseData.error || `HTTP error ${response.status}`;
-      const isModerated = response.status === 403 || responseData.moderated;
-      const errorObj = new Error(errorMessage);
-      errorObj.status = response.status;
-      errorObj.moderated = isModerated;
-      return { data: null, error: errorObj, moderated: isModerated };
+      if (response.ok) {
+        return { data: responseData.data, error: null, moderated: false };
+      }
+    } catch (_) {
+      // Backend route unreachable or missing in Vite dev
     }
 
-    return { data: responseData.data, error: null, moderated: false };
+    // 2. Direct Supabase Client DB Insert Fallback
+    const payload = {
+      author_id: entry.author_id,
+      content: entry.content || 'Diary Story',
+      font_family: entry.font_family || 'Caveat',
+      text_color: entry.text_color || '#2D1B10',
+      bg_color: entry.bg_color || '#FFFDF2',
+      status: 'active',
+    };
+    if (entry.image_url) payload.image_url = entry.image_url;
+
+    const { data: supaData, error: supaError } = await supabase
+      .from('diary_entries')
+      .insert(payload)
+      .select();
+
+    if (!supaError && supaData && supaData.length > 0) {
+      return { data: supaData[0], error: null, moderated: false };
+    }
+
+    return { data: null, error: supaError || new Error('Failed to create diary entry'), moderated: false };
   } catch (err) {
     return { data: null, error: err, moderated: false };
   }

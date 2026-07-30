@@ -1,5 +1,6 @@
 import React from 'react';
 import * as htmlToImage from 'html-to-image';
+import toast from 'react-hot-toast';
 import { DiaryEditorProps } from './types';
 export type { CanvasElement } from './types';
 import { useDiaryEditor } from './hooks/useDiaryEditor';
@@ -58,25 +59,35 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
     if (!canvasRef.current) return;
     setIsPublishing(true);
 
-    try {
-      // Temporarily hide UI capture-ignore elements
-      const uiElements = document.querySelectorAll('.capture-ignore');
-      uiElements.forEach((el) => ((el as HTMLElement).style.opacity = '0'));
+    const uiElements = document.querySelectorAll('.capture-ignore');
+    uiElements.forEach((el) => ((el as HTMLElement).style.opacity = '0'));
 
+    let dataUrl = '';
+    try {
+      // 50ms pause to ensure UI elements are hidden before canvas capture
       await new Promise((resolve) => setTimeout(resolve, 50));
 
-      const dataUrl = await htmlToImage.toPng(canvasRef.current, {
-        quality: 0.92,
-        pixelRatio: 2,
-        cacheBust: true,
-        style: { transform: 'none' },
-      });
-
+      try {
+        dataUrl = await htmlToImage.toPng(canvasRef.current, {
+          quality: 0.85,
+          pixelRatio: 1.5,
+          cacheBust: true,
+          style: { transform: 'none' },
+        });
+      } catch (snapshotErr) {
+        console.warn('[DiaryEditor] htmlToImage snapshot failed on mobile/PWA, publishing without image snapshot:', snapshotErr);
+      }
+    } finally {
+      // Always restore UI elements regardless of snapshot success/failure
       uiElements.forEach((el) => ((el as HTMLElement).style.opacity = '1'));
+    }
 
-      onPublish(dataUrl, visibility, { elements, selectedBg, visibility, allowComments });
-    } catch (err) {
-      console.error('Failed to capture canvas image snapshot', err);
+    try {
+      await onPublish(dataUrl, visibility, { elements, selectedBg, visibility, allowComments });
+    } catch (err: any) {
+      console.error('[DiaryEditor] Failed to publish entry:', err);
+      toast.error(err?.message || 'Failed to publish entry. Please try again.');
+    } finally {
       setIsPublishing(false);
     }
   };

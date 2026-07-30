@@ -72,12 +72,17 @@ function dataURLtoFile(dataurl: string, filename: string): File | null {
 
 let isFlushing = false;
 
-export async function flushPublishQueue() {
-  if (isFlushing || !navigator.onLine) return;
+export async function flushPublishQueue(): Promise<boolean> {
+  if (isFlushing) return true;
+  if (!navigator.onLine) return true; // queued safely for offline sync
 
   isFlushing = true;
+  let overallSuccess = true;
+
   try {
     const keys = await offlinePublishQueue.keys();
+    if (keys.length === 0) return true;
+
     for (const key of keys) {
       const task: PublishTask = await offlinePublishQueue.getItem(key);
       if (!task || !task.userId) {
@@ -102,10 +107,10 @@ export async function flushPublishQueue() {
             imageUrl = uploadData.url;
           }
         } catch (s3Err: any) {
-          console.warn('[offlineQueue] S3 upload error:', s3Err?.message);
+          console.warn('[offlineQueue] S3 upload warning:', s3Err?.message);
         }
 
-        // Attempt 2: Direct Supabase Storage 'diaries' or 'public' bucket
+        // Attempt 2: Direct Supabase Storage 'diaries' bucket
         if (!imageUrl) {
           try {
             const storagePath = `${task.userId}/diary_${Date.now()}.png`;
@@ -132,6 +137,7 @@ export async function flushPublishQueue() {
         bg_color: task.bgColor || '#FFFDF2',
         scale: 1.0,
         status: 'active',
+        visibility: task.visibility || 'everyone',
       };
 
       if (task.gradient) payload.gradient = task.gradient;
@@ -172,14 +178,17 @@ export async function flushPublishQueue() {
           }
         } else {
           console.error('[offlineQueue] Fallback DB insert also failed:', fbError?.message || fbError);
+          overallSuccess = false;
         }
       }
     }
   } catch (error) {
     console.error('[offlineQueue] Unexpected error flushing publish queue:', error);
+    overallSuccess = false;
   } finally {
     isFlushing = false;
   }
+  return overallSuccess;
 }
 
 // Automatically retry flush when connectivity is restored
