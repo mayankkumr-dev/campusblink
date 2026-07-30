@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Heart, Trash2, X, BookOpen, Clock, ThumbsUp, MessageCircle, Send, Share2, Gift, MoreHorizontal, ChevronDown } from 'lucide-react';
+import { Heart, Trash2, X, BookOpen, Clock, ThumbsUp, MessageCircle, Send, Share2, Gift, MoreHorizontal, ChevronDown, Bookmark } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
-import { getDiaryFeed, toggleDiaryLike, deleteDiaryEntry, getRecentFriendWriters } from '../../api/diary';
+import { getDiaryFeed, toggleDiaryLike, deleteDiaryEntry, getRecentFriendWriters, toggleDiaryBookmark } from '../../api/diary';
 import { getFollowingIds } from '../../api/follow';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { supabase } from '../../lib/supabase';
@@ -23,6 +23,7 @@ export interface DiaryEntry {
   likes_count: number;
   comments_count?: number;
   liked_by: string[];
+  user_has_bookmarked?: boolean;
   created_at: string;
   author?: {
     id: string;
@@ -565,6 +566,7 @@ function DiaryFullscreenCard({
   onClose,
   onDelete,
   onLike,
+  onBookmark,
   onCommentClick,
   onSendClick,
   hideTopClose,
@@ -574,6 +576,7 @@ function DiaryFullscreenCard({
   onClose: () => void;
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
+  onBookmark?: (id: string) => void | Promise<void>;
   onCommentClick: (entry: DiaryEntry) => void;
   onSendClick?: (entry: DiaryEntry) => void;
   hideTopClose?: boolean;
@@ -581,6 +584,11 @@ function DiaryFullscreenCard({
   const [showPopHeart, setShowPopHeart] = useState(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(!!entry.user_has_bookmarked);
+
+  useEffect(() => {
+    setIsBookmarked(!!entry.user_has_bookmarked);
+  }, [entry.user_has_bookmarked]);
 
   const isOwner = currentUserId && (entry.author?.id === currentUserId || (entry as any).author_id === currentUserId);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
@@ -806,6 +814,33 @@ function DiaryFullscreenCard({
             </span>
           </div>
 
+          {/* Bookmark / Save */}
+          <div className="flex flex-col items-center">
+            <motion.button
+              onClick={() => {
+                const nextState = !isBookmarked;
+                setIsBookmarked(nextState);
+                if (onBookmark) onBookmark(entry.id);
+              }}
+              whileTap={{ scale: 1.4, rotate: [0, -10, 10, 0] }}
+              whileHover={{ scale: 1.1 }}
+              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
+              aria-label="Save story"
+            >
+              <Bookmark
+                size={26}
+                className={
+                  isBookmarked
+                    ? 'fill-amber-400 text-amber-400 drop-shadow-[0_4px_10px_rgba(251,191,36,0.6)]'
+                    : hasImage
+                    ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]'
+                    : 'text-slate-800 drop-shadow-sm'
+                }
+                strokeWidth={2.2}
+              />
+            </motion.button>
+          </div>
+
           {/* Send / Share (Numeral Only, no label text, opens Send Sheet) */}
           <div className="flex flex-col items-center">
             <motion.button
@@ -838,6 +873,7 @@ export function DiaryFullscreen({
   onClose,
   onDelete,
   onLike,
+  onBookmark,
   onCommentClick,
   onShareClick,
   onSendClick,
@@ -851,6 +887,7 @@ export function DiaryFullscreen({
   onClose: () => void;
   onDelete: (id: string) => void | Promise<void>;
   onLike: (id: string) => void | Promise<void>;
+  onBookmark?: (id: string) => void | Promise<void>;
   onCommentClick: (entry: DiaryEntry) => void;
   onShareClick: (entry: DiaryEntry) => void;
   onSendClick?: (entry: DiaryEntry) => void;
@@ -954,6 +991,7 @@ export function DiaryFullscreen({
           onClose={onClose}
           onDelete={onDelete}
           onLike={onLike}
+          onBookmark={onBookmark}
           onCommentClick={onCommentClick}
           onSendClick={onSendClick || onShareClick}
           hideTopClose={true}
@@ -1147,6 +1185,34 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
     }
   };
 
+  const handleBookmark = async (id: string) => {
+    if (!profile?.id) {
+      toast.error('Sign in to save campus stories');
+      return;
+    }
+
+    let isNowSaved = false;
+    setEntries((prev) =>
+      prev.map((e) => {
+        if (e.id !== id) return e;
+        isNowSaved = !e.user_has_bookmarked;
+        return { ...e, user_has_bookmarked: isNowSaved };
+      })
+    );
+
+    if (viewEntry?.id === id) {
+      setViewEntry((prev) => (prev ? { ...prev, user_has_bookmarked: !prev.user_has_bookmarked } : prev));
+    }
+
+    const { data, error } = await toggleDiaryBookmark(id, profile.id);
+    if (error) {
+      toast.error('Could not update bookmark');
+      load(0, true);
+    } else {
+      toast.success(data?.bookmarked ? 'Saved to Bookmarks' : 'Removed from Bookmarks');
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!profile?.id) return;
     if (!window.confirm('Remove this story from Campus Diaries?')) return;
@@ -1305,6 +1371,7 @@ export const DiaryMasonryGrid: React.FC<DiaryMasonryGridProps> = ({
             onClose={handleCloseFullscreen}
             onDelete={handleDelete}
             onLike={handleLike}
+            onBookmark={handleBookmark}
             onCommentClick={setCommentEntry}
             onShareClick={handleShare}
             onSendClick={(item) => setSendEntry(item)}

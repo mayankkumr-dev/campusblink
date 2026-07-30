@@ -237,11 +237,134 @@ export async function toggleDiaryLike(entryId, userId) {
   const result = Array.isArray(data) ? data[0] : data;
   return {
     data: {
-      likesCount: result?.new_likes_count ?? 0,
-      userLiked: result?.user_liked ?? false,
-    },
-    error: null,
-  };
+    likesCount: result?.new_likes_count ?? 0,
+    userLiked: result?.user_liked ?? false,
+  },
+  error: null,
+};
+}
+
+/**
+ * Toggle bookmark/save on a diary entry.
+ * @param {string} entryId
+ * @param {string} userId
+ */
+export async function toggleDiaryBookmark(entryId, userId) {
+  if (!entryId || !userId) return { data: { bookmarked: false }, error: new Error('Missing parameters') };
+
+  try {
+    // Check if already bookmarked
+    const { data: existing, error: checkErr } = await supabase
+      .from('diary_bookmarks')
+      .select('id')
+      .eq('diary_id', entryId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!checkErr && existing) {
+      // Unbookmark
+      const { error: delErr } = await supabase
+        .from('diary_bookmarks')
+        .delete()
+        .eq('diary_id', entryId)
+        .eq('user_id', userId);
+
+      if (delErr) throw delErr;
+      return { data: { bookmarked: false }, error: null };
+    } else {
+      // Bookmark
+      const { error: insErr } = await supabase
+        .from('diary_bookmarks')
+        .insert({ diary_id: entryId, user_id: userId });
+
+      if (insErr) throw insErr;
+      return { data: { bookmarked: true }, error: null };
+    }
+  } catch (err) {
+    console.warn('[diaryApi] Supabase diary_bookmarks table error, using fallback:', err?.message);
+    // Fallback: Check local storage cache
+    const key = `diary_saved_${userId}`;
+    const raw = localStorage.getItem(key);
+    let savedList = raw ? JSON.parse(raw) : [];
+    const isSaved = savedList.includes(entryId);
+
+    if (isSaved) {
+      savedList = savedList.filter((id) => id !== entryId);
+    } else {
+      savedList.push(entryId);
+    }
+
+    localStorage.setItem(key, JSON.stringify(savedList));
+    return { data: { bookmarked: !isSaved }, error: null };
+  }
+}
+
+/**
+ * Fetch all bookmarked/saved diary entries for a given user.
+ * @param {string} userId
+ */
+export async function getBookmarkedDiaries(userId) {
+  if (!userId) return { data: [], error: new Error('userId required') };
+
+  try {
+    // 1. Fetch bookmarked entry IDs from DB
+    const { data: bms, error: bmErr } = await supabase
+      .from('diary_bookmarks')
+      .select('diary_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    let diaryIds = (bms || []).map((b) => b.diary_id);
+
+    // Local storage fallback IDs if DB fails or empty
+    const key = `diary_saved_${userId}`;
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        const localIds = JSON.parse(raw);
+        if (Array.isArray(localIds)) {
+          diaryIds = Array.from(new Set([...diaryIds, ...localIds]));
+        }
+      } catch (_) {}
+    }
+
+    if (diaryIds.length === 0) return { data: [], error: null };
+
+    // 2. Fetch complete entry models
+    const { data: entries, error: entriesErr } = await supabase
+      .from('vw_diary_feed')
+      .select(AUTHOR_SELECT)
+      .in('id', diaryIds)
+      .order('created_at', { ascending: false });
+
+    if (entriesErr) throw entriesErr;
+
+    return { data: (entries || []).map((e) => ({ ...e, user_has_bookmarked: true })), error: null };
+  } catch (err) {
+    console.error('[diaryApi] getBookmarkedDiaries error:', err?.message);
+
+    // Local storage fallback full query
+    try {
+      const key = `diary_saved_${userId}`;
+      const raw = localStorage.getItem(key);
+      const localIds = raw ? JSON.parse(raw) : [];
+      if (localIds.length === 0) return { data: [], error: null };
+
+      const { data: fallbackEntries } = await supabase
+        .from('diary_entries')
+        .select(`
+          id, content, font_family, text_color, bg_color, gradient, scale,
+          likes_count, liked_by, image_url, created_at,
+          author:profiles!author_id(id, name, username, avatar_url, college)
+        `)
+        .in('id', localIds)
+        .order('created_at', { ascending: false });
+
+      return { data: (fallbackEntries || []).map((e) => ({ ...e, user_has_bookmarked: true })), error: null };
+    } catch (fallbackErr) {
+      return { data: [], error: fallbackErr };
+    }
+  }
 }
 
 /**

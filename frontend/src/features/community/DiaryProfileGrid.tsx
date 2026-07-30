@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
-import { getUserDiaryEntries, deleteDiaryEntry, toggleDiaryLike } from '../../api/diary';
+import { getUserDiaryEntries, deleteDiaryEntry, toggleDiaryLike, toggleDiaryBookmark } from '../../api/diary';
 import { DiaryFullscreen, isValidDiaryImage } from './DiaryMasonryGrid';
 
 /* ─── Helpers ───────────────────────────────────────────────────────── */
@@ -239,6 +239,13 @@ export const DiaryProfileGrid: React.FC<DiaryProfileGridProps> = ({
             onLike={async (id) => {
               if (!currentProfile?.id) return;
               await toggleDiaryLike(id, currentProfile.id);
+            }}
+            onBookmark={async (id) => {
+              if (!currentProfile?.id) return;
+              const { data, error } = await toggleDiaryBookmark(id, currentProfile.id);
+              if (!error) {
+                toast.success(data?.bookmarked ? 'Saved to Bookmarks' : 'Removed from Bookmarks');
+              }
             }}
             onCommentClick={() => toast('Head to Campus Diaries feed to comment & chat')}
             onShareClick={(entry) => {
