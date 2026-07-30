@@ -43,6 +43,23 @@ export function DiaryFontSizeSlider({ value, onChange }: DiaryFontSizeSliderProp
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches[0]) {
+      setIsDragging(true);
+      calculateSizeFromY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDragging && e.touches[0]) {
+      calculateSizeFromY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
   // Percentage from bottom to top for thumb positioning
   const minSize = 16;
   const maxSize = 120;
@@ -58,7 +75,11 @@ export function DiaryFontSizeSlider({ value, onChange }: DiaryFontSizeSliderProp
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="relative w-7 h-56 sm:h-64 flex items-center justify-center cursor-ns-resize touch-none select-none py-3"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+        className="relative w-8 h-56 sm:h-64 flex items-center justify-center cursor-ns-resize touch-none select-none py-3"
       >
         {/* Track Bar Background */}
         <div className="w-2 h-full bg-[var(--parchment-card-bg)] border border-[var(--parchment-card-border)] rounded-full shadow-inner relative overflow-hidden pointer-events-none">

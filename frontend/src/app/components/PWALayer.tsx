@@ -61,7 +61,7 @@ export const PWALayer: React.FC = () => {
     const visits = Number(localStorage.getItem(VISIT_COUNT_KEY) || '0');
     const firstSeen = Number(localStorage.getItem(FIRST_SEEN_KEY) || `${Date.now()}`);
 
-    let timer: ReturnType<typeof window.setTimeout>;
+    let timer: any;
 
     if (visits >= 2) {
       // Return visitor — show quickly
@@ -77,7 +77,9 @@ export const PWALayer: React.FC = () => {
       }, INSTALL_FIRST_VISIT_DELAY_MS);
     }
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      if (timer) window.clearTimeout(timer);
+    };
   }, [canInstall, isStandalone]);
 
   // External listeners (e.g. from other components prompting install)
@@ -117,15 +119,20 @@ export const PWALayer: React.FC = () => {
   };
 
   const handleUpdateNow = async () => {
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (reg?.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      }, { once: true });
-    } else {
-      window.location.reload();
-    }
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      }
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg?.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      if (reg) {
+        await reg.update();
+      }
+    } catch (_) {}
+    window.location.reload();
   };
 
   const handleEnableNotifications = async () => {

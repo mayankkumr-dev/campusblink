@@ -115,6 +115,33 @@ export function DiaryTextFormattingBar({
               {FONTS.find((f) => f.value === activeElement.fontFamily)?.label || 'Font'}
             </button>
 
+            {/* Direct Text Size Steppers (A- & A+) */}
+            <div className="flex items-center rounded-full bg-[var(--parchment-card-bg)] border border-[var(--parchment-card-border)] p-0.5 flex-shrink-0">
+              <button
+                onClick={() => {
+                  const curr = activeElement.fontSize || 32;
+                  onUpdate({ fontSize: Math.max(16, curr - 4) });
+                }}
+                title="Decrease font size"
+                className="px-2.5 py-1 text-xs font-black text-[var(--parchment-text-primary)] hover:bg-[var(--parchment-accent-soft)] rounded-l-full transition-all cursor-pointer"
+              >
+                A-
+              </button>
+              <span className="text-[11px] font-extrabold text-[var(--parchment-text-primary)] px-1 border-x border-[var(--parchment-border)]">
+                {activeElement.fontSize || 32}
+              </span>
+              <button
+                onClick={() => {
+                  const curr = activeElement.fontSize || 32;
+                  onUpdate({ fontSize: Math.min(120, curr + 4) });
+                }}
+                title="Increase font size"
+                className="px-2.5 py-1 text-xs font-black text-[var(--parchment-text-primary)] hover:bg-[var(--parchment-accent-soft)] rounded-r-full transition-all cursor-pointer"
+              >
+                A+
+              </button>
+            </div>
+
             {/* Alignment Cycle Button */}
             <button
               onClick={cycleAlignment}

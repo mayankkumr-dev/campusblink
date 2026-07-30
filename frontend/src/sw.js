@@ -51,8 +51,8 @@ registerRoute(
     (request.destination === 'style' ||
     request.destination === 'script' ||
     request.destination === 'worker'),
-  new CacheFirst({
-    cacheName: 'cb-app-shell-assets-v2',
+  new StaleWhileRevalidate({
+    cacheName: 'cb-app-shell-assets-v3',
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 30 }),

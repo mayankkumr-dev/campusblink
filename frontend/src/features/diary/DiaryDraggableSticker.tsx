@@ -74,8 +74,15 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
     setTimeout(() => setIsHovered(false), 2500);
   };
 
+  const handleDeleteClick = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete();
+  };
+
   return (
     <Rnd
+      cancel=".capture-ignore"
       default={{
         x: xNum,
         y: yNum,
@@ -124,21 +131,15 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
         }}
       >
         {/* Delete Button */}
-        {(isHovered || isActive) && !isDragging && (
+        {(isHovered || isActive || true) && !isDragging && (
           <button
-            onMouseDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete();
-            }}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="absolute -top-3 -right-3 p-1.5 bg-white shadow-md text-red-500 rounded-full z-20 capture-ignore hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+            onMouseDown={handleDeleteClick}
+            onTouchEnd={handleDeleteClick}
+            onClick={handleDeleteClick}
+            aria-label="Remove sticker"
+            className="absolute -top-3.5 -right-3.5 w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg flex items-center justify-center z-50 capture-ignore hover:scale-110 active:scale-95 transition-all cursor-pointer pointer-events-auto border-2 border-white"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-white stroke-[2.5]" />
           </button>
         )}
 
