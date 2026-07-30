@@ -94,7 +94,7 @@ export function DiaryDraggableText({
           onFocus();
         }}
         placeholder="Dear Diary, write your thoughts freely..."
-        className="w-full h-full bg-transparent resize-none outline-none border-none leading-relaxed overflow-y-auto overflow-x-hidden text-page-scrollbar break-words font-normal"
+        className="diary-text-input w-full h-full bg-transparent resize-none outline-none border-none leading-relaxed overflow-y-auto overflow-x-hidden text-page-scrollbar break-words font-normal"
         style={{
           fontFamily: element.fontFamily || FONTS[0],
           fontSize: element.fontSize ? `${element.fontSize}px` : '32px',

@@ -561,7 +561,7 @@
       -webkit-touch-callout: none;
     }
     /* Prevent iOS Safari auto-zoom on inputs */
-    input, textarea, select {
+    input, textarea:not(.diary-text-input), select {
       font-size: 16px !important;
     }
   }
