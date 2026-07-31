@@ -8,12 +8,14 @@ interface DiaryCanvasProps {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   elements: CanvasElement[];
   activeNodeId: string | null;
-  dailyPrompt: DailyPrompt;
+  dailyPrompt: DailyPrompt | null;
   selectedBg: any;
   onFocusNode: (id: string) => void;
   onUpdateNode: (id: string, updates: Partial<CanvasElement>) => void;
   onDeleteNode: (id: string) => void;
   onParticipatePrompt: () => void;
+  /** Opens the full-screen text overlay for editing the given element id */
+  onOpenTextOverlay: (elementId: string) => void;
 }
 
 export function DiaryCanvas({
@@ -26,6 +28,7 @@ export function DiaryCanvas({
   onUpdateNode,
   onDeleteNode,
   onParticipatePrompt,
+  onOpenTextOverlay,
 }: DiaryCanvasProps) {
   const getCanvasStyle = (): React.CSSProperties => {
     if (selectedBg?.background) {
@@ -75,8 +78,8 @@ export function DiaryCanvas({
             if (textElement) onFocusNode(textElement.id);
           }}
         >
-          {/* Show Daily Prompt Card when text content is empty */}
-          {isContentEmpty && (
+          {/* Show Daily Prompt Card when text content is empty AND prompt is available */}
+          {isContentEmpty && dailyPrompt && (
             <div className="mb-4">
               <DiaryPromptCard prompt={dailyPrompt} onParticipate={onParticipatePrompt} />
             </div>
@@ -91,6 +94,7 @@ export function DiaryCanvas({
               onFocus={() => onFocusNode(textElement.id)}
               onChange={(updates) => onUpdateNode(textElement.id, updates)}
               onDelete={() => onDeleteNode(textElement.id)}
+              onOpenOverlay={() => onOpenTextOverlay(textElement.id)}
             />
           )}
 

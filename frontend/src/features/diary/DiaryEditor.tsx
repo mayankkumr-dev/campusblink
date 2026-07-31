@@ -1,15 +1,15 @@
 import React from 'react';
 import * as htmlToImage from 'html-to-image';
 import toast from 'react-hot-toast';
-import { DiaryEditorProps } from './types';
+import { DiaryEditorProps, CanvasElement } from './types';
 export type { CanvasElement } from './types';
 import { useDiaryEditor } from './hooks/useDiaryEditor';
 import { DiaryToolbar } from './components/DiaryToolbar';
-import { DiaryTextFormattingBar } from './components/DiaryTextFormattingBar';
 import { DiaryCanvas } from './components/DiaryCanvas';
 import { DiaryVisibilitySelector } from './components/DiaryVisibilitySelector';
 import { DiaryShareBar } from './components/DiaryShareBar';
 import { DiaryStickerPicker } from './components/DiaryStickerPicker';
+import { DiaryTextToolOverlay } from './DiaryTextToolOverlay';
 import DiaryThemeSelector, { colorThemes, imageThemes } from './DiaryThemeSelector';
 
 const BACKGROUNDS = [...colorThemes, ...imageThemes];
@@ -19,7 +19,6 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
     elements,
     activeNodeId,
     activeElement,
-    isTextActive,
     selectedBg,
     visibility,
     allowComments,
@@ -27,6 +26,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
     isStickerPickerOpen,
     isPrivacyDrawerOpen,
     dailyPrompt,
+    participatingPromptId,
     canvasRef,
     fileInputRef,
     setSelectedBg,
@@ -46,6 +46,40 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
 
   const [isBgDrawerOpen, setIsBgDrawerOpen] = React.useState(false);
 
+  // ── Text Overlay State ──────────────────────────────────────────────────────
+  /** null = closed, '' = creating new, 'elementId' = editing existing */
+  const [textOverlayTarget, setTextOverlayTarget] = React.useState<string | null>(null);
+  const isOverlayOpen = textOverlayTarget !== null;
+  const overlayInitialElement = React.useMemo<Partial<CanvasElement> | null>(() => {
+    if (textOverlayTarget === null || textOverlayTarget === '') return null;
+    return elements.find((el) => el.id === textOverlayTarget) ?? null;
+  }, [textOverlayTarget, elements]);
+
+  const openNewTextOverlay = () => {
+    setTextOverlayTarget('');
+  };
+
+  const openEditTextOverlay = (elementId: string) => {
+    setTextOverlayTarget(elementId);
+  };
+
+  const closeTextOverlay = () => {
+    setTextOverlayTarget(null);
+  };
+
+  /** Called when user taps Done in the overlay */
+  const handleTextOverlayCommit = (overlayData: Partial<CanvasElement>) => {
+    if (textOverlayTarget === '') {
+      // Creating new
+      addTextNode(overlayData);
+    } else if (textOverlayTarget) {
+      // Editing existing — restore saved mode/colors/size/align exactly
+      updateElement(textOverlayTarget, overlayData);
+    }
+    setTextOverlayTarget(null);
+  };
+
+  // ── File upload ─────────────────────────────────────────────────────────────
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -55,6 +89,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // ── Publish ─────────────────────────────────────────────────────────────────
   const handlePublishClick = async () => {
     if (!canvasRef.current) return;
     setIsPublishing(true);
@@ -83,7 +118,13 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
     }
 
     try {
-      await onPublish(dataUrl, visibility, { elements, selectedBg, visibility, allowComments });
+      await onPublish(dataUrl, visibility, {
+        elements,
+        selectedBg,
+        visibility,
+        allowComments,
+        participatingPromptId,
+      });
     } catch (err: any) {
       console.error('[DiaryEditor] Failed to publish entry:', err);
       toast.error(err?.message || 'Failed to publish entry. Please try again.');
@@ -103,18 +144,11 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
         onChange={handleFileUpload}
       />
 
-      {/* Top Header / Formatting Bar */}
-      {isTextActive && activeElement ? (
-        <DiaryTextFormattingBar
-          activeElement={activeElement}
-          onUpdate={(updates) => updateElement(activeElement.id, updates)}
-          onDelete={() => removeElement(activeElement.id)}
-          onDone={() => setActiveNodeId(null)}
-        />
-      ) : (
+      {/* Top Toolbar — always visible when overlay is closed */}
+      {!isOverlayOpen && (
         <DiaryToolbar
           onBack={onCancel}
-          onAddText={() => addTextNode('')}
+          onAddText={openNewTextOverlay}
           onOpenImagePicker={() => fileInputRef.current?.click()}
           onOpenStickerPicker={() => setIsStickerPickerOpen(true)}
           onOpenMoreOptions={() => setIsBgDrawerOpen(true)}
@@ -132,10 +166,11 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
         onUpdateNode={(id, updates) => updateElement(id, updates)}
         onDeleteNode={(id) => removeElement(id)}
         onParticipatePrompt={handleParticipatePrompt}
+        onOpenTextOverlay={openEditTextOverlay}
       />
 
       {/* Bottom Floating Bar (Visibility Selector & Share Button) */}
-      {!isTextActive && (
+      {!isOverlayOpen && (
         <div className="absolute bottom-4 inset-x-4 z-50 flex items-center justify-between max-w-md mx-auto pointer-events-none capture-ignore">
           <DiaryVisibilitySelector
             visibility={visibility}
@@ -171,9 +206,18 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
               setIsBgDrawerOpen(false);
               return;
             }
-            const theme = BACKGROUNDS.find((t) => t.id === themeId);
-            if (theme) setSelectedBg(theme);
+            const bg = BACKGROUNDS.find((t) => t.id === themeId);
+            if (bg) setSelectedBg(bg);
           }}
+        />
+      )}
+
+      {/* Full-screen Text Tool Overlay */}
+      {isOverlayOpen && (
+        <DiaryTextToolOverlay
+          initialElement={overlayInitialElement}
+          onCommit={handleTextOverlayCommit}
+          onClose={closeTextOverlay}
         />
       )}
     </div>

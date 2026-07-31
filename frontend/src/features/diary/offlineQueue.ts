@@ -39,6 +39,8 @@ export interface PublishTask {
   tags?: string[];
   locationTag?: string;
   unlockAt?: string | null;
+  /** Daily prompt ID to record participation against on successful publish */
+  promptId?: string | null;
 }
 
 export async function queuePublishTask(task: PublishTask) {
@@ -148,11 +150,28 @@ export async function flushPublishQueue(): Promise<boolean> {
       const { data: dbData, error: dbError } = await supabase
         .from('diary_entries')
         .insert(payload)
-        .select();
+        .select('id');
 
       if (!dbError && dbData && dbData.length > 0) {
-        console.log('[offlineQueue] Diary successfully inserted into DB:', dbData[0].id);
+        const insertedId = dbData[0].id;
+        console.log('[offlineQueue] Diary successfully inserted into DB:', insertedId);
         await offlinePublishQueue.removeItem(key);
+
+        // Record daily prompt participation if the user had tapped Participate
+        // Deferred to publish-time (not on intent tap) so abandoned entries don't count
+        if (task.promptId && insertedId) {
+          try {
+            await fetch(`/api/diary/prompt-of-day/${task.promptId}/participate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ diary_entry_id: insertedId }),
+            });
+          } catch (participateErr) {
+            // Non-critical — don't fail publish if participation recording fails
+            console.warn('[offlineQueue] Failed to record prompt participation:', participateErr);
+          }
+        }
+
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('diary_published', { detail: dbData[0] }));
         }
@@ -168,7 +187,7 @@ export async function flushPublishQueue(): Promise<boolean> {
         const { data: fbData, error: fbError } = await supabase
           .from('diary_entries')
           .insert(minimalPayload)
-          .select();
+          .select('id');
 
         if (!fbError && fbData && fbData.length > 0) {
           console.log('[offlineQueue] Minimal fallback insert succeeded:', fbData[0].id);

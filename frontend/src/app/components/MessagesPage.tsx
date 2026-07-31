@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useLocation, useNavigate } from 'react-router';
 import {
   Search,
   Send,
@@ -181,10 +181,13 @@ const DeleteModal: React.FC<{
 // ─── MessagesPage Main Component ──────────────────────────────────────────────
 export const MessagesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const initialChatId = searchParams.get('chat');
   const userParam = searchParams.get('user');
 
-  const [activeTab, setActiveTab] = useState<'primary' | 'requests'>('primary');
+  const isRequestsTab = location.pathname.endsWith('/requests');
+  const activeTab = isRequestsTab ? 'requests' : 'primary';
   const [activeChatId, setActiveChatId] = useState<string | null>(initialChatId);
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');
@@ -416,7 +419,7 @@ export const MessagesPage: React.FC = () => {
     if (!activeChatId) return;
     try {
       await messagesApi.acceptRequest(activeChatId);
-      setActiveTab('primary');
+      navigate(location.pathname.replace(/\/requests$/, ''));
       if (currentUserId) fetchConversations(currentUserId);
     } catch (err) {
       console.error('Failed to accept request', err);
@@ -528,7 +531,12 @@ export const MessagesPage: React.FC = () => {
         <div className="flex items-center px-6 py-2 gap-6 border-b border-gray-200 dark:border-border-subtle bg-gray-50 dark:bg-surface-elevated transition-colors">
           {(['primary', 'requests'] as const).map(tab => (
             <button key={tab}
-              onClick={() => { setActiveTab(tab); setActiveChatId(null); setNewChatUserId(null); setNewChatProfile(null); setSearchParams({}, { replace: true }); }}
+              onClick={() => {
+                const basePath = location.pathname.replace(/\/requests$/, '');
+                if (tab === 'requests' && !isRequestsTab) navigate(`${basePath}/requests`);
+                if (tab === 'primary' && isRequestsTab) navigate(basePath);
+                setActiveChatId(null); setNewChatUserId(null); setNewChatProfile(null); setSearchParams({}, { replace: true });
+              }}
               className={`pb-3 text-sm font-bold transition-all relative flex items-center gap-1.5 capitalize ${activeTab === tab ? 'text-gray-900 dark:text-text-primary' : 'text-gray-500 dark:text-text-secondary hover:text-gray-900 dark:hover:text-text-primary'}`}
             >
               {tab}
@@ -673,7 +681,7 @@ export const MessagesPage: React.FC = () => {
             </div>
 
             {/* Messages Body */}
-            <div className="flex-1 overflow-y-auto p-6 bg-white/30 dark:bg-surface/30 flex flex-col gap-3"
+            <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 bg-white/30 dark:bg-surface/30 flex flex-col gap-3"
               onClick={() => { if (contextMenu) setContextMenu(null); }}
             >
               {visibleMessages.length === 0 ? (

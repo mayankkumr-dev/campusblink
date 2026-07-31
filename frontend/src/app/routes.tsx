@@ -323,6 +323,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'messages/requests',
+            lazy: async () => ({
+              Component: (await import('./components/MessagesPage')).MessagesPage,
+            }),
+          },
+          {
             path: 'notices',
             lazy: async () => ({
               Component: (await import('./components/NoticesPage')).NoticesPage,
@@ -447,6 +453,12 @@ export const router = createBrowserRouter([
           },
           {
             path: 'messages',
+            lazy: async () => ({
+              Component: (await import('./components/MessagesPage')).MessagesPage,
+            }),
+          },
+          {
+            path: 'messages/requests',
             lazy: async () => ({
               Component: (await import('./components/MessagesPage')).MessagesPage,
             }),

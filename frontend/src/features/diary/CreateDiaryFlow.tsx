@@ -57,6 +57,7 @@ export function CreateDiaryFlow() {
         isAnonymous: false,
         tags: [],
         locationTag: '',
+        promptId: canvasState.participatingPromptId ?? null,
       });
 
       // Flush queue immediately so DB row is created right now

@@ -27,13 +27,17 @@ const {
   deleteAdminDiaryEntry,
   restoreFlaggedDiary,
   getDailyPrompt,
+  getPromptOfDay,
+  recordPromptParticipation,
 } = require('../controllers/diaryController');
 
 // Global feed (Public or Auth)
 router.get('/', getDiaryFeed);
 
-// Daily prompt endpoint (must come before /:id)
+// Daily prompt endpoints (must come before /:id to avoid route conflicts)
 router.get('/daily-prompt', getDailyPrompt);
+router.get('/prompt-of-day', getPromptOfDay);
+router.post('/prompt-of-day/:id/participate', authMiddleware, recordPromptParticipation);
 
 // User gallery — must come before /:id to avoid conflict
 router.get('/user/:userId', getUserDiaryEntries);

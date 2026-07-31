@@ -4,7 +4,7 @@ export type FontStyleOption = 'Caveat, cursive' | 'Playfair Display, serif' | 'I
 
 export type TextAlignOption = 'left' | 'center' | 'right';
 
-export type TextBgMode = 'transparent' | 'solid-white' | 'solid-color';
+export type TextStyleMode = 'fill' | 'plain';
 
 export type VisibilityOption = 'public' | 'friends' | 'private';
 
@@ -18,17 +18,30 @@ export interface CanvasElement {
   height?: number | string;
   scale?: number;
   fontFamily?: FontStyleOption | string;
-  bgMode?: TextBgMode;
-  color?: string;
-  fontSize?: number;
+  fontSize?: number;          // px, 14–72
   textAlign?: TextAlignOption;
+  // --- New text style model (styleMode replaces old bgMode/color) ---
+  styleMode?: TextStyleMode;  // 'fill' = pill background, 'plain' = glyph color only
+  fillColor?: string;         // pill background color (used when styleMode === 'fill')
+  plainColor?: string;        // glyph color (used when styleMode === 'plain')
+  // --- Legacy fields kept for backward compat with pre-migration entries ---
+  bgMode?: string;
+  color?: string;
 }
 
 export interface DailyPrompt {
   id: string;
-  title: string;
+  /** DB column is prompt_text; fallback to title for legacy static prompts */
+  prompt_text?: string;
+  title?: string;
   emoji: string;
   category?: string;
+  active_date?: string;
+}
+
+/** Helper to safely get prompt display text regardless of source shape */
+export function getPromptText(prompt: DailyPrompt): string {
+  return prompt.prompt_text || prompt.title || '';
 }
 
 export interface DiaryEditorState {
@@ -36,6 +49,8 @@ export interface DiaryEditorState {
   selectedBg: any;
   visibility: VisibilityOption;
   allowComments: boolean;
+  /** ID of the daily prompt the user tapped Participate on (recorded on final publish) */
+  participatingPromptId?: string | null;
 }
 
 export interface DiaryEditorProps {

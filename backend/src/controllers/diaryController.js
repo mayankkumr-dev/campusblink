@@ -318,7 +318,7 @@ async function restoreFlaggedDiary(req, res) {
 }
 
 /**
- * GET /api/diary/daily-prompt — Fetch today's writing prompt
+ * GET /api/diary/daily-prompt — Fetch today's writing prompt (legacy static endpoint)
  */
 async function getDailyPrompt(req, res) {
   try {
@@ -338,6 +338,80 @@ async function getDailyPrompt(req, res) {
   }
 }
 
+/**
+ * GET /api/diary/prompt-of-day — Fetch today's prompt from the daily_prompts table
+ *
+ * Uses server-side CURRENT_DATE (not client clock) to avoid timezone disagreements.
+ * Returns { prompt: null } when no prompt is scheduled for today — client hides the card.
+ */
+async function getPromptOfDay(req, res) {
+  try {
+    // Use CURRENT_DATE evaluated by the DB/server, not the JS Date object
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD in server TZ
+
+    const { data, error } = await supabaseAdmin
+      .from('daily_prompts')
+      .select('id, prompt_text, emoji, active_date, created_at')
+      .eq('active_date', today)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    // data is null if no prompt for today — client should hide the card
+    return res.json({ success: true, prompt: data || null });
+  } catch (err) {
+    console.error('[DiaryController] getPromptOfDay error:', err.message);
+    return res.status(500).json({ error: 'Failed to fetch prompt of the day' });
+  }
+}
+
+/**
+ * POST /api/diary/prompt-of-day/:id/participate
+ *
+ * Records a user's participation in a daily prompt.
+ * Called only on final publish — NOT on the "Participate" tap (which is intent, not completion).
+ * Authenticated. Users can only insert their own row (enforced by RLS + this handler).
+ */
+async function recordPromptParticipation(req, res) {
+  try {
+    const { id: promptId } = req.params;
+    const userId = req.user?.id;
+    const { diary_entry_id } = req.body;
+
+    if (!promptId) return res.status(400).json({ error: 'promptId is required' });
+    if (!userId) return res.status(401).json({ error: 'Authentication required' });
+
+    // Verify the prompt exists
+    const { data: prompt, error: promptError } = await supabaseAdmin
+      .from('daily_prompts')
+      .select('id')
+      .eq('id', promptId)
+      .maybeSingle();
+
+    if (promptError) throw promptError;
+    if (!prompt) return res.status(404).json({ error: 'Prompt not found' });
+
+    // Upsert — idempotent; calling twice is safe
+    const { error: upsertError } = await supabaseAdmin
+      .from('daily_prompt_participants')
+      .upsert(
+        {
+          prompt_id: promptId,
+          user_id: userId,
+          diary_entry_id: diary_entry_id || null,
+        },
+        { onConflict: 'prompt_id,user_id' }
+      );
+
+    if (upsertError) throw upsertError;
+
+    return res.json({ success: true, message: 'Participation recorded successfully' });
+  } catch (err) {
+    console.error('[DiaryController] recordPromptParticipation error:', err.message);
+    return res.status(500).json({ error: 'Failed to record participation' });
+  }
+}
+
 module.exports = {
   getDiaryFeed,
   getUserDiaryEntries,
@@ -348,4 +422,6 @@ module.exports = {
   deleteAdminDiaryEntry,
   restoreFlaggedDiary,
   getDailyPrompt,
+  getPromptOfDay,
+  recordPromptParticipation,
 };

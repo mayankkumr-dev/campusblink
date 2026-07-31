@@ -1,13 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { CanvasElement, VisibilityOption, DailyPrompt, DiaryEditorState, DiaryEditorProps } from '../types';
-
-const FALLBACK_PROMPTS: DailyPrompt[] = [
-  { id: '1', title: 'My imaginary assistant', emoji: '🦜' },
-  { id: '2', title: 'Campus life in 3 words', emoji: '🎓' },
-  { id: '3', title: 'Late night library thoughts', emoji: '🌙' },
-  { id: '4', title: 'Best cup of coffee today', emoji: '☕' },
-  { id: '5', title: 'Unfiltered moment of the day', emoji: '✨' },
-];
+import { CanvasElement, VisibilityOption, DiaryEditorState, DiaryEditorProps, getPromptText } from '../types';
+import { usePromptOfTheDay } from './usePromptOfTheDay';
 
 export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorProps, 'initialState' | 'onSaveDraft'>) {
   const getInitialElements = (): CanvasElement[] => {
@@ -39,73 +32,54 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [isStickerPickerOpen, setIsStickerPickerOpen] = useState<boolean>(false);
   const [isPrivacyDrawerOpen, setIsPrivacyDrawerOpen] = useState<boolean>(false);
-  const [dailyPrompt, setDailyPrompt] = useState<DailyPrompt>(FALLBACK_PROMPTS[0]);
+
+  /** ID of the prompt the user tapped Participate on — recorded on final publish */
+  const [participatingPromptId, setParticipatingPromptId] = useState<string | null>(
+    initialState?.participatingPromptId ?? null
+  );
 
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch daily prompt from backend with fallback
-  useEffect(() => {
-    let isMounted = true;
-    fetch('/api/diary/daily-prompt')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (isMounted && data?.prompt) {
-          setDailyPrompt(data.prompt);
-        }
-      })
-      .catch(() => {
-        const dayIndex = new Date().getDate() % FALLBACK_PROMPTS.length;
-        if (isMounted) setDailyPrompt(FALLBACK_PROMPTS[dayIndex]);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Use the new DB-backed prompt hook (falls back to legacy static endpoint automatically)
+  const { prompt: dailyPrompt } = usePromptOfTheDay();
 
   // Autosave draft debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSaveDraft({ elements, selectedBg, visibility, allowComments });
+      onSaveDraft({ elements, selectedBg, visibility, allowComments, participatingPromptId });
     }, 1000);
     return () => clearTimeout(timer);
-  }, [elements, selectedBg, visibility, allowComments, onSaveDraft]);
+  }, [elements, selectedBg, visibility, allowComments, participatingPromptId, onSaveDraft]);
 
   const mainTextNode = elements.find((el) => el.type === 'text') || elements[0];
   const activeElement = elements.find((el) => el.id === activeNodeId) || (activeNodeId === null ? null : mainTextNode);
   const isTextActive = activeNodeId !== null && activeElement?.type === 'text';
 
-  const addTextNode = useCallback((initialContent: string = '') => {
-    setElements((prev) => {
-      const textIdx = prev.findIndex((el) => el.type === 'text');
-      if (textIdx !== -1) {
-        const existing = prev[textIdx];
-        const updatedContent = initialContent
-          ? existing.content
-            ? `${existing.content}\n${initialContent}`
-            : initialContent
-          : existing.content;
-        const updated = [...prev];
-        updated[textIdx] = { ...existing, content: updatedContent };
-        setActiveNodeId(existing.id);
-        return updated;
-      }
-      const newEl: CanvasElement = {
-        id: 'main-page-text',
-        type: 'text',
-        content: initialContent,
-        x: 0,
-        y: 0,
-        fontFamily: 'Caveat, cursive',
-        bgMode: 'transparent',
-        color: 'var(--parchment-text-primary)',
-        fontSize: 32,
-        textAlign: 'center',
-      };
-      setActiveNodeId(newEl.id);
-      return [newEl, ...prev];
-    });
+  /**
+   * addTextNode — creates a new text canvas element.
+   * Accepts the committed overlay result (Partial<CanvasElement>) plus optional
+   * position overrides. Called from DiaryEditor after the overlay's onCommit fires.
+   */
+  const addTextNode = useCallback((overrides: Partial<CanvasElement> = {}) => {
+    const newEl: CanvasElement = {
+      id: Math.random().toString(36).substring(2, 9),
+      type: 'text',
+      content: overrides.content || '',
+      x: overrides.x ?? 20,
+      y: overrides.y ?? 40,
+      width: overrides.width ?? 300,
+      height: overrides.height ?? 140,
+      fontFamily: overrides.fontFamily ?? 'Caveat, cursive',
+      styleMode: overrides.styleMode ?? 'plain',
+      fillColor: overrides.fillColor ?? '#1A1A1A',
+      plainColor: overrides.plainColor ?? '#FFFFFF',
+      fontSize: overrides.fontSize ?? 32,
+      textAlign: overrides.textAlign ?? 'center',
+    };
+    setElements((prev) => [...prev, newEl]);
+    setActiveNodeId(newEl.id);
+    return newEl.id;
   }, []);
 
   const addImageNode = useCallback((url: string) => {
@@ -144,9 +118,28 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
     setActiveNodeId((curr) => (curr === id ? null : curr));
   }, []);
 
+  /**
+   * handleParticipatePrompt — called when user taps "Participate" on the prompt card.
+   * Inserts a text node pre-filled with the prompt, marks participatingPromptId for
+   * deferred recording on publish. Does NOT call the API yet.
+   */
   const handleParticipatePrompt = useCallback(() => {
-    const promptText = `Theme of the day: ${dailyPrompt.title} ${dailyPrompt.emoji}\n\n`;
-    addTextNode(promptText);
+    if (!dailyPrompt) return;
+    const text = getPromptText(dailyPrompt);
+    const emoji = dailyPrompt.emoji || '';
+    const promptContent = `${emoji} ${text}`.trim();
+
+    addTextNode({
+      content: promptContent,
+      styleMode: 'plain',
+      plainColor: '#FFFFFF',
+      fontSize: 28,
+      textAlign: 'center',
+    });
+
+    if (dailyPrompt.id) {
+      setParticipatingPromptId(dailyPrompt.id);
+    }
   }, [dailyPrompt, addTextNode]);
 
   return {
@@ -161,6 +154,7 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
     isStickerPickerOpen,
     isPrivacyDrawerOpen,
     dailyPrompt,
+    participatingPromptId,
     canvasRef,
     fileInputRef,
     setSelectedBg,
