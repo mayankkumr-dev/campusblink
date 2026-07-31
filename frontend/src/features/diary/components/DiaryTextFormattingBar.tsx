@@ -54,7 +54,7 @@ export function DiaryTextFormattingBar({
 
   const cycleBgMode = () => {
     const modes: TextBgMode[] = ['solid-white', 'solid-color', 'transparent'];
-    const currentMode = activeElement.bgMode || 'transparent';
+    const currentMode = (activeElement.bgMode || 'transparent') as TextBgMode;
     const currentIndex = modes.indexOf(currentMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
     onUpdate({ bgMode: nextMode });

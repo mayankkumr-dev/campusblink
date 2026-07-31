@@ -16,8 +16,8 @@ export function useDiaryEditor({ initialState, onSaveDraft }: Pick<DiaryEditorPr
       x: 0,
       y: 0,
       fontFamily: 'Caveat, cursive',
-      bgMode: 'transparent',
-      color: 'var(--parchment-text-primary)',
+      styleMode: 'none',
+      plainColor: 'var(--parchment-text-primary)',
       fontSize: 32,
       textAlign: 'center',
     };

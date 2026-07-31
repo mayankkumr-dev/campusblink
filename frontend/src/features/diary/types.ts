@@ -4,7 +4,19 @@ export type FontStyleOption = 'Caveat, cursive' | 'Playfair Display, serif' | 'I
 
 export type TextAlignOption = 'left' | 'center' | 'right';
 
-export type TextStyleMode = 'fill' | 'plain';
+/**
+ * TextStyleMode — 3-state background style for text elements.
+ *  'none'      — no background, glyph color = plainColor (was 'plain')
+ *  'solid'     — solid rounded-pill bg (fillColor), text auto-contrasts (was 'fill')
+ *  'highlight' — semi-transparent pill bg (fillColor @ 0.3), text auto-contrasts
+ *
+ * Legacy values 'plain' and 'fill' are still accepted at runtime and mapped
+ * to 'none' and 'solid' respectively to avoid breaking existing diary entries.
+ */
+export type TextStyleMode = 'none' | 'solid' | 'highlight' | 'plain' | 'fill';
+
+/** Legacy type kept for backward-compat with DiaryTextFormattingBar */
+export type TextBgMode = 'solid-white' | 'solid-color' | 'transparent';
 
 export type VisibilityOption = 'public' | 'friends' | 'private';
 

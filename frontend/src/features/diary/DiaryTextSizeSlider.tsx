@@ -1,31 +1,29 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 
 interface DiaryTextSizeSliderProps {
-  value: number;          // current font size in px (14–72)
+  value: number;       // current font size in px (min–max)
   min?: number;
   max?: number;
   onSizeChange: (px: number) => void;
 }
 
-const DEFAULT_MIN = 14;
+const DEFAULT_MIN = 16;
 const DEFAULT_MAX = 72;
 
 /**
- * DiaryTextSizeSlider
+ * DiaryTextSizeSlider — Instagram-style vertical font-size slider.
  *
- * Candle-shaped (tapered) vertical drag slider pinned to the left edge of the
- * text overlay. Dragging up → larger font, dragging down → smaller.
+ * Visual design:
+ *  • Track: thin semi-transparent white line (w-1, rounded-full, h-64)
+ *  • Thumb: clean white circle (w-6 h-6) with drop shadow
+ *  • Active thumb: scales to 125% for tactile feedback
  *
- * Implementation notes:
- *  - Uses Pointer Events API (pointerdown/pointermove/pointerup) — no separate
- *    mouse + touch handlers. Avoids the classic double-fire on hybrid devices.
- *  - touch-action: none on the track prevents page scroll under the thumb on
- *    mobile Safari/Chrome.
- *  - onSizeChange is throttled to requestAnimationFrame to prevent stutter on
- *    mid-range Android devices.
- *  - Track height is measured from the component's actual rendered size at mount
- *    (not 100vh) so it stays correct when the mobile keyboard is open.
- *  - Handle Y is clamped to track bounds.
+ * Interaction:
+ *  • Uses Pointer Events API exclusively (covers mouse, touch, stylus).
+ *  • setPointerCapture ensures dragging never loses focus on mobile Safari/Chrome.
+ *  • Updates are throttled to requestAnimationFrame to prevent stutter.
+ *  • touch-action: none prevents accidental page scroll.
+ *  • Drag up → larger font, drag down → smaller font.
  */
 export function DiaryTextSizeSlider({
   value,
@@ -34,112 +32,89 @@ export function DiaryTextSizeSlider({
   onSizeChange,
 }: DiaryTextSizeSliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
   const rafId = useRef<number | null>(null);
   const pendingSize = useRef<number>(value);
 
-  /** Convert font-size px → Y position in track (0 = top = max, trackH = bottom = min) */
-  const sizeToY = useCallback(
-    (size: number, trackH: number) => {
+  /** Convert font-size → thumb Y% (0% = top = max size, 100% = bottom = min size) */
+  const sizeToPercent = useCallback(
+    (size: number) => {
       const clamped = Math.max(min, Math.min(max, size));
-      // Invert: big size → top → small Y
-      return ((max - clamped) / (max - min)) * trackH;
+      return ((max - clamped) / (max - min)) * 100;
     },
     [min, max]
   );
 
-  /** Convert Y position in track → font-size px */
-  const yToSize = useCallback(
-    (y: number, trackH: number) => {
-      const clamped = Math.max(0, Math.min(trackH, y));
-      return Math.round(max - (clamped / trackH) * (max - min));
+  /** Convert clientY within the track → font-size px */
+  const clientYToSize = useCallback(
+    (clientY: number) => {
+      if (!trackRef.current) return value;
+      const rect = trackRef.current.getBoundingClientRect();
+      const relY = Math.max(0, Math.min(rect.height, clientY - rect.top));
+      return Math.round(max - (relY / rect.height) * (max - min));
     },
-    [min, max]
+    [min, max, value]
   );
 
-  const getTrackHeight = () => {
-    return trackRef.current?.getBoundingClientRect().height ?? 200;
-  };
+  const flushSize = useCallback(() => {
+    rafId.current = null;
+    onSizeChange(pendingSize.current);
+  }, [onSizeChange]);
 
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
-    isDragging.current = true;
-    updateFromEvent(e.clientY);
-  };
+  const scheduleUpdate = useCallback(
+    (clientY: number) => {
+      pendingSize.current = clientYToSize(clientY);
+      if (rafId.current !== null) return; // already scheduled
+      rafId.current = requestAnimationFrame(flushSize);
+    },
+    [clientYToSize, flushSize]
+  );
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current) return;
-    e.preventDefault();
-    updateFromEvent(e.clientY);
-  };
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Capture pointer so moves/up fire even if cursor leaves element
+      (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+      setIsDragging(true);
+      scheduleUpdate(e.clientY);
+    },
+    [scheduleUpdate]
+  );
 
-  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    isDragging.current = false;
-    // Flush any pending RAF
-    if (rafId.current !== null) {
-      cancelAnimationFrame(rafId.current);
-      rafId.current = null;
-      onSizeChange(pendingSize.current);
-    }
-  };
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      scheduleUpdate(e.clientY);
+    },
+    [isDragging, scheduleUpdate]
+  );
 
-  const updateFromEvent = (clientY: number) => {
-    if (!trackRef.current) return;
-    const rect = trackRef.current.getBoundingClientRect();
-    const y = clientY - rect.top;
-    const trackH = rect.height;
-    const newSize = yToSize(y, trackH);
-    pendingSize.current = newSize;
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      setIsDragging(false);
+      // Flush any pending animation frame immediately
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+        onSizeChange(pendingSize.current);
+      }
+    },
+    [onSizeChange]
+  );
 
-    // Throttle to RAF
-    if (rafId.current !== null) return;
-    rafId.current = requestAnimationFrame(() => {
-      rafId.current = null;
-      onSizeChange(pendingSize.current);
-    });
-  };
-
-  // Compute handle position
-  const trackHeight = trackRef.current?.getBoundingClientRect().height ?? 200;
-  const handleY = sizeToY(value, trackHeight);
-
-  // Taper widths at top and bottom (candle shape)
-  const topWidth = 28;
-  const bottomWidth = 10;
+  const thumbPercent = sizeToPercent(value);
 
   return (
     <div
       className="relative flex items-center justify-center select-none"
-      style={{ width: topWidth + 8, height: '100%', touchAction: 'none' }}
+      style={{ width: 44, height: '100%', touchAction: 'none' }}
     >
-      {/* SVG taper track */}
-      <svg
-        viewBox={`0 0 ${topWidth + 8} 100`}
-        preserveAspectRatio="none"
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        aria-hidden="true"
-      >
-        {/* Gradient fill for the taper */}
-        <defs>
-          <linearGradient id="taper-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(255,255,255,0.18)" />
-            <stop offset="100%" stopColor="rgba(255,255,255,0.06)" />
-          </linearGradient>
-        </defs>
-        <polygon
-          points={`${(topWidth + 8) / 2 - topWidth / 2},0 ${(topWidth + 8) / 2 + topWidth / 2},0 ${(topWidth + 8) / 2 + bottomWidth / 2},100 ${(topWidth + 8) / 2 - bottomWidth / 2},100`}
-          fill="url(#taper-grad)"
-          stroke="rgba(255,255,255,0.20)"
-          strokeWidth="1"
-          rx="4"
-        />
-      </svg>
-
-      {/* Invisible pointer-capture track overlay */}
+      {/* Invisible full-height pointer-capture zone */}
       <div
         ref={trackRef}
-        className="absolute inset-x-0 inset-y-0 cursor-ns-resize"
+        className="absolute inset-0 cursor-ns-resize"
         style={{ touchAction: 'none' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -150,25 +125,60 @@ export function DiaryTextSizeSlider({
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={value}
+        tabIndex={0}
       />
 
-      {/* Drag handle — round pill, visually centered on the track */}
+      {/* Slim track — centered horizontally, h-64 */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 pointer-events-none z-10 transition-none"
-        style={{ top: `${(handleY / Math.max(trackHeight, 1)) * 100}%`, transform: 'translate(-50%, -50%)' }}
+        className="w-1 rounded-full pointer-events-none"
+        style={{
+          height: 256,
+          background: 'rgba(255,255,255,0.25)',
+          position: 'relative',
+        }}
+      >
+        {/* Filled portion above the thumb */}
+        <div
+          className="absolute inset-x-0 top-0 rounded-full pointer-events-none transition-none"
+          style={{
+            height: `${thumbPercent}%`,
+            background: 'rgba(255,255,255,0.15)',
+          }}
+        />
+      </div>
+
+      {/* Thumb — white circle, floats at correct position along the track */}
+      <div
+        className="absolute left-1/2 pointer-events-none z-10"
+        style={{
+          // Track is 256px tall, centered in the flex container (50% - 128px = track top)
+          top: `calc(50% - 128px + ${(thumbPercent / 100) * 256}px)`,
+          transform: 'translate(-50%, -50%)',
+        }}
       >
         <div
-          className="rounded-full bg-white shadow-lg border-2 border-white/40 flex items-center justify-center"
-          style={{ width: 26, height: 26, boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}
-        >
-          {/* Tiny size indicator dots */}
-          <div className="flex flex-col gap-[2px] items-center">
-            <div className="w-2.5 h-[1.5px] bg-gray-400 rounded-full" />
-            <div className="w-2 h-[1.5px] bg-gray-400 rounded-full" />
-            <div className="w-1.5 h-[1.5px] bg-gray-400 rounded-full" />
-          </div>
-        </div>
+          className={`rounded-full bg-white shadow-lg transition-transform duration-100 ${
+            isDragging ? 'scale-125' : 'scale-100'
+          }`}
+          style={{
+            width: 24,
+            height: 24,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.4)',
+          }}
+        />
       </div>
+
+      {/* Floating size badge — shows only while dragging */}
+      {isDragging && (
+        <div
+          className="absolute left-10 px-2 py-0.5 rounded-full text-xs font-bold bg-white text-black shadow-md pointer-events-none whitespace-nowrap transition-all animate-fadeIn"
+          style={{
+            top: `calc(50% - 128px + ${(thumbPercent / 100) * 256}px - 10px)`,
+          }}
+        >
+          {value}px
+        </div>
+      )}
     </div>
   );
 }

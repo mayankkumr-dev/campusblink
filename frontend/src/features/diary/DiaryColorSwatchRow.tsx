@@ -9,20 +9,19 @@ interface DiaryColorSwatchRowProps {
   onSelect: (color: string) => void;
 }
 
-// Curated palette — pops against both light and dark canvas backgrounds
+// Curated palette matching the Instagram-style spec
 const SWATCHES = [
   '#FFFFFF', // White
-  '#1A1A1A', // Near-black
-  '#E63946', // Vivid Red
-  '#F4A261', // Warm Amber
-  '#2A9D8F', // Teal
-  '#457B9D', // Steel Blue
-  '#6D28D9', // Deep Violet
-  '#F72585', // Hot Pink
+  '#000000', // Black
+  '#EF4444', // Red
+  '#F97316', // Orange
+  '#EAB308', // Yellow
+  '#22C55E', // Green
+  '#3B82F6', // Blue
+  '#A855F7', // Purple
+  '#EC4899', // Pink
 ];
 
-const NO_COLOR_FILL = 'transparent'; // for fill mode "no pill"
-const NO_COLOR_PLAIN = '#000000';    // for plain mode default (black glyph, no color)
 
 /**
  * DiaryColorSwatchRow
@@ -39,7 +38,7 @@ export function DiaryColorSwatchRow({ activeColor, mode, onSelect }: DiaryColorS
     nativePickerRef.current?.click();
   };
 
-  const isNoColor = activeColor === NO_COLOR_FILL || activeColor === '';
+  const isNoColor = activeColor === 'transparent' || activeColor === '';
 
   return (
     <div className="w-full flex items-center gap-2.5 px-4 pb-4 pt-2 overflow-x-auto"
@@ -70,7 +69,7 @@ export function DiaryColorSwatchRow({ activeColor, mode, onSelect }: DiaryColorS
 
       {/* "No color" / transparent swatch */}
       <button
-        onClick={() => onSelect(mode === 'fill' ? NO_COLOR_FILL : NO_COLOR_PLAIN)}
+        onClick={() => onSelect('transparent')}
         className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all active:scale-90 ${
           isNoColor ? 'border-white scale-110 shadow-lg' : 'border-white/30'
         }`}

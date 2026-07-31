@@ -57,7 +57,7 @@ export function DiaryCanvas({
       {/* Central Parchment Container with Torn Edges */}
       <div
         ref={canvasRef}
-        className="relative w-full max-w-md h-full max-h-[88dvh] rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 border border-[var(--parchment-border)]"
+        className="relative w-full max-w-md h-full max-h-[88dvh] rounded-3xl shadow-2xl overflow-hidden flex flex-col justify-between transition-all duration-300"
         style={getCanvasStyle()}
       >
         {/* Top Deckled / Torn SVG Edge Graphic */}
