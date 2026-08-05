@@ -59,8 +59,8 @@ export const AdminGlobalSearch: React.FC = () => {
         // 1. Search Users
         const { data: users } = await supabase
           .from('profiles')
-          .select('id, full_name, name, username, email, role')
-          .or(`username.ilike.${searchQuery},email.ilike.${searchQuery},name.ilike.${searchQuery},full_name.ilike.${searchQuery}`)
+          .select('id, name, username, email, role')
+          .or(`username.ilike.${searchQuery},email.ilike.${searchQuery},name.ilike.${searchQuery}`)
           .limit(10);
 
         if (users) {
@@ -78,7 +78,7 @@ export const AdminGlobalSearch: React.FC = () => {
             tempResults.push({
               type: 'user',
               id: u.id,
-              title: u.name || u.full_name || u.username || 'Unnamed User',
+              title: u.name || u.username || 'Unnamed User',
               subtitle: `${u.username ? '@' + u.username + ' • ' : ''}${u.email} • ${u.role}`,
               url: `/admin/users/${u.id}`,
             });
@@ -88,7 +88,7 @@ export const AdminGlobalSearch: React.FC = () => {
         // 2. Search Canteen Orders
         const { data: orders } = await supabase
           .from('canteen_orders')
-          .select('id, status, profiles!user_id(full_name)')
+          .select('id, status, profiles!user_id(name)')
           .textSearch('id::text', query)
           .limit(5);
 
@@ -98,7 +98,7 @@ export const AdminGlobalSearch: React.FC = () => {
               type: 'order',
               id: o.id,
               title: `Order #${o.id.split('-')[0]}`,
-              subtitle: `${o.profiles?.full_name || 'Unknown'} • ${o.status}`,
+              subtitle: `${o.profiles?.name || 'Unknown'} • ${o.status}`,
               url: `/admin/canteen/orders`, // Cannot deep link directly to order without specific page right now
             });
           });
@@ -107,7 +107,7 @@ export const AdminGlobalSearch: React.FC = () => {
         // 3. Search Posts
         const { data: posts } = await supabase
           .from('community_posts')
-          .select('id, content, profiles!user_id(full_name)')
+          .select('id, content, profiles!user_id(name)')
           .ilike('content', searchQuery)
           .limit(5);
 
@@ -117,7 +117,7 @@ export const AdminGlobalSearch: React.FC = () => {
               type: 'post',
               id: p.id,
               title: p.content.substring(0, 40) + '...',
-              subtitle: `Post by ${p.profiles?.full_name || 'Student'}`,
+              subtitle: `Post by ${p.profiles?.name || 'Student'}`,
               url: `/admin/community`,
             });
           });

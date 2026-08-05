@@ -23,9 +23,10 @@ const uploadRoutes = require('./routes/uploads');
 const pushRoutes = require('./routes/push');
 const usersRoutes = require('./routes/users');
 const feedRoutes = require('./routes/feed');
-const attendanceRoutes = require('./routes/attendance');
+
 const messagingRoutes = require('./routes/messaging');
 const diaryRoutes = require('./routes/diary');
+const studentRoutes = require('./routes/student');
 const http = require('http');
 const { initSocket } = require('./config/socket');
 const { connectDB } = require('./config/db');
@@ -128,9 +129,10 @@ app.use('/api/print', generalLimiter, printRoutes);
 app.use('/api/uploads', generalLimiter, uploadRoutes);
 app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
-app.use('/api/attendance', generalLimiter, attendanceRoutes);
+
 app.use('/api/messages', generalLimiter, messagingRoutes);
 app.use('/api/diary', generalLimiter, diaryRoutes);
+app.use('/api/student', generalLimiter, studentRoutes);
 
 // 404 handler
 app.use((req, res) => {

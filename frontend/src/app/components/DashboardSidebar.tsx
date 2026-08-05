@@ -144,12 +144,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       icon: Building2,
       action: undefined,
     },
-    {
-      label: 'Attendance',
-      path: '/student/attendance',
-      icon: ClipboardCheck,
-      action: undefined,
-    },
+
     {
       label: 'Notices',
       path: '/student/notices',

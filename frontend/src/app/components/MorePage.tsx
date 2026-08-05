@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, CalendarCheck, Layout, Printer, Settings, UtensilsCrossed } from 'lucide-react';
+import { Building2, Layout, Printer, Settings, UtensilsCrossed } from 'lucide-react';
 import { NavLink } from 'react-router';
 
 export const MorePage: React.FC = () => {
@@ -71,20 +71,7 @@ export const MorePage: React.FC = () => {
           <div className="text-[var(--yellow-dark)] text-xl">→</div>
         </NavLink>
 
-        {/* Attendance Option */}
-        <NavLink
-          to="/student/attendance"
-          className="flex items-center gap-4 rounded-2xl border border-black/10 bg-[var(--bg)] px-4 py-4 text-left transition-all hover:border-black/20 hover:shadow-md"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--yellow-light)] text-[var(--yellow-dark)] shrink-0">
-            <CalendarCheck className="h-6 w-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-[var(--text-primary)] select-text">Attendance</h3>
-            <p className="text-sm text-[var(--text-secondary)] select-text">Track your attendance and classes</p>
-          </div>
-          <div className="text-[var(--yellow-dark)] text-xl">→</div>
-        </NavLink>
+
 
         {/* Settings Option */}
         <NavLink

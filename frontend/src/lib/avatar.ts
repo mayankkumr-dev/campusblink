@@ -48,11 +48,8 @@ export function getAvatarColors(seed?: string | null) {
 }
 
 export function getAvatarDataUrl(options: AvatarOptions = {}) {
-  const initials = getAvatarInitials(options.name, options.email);
-  const seed = options.seed || options.email || options.name || initials;
-  const { bg, fg } = getAvatarColors(seed);
-
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='${bg}'/><text x='50%' y='50%' dy='.35em' text-anchor='middle' fill='${fg}' font-family='Arial, sans-serif' font-size='24' font-weight='700'>${initials}</text></svg>`;
+  // Use a generic neutral placeholder instead of colourful initials
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#94a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' style='background: #f8fafc;'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>`;
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }

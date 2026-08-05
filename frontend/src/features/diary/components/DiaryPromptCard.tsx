@@ -22,9 +22,7 @@ export function DiaryPromptCard({ prompt, onParticipate }: DiaryPromptCardProps)
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center pointer-events-none transition-opacity duration-300 opacity-100 capture-ignore z-10">
-      <p className="text-[var(--parchment-text-secondary)] font-serif italic text-lg max-w-sm mb-6 leading-relaxed">
-        Capture a quiet moment or start writing on your page...
-      </p>
+
 
       <div className="bg-[var(--parchment-card-bg)] backdrop-blur-md rounded-2xl p-5 shadow-lg border border-[var(--parchment-card-border)] max-w-xs w-full pointer-events-auto transition-transform hover:scale-[1.02]">
         <p className="text-[var(--parchment-text-secondary)] text-xs uppercase tracking-wider font-semibold mb-1">

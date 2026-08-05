@@ -207,14 +207,16 @@ export const StudentLayout: React.FC = () => {
           );
         })()}
         <div className="flex items-center gap-1 sm:gap-2">
-          <button
-            type="button"
-            onClick={() => setSearchPanelOpen(true)}
-            className="relative rounded-full p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 transition-colors hover:bg-gray-100 active:scale-[0.97]"
-            aria-label="Search"
-          >
-            <Search size={20} strokeWidth={2} />
-          </button>
+          {location.pathname === '/student/home' && (
+            <button
+              type="button"
+              onClick={() => setSearchPanelOpen(true)}
+              className="relative rounded-full p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 transition-colors hover:bg-gray-100 active:scale-[0.97]"
+              aria-label="Search"
+            >
+              <Search size={20} strokeWidth={2} />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setNotificationPanelOpen(true)}
@@ -301,7 +303,7 @@ export const StudentLayout: React.FC = () => {
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
                     {([
                       { icon: Layout, label: 'Campus Notices', path: '/student/notices' },
-                      { icon: CalendarCheck, label: 'Attendance', path: '/student/attendance' },
+
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },

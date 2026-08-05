@@ -49,7 +49,7 @@ export function DiaryVisibilitySelector({
     <>
       <button
         onClick={onOpen}
-        className="flex items-center gap-2 px-4 py-2.5 bg-[var(--parchment-card-bg)] backdrop-blur-md rounded-full shadow-sm border border-[var(--parchment-card-border)] text-sm font-semibold text-[var(--parchment-text-primary)] hover:bg-[var(--parchment-accent-soft)] active:scale-95 transition-all pointer-events-auto"
+        className="flex items-center gap-2 px-5 py-3 bg-transparent rounded-xl border-[1.5px] border-white text-base font-semibold text-white active:scale-95 transition-all pointer-events-auto"
       >
         {getVisibilityIcon()}
         <span>{getVisibilityLabel()}</span>

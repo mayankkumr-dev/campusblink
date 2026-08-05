@@ -74,7 +74,7 @@
   --parchment-toolbar-bg: rgba(244, 234, 213, 0.88);
   --parchment-accent: #8D6E63;
   --parchment-accent-soft: rgba(141, 110, 99, 0.15);
-  --parchment-outer-bg: #EAE1D0;
+  --parchment-outer-bg: #031224;
 }
 
 .dark {
@@ -244,7 +244,7 @@
   --parchment-toolbar-bg: rgba(28, 24, 20, 0.92);
   --parchment-accent: #D4A373;
   --parchment-accent-soft: rgba(212, 163, 115, 0.2);
-  --parchment-outer-bg: #0F0C0A;
+  --parchment-outer-bg: #031224;
 }
 
 .dark .admin-theme {

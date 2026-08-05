@@ -35,9 +35,48 @@ import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
 import { getFirstName } from '../../lib/user';
 import { supabase } from '../../lib/supabase';
+import { MapPin, X, Calendar, Upload, CheckCircle2 } from 'lucide-react';
+import { getStudentSchedule } from '../../api/student';
 import { getMyInviteOverview, requestInviteRefresh } from '../../api/invites';
 import toast from 'react-hot-toast';
 import { ListSkeleton, PostSkeleton } from './ui/Skeletons';
+
+function getCurrentDayCode() {
+  const d = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const map: Record<number, string> = { 1: 'MON', 2: 'TUES', 3: 'WED', 4: 'THURS', 5: 'FRI' };
+  return map[d] || 'MON';
+}
+
+function getClassTimeStatus(startTime: string = '', endTime: string = '') {
+  try {
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    
+    // Parse end time (e.g., '09:50' or '09:50 AM')
+    const parseMins = (tStr: string) => {
+      const clean = tStr.trim();
+      const parts = clean.split(':');
+      if (parts.length < 2) return 0;
+      let h = parseInt(parts[0], 10);
+      let m = parseInt(parts[1].replace(/[^0-9]/g, ''), 10);
+      if (clean.toLowerCase().includes('pm') && h < 12) h += 12;
+      return h * 60 + m;
+    };
+
+    const startMins = parseMins(startTime);
+    const endMins = parseMins(endTime);
+
+    if (currentMins > endMins && endMins > 0) {
+      return 'completed';
+    } else if (currentMins >= startMins && currentMins <= endMins) {
+      return 'in_progress';
+    } else {
+      return 'upcoming';
+    }
+  } catch (_) {
+    return 'upcoming';
+  }
+}
 
 export const StudentDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -54,6 +93,20 @@ export const StudentDashboard: React.FC = () => {
   const [clockNow, setClockNow] = useState(Date.now());
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  const [schedule, setSchedule] = useState<any[]>(() => {
+    try {
+      const cached = localStorage.getItem('student_parsed_schedule');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (_) {}
+    return [];
+  });
+  const [showTimetableModal, setShowTimetableModal] = useState(false);
+  const [selectedDayTab, setSelectedDayTab] = useState<string>(getCurrentDayCode());
+
 
   // UI state for tucked secondary section
   const [secondaryTab, setSecondaryTab] = useState<'rewards' | 'invites'>('rewards');
@@ -133,6 +186,7 @@ export const StudentDashboard: React.FC = () => {
   useEffect(() => {
     loadRecentActivity();
     loadInvites();
+    getStudentSchedule().then(res => { if (res.data) setSchedule(res.data) });
   }, [profile?.id]);
 
   useEffect(() => {
@@ -143,7 +197,11 @@ export const StudentDashboard: React.FC = () => {
   const handleRefreshAll = async () => {
     if (isRefreshingAll) return;
     setIsRefreshingAll(true);
-    await Promise.all([loadRecentActivity(), loadInvites()]);
+    await Promise.all([
+      loadRecentActivity(), 
+      loadInvites(), 
+      getStudentSchedule().then(res => { if (res.data) setSchedule(res.data) })
+    ]);
     setIsRefreshingAll(false);
     toast.success('Dashboard refreshed');
   };
@@ -405,6 +463,309 @@ export const StudentDashboard: React.FC = () => {
           <ChevronRight className="w-4 h-4 text-slate-400 ml-auto sm:ml-1 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </motion.div>
+
+      
+      <div className="hidden md:block w-full">
+        {/* Today's Schedule & Classes Section (Pure Premium Light-Mode Theme) */}
+      <section className="mb-14">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white font-syne flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-400 dark:text-slate-500" strokeWidth={2} /> Today's Schedule
+            </h2>
+            <p className="text-xs font-semibold text-gray-400 dark:text-slate-500 mt-0.5">
+              {getCurrentDayCode()} • Automated Student Timetable
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate('/student/settings?section=schedule')}
+              className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors flex items-center gap-1.5 bg-emerald-50/70 dark:bg-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 px-3.5 py-1.5 rounded-xl border border-emerald-100 dark:border-emerald-800/40"
+            >
+              Edit Schedule
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowTimetableModal(true)}
+              className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-1 group bg-blue-50/70 dark:bg-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/50 px-3.5 py-1.5 rounded-xl border border-blue-100 dark:border-blue-800/40"
+            >
+              Full Timetable <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Loading Skeleton, Empty State, or Populated Schedule Cards */}
+        {isRefreshingAll && schedule.length === 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="bg-white dark:bg-[#161922] rounded-3xl border border-gray-100 dark:border-slate-800 p-6 h-48">
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/3 mb-4" />
+                <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-3" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : schedule.length === 0 ? (
+          <div className="bg-white dark:bg-[#161922] rounded-[2rem] border border-gray-200/80 dark:border-slate-800 p-8 sm:p-10 shadow-[0_10px_35px_rgba(0,0,0,0.03)] dark:shadow-none text-center max-w-3xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/40 flex items-center justify-center mx-auto mb-5 shadow-sm dark:shadow-none">
+              <Calendar className="w-8 h-8" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white font-syne mb-2">
+              Upload your schedule to see today's classes
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+              Our automated parsing engine extracts your lectures, room numbers, and batches directly from your university timetable PDF or image.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/student/settings?section=schedule')}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-[0_6px_20px_rgba(37,99,235,0.25)] hover:shadow-[0_8px_25px_rgba(37,99,235,0.35)] transition-all active:scale-95"
+            >
+              <Upload className="w-4 h-4" /> Upload Schedule
+            </button>
+          </div>
+        ) : (
+          (() => {
+            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode());
+            if (todayClasses.length === 0) {
+              return (
+                <div className="bg-white dark:bg-[#161922] rounded-[2rem] border border-gray-100 dark:border-slate-800 p-8 text-center shadow-sm dark:shadow-none">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white font-syne mb-1">No classes scheduled for today</h3>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 font-medium mb-4">You have a clear schedule on {getCurrentDayCode()}.</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimetableModal(true)}
+                    className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-xl"
+                  >
+                    View Entire Week
+                  </button>
+                </div>
+              );
+            }
+
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {todayClasses.map((cls: any, idx: number) => {
+                  const status = getClassTimeStatus(cls.startTime, cls.endTime);
+                  const isCompleted = status === 'completed';
+                  const isInProgress = status === 'in_progress';
+
+                  return (
+                    <div
+                      key={cls.id || idx}
+                      className={`bg-white dark:bg-[#161922] rounded-3xl p-6 border transition-all duration-300 relative overflow-hidden group ${
+                        isCompleted
+                          ? 'border-gray-100/80 dark:border-slate-800 shadow-sm opacity-80 hover:opacity-100'
+                          : isInProgress
+                          ? 'border-blue-200 dark:border-blue-500/40 shadow-[0_12px_35px_rgba(37,99,235,0.08)] ring-1 ring-blue-500/20'
+                          : 'border-gray-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.03)] dark:shadow-none hover:shadow-[0_16px_40px_rgb(0,0,0,0.06)]'
+                      }`}
+                    >
+                      {/* Left color bar */}
+                      <div
+                        className={`absolute top-0 left-0 w-1.5 h-full rounded-l-3xl ${
+                          isCompleted
+                            ? 'bg-gray-300 dark:bg-prof-border-strong'
+                            : isInProgress
+                            ? 'bg-blue-600'
+                            : 'bg-amber-400 dark:bg-prof-accent-orange'
+                        }`}
+                      ></div>
+
+                      {/* Header badge */}
+                      <div className="flex justify-between items-start mb-5">
+                        <span
+                          className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${
+                            isCompleted
+                              ? 'bg-gray-100 dark:bg-[#161922]-raised text-gray-600 dark:text-slate-400'
+                              : isInProgress
+                              ? 'bg-blue-600 text-white shadow-sm'
+                              : 'bg-amber-50 dark:bg-prof-accent-orange-soft-bg text-amber-700 dark:text-prof-accent-orange border border-amber-100 dark:border-transparent'
+                          }`}
+                        >
+                          {isCompleted
+                            ? 'Completed'
+                            : isInProgress
+                            ? 'In Progress'
+                            : 'Later Today'}
+                        </span>
+                        {cls.batch && (
+                          <span className="text-[11px] font-bold text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-[#161922]-raised border border-gray-100 dark:border-slate-800 px-2.5 py-0.5 rounded-lg">
+                            {cls.batch}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Subject */}
+                      <h3
+                        className={`text-lg font-bold mb-2 font-syne ${
+                          isCompleted ? 'text-gray-500 dark:text-slate-500 line-through' : 'text-gray-900 dark:text-white'
+                        }`}
+                      >
+                        {cls.subject || cls.code || 'Lecture Class'}
+                      </h3>
+
+                      {/* Room */}
+                      <p className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-2 mb-6 font-medium">
+                        <MapPin className="w-4 h-4 text-gray-400 dark:text-slate-500" strokeWidth={2} />
+                        Room {cls.room || 'TBA'}
+                        {cls.statusLabel && ` • ${cls.statusLabel}`}
+                      </p>
+
+                      {/* Time */}
+                      <div className="text-sm font-bold text-gray-900 dark:text-white flex items-center justify-between border-t border-gray-100 dark:border-slate-800 pt-4">
+                        <span>{cls.startTime} - {cls.endTime}</span>
+                        {isCompleted && (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 transition-colors" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()
+        )}
+      </section>
+      </div>
+      <div className="md:hidden w-full">
+        {/* Today's Schedule (Swipeable UI) */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3.5">
+            <div>
+              <h2 className="text-base font-extrabold text-gray-900 dark:text-white font-syne tracking-tight">Today's Schedule</h2>
+              <p className="text-[11px] font-medium text-gray-400 dark:text-slate-500">{getCurrentDayCode()} • Swipe to view</p>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => navigate('/student/settings?section=schedule')}
+                className="text-xs font-semibold text-emerald-600 dark:text-prof-accent-emerald bg-emerald-50/80 dark:bg-prof-accent-emerald/15 hover:bg-emerald-100/70 px-3 py-1.5 rounded-xl transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTimetableModal(true)}
+                className="text-xs font-semibold text-blue-600 dark:text-prof-accent-blue bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg hover:bg-blue-100/70 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1"
+              >
+                Week <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {isRefreshingAll && schedule.length === 0 ? (
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+              {[1, 2].map((n) => (
+                <div key={n} className="w-[260px] shrink-0 bg-white dark:bg-[#161922] rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none animate-pulse h-40">
+                  <div className="h-3.5 bg-gray-100 dark:bg-[#161922]-raised rounded w-1/3 mb-3" />
+                  <div className="h-5 bg-gray-100 dark:bg-[#161922]-raised rounded w-3/4 mb-2" />
+                  <div className="h-3.5 bg-gray-100 dark:bg-[#161922]-raised rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : schedule.length === 0 ? (
+            <div className="bg-white dark:bg-[#161922] border border-transparent dark:border-slate-800 rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-none text-center my-1">
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-600 dark:text-prof-accent-blue flex items-center justify-center mx-auto mb-3">
+                <Calendar className="w-6 h-6" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-base font-extrabold text-gray-900 dark:text-white font-syne mb-1">
+                Upload your schedule
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-slate-400 font-medium leading-relaxed max-w-xs mx-auto mb-4">
+                Extract your daily lectures, rooms, and batch numbers automatically from your timetable.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/student/settings?section=schedule')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-50 dark:bg-prof-accent-blue-soft-bg hover:bg-blue-100/80 text-blue-600 dark:text-prof-accent-blue text-xs font-bold transition-all active:scale-95"
+              >
+                <Upload className="w-3.5 h-3.5" /> Upload Schedule
+              </button>
+            </div>
+          ) : (() => {
+            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode());
+            if (todayClasses.length === 0) {
+              return (
+                <div className="bg-white dark:bg-[#161922] border border-transparent dark:border-slate-800 rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-none text-center my-1">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-prof-accent-emerald/15 text-emerald-600 dark:text-prof-accent-emerald flex items-center justify-center mx-auto mb-2.5">
+                    <CheckCircle2 className="w-5 h-5" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-sm font-extrabold text-gray-900 dark:text-white font-syne mb-1">No classes today</h3>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-4">Your schedule is clear on {getCurrentDayCode()}.</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowTimetableModal(true)}
+                    className="text-xs font-bold text-blue-600 dark:text-prof-accent-blue bg-blue-50/80 dark:bg-prof-accent-blue-soft-bg px-4 py-2 rounded-xl"
+                  >
+                    View Entire Week
+                  </button>
+                </div>
+              );
+            }
+
+            return (
+              <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 hide-scrollbar">
+                {todayClasses.map((cls: any, idx: number) => {
+                  const status = getClassTimeStatus(cls.startTime, cls.endTime);
+                  const isCompleted = status === 'completed';
+                  const isInProgress = status === 'in_progress';
+
+                  return (
+                    <div
+                      key={cls.id || idx}
+                      className="w-[260px] shrink-0 snap-start bg-white dark:bg-[#161922] border border-transparent dark:border-slate-800 rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-none flex flex-col justify-between relative overflow-hidden"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span
+                            className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                              isCompleted
+                                ? 'bg-gray-100 dark:bg-[#161922]-raised text-gray-500 dark:text-slate-500'
+                                : isInProgress
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                            }`}
+                          >
+                            {isCompleted ? 'Completed' : isInProgress ? 'In Progress' : 'Later Today'}
+                          </span>
+                          {cls.batch && (
+                            <span className="text-[10px] font-bold text-gray-500 dark:text-slate-500 bg-gray-50 dark:bg-[#161922]-raised px-2 py-0.5 rounded-md">
+                              {cls.batch}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3
+                          className={`text-base font-bold font-syne line-clamp-1 ${
+                            isCompleted ? 'text-gray-400 dark:text-slate-500 line-through' : 'text-gray-900 dark:text-white'
+                          }`}
+                        >
+                          {cls.subject || cls.code || 'Lecture Class'}
+                        </h3>
+
+                        <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 mt-1 font-medium">
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-slate-500" strokeWidth={1.75} />
+                          Room {cls.room || 'TBA'}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 pt-3 border-t border-gray-100/70 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-gray-800 dark:text-white">
+                        <span>{cls.startTime} - {cls.endTime}</span>
+                        {isCompleted && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400 transition-colors" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </section>
+      </div>
 
       {/* 3. Compact Grid of Services (2×2 Icon Grid / Apple Wallet Shortcuts) */}
       <motion.div
@@ -848,6 +1209,130 @@ export const StudentDashboard: React.FC = () => {
           )}
         </AnimatePresence>
       </motion.div>
+{/* Full Timetable Weekly Grid Modal */}
+      {showTimetableModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#161922] rounded-[2rem] border border-gray-200 dark:border-slate-800 shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 sm:px-8 py-6 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-[#161922]">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/40 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-white font-syne">Faculty Weekly Timetable</h3>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Complete Parsed Schedule • Semester Jan 2026</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTimetableModal(false)}
+                className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-[#161922]-raised hover:bg-gray-100 dark:hover:bg-prof-border-subtle text-gray-500 dark:text-slate-400 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Day Tab Bar */}
+            <div className="px-6 sm:px-8 pt-4 pb-2 bg-gray-50/60 dark:bg-[#161922]-raised/50 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
+              {['MON', 'TUES', 'WED', 'THURS', 'FRI'].map((dayCode) => {
+                const count = (schedule.length > 0 ? schedule : []).filter((c: any) => c.day === dayCode).length;
+                const isActive = selectedDayTab === dayCode;
+                return (
+                  <button
+                    key={dayCode}
+                    type="button"
+                    onClick={() => setSelectedDayTab(dayCode)}
+                    className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-white dark:bg-[#161922] text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-prof-bg-surface-hover'
+                    }`}
+                  >
+                    {dayCode}
+                    <span
+                      className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                        isActive ? 'bg-blue-700 text-white' : 'bg-gray-100 dark:bg-[#161922]-raised text-gray-600 dark:text-slate-400'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Modal Body: Timetable Grid */}
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-[#FAFAFA] dark:bg-[#161922]-raised/30">
+              {(() => {
+                const dayClasses = (schedule.length > 0 ? schedule : []).filter((c: any) => c.day === selectedDayTab);
+                if (dayClasses.length === 0) {
+                  return (
+                    <div className="py-16 text-center bg-white dark:bg-[#161922] rounded-3xl border border-gray-100 dark:border-slate-800 max-w-xl mx-auto">
+                      <p className="text-base font-bold text-gray-900 dark:text-white font-syne mb-1">No classes scheduled on {selectedDayTab}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">Upload your complete schedule from Professor Settings.</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {dayClasses.map((item: any, i: number) => (
+                      <div
+                        key={item.id || i}
+                        className="bg-white dark:bg-[#161922] rounded-2xl p-5 border border-gray-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-lg">
+                              {item.startTime} - {item.endTime}
+                            </span>
+                            <span className="text-xs font-bold text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-[#161922]-raised border border-gray-100 dark:border-slate-800 px-2.5 py-1 rounded-lg">
+                              Room {item.room}
+                            </span>
+                          </div>
+                          <h4 className="text-base font-bold text-gray-900 dark:text-white font-syne mb-1">
+                            {item.subject || item.code}
+                          </h4>
+                          {item.batch && (
+                            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">Batch / Section: {item.batch}</p>
+                          )}
+                        </div>
+                        {item.statusLabel && (
+                          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs font-semibold text-gray-400 dark:text-slate-500">
+                            <span>Type: {item.statusLabel}</span>
+                            <span className="text-gray-500 dark:text-slate-400 font-bold">{item.code || item.day}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 sm:px-8 py-4 bg-white dark:bg-[#161922] border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-xs text-gray-400 dark:text-slate-500 font-medium">
+                Need to update your schedule? Go to Account Settings → Upload Schedule.
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTimetableModal(false);
+                  navigate('/student/settings?section=schedule');
+                }}
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-xl border border-blue-100 dark:border-blue-800/40"
+              >
+                Edit / Upload Timetable
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };
+

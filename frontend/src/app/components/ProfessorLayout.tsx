@@ -93,7 +93,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const navItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
-    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+
     { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
@@ -107,7 +107,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const mobileNavItems: TabBarItem[] = [
     { key: 'home', path: '/professor/home', icon: Home, label: 'Home', exact: true },
-    { key: 'attendance', path: '/professor/attendance', icon: ClipboardCheck, label: 'Check-in' },
+
     { key: 'messages', path: '/professor/messages', icon: MessageCircle, label: 'Messages' },
     { key: 'notices', path: '/professor/notices', icon: Megaphone, label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
@@ -190,7 +190,7 @@ export const ProfessorLayout: React.FC = () => {
 
   const mobileDrawerItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
-    { to: '/professor/attendance', icon: ClipboardCheck, label: 'Attendance', exact: false },
+
     { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },

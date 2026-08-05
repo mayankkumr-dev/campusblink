@@ -134,7 +134,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full bg-[var(--parchment-outer-bg)] relative overflow-hidden font-sans select-none">
+    <div className="flex flex-col h-[100dvh] min-h-[100dvh] w-full bg-[#020b18] relative overflow-hidden font-sans select-none touch-manipulation">
       {/* Hidden File Input for Image Insertion */}
       <input
         type="file"
@@ -144,50 +144,54 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
         onChange={handleFileUpload}
       />
 
-      {/* Top Toolbar — always visible when overlay is closed */}
-      {!isOverlayOpen && (
-        <DiaryToolbar
-          onBack={onCancel}
-          onAddText={openNewTextOverlay}
-          onOpenImagePicker={() => fileInputRef.current?.click()}
-          onOpenStickerPicker={() => setIsStickerPickerOpen(true)}
-          onOpenMoreOptions={() => setIsBgDrawerOpen(true)}
-        />
-      )}
-
-      {/* Canvas Area */}
-      <DiaryCanvas
-        canvasRef={canvasRef}
-        elements={elements}
-        activeNodeId={activeNodeId}
-        dailyPrompt={dailyPrompt}
-        selectedBg={selectedBg}
-        onFocusNode={(id) => setActiveNodeId(id)}
-        onUpdateNode={(id, updates) => updateElement(id, updates)}
-        onDeleteNode={(id) => removeElement(id)}
-        onParticipatePrompt={handleParticipatePrompt}
-        onOpenTextOverlay={openEditTextOverlay}
-      />
-
-      {/* Bottom Floating Bar (Visibility Selector & Share Button) */}
-      {!isOverlayOpen && (
-        <div className="absolute bottom-4 inset-x-4 z-50 flex items-center justify-between max-w-md mx-auto pointer-events-none capture-ignore">
-          <DiaryVisibilitySelector
-            visibility={visibility}
-            allowComments={allowComments}
-            isOpen={isPrivacyDrawerOpen}
-            onOpen={() => setIsPrivacyDrawerOpen(true)}
-            onClose={() => setIsPrivacyDrawerOpen(false)}
-            onSelectVisibility={(vis) => {
-              setVisibility(vis);
-              setIsPrivacyDrawerOpen(false);
-            }}
-            onToggleComments={setAllowComments}
+      <div className="flex-1 flex flex-col w-full h-full relative">
+        <div className="flex-grow w-full relative mb-1" style={{ filter: 'drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.5))' }}>
+          {/* Canvas Area */}
+          <DiaryCanvas
+            canvasRef={canvasRef}
+            elements={elements}
+            activeNodeId={activeNodeId}
+            dailyPrompt={dailyPrompt}
+            selectedBg={selectedBg}
+            onFocusNode={(id) => setActiveNodeId(id)}
+            onUpdateNode={(id, updates) => updateElement(id, updates)}
+            onDeleteNode={(id) => removeElement(id)}
+            onParticipatePrompt={handleParticipatePrompt}
+            onOpenTextOverlay={openEditTextOverlay}
           />
 
-          <DiaryShareBar isPublishing={isPublishing} onPublish={handlePublishClick} />
+          {/* Top Toolbar */}
+          {!isOverlayOpen && (
+            <DiaryToolbar
+              onBack={onCancel}
+              onAddText={openNewTextOverlay}
+              onOpenImagePicker={() => fileInputRef.current?.click()}
+              onOpenStickerPicker={() => setIsStickerPickerOpen(true)}
+              onOpenMoreOptions={() => setIsBgDrawerOpen(true)}
+            />
+          )}
         </div>
-      )}
+
+        {/* Bottom Floating Bar (Visibility Selector & Share Button) */}
+        {!isOverlayOpen && (
+          <div className="w-full flex justify-between items-center px-4 py-3 pb-safe-bottom bg-[#020b18] z-10 capture-ignore pointer-events-auto">
+            <DiaryVisibilitySelector
+              visibility={visibility}
+              allowComments={allowComments}
+              isOpen={isPrivacyDrawerOpen}
+              onOpen={() => setIsPrivacyDrawerOpen(true)}
+              onClose={() => setIsPrivacyDrawerOpen(false)}
+              onSelectVisibility={(vis) => {
+                setVisibility(vis);
+                setIsPrivacyDrawerOpen(false);
+              }}
+              onToggleComments={setAllowComments}
+            />
+
+            <DiaryShareBar isPublishing={isPublishing} onPublish={handlePublishClick} />
+          </div>
+        )}
+      </div>
 
       {/* Sticker Picker Drawer */}
       <DiaryStickerPicker

@@ -198,12 +198,7 @@ export const router = createBrowserRouter([
               Component: (await import('../features/canteen/CanteenMenuPage')).CanteenMenuPage,
             }),
           },
-          {
-            path: 'attendance',
-            lazy: async () => ({
-              Component: (await import('./components/StudentAttendancePage')).StudentAttendancePage,
-            }),
-          },
+
           {
             path: 'canteen/reorder/:orderId',
             lazy: async () => ({
@@ -409,12 +404,7 @@ export const router = createBrowserRouter([
               Component: (await import('./components/ProfessorDashboard')).ProfessorDashboard,
             }),
           },
-          {
-            path: 'attendance',
-            lazy: async () => ({
-              Component: (await import('./components/ProfessorAttendancePage')).ProfessorAttendancePage,
-            }),
-          },
+
           {
             path: 'canteen',
             lazy: async () => ({
@@ -533,12 +523,7 @@ export const router = createBrowserRouter([
                   Component: (await import('./components/AdminOrdersHub')).AdminOrdersHub,
                 }),
               },
-              {
-                path: 'attendance',
-                lazy: async () => ({
-                  Component: (await import('./components/AdminAttendancePage')).AdminAttendancePage,
-                }),
-              },
+
 
               {
                 path: 'community-hub',

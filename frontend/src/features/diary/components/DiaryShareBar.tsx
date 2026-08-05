@@ -12,7 +12,7 @@ export function DiaryShareBar({ isPublishing, onPublish }: DiaryShareBarProps) {
     <Button
       onClick={onPublish}
       disabled={isPublishing}
-      className="px-6 py-3 h-12 rounded-2xl bg-[#38BDF8] hover:bg-[#0284C7] text-white shadow-lg font-bold text-base transition-all active:scale-95 flex items-center justify-center gap-2 border border-white/20 pointer-events-auto"
+      className="px-7 py-3.5 h-auto rounded-[14px] bg-[#2eb5ed] hover:bg-[#209acc] text-white font-bold text-base transition-all active:scale-95 flex items-center justify-center gap-2 border-none shadow-none pointer-events-auto"
     >
       {isPublishing ? (
         <>
