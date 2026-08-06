@@ -180,4 +180,47 @@ router.put('/preferences', authMiddleware, async (req, res) => {
   }
 });
 
+// ── POST /api/push/broadcast-notice ───────────────────────────────────────────
+// Trigger endpoint to broadcast a notice to targeted students.
+// Called by the frontend immediately after saving an official notice.
+router.post('/broadcast-notice', authMiddleware, async (req, res) => {
+  try {
+    const { noticeId, title, college, targetYear } = req.body;
+    if (!noticeId || !title) {
+      return res.status(400).json({ error: 'noticeId and title are required' });
+    }
+
+    // Determine target users based on college and targetYear
+    let query = supabaseAdmin.from('profiles').select('id').eq('status', 'active');
+    
+    if (college && college !== 'All') {
+      query = query.eq('college', college);
+    }
+    
+    if (targetYear && targetYear !== 'all') {
+      if (targetYear === 'faculty') {
+        query = query.eq('role', 'faculty');
+      } else {
+        const yrPrefix = targetYear.split(':')[0].trim();
+        query = query.eq('study_year', yrPrefix);
+      }
+    }
+
+    const { data: users, error } = await query;
+    if (error) throw error;
+
+    const targetUserIds = users?.map(u => u.id) || [];
+    
+    if (targetUserIds.length > 0) {
+      const notificationService = require('../services/notifications');
+      notificationService.notifyOfficialNotice(targetUserIds, title, noticeId).catch(console.error);
+    }
+
+    res.json({ message: 'Notice broadcast queued', targetedUsers: targetUserIds.length });
+  } catch (error) {
+    console.error('Error broadcasting notice:', error);
+    res.status(500).json({ error: error.message || 'Failed to broadcast notice' });
+  }
+});
+
 module.exports = router;
