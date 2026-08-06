@@ -1,5 +1,5 @@
 const { supabaseAdmin } = require('../config/supabase');
-const { sendPushToUser, sendPushToAll } = require('./push');
+const { sendPushToUser, sendPushBatch, sendPushToAll } = require('./push');
 
 const notificationService = {
   // ── Generic notification creator ─────────────────────────────────────────
@@ -167,26 +167,16 @@ const notificationService = {
     const url = noticeId ? `/notices/${noticeId}` : '/notices';
     const body = `${safeTitle} has been posted.`;
 
-    // Fan-out: send push to each user. DB notification rows are not created
-    // per-user here to avoid O(N) inserts for campus-wide notices.
-    // A single canonical notification row exists in the notices table itself.
-    const results = await Promise.allSettled(
-      targetUserIds.map((userId) =>
-        sendPushToUser(userId, {
-          type: 'announcement',
-          title: 'Official Notice 📢',
-          body,
-          url,
-          tag: `notice-${noticeId || Date.now()}`,
-          important: true,
-        })
-      )
-    );
-
-    const failed = results.filter((r) => r.status === 'rejected').length;
-    if (failed > 0) {
-      console.warn(`[notifyOfficialNotice] ${failed}/${targetUserIds.length} push deliveries failed.`);
-    }
+    // Fan-out: send push to each user using chunked batching (500 users per batch).
+    // DB notification rows are not created per-user here to avoid O(N) inserts for campus-wide notices.
+    await sendPushBatch(targetUserIds, {
+      type: 'announcement',
+      title: 'Official Notice 📢',
+      body,
+      url,
+      tag: `notice-${noticeId || Date.now()}`,
+      important: true,
+    });
   },
 
   /**

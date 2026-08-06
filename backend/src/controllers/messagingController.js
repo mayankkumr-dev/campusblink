@@ -139,6 +139,22 @@ exports.sendMessage = async (req, res) => {
       }
     }
 
+    // ── Non-blocking Push Delivery for Direct Messages ──
+    try {
+      const { sendPushToUser } = require('../services/push');
+      const senderName = req.profile?.name || req.profile?.username || 'Someone';
+      await sendPushToUser(receiverId, {
+        type: 'marketplace_message',
+        title: `Message from ${senderName} 💬`,
+        body: text.length > 100 ? text.slice(0, 97) + '...' : text,
+        url: `/student/campus-exchange/messages/${mappedConv._id}`,
+        tag: `msg-${mappedConv._id}`,
+        important: false,
+      });
+    } catch (pushErr) {
+      console.error('[sendMessage] Non-blocking push delivery failure:', pushErr);
+    }
+
     res.status(201).json({ message: mappedMsg, conversation: mappedConv });
   } catch (err) {
     console.error('[sendMessage] Error:', err);

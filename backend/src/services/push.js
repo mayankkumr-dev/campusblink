@@ -101,20 +101,46 @@ async function sendPushToUser(userId, notification) {
         payload
       );
 
-      console.log('WEB-PUSH SEND SUCCESS', {
+      console.log('[WebPush Send Success]', {
         userId,
-        endpoint: pushSubscription.endpoint,
+        eventType: notification.type || 'unknown',
+        endpoint: pushSubscription.endpoint.slice(0, 60) + '…',
         statusCode: webPushResponse?.statusCode,
       });
     } catch (error) {
-      console.error('WEB-PUSH SEND FAILED', error);
+      console.error('[WebPush Delivery Failure]', {
+        userId,
+        eventType: notification.type || 'unknown',
+        timestamp: new Date().toISOString(),
+        endpoint: pushSubscription.endpoint.slice(0, 60) + '…',
+        statusCode: error?.statusCode || 'N/A',
+        message: error?.message || String(error),
+      });
 
       if (error?.statusCode === 404 || error?.statusCode === 410) {
         await supabaseAdmin
           .from('push_subscriptions')
           .delete()
-          .eq('endpoint', pushSubscription.endpoint);
+          .eq('endpoint', pushSubscription.endpoint)
+          .catch((delErr) => console.error('[WebPush Purge Error] Failed to delete stale subscription:', delErr));
       }
+    }
+  }
+}
+
+/**
+ * Sends a push notification to an array of user IDs using chunked batching
+ * (e.g., 500 subscriptions per batch with a short delay between batches)
+ * instead of firing all simultaneously via Promise.allSettled().
+ */
+async function sendPushBatch(userIds, notification, batchSize = 500, delayMs = 250) {
+  if (!Array.isArray(userIds) || !userIds.length) return;
+
+  for (let i = 0; i < userIds.length; i += batchSize) {
+    const batch = userIds.slice(i, i + batchSize);
+    await Promise.allSettled(batch.map((id) => sendPushToUser(id, notification)));
+    if (i + batchSize < userIds.length && delayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 }
@@ -127,12 +153,12 @@ async function sendPushToAll(notification) {
 
   if (!users?.length) return;
 
-  for (const user of users) {
-    await sendPushToUser(user.id, notification);
-  }
+  const userIds = users.map((u) => u.id);
+  await sendPushBatch(userIds, notification);
 }
 
 module.exports = {
   sendPushToUser,
+  sendPushBatch,
   sendPushToAll,
 };

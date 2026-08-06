@@ -295,3 +295,28 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('notificationclose', () => {});
+
+// ─── Automatic Subscription Renewal ──────────────────────────────────────────
+// Fires when an OS or browser push subscription expires or is invalidated.
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const options = event.oldSubscription?.options || { userVisibleOnly: true };
+      const subscription = await self.registration.pushManager.subscribe(options);
+      const keys = subscription.toJSON();
+
+      // Notify open client windows so they can post the renewed subscription to the backend
+      const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clientList) {
+        client.postMessage({
+          type: 'PUSH_SUBSCRIPTION_CHANGE',
+          endpoint: subscription.endpoint,
+          p256dh: keys.keys?.p256dh,
+          auth: keys.keys?.auth,
+        });
+      }
+    } catch (err) {
+      console.error('[SW] pushsubscriptionchange renewal failed:', err);
+    }
+  })());
+});

@@ -7,35 +7,41 @@ import {
   subscribeToPush,
   unsubscribeFromPush,
 } from '../lib/pushNotifications';
+import { isStandaloneMode } from './usePWAInstall';
+
+export interface PushNotificationHookResult {
+  permission: NotificationPermission | 'unsupported';
+  isSubscribed: boolean;
+  isLoading: boolean;
+  unavailableReason: string | null;
+  shouldShowPrompt: boolean;
+  isStandalone: boolean;
+  subscribe: () => Promise<boolean>;
+  unsubscribe: () => Promise<void>;
+  dismiss: () => void;
+}
 
 /**
  * usePushNotifications
  *
  * Encapsulates all push notification state and actions for a logged-in user.
+ * Explicitly verifies secure HTTPS contexts and standalone PWA installations on Android/Mobile.
  *
  * @param {string | null | undefined} userId - Supabase user ID from auth store
- *
- * @returns {{
- *   permission: NotificationPermission | 'unsupported',
- *   isSubscribed: boolean,
- *   isLoading: boolean,
- *   unavailableReason: string | null,
- *   shouldShowPrompt: boolean,
- *   subscribe: () => Promise<boolean>,
- *   unsubscribe: () => Promise<void>,
- *   dismiss: () => void,
- * }}
  */
-export function usePushNotifications(userId) {
-  const [permission, setPermission] = useState(() => {
+export function usePushNotifications(userId?: string | null): PushNotificationHookResult {
+  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => {
     if (typeof window === 'undefined' || !('Notification' in window)) return 'unsupported';
     return Notification.permission;
   });
 
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [unavailableReason, setUnavailableReason] = useState(null);
+  const [unavailableReason, setUnavailableReason] = useState<string | null>(null);
   const [suppressed, setSuppressed] = useState(() => shouldSuppressPrompt());
+
+  const isStandalone = typeof window !== 'undefined' && isStandaloneMode();
+  const isSecure = typeof window !== 'undefined' && Boolean(window.isSecureContext);
 
   // Sync state whenever userId changes (login/logout)
   useEffect(() => {
@@ -87,8 +93,23 @@ export function usePushNotifications(userId) {
     return () => window.removeEventListener('focus', onFocus);
   }, []);
 
+  // Listen for automatic subscription renewal messages from the Service Worker
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const onMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'PUSH_SUBSCRIPTION_CHANGE' && userId) {
+        console.log('[usePushNotifications] Service worker renewed push subscription; re-registering with backend...');
+        await subscribeToPush(userId);
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', onMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', onMessage);
+  }, [userId]);
+
   /** Request permission and save the subscription to the backend. */
-  const subscribe = useCallback(async () => {
+  const subscribe = useCallback(async (): Promise<boolean> => {
     if (!userId || isLoading) return false;
 
     setIsLoading(true);
@@ -109,7 +130,7 @@ export function usePushNotifications(userId) {
   }, [userId, isLoading]);
 
   /** Revoke the subscription from PushManager and remove from backend. */
-  const unsubscribe = useCallback(async () => {
+  const unsubscribe = useCallback(async (): Promise<void> => {
     if (!userId || isLoading) return;
 
     setIsLoading(true);
@@ -122,7 +143,7 @@ export function usePushNotifications(userId) {
   }, [userId, isLoading]);
 
   /** Store a 7-day dismiss so the prompt doesn't re-appear immediately. */
-  const dismiss = useCallback(() => {
+  const dismiss = useCallback((): void => {
     dismissPromptForSevenDays();
     setSuppressed(true);
   }, []);
@@ -132,6 +153,8 @@ export function usePushNotifications(userId) {
       !isSubscribed &&
       !suppressed &&
       !unavailableReason &&
+      isStandalone &&
+      isSecure &&
       permission !== 'denied' &&
       permission !== 'unsupported'
   );
@@ -142,6 +165,7 @@ export function usePushNotifications(userId) {
     isLoading,
     unavailableReason,
     shouldShowPrompt,
+    isStandalone,
     subscribe,
     unsubscribe,
     dismiss,

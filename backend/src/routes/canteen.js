@@ -94,7 +94,7 @@ router.patch('/orders/:id/status', authMiddleware, canteenOwnerOnlyMiddleware, a
 
     // --- Notify the student about order status changes ---
     const studentId = order.student_id || order.user_id;
-    if (studentId && ['ready', 'preparing', 'cancelled'].includes(status)) {
+    if (studentId && ['ready', 'preparing', 'completed', 'cancelled'].includes(status)) {
       try {
         const { data: shopData } = await supabaseAdmin
           .from('canteen_shops')
@@ -116,6 +116,11 @@ router.patch('/orders/:id/status', authMiddleware, canteenOwnerOnlyMiddleware, a
           preparing: {
             title: 'Order accepted',
             message: `Your order at ${shopName} was accepted and is now being prepared.`,
+            important: false,
+          },
+          completed: {
+            title: 'Order completed ✅',
+            message: `Your canteen order at ${shopName} has been completed. Thank you!`,
             important: false,
           },
           cancelled: {

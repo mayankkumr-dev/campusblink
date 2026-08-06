@@ -95,7 +95,7 @@ router.patch('/orders/:id/status', authMiddleware, printShopOnlyMiddleware, asyn
 
     // --- Notify the student about print order status changes ---
     const studentId = order.student_id || order.user_id;
-    if (studentId && ['ready', 'printing', 'cancelled'].includes(status)) {
+    if (studentId && ['ready', 'printing', 'completed', 'cancelled'].includes(status)) {
       try {
         const { data: shopData } = await supabaseAdmin
           .from('print_shops')
@@ -117,6 +117,11 @@ router.patch('/orders/:id/status', authMiddleware, printShopOnlyMiddleware, asyn
           printing: {
             title: 'Print order accepted',
             message: `Your print order at ${shopName} was accepted and is now printing.`,
+            important: false,
+          },
+          completed: {
+            title: 'Print order completed ✅',
+            message: `Your print order at ${shopName} has been completed. Thank you!`,
             important: false,
           },
           cancelled: {
