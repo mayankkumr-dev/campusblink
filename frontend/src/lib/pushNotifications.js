@@ -1,7 +1,10 @@
 import { supabase } from './supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
+if (!BACKEND_URL && typeof window !== 'undefined') {
+  BACKEND_URL = `http://${window.location.hostname}:5000`;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers

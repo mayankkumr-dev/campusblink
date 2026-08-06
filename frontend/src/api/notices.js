@@ -243,7 +243,13 @@ export async function createNotice({ authorId, college, title, content, targetYe
     if (data?.id) {
       const { data: authData } = await supabase.auth.getSession();
       if (authData?.session?.access_token) {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        let apiUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
+        if (!apiUrl) {
+          apiUrl = `http://${window.location.hostname}:5000`;
+        }
+        
+        console.log('[Notice] Triggering broadcast via:', apiUrl);
+        
         fetch(`${apiUrl}/api/push/broadcast-notice`, {
           method: 'POST',
           headers: {
