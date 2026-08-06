@@ -245,7 +245,7 @@ export async function createNotice({ authorId, college, title, content, targetYe
       if (authData?.session?.access_token) {
         let apiUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
         if (!apiUrl) {
-          apiUrl = `http://${window.location.hostname}:5000`;
+          apiUrl = '';
         }
         
         console.log('[Notice] Triggering broadcast via:', apiUrl);

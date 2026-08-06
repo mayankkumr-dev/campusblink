@@ -2,8 +2,8 @@ import { supabase } from './supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
-if (!BACKEND_URL && typeof window !== 'undefined') {
-  BACKEND_URL = `http://${window.location.hostname}:5000`;
+if (!BACKEND_URL && typeof window !== 'undefined' && import.meta.env.DEV) {
+  BACKEND_URL = '';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -70,7 +70,8 @@ export async function getPushUnavailableReason() {
 
 export async function isPushSubscribed() {
   if (!(await isPushSupported())) return false;
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await navigator.serviceWorker.getRegistration();
+  if (!registration) return false;
   const subscription = await registration.pushManager.getSubscription();
   return Boolean(subscription);
 }
@@ -102,7 +103,14 @@ export async function subscribeToPush(userId) {
     }
 
     // 2. Get or create PushManager subscription
-    const registration = await navigator.serviceWorker.ready;
+    let registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      // Fallback to wait for ready if not registered yet, with a timeout to avoid hangs
+      registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Service Worker not ready')), 3000))
+      ]);
+    }
     let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
@@ -177,7 +185,8 @@ export async function subscribeToPush(userId) {
 export async function unsubscribeFromPush(userId) {
   if (!(await isPushSupported())) return;
 
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await navigator.serviceWorker.getRegistration();
+  if (!registration) return;
   const subscription = await registration.pushManager.getSubscription();
 
   if (!subscription) return;

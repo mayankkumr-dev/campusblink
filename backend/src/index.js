@@ -29,7 +29,6 @@ const diaryRoutes = require('./routes/diary');
 const studentRoutes = require('./routes/student');
 const http = require('http');
 const { initSocket } = require('./config/socket');
-const { connectDB } = require('./config/db');
 
 const app = express();
 const server = http.createServer(app);
@@ -164,8 +163,6 @@ function validateStartupSecrets() {
 validateStartupSecrets();
 
 const PORT = process.env.PORT || 3000;
-
-connectDB().catch(err => console.error('[Startup] MongoDB connection check error:', err.message));
 
 server.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);

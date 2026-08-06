@@ -61,8 +61,8 @@ async function sendPushToUser(userId, notification) {
   const payload = JSON.stringify({
     title: notification.title,
     body: notification.body,
-    icon: '/logo/only_logo.png',
-    badge: '/logo/only_logo.png',
+    icon: notification.icon || '/logo2/Blue_transparent.png?v=8',
+    badge: notification.badge || '/logo2/Blue_transparent.png?v=8',
     image: notification.image || null,
     url: notification.url || '/',
     tag: notification.tag || `campus-blink-${userId}`,

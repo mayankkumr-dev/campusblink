@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Shield, KeyRound, MessageSquare, Star, Megaphone, ChevronRight, Moon, Calendar, ChevronDown, CheckCircle2, RefreshCw, Trash2, Upload, FileText, Edit3, Save, Plus, Loader2 } from 'lucide-react';
+import { LogOut, Shield, KeyRound, MessageSquare, Star, Megaphone, ChevronRight, Moon, Calendar, ChevronDown, CheckCircle2, RefreshCw, Trash2, Upload, FileText, Edit3, Save, Plus, Loader2, Bell } from 'lucide-react';
 import { useNavigate, Link } from 'react-router';
 import toast from 'react-hot-toast';
 import { signOut } from '../../api/auth';
@@ -531,6 +531,19 @@ export const StudentSettingsPage: React.FC = () => {
                 <div>
                   <h2 className="font-syne text-lg font-bold text-text-primary mb-1">Saved Bookmarks</h2>
                   <p className="text-sm text-text-secondary">View your saved and favorite posts in the community.</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-accent-blue transition-colors flex-shrink-0" />
+            </Link>
+
+            <Link to="/student/settings/notifications" className="group flex items-center justify-between p-6 md:p-8 border-b border-border-subtle hover:bg-surface-elevated transition-colors">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-accent-blue/15 text-accent-blue flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <Bell className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-syne text-lg font-bold text-text-primary mb-1">Notifications</h2>
+                  <p className="text-sm text-text-secondary">Manage push notification preferences and alerts.</p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-accent-blue transition-colors flex-shrink-0" />
