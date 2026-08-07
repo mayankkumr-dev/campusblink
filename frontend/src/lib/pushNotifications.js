@@ -2,7 +2,10 @@ import { supabase } from './supabase';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
 let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
-if (!BACKEND_URL && typeof window !== 'undefined' && import.meta.env.DEV) {
+// Force relative URLs in production so Vercel rewrites take over and avoid Mixed Content (HTTP) errors
+if (import.meta.env.PROD) {
+  BACKEND_URL = '';
+} else if (!BACKEND_URL && typeof window !== 'undefined' && import.meta.env.DEV) {
   BACKEND_URL = '';
 }
 

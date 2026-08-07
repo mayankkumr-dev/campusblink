@@ -98,7 +98,11 @@ async function sendPushToUser(userId, notification) {
     try {
       const webPushResponse = await webpush.sendNotification(
         pushSubscription,
-        payload
+        payload,
+        {
+          TTL: 86400,
+          urgency: notification.important ? 'high' : 'normal',
+        }
       );
 
       console.log('[WebPush Send Success]', {
