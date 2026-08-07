@@ -208,7 +208,7 @@ router.post('/schedule/upload', authMiddleware, professorOnlyMiddleware, upload.
     }
 
     const professorId = req.user.id;
-    const parseResult = await parseTimetableDocument(req.file.buffer, req.file.mimetype, req.file.originalname);
+    const parseResult = await parseTimetableDocument(req.file.buffer, req.file.mimetype, req.file.originalname, 'professor');
 
     if (!parseResult.success) {
       return res.status(500).json({ error: parseResult.error || 'Failed to extract timetable data' });

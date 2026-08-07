@@ -97,6 +97,12 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'search-people',
+        lazy: async () => ({
+          Component: (await import('./components/SearchPeoplePage')).SearchPeoplePage,
+        }),
+      },
+      {
         path: 'profile',
         Component: () => <Navigate to="/student/profile" replace />,
       },
@@ -254,6 +260,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'notifications/:id',
+            lazy: async () => ({
+              Component: (await import('./components/NotificationDetailPage')).NotificationDetailPage,
+            }),
+          },
+          {
             path: 'profile',
             lazy: async () => ({
               Component: (await import('../features/profile/ProfilePage')).ProfilePage,
@@ -345,6 +357,12 @@ export const router = createBrowserRouter([
             path: 'search',
             lazy: async () => ({
               Component: (await import('./components/SearchPage')).SearchPage,
+            }),
+          },
+          {
+            path: 'search-people',
+            lazy: async () => ({
+              Component: (await import('./components/SearchPeoplePage')).SearchPeoplePage,
             }),
           },
           {
@@ -475,6 +493,18 @@ export const router = createBrowserRouter([
             path: 'notices/faculty',
             lazy: async () => ({
               Component: (await import('./components/ProfessorFacultyNoticesPage')).ProfessorFacultyNoticesPage,
+            }),
+          },
+          {
+            path: 'alerts',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorAlertsPage')).ProfessorAlertsPage,
+            }),
+          },
+          {
+            path: 'alerts/:id',
+            lazy: async () => ({
+              Component: (await import('./components/NotificationDetailPage')).NotificationDetailPage,
             }),
           },
 

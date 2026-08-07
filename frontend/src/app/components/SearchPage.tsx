@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Search, Users } from 'lucide-react';
+import { Loader2, Search, Users, Clock, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useAuthStore } from '../../store/authStore';
 import { searchStudents, searchPosts, searchListings } from '../../api/search';
+import { useSearchStore } from '../../store/searchStore';
 import { getAvatarDataUrl } from '../../lib/avatar';
 import { getDisplayHandle } from '../../lib/user';
 import { FollowButton } from '../../shared/components/FollowButton';
@@ -36,6 +37,7 @@ export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const profile = useAuthStore((state) => state.profile);
+  const { recentSearches, addSearchTerm, removeSearchTerm, clearHistory } = useSearchStore();
 
   const initialQuery = searchParams.get('q') || '';
   const [inputValue, setInputValue] = useState(initialQuery);
@@ -109,8 +111,15 @@ export const SearchPage: React.FC = () => {
     e.preventDefault();
     const trimmed = inputValue.trim();
     if (!trimmed) return;
+    addSearchTerm(trimmed);
     setActiveQuery(trimmed);
     setSearchParams({ q: trimmed }, { replace: true });
+  };
+
+  const handleRecentSearchClick = (term: string) => {
+    setInputValue(term);
+    setActiveQuery(term);
+    setSearchParams({ q: term }, { replace: true });
   };
 
   const tabs: { label: TabType; count: number }[] = [
@@ -194,11 +203,52 @@ export const SearchPage: React.FC = () => {
           </div>
         )}
 
-        {/* No query state */}
+        {/* No query state with Recent Searches */}
         {!activeQuery && !isLoading && (
-          <div className="flex flex-col items-center justify-center py-20 gap-3 text-[var(--text-muted)]">
-            <Search className="h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
-            <p className="font-sans text-[15px]">Search for students, posts, or listings</p>
+          <div className="py-6">
+            {recentSearches.length > 0 ? (
+              <div className="mx-auto max-w-xl">
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">Recent Searches</h3>
+                  <button
+                    onClick={clearHistory}
+                    className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </div>
+                <div className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+                  {recentSearches.map((term, index) => (
+                    <div
+                      key={term}
+                      className={`flex items-center justify-between py-3.5 px-4 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors ${
+                        index !== recentSearches.length - 1 ? 'border-b border-[var(--border)]' : ''
+                      }`}
+                      onClick={() => handleRecentSearchClick(term)}
+                    >
+                      <div className="flex items-center gap-3 flex-1 overflow-hidden">
+                        <Clock className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+                        <span className="text-[var(--text-primary)] text-[15px] truncate font-medium">{term}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSearchTerm(term);
+                        }}
+                        className="p-2 -mr-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg)] rounded-full transition-colors shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 gap-3 text-[var(--text-muted)]">
+                <Search className="h-10 w-10 text-[var(--border)] dark:text-slate-600 transition-colors" />
+                <p className="font-sans text-[15px]">Search for students, posts, or listings</p>
+              </div>
+            )}
           </div>
         )}
 

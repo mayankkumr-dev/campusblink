@@ -32,7 +32,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNotifications, useMyOrderStatus } from '../../hooks/useRealtime';
 import { getActiveAnnouncementForUser } from '../../api/announcements';
-import { SearchOverlay } from './SearchOverlay';
+// SearchOverlay removed
 import { AlertSlidePanel } from './AlertSlidePanel';
 import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { Logo } from './ui/Logo';
@@ -190,60 +190,87 @@ export const StudentLayout: React.FC = () => {
   const isDiaryOpen = location.pathname.includes('/post/') || window.location.search.includes('diaryId') || location.pathname.endsWith('/create');
 
   return (
-    <div className="flex h-screen w-full bg-gray-50 dark:bg-[#101113] text-gray-900 dark:text-white font-sans overflow-hidden select-none no-touch-callout transition-colors">
-      {/* Refined Native Top Header */}
+    /* Root shell */
+    <div className="relative min-h-screen w-full bg-gray-50 pb-24 select-none no-touch-callout" style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}>
+      {/* ── Global Nav (top header) ──────────────────────────────────────────
+          DESIGN.md: global-nav — bg #000000, height 44px, text #ffffff, 12px/400/-0.12px
+          Visible only on mobile (md:hidden), never on desktop (sidebar replaces it)
+      */}
       {!isDiaryOpen && (
-      <header className="safe-area-top safe-area-inline fixed top-0 z-50 flex h-[calc(3.5rem+env(safe-area-inset-top,0px))] pt-[env(safe-area-inset-top,0px)] w-full items-center justify-between border-b border-gray-100 dark:border-slate-800 bg-white/95 dark:bg-[#101113]/95 backdrop-blur-md px-4 md:hidden shadow-2xs select-none transition-colors">
-        {(() => {
-          const title = getMobileHeaderTitle(location.pathname);
-          return title ? (
-            <Link to={location.pathname} className="no-underline cursor-pointer flex items-center min-h-[44px] justify-start">
-              <h1 className="font-syne font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white capitalize">{title}</h1>
-            </Link>
-          ) : (
-            <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center min-h-[44px] min-w-[44px] justify-start">
-              <Logo loading="lazy" alt="Campus Blink" className="h-6 w-auto object-contain" />
-            </Link>
-          );
-        })()}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {location.pathname === '/student/home' && (
+        <header
+          className="safe-area-top safe-area-inline fixed top-0 z-50 flex w-full items-center justify-between px-4 md:hidden select-none bg-white/80 backdrop-blur-xl border-b border-gray-100"
+          style={{
+            height: 'calc(44px + env(safe-area-inset-top, 0px))',
+            paddingTop: 'env(safe-area-inset-top, 0px)',
+          }}
+        >
+          {/* Left: Logo or page title */}
+          {(() => {
+            const title = getMobileHeaderTitle(location.pathname);
+            return title ? (
+              <Link to={location.pathname} className="no-underline cursor-pointer flex items-center min-h-[44px] justify-start">
+                {/* tagline token: 21px/600/0.231px — white on black nav */}
+                <h1
+                  className="capitalize text-gray-900"
+                  style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: '21px', fontWeight: 600, letterSpacing: '0.231px', lineHeight: 1.19 }}
+                >
+                  {title}
+                </h1>
+              </Link>
+            ) : (
+              <Link to={user ? '/student/home' : '/'} className="no-underline cursor-pointer flex items-center min-h-[44px] min-w-[44px] justify-start">
+                <Logo loading="lazy" alt="Campus Blink" className="h-6 w-auto object-contain" />
+              </Link>
+            );
+          })()}
+
+          {/* Right: icon action buttons — button-icon-circular spec: 44×44px */}
+          <div className="flex items-center gap-0.5">
+            {location.pathname === '/student/home' && (
+              <button
+                type="button"
+                onClick={() => navigate('/student/search-people')}
+                className="flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900"
+                style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
+                aria-label="Search"
+              >
+                <Search size={20} strokeWidth={2} />
+              </button>
+            )}
+
+            {/* Notification bell */}
             <button
               type="button"
-              onClick={() => setSearchPanelOpen(true)}
-              className="relative rounded-full p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 transition-colors hover:bg-gray-100 active:scale-[0.97]"
-              aria-label="Search"
+              onClick={() => navigate('/student/notifications')}
+              className="relative flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900"
+              style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
+              aria-label="Open notifications"
             >
-              <Search size={20} strokeWidth={2} />
+              <Bell size={20} strokeWidth={2} />
+              {Number(unreadCount || 0) > 0 && (
+                /* Notification badge — rose-500 is a functional signal, not a brand accent */
+                <span className="absolute right-1.5 top-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-black">
+                  {Number(unreadCount) > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setNotificationPanelOpen(true)}
-            className="relative rounded-full p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-700 transition-colors hover:bg-gray-100 active:scale-[0.97]"
-            aria-label="Open notifications"
-          >
-            <Bell size={20} strokeWidth={2} />
-            {Number(unreadCount || 0) > 0 && (
-              <span className="absolute right-1.5 top-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white shadow-xs">
-                {Number(unreadCount) > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/student/profile')}
-            className="h-9 w-9 min-h-[44px] min-w-[44px] overflow-hidden rounded-full border border-gray-200 bg-gray-50 active:scale-[0.97] transition-transform flex items-center justify-center ml-1"
-            aria-label="Open profile"
-          >
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="profile" className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-400"><User size={16} /></div>
-            )}
-          </button>
-        </div>
-      </header>
+
+            {/* Profile avatar */}
+            <button
+              type="button"
+              onClick={() => navigate('/student/profile')}
+              className="overflow-hidden rounded-full transition-transform active:scale-95 flex items-center justify-center ml-1 border border-gray-200 bg-gray-50 text-gray-900"
+              style={{ width: 32, height: 32, minWidth: 44, minHeight: 44 }}
+              aria-label="Open profile"
+            >
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="profile" className="h-full w-full object-cover rounded-full" style={{ width: 32, height: 32 }} />
+              ) : (
+                <div className="flex items-center justify-center text-gray-900"><User size={16} /></div>
+              )}
+            </button>
+          </div>
+        </header>
       )}
 
       {/* Desktop Sidebar Container (Strictly md:block) */}
@@ -252,22 +279,28 @@ export const StudentLayout: React.FC = () => {
           profile={profile}
           unreadCount={unreadCount}
           onOpenSearch={() => setSearchPanelOpen(true)}
-          onOpenAlerts={() => setNotificationPanelOpen(true)}
+          onOpenAlerts={undefined}
           isChatSection={isChatSection}
         />
       </div>
 
-      {/* iOS Settings-Style Mobile Slide-Up Bottom Sheet / Drawer */}
+      {/* ── Mobile Slide-Up Bottom Sheet / Drawer ──────────────────────────
+          DESIGN.md: bg #ffffff, rounded-t-[22px], hairline border-t (#e0e0e0)
+          No box-shadow on chrome — depth comes from backdrop blur + color change.
+      */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-[70] md:hidden flex flex-col justify-end">
+            {/* Scrim */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              className="fixed inset-0 bg-black/40 backdrop-blur-[2px]"
               onClick={() => setIsMobileMenuOpen(false)}
             />
+
+            {/* Sheet */}
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -281,46 +314,88 @@ export const StudentLayout: React.FC = () => {
                   setIsMobileMenuOpen(false);
                 }
               }}
-              className="relative w-full max-h-[85vh] bg-white rounded-t-[28px] shadow-[0_-16px_50px_rgba(0,0,0,0.15)] flex flex-col z-10 overflow-hidden border-t border-gray-100 pb-[env(safe-area-inset-bottom,16px)]"
+              className="relative w-full max-h-[85vh] flex flex-col z-10 overflow-hidden"
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '22px 22px 0 0',
+                borderTop: '1px solid #e0e0e0',
+                paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+              }}
             >
-              {/* Drawer Handle */}
-              <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0" />
-              <div className="h-12 flex items-center justify-between px-5 border-b border-gray-100 shrink-0">
-                <span className="font-syne font-bold text-lg text-slate-900">More Services & Settings</span>
+              {/* Drawer handle pill */}
+              <div
+                className="mx-auto mt-3 mb-1 shrink-0 rounded-full"
+                style={{ width: 36, height: 5, backgroundColor: '#d2d2d7' }}
+              />
+
+              {/* Drawer header row */}
+              <div
+                className="h-12 flex items-center justify-between px-5 shrink-0"
+                style={{ borderBottom: '1px solid #e0e0e0' }}
+              >
+                {/* body-strong token: 17px/600/-0.374px */}
+                <span style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 600, letterSpacing: '-0.374px' }}>
+                  More Services &amp; Settings
+                </span>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full bg-gray-100 active:scale-95 transition-colors"
+                  className="flex items-center justify-center rounded-full active:scale-95 transition-transform"
+                  style={{ width: 28, height: 28, backgroundColor: '#f5f5f7', color: '#7a7a7a' }}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 font-sans bg-gray-50/60">
-                {/* Campus Services Section */}
+              {/* Scrollable drawer body */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: '#f5f5f7' }}>
+
+                {/* Campus Services section */}
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-1.5">Campus Services</p>
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
+                  {/* caption-strong: 14px/600/-0.224px */}
+                  <p
+                    className="px-1 mb-2"
+                    style={{ color: '#7a7a7a', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '-0.224px', lineHeight: 1.29, textTransform: 'uppercase' }}
+                  >
+                    Campus Services
+                  </p>
+
+                  {/* store-utility-card style: bg #ffffff, border hairline #e0e0e0, rounded-[18px], no shadow */}
+                  <div
+                    className="overflow-hidden"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18 }}
+                  >
                     {([
                       { icon: Layout, label: 'Campus Notices', path: '/student/notices' },
-
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
                       { icon: Building2, label: 'Societies & Clubs', path: '/student/societies' },
-                    ] as { icon: any; label: string; path: string; badge?: string }[]).map((link, idx) => {
+                    ] as { icon: any; label: string; path: string; badge?: string }[]).map((link, idx, arr) => {
                       const IconComp = link.icon;
                       return (
                         <button
                           key={idx}
                           onClick={() => menuCloseAndNavigate(link.path)}
-                          className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-gray-50/80 active:bg-gray-100 transition-colors text-left"
+                          className="w-full flex items-center justify-between px-4 active:bg-[#f5f5f7] transition-colors text-left"
+                          style={{
+                            paddingTop: 14,
+                            paddingBottom: 14,
+                            borderBottom: idx < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
+                          }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-slate-700">
+                            {/* rounded.sm: 8px icon container, canvas-parchment bg */}
+                            <div
+                              className="flex items-center justify-center shrink-0"
+                              style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#f5f5f7', color: '#1d1d1f' }}
+                            >
                               <IconComp className="w-4 h-4" />
                             </div>
-                            <span className="text-sm font-semibold text-slate-800">{link.label}</span>
+                            {/* body: 17px/400/-0.374px */}
+                            <span style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 400, letterSpacing: '-0.374px' }}>
+                              {link.label}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {link.badge ? (
@@ -328,7 +403,7 @@ export const StudentLayout: React.FC = () => {
                                 {link.badge}
                               </span>
                             ) : null}
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
+                            <ChevronRight className="w-4 h-4" style={{ color: '#d2d2d7' }} />
                           </div>
                         </button>
                       );
@@ -336,29 +411,47 @@ export const StudentLayout: React.FC = () => {
                   </div>
                 </div>
 
-                <hr className="border-gray-200/80 my-1" />
-
-                {/* Quieter Account & Settings Footer Group */}
+                {/* Account & Settings section */}
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-1.5">Account & Settings</p>
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-2xs divide-y divide-gray-100 overflow-hidden">
+                  <p
+                    className="px-1 mb-2"
+                    style={{ color: '#7a7a7a', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '-0.224px', lineHeight: 1.29, textTransform: 'uppercase' }}
+                  >
+                    Account &amp; Settings
+                  </p>
+
+                  <div
+                    className="overflow-hidden"
+                    style={{ backgroundColor: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18 }}
+                  >
                     {[
                       { icon: Settings, label: 'Settings', path: '/student/settings' },
                       { icon: Bell, label: 'Notifications', path: '/student/notifications', badge: unreadCount > 0 ? unreadCount : undefined },
                       { icon: Bookmark, label: 'Help & Feedback', path: '/student/settings/feedback' },
-                    ].map((link, idx) => {
+                    ].map((link, idx, arr) => {
                       const IconComp = link.icon;
                       return (
                         <button
                           key={idx}
                           onClick={() => menuCloseAndNavigate(link.path)}
-                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50/80 active:bg-gray-100 transition-colors text-left"
+                          className="w-full flex items-center justify-between px-4 active:bg-[#f5f5f7] transition-colors text-left"
+                          style={{
+                            paddingTop: 12,
+                            paddingBottom: 12,
+                            borderBottom: idx < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
+                          }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-slate-500">
+                            <div
+                              className="flex items-center justify-center shrink-0"
+                              style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#f5f5f7', color: '#7a7a7a' }}
+                            >
                               <IconComp className="w-4 h-4" />
                             </div>
-                            <span className="text-sm font-medium text-slate-700">{link.label}</span>
+                            {/* caption: 14px/400/-0.224px */}
+                            <span style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 400, letterSpacing: '-0.224px' }}>
+                              {link.label}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {link.badge && link.label === 'Notifications' ? (
@@ -366,16 +459,28 @@ export const StudentLayout: React.FC = () => {
                                 {link.badge}
                               </span>
                             ) : null}
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
+                            <ChevronRight className="w-4 h-4" style={{ color: '#d2d2d7' }} />
                           </div>
                         </button>
                       );
                     })}
                   </div>
 
+                  {/* Sign Out — destructive action, red is functional not a brand accent */}
                   <button
                     onClick={() => { setIsMobileMenuOpen(false); useAuthStore.getState().logout(); navigate('/'); }}
-                    className="w-full mt-3 bg-rose-50/80 border border-rose-200/60 rounded-2xl p-3.5 flex items-center justify-center gap-2 text-rose-600 font-bold text-sm shadow-2xs active:scale-[0.98] transition-all hover:bg-rose-100/80"
+                    className="w-full mt-3 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                    style={{
+                      backgroundColor: '#fff1f2',
+                      border: '1px solid #fecdd3',
+                      borderRadius: 18,
+                      padding: '14px 0',
+                      color: '#e11d48',
+                      fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      letterSpacing: '-0.224px',
+                    }}
                   >
                     <LogOut className="w-4 h-4" />
                     Sign Out of Campus Blink
@@ -387,34 +492,119 @@ export const StudentLayout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Main Content + Header + Bottom Nav Wrapper */}
-      <div className={`flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50 dark:bg-[#101113] text-slate-900 dark:text-slate-100 transition-colors ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}>
-        {/* Scrollable main content */}
-        <main className="flex-1 overflow-y-auto w-full pt-[calc(3.5rem+env(safe-area-inset-top,0px))] md:pt-0 pb-32 md:pb-8">
+      {/* ── Main Content ──────────────────────────────── */}
+      <main
+        className={`w-full ${isChatSection ? 'md:pl-[92px]' : 'md:pl-[260px]'}`}
+        style={{ paddingTop: 'calc(44px + env(safe-area-inset-top, 0px))' }}
+      >
+          {/* Announcement banner — flat surface, hairline border, no shadow */}
           {activeAnnouncement && (
-            <div className="m-6 rounded-lg px-4 py-4 border border-[var(--border)] bg-white shadow-soft">
+            <div
+              className="m-6 px-4 py-4"
+              style={{ borderRadius: 11, border: '1px solid #e0e0e0', backgroundColor: '#ffffff' }}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                 <div>
-                    <h4 className="font-syne font-bold text-gray-900 text-[16px]">{activeAnnouncement.title}</h4>
-                    <p className="font-sans text-gray-600 text-[14px] mt-1">{activeAnnouncement.content}</p>
-                 </div>
-                 <button onClick={dismissAnnouncement} className="btn-secondary">Dismiss</button>
+                <div>
+                  {/* body-strong: 17px/600/-0.374px */}
+                  <h4 style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 600, letterSpacing: '-0.374px', lineHeight: 1.24 }}>
+                    {activeAnnouncement.title}
+                  </h4>
+                  {/* body: 17px/400/-0.374px */}
+                  <p className="mt-1" style={{ color: '#7a7a7a', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 400, letterSpacing: '-0.374px', lineHeight: 1.47 }}>
+                    {activeAnnouncement.content}
+                  </p>
+                </div>
+                {/* button-pearl-capsule: bg #fafafc, text #333333, rounded-[11px], caption 14px */}
+                <button
+                  onClick={dismissAnnouncement}
+                  className="shrink-0 transition-transform active:scale-95"
+                  style={{
+                    backgroundColor: '#fafafc',
+                    border: '3px solid #f0f0f0',
+                    borderRadius: 11,
+                    padding: '8px 14px',
+                    color: '#333333',
+                    fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                    fontSize: 14,
+                    fontWeight: 400,
+                    letterSpacing: '-0.224px',
+                  }}
+                >
+                  Dismiss
+                </button>
               </div>
             </div>
           )}
+
           <div className="w-full h-full">
             {currentFeatureDisabled ? (
+              /* Feature-disabled state — flat card, no shadow per DESIGN.md */
               <div className="flex min-h-[calc(100vh-120px)] items-center justify-center px-6 py-12">
-                <div className="w-full max-w-xl rounded-[28px] border border-black/10 bg-white p-8 text-center shadow-[0_16px_40px_rgba(13,13,13,0.08)]">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <div
+                  className="w-full max-w-xl p-8 text-center"
+                  style={{ borderRadius: 18, border: '1px solid #e0e0e0', backgroundColor: '#ffffff' }}
+                >
+                  <div
+                    className="mx-auto mb-4 flex items-center justify-center rounded-full"
+                    style={{ width: 64, height: 64, backgroundColor: '#fef9c3', color: '#92400e' }}
+                  >
                     <Star className="h-7 w-7" />
                   </div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-700">Access limited</p>
-                  <h2 className="mt-3 font-syne text-3xl font-extrabold text-gray-900">This section is turned off for your account.</h2>
-                  <p className="mt-3 text-sm leading-6 text-gray-600">An admin has disabled this feature for your profile. Contact the admin team if you need access restored.</p>
+                  {/* caption-strong */}
+                  <p style={{ color: '#b45309', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '-0.224px', textTransform: 'uppercase' }}>
+                    Access limited
+                  </p>
+                  {/* display-md: 34px/600/-0.374px */}
+                  <h2 className="mt-3" style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 34, fontWeight: 600, letterSpacing: '-0.374px', lineHeight: 1.47 }}>
+                    This section is turned off for your account.
+                  </h2>
+                  {/* body: 17px/400/-0.374px */}
+                  <p className="mt-3" style={{ color: '#7a7a7a', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 400, letterSpacing: '-0.374px', lineHeight: 1.47 }}>
+                    An admin has disabled this feature for your profile. Contact the admin team if you need access restored.
+                  </p>
+                  {/* CTA buttons */}
                   <div className="mt-6 flex justify-center gap-3">
-                    <NavLink to={fallbackNavPath} className="rounded-md bg-gray-900 px-5 py-3 text-sm font-bold text-white hover:bg-amber-500 hover:text-white">Open available section</NavLink>
-                    <NavLink to="/student/settings" className="rounded-md border border-black/10 bg-gray-50 px-5 py-3 text-sm font-bold text-gray-900 hover:bg-gray-100">Settings</NavLink>
+                    {/* button-primary: bg #0066cc, text #fff, rounded-pill, 11px×22px padding */}
+                    <NavLink
+                      to={fallbackNavPath}
+                      className="transition-transform active:scale-95"
+                      style={{
+                        backgroundColor: '#0066cc',
+                        color: '#ffffff',
+                        borderRadius: 9999,
+                        padding: '11px 22px',
+                        fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                        fontSize: 17,
+                        fontWeight: 400,
+                        letterSpacing: '-0.374px',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      Open available section
+                    </NavLink>
+                    {/* button-secondary-pill: transparent bg, #0066cc text, 1px #0066cc border, pill */}
+                    <NavLink
+                      to="/student/settings"
+                      className="transition-transform active:scale-95"
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: '#0066cc',
+                        border: '1px solid #0066cc',
+                        borderRadius: 9999,
+                        padding: '11px 22px',
+                        fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                        fontSize: 17,
+                        fontWeight: 400,
+                        letterSpacing: '-0.374px',
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      Settings
+                    </NavLink>
                   </div>
                 </div>
               </div>
@@ -426,14 +616,12 @@ export const StudentLayout: React.FC = () => {
           </div>
         </main>
 
-        {/* Flush Native Bottom Navigation Bar (direct sibling below main) */}
-        <BottomTabBar items={bottomNavItems} onMenuClick={() => setIsMobileMenuOpen(true)} />
-      </div>
+        {/* Flush Native Bottom Navigation Bar */}
+        {!isMobileMenuOpen && (
+          <BottomTabBar items={bottomNavItems} onMenuClick={() => setIsMobileMenuOpen(true)} />
+        )}
 
-
-
-      {/* Search Overlay */}
-      <SearchOverlay isOpen={searchPanelOpen} onClose={closeSearchPanel} />
+      {/* SearchOverlay removed */}
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />
       <PushPermissionBanner />
     </div>

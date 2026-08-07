@@ -88,8 +88,8 @@ export const AdminGlobalSearch: React.FC = () => {
         // 2. Search Canteen Orders
         const { data: orders } = await supabase
           .from('canteen_orders')
-          .select('id, status, profiles!user_id(name)')
-          .textSearch('id::text', query)
+          .select('id, status, profiles!student_id(name)')
+          .ilike('short_id', searchQuery)
           .limit(5);
 
         if (orders) {
@@ -106,8 +106,8 @@ export const AdminGlobalSearch: React.FC = () => {
 
         // 3. Search Posts
         const { data: posts } = await supabase
-          .from('community_posts')
-          .select('id, content, profiles!user_id(name)')
+          .from('posts')
+          .select('id, content, profiles!author_id(name)')
           .ilike('content', searchQuery)
           .limit(5);
 

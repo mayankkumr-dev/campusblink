@@ -402,16 +402,14 @@ export const AlertSlidePanel: React.FC<AlertSlidePanelProps> = ({ isOpen, onClos
                                 <div
                                   key={n.id}
                                   onClick={() => {
-                                    if (n.link) {
-                                      navigate(n.link);
-                                      onClose();
-                                    }
+                                    navigate(isProf ? `/professor/alerts/${n.id}` : `/student/notifications/${n.id}`);
+                                    onClose();
                                   }}
-                                  className={`group relative flex items-start gap-4 px-4 py-4 rounded-2xl transition-all duration-200 ${
+                                  className={`group relative flex items-start gap-4 px-4 py-4 rounded-2xl transition-all duration-200 cursor-pointer ${
                                     isUnread 
                                       ? `bg-accent-blue-soft shadow-[0_2px_12px_rgba(37,99,235,0.03)] ${profDark('dark:bg-prof-accent-blue/10 dark:shadow-none')}` 
                                       : `hover:bg-surface-elevated ${profDark('dark:hover:bg-prof-bg-surface-raised')}`
-                                  } ${n.link ? 'cursor-pointer' : ''}`}
+                                  }`}
                                 >
                                   <div
                                     className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${itemApp.bgClass}`}
