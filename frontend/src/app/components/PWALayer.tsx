@@ -39,9 +39,11 @@ export const PWALayer: React.FC = () => {
 
   const {
     canInstall,
+    isInstallPossible,
     isStandalone,
     isIOS,
     showIOSHint,
+    forceShowIOSHint,
     promptInstall,
     dismissInstall,
     dismissIOSHint,
@@ -85,9 +87,15 @@ export const PWALayer: React.FC = () => {
   // External listeners (e.g. from other components prompting install)
   useEffect(() => {
     const onInstallRequest = () => {
-      if (!isStandalone && canInstall) {
+      if (isStandalone) return;
+      if (isIOS) {
+        forceShowIOSHint();
+      } else if (isInstallPossible) {
         setShowInstallSheet(true);
         window.setTimeout(() => setSheetVisible(true), 50);
+      } else {
+        // Fallback if browser doesn't support programmatic install
+        alert('To install the app, please use the "Add to Home Screen" or "Install" option in your browser menu.');
       }
     };
     const onOrderPrompt = () => {
@@ -101,7 +109,7 @@ export const PWALayer: React.FC = () => {
       window.removeEventListener('cb-open-install', onInstallRequest as EventListener);
       window.removeEventListener('cb-order-placed-first-time', onOrderPrompt as EventListener);
     };
-  }, [canInstall, isStandalone]);
+  }, [isStandalone, isIOS, isInstallPossible, forceShowIOSHint]);
 
   const closeSheet = (dismiss = true) => {
     setSheetVisible(false);
