@@ -323,6 +323,7 @@ export const AdminNoticesPage: React.FC = () => {
       isPinned,
       attachments,
       authorId: profile?.id,
+      college: 'All',
     });
 
     if (error || !data) {

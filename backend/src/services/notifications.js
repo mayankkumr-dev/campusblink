@@ -165,13 +165,13 @@ const notificationService = {
 
     const safeTitle = String(noticeTitle || 'A new notice').trim();
     const url = noticeId ? `/notices/${noticeId}` : '/notices';
-    const body = `${safeTitle} has been posted.`;
+    const body = `A new official notice has been posted.`;
 
     // Fan-out: send push to each user using chunked batching (500 users per batch).
     // DB notification rows are not created per-user here to avoid O(N) inserts for campus-wide notices.
     await sendPushBatch(targetUserIds, {
       type: 'announcement',
-      title: 'Official Notice 📢',
+      title: `${safeTitle} 📢`,
       body,
       url,
       tag: `notice-${noticeId || Date.now()}`,
