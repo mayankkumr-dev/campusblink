@@ -8,7 +8,7 @@
       "subject": "HVE",
       "code": "HVE",
       "room": "346",
-      "batch": "M Group",
+      "batch": "M",
       "statusLabel": "Lecture"
     },
     {
@@ -19,7 +19,7 @@
       "subject": "CS",
       "code": "CS",
       "room": "346",
-      "batch": "C Group",
+      "batch": "C",
       "statusLabel": "Lecture"
     },
     {
@@ -30,7 +30,7 @@
       "subject": "CS",
       "code": "CS",
       "room": "346",
-      "batch": "C Group",
+      "batch": "C",
       "statusLabel": "Lecture"
     },
     {
@@ -96,7 +96,7 @@
       "subject": "CS",
       "code": "CS",
       "room": "346",
-      "batch": "B Group",
+      "batch": "B",
       "statusLabel": "Lecture"
     },
     {
@@ -107,7 +107,7 @@
       "subject": "CS",
       "code": "CS",
       "room": "346",
-      "batch": "B Group",
+      "batch": "B",
       "statusLabel": "Lecture"
     },
     {
@@ -126,7 +126,7 @@
       "day": "WED",
       "startTime": "15:20",
       "endTime": "16:10",
-      "subject": "Mentoring",
+      "subject": "MENTOR",
       "code": "MENTOR",
       "room": "Faculty Lounge",
       "batch": "M2 Group",

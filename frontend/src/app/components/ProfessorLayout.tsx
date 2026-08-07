@@ -138,7 +138,7 @@ export const ProfessorLayout: React.FC = () => {
               icon={item.icon}
               label={item.label}
               exact={item.exact}
-              onNavigate={() => { setIsMobileOpen(false); if (item.to === '/professor/alerts') setNotificationPanelOpen(true); }}
+              onNavigate={() => { setIsMobileOpen(false); }}
               badgeCount={item.badgeCount}
             />
           ))}
@@ -245,8 +245,7 @@ export const ProfessorLayout: React.FC = () => {
               to={item.to}
               onClick={(e) => {
                 if (item.to === '/professor/alerts') {
-                  e.preventDefault();
-                  setNotificationPanelOpen(true);
+                  // just let it navigate
                 }
                 setIsMobileOpen(false);
               }}
@@ -323,7 +322,7 @@ export const ProfessorLayout: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setNotificationPanelOpen(true)}
+            onClick={() => navigate('/professor/alerts')}
             aria-label="Open Notifications & Alerts"
             className="relative w-9 h-9 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-gray-50 text-gray-700 hover:bg-gray-100 active:scale-95 transition-all"
           >
@@ -376,7 +375,9 @@ export const ProfessorLayout: React.FC = () => {
         </main>
 
         {/* Flush Native Bottom Navigation Bar (direct sibling below main) */}
-        <BottomTabBar items={mobileNavItems} onMenuClick={() => setIsMobileOpen(true)} />
+        {!isMobileOpen && (
+          <BottomTabBar items={mobileNavItems} onMenuClick={() => setIsMobileOpen(true)} />
+        )}
       </div>
 
       <AlertSlidePanel isOpen={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} />

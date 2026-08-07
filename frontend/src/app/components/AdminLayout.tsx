@@ -442,7 +442,9 @@ export const AdminLayout: React.FC = () => {
         </main>
 
         {/* Flush Native Bottom Navigation Bar (direct sibling below main) */}
-        <BottomTabBar items={adminNavItems} onMenuClick={() => setIsMobileOpen(true)} />
+        {!isMobileOpen && (
+          <BottomTabBar items={adminNavItems} onMenuClick={() => setIsMobileOpen(true)} />
+        )}
       </div>
     </div>
   );

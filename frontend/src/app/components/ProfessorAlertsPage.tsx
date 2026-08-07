@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { NotificationsSkeleton } from './BoneyardSkeletons';
 import { getAlertAppearance, clusterConsecutiveNotifications } from './AlertSlidePanel';
 
-export const StudentNotificationsPage: React.FC = () => {
+export const ProfessorAlertsPage: React.FC = () => {
   const profile = useAuthStore((state) => state.profile);
   const notifications = useNotificationStore((state) => state.notifications);
   const setNotifications = useNotificationStore((state) => state.setNotifications);
@@ -73,7 +73,7 @@ export const StudentNotificationsPage: React.FC = () => {
   };
 
   return (
-    <NotificationsSkeleton loading={isLoading} name="student-notifications">
+    <NotificationsSkeleton loading={isLoading} name="professor-alerts">
     <div className="p-4 md:p-8 bg-[var(--bg-primary)] min-h-full">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -101,9 +101,9 @@ export const StudentNotificationsPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {clusterConsecutiveNotifications(notifications, false).map((cluster) => {
+            {clusterConsecutiveNotifications(notifications, true).map((cluster) => {
               const isExpanded = expandedClusters[cluster.id] || false;
-              const { bgClass, Icon } = getAlertAppearance(cluster.items[0], false);
+              const { bgClass, Icon } = getAlertAppearance(cluster.items[0], true);
 
               if (cluster.isGrouped && !isExpanded) {
                 return (
@@ -146,12 +146,12 @@ export const StudentNotificationsPage: React.FC = () => {
                     </div>
                   )}
                   {cluster.items.map((n: any) => {
-                    const itemApp = getAlertAppearance(n, false);
+                    const itemApp = getAlertAppearance(n, true);
                     return (
                       <div
                         key={n.id}
                         onClick={() => {
-                          navigate(`/student/notifications/${n.id}`);
+                          navigate(`/professor/alerts/${n.id}`);
                         }}
                         className={`rounded-xl border bg-[var(--bg)] p-4 md:p-5 transition-all shadow-xs cursor-pointer hover:bg-[var(--bg-primary)] ${
                           n.is_read ? 'border-[var(--text-primary)]/10' : 'border-[var(--yellow)]/40'

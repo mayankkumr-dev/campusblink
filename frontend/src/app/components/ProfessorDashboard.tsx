@@ -22,8 +22,8 @@ function formatDate(d: string) {
 }
 
 function getCurrentDayCode() {
-  const d = new Date().getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-  const map: Record<number, string> = { 1: 'MON', 2: 'TUES', 3: 'WED', 4: 'THURS', 5: 'FRI' };
+  const d = new Date().getDay();
+  const map: Record<number, string> = { 0: 'SUN', 1: 'MON', 2: 'TUES', 3: 'WED', 4: 'THURS', 5: 'FRI', 6: 'SAT' };
   return map[d] || 'MON';
 }
 
@@ -238,7 +238,18 @@ export const ProfessorDashboard: React.FC = () => {
           </div>
         ) : (
           (() => {
-            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode());
+            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode()).sort((a: any, b: any) => {
+              const parseTime = (timeString: string) => {
+                if (!timeString) return 0;
+                let [hourString, minuteString] = timeString.trim().split(':');
+                if (!hourString || !minuteString) return 0;
+                let parsedHour = parseInt(hourString, 10);
+                if (timeString.toLowerCase().includes('pm') && parsedHour < 12) parsedHour += 12;
+                if (timeString.toLowerCase().includes('am') && parsedHour === 12) parsedHour = 0;
+                return parsedHour * 60 + parseInt(minuteString, 10);
+              };
+              return parseTime(a.startTime) - parseTime(b.startTime);
+            });
             if (todayClasses.length === 0) {
               return (
                 <div className="bg-white dark:bg-prof-bg-surface rounded-[2rem] border border-gray-100 dark:border-prof-border-subtle p-8 text-center shadow-sm dark:shadow-none">
@@ -370,7 +381,7 @@ export const ProfessorDashboard: React.FC = () => {
 
             {/* Day Tab Bar */}
             <div className="px-6 sm:px-8 pt-4 pb-2 bg-gray-50/60 dark:bg-prof-bg-surface-raised/50 border-b border-gray-100 dark:border-prof-border-subtle flex items-center gap-2 overflow-x-auto">
-              {['MON', 'TUES', 'WED', 'THURS', 'FRI'].map((dayCode) => {
+              {['MON', 'TUES', 'WED', 'THURS', 'FRI', 'SAT'].map((dayCode) => {
                 const count = (schedule.length > 0 ? schedule : []).filter((c: any) => c.day === dayCode).length;
                 const isActive = selectedDayTab === dayCode;
                 return (
@@ -400,7 +411,18 @@ export const ProfessorDashboard: React.FC = () => {
             {/* Modal Body: Timetable Grid */}
             <div className="p-6 sm:p-8 overflow-y-auto flex-1 bg-[#FAFAFA] dark:bg-prof-bg-surface-raised/30">
               {(() => {
-                const dayClasses = (schedule.length > 0 ? schedule : []).filter((c: any) => c.day === selectedDayTab);
+                const dayClasses = (schedule.length > 0 ? schedule : []).filter((c: any) => c.day === selectedDayTab).sort((a: any, b: any) => {
+                  const parseTime = (timeString: string) => {
+                    if (!timeString) return 0;
+                    let [hourString, minuteString] = timeString.trim().split(':');
+                    if (!hourString || !minuteString) return 0;
+                    let parsedHour = parseInt(hourString, 10);
+                    if (timeString.toLowerCase().includes('pm') && parsedHour < 12) parsedHour += 12;
+                    if (timeString.toLowerCase().includes('am') && parsedHour === 12) parsedHour = 0;
+                    return parsedHour * 60 + parseInt(minuteString, 10);
+                  };
+                  return parseTime(a.startTime) - parseTime(b.startTime);
+                });
                 if (dayClasses.length === 0) {
                   return (
                     <div className="py-16 text-center bg-white dark:bg-prof-bg-surface rounded-3xl border border-gray-100 dark:border-prof-border-subtle max-w-xl mx-auto">
@@ -656,9 +678,9 @@ export const ProfessorDashboard: React.FC = () => {
           </div>
 
           {loading && schedule.length === 0 ? (
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scroll-px-4 hide-scrollbar">
               {[1, 2].map((n) => (
-                <div key={n} className="w-[260px] shrink-0 bg-white dark:bg-prof-bg-surface rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none animate-pulse h-40">
+                <div key={n} className="w-[260px] shrink-0 snap-start bg-white dark:bg-prof-bg-surface rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] dark:shadow-none animate-pulse h-40">
                   <div className="h-3.5 bg-gray-100 dark:bg-prof-bg-surface-raised rounded w-1/3 mb-3" />
                   <div className="h-5 bg-gray-100 dark:bg-prof-bg-surface-raised rounded w-3/4 mb-2" />
                   <div className="h-3.5 bg-gray-100 dark:bg-prof-bg-surface-raised rounded w-1/2" />
@@ -685,7 +707,18 @@ export const ProfessorDashboard: React.FC = () => {
               </button>
             </div>
           ) : (() => {
-            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode());
+            const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode()).sort((a: any, b: any) => {
+              const parseTime = (timeString: string) => {
+                if (!timeString) return 0;
+                let [hourString, minuteString] = timeString.trim().split(':');
+                if (!hourString || !minuteString) return 0;
+                let parsedHour = parseInt(hourString, 10);
+                if (timeString.toLowerCase().includes('pm') && parsedHour < 12) parsedHour += 12;
+                if (timeString.toLowerCase().includes('am') && parsedHour === 12) parsedHour = 0;
+                return parsedHour * 60 + parseInt(minuteString, 10);
+              };
+              return parseTime(a.startTime) - parseTime(b.startTime);
+            });
             if (todayClasses.length === 0) {
               return (
                 <div className="bg-white dark:bg-prof-bg-surface border border-transparent dark:border-prof-border-subtle rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-none text-center my-1">
@@ -706,7 +739,7 @@ export const ProfessorDashboard: React.FC = () => {
             }
 
             return (
-              <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 hide-scrollbar">
+              <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 scroll-px-4 hide-scrollbar">
                 {todayClasses.map((cls: any, idx: number) => {
                   const status = getClassTimeStatus(cls.startTime, cls.endTime);
                   const isCompleted = status === 'completed';
@@ -738,7 +771,7 @@ export const ProfessorDashboard: React.FC = () => {
                         </div>
 
                         <h3
-                          className={`text-base font-bold font-syne line-clamp-1 ${
+                          className={`text-base font-bold font-syne ${
                             isCompleted ? 'text-gray-400 dark:text-prof-text-tertiary line-through' : 'text-gray-900 dark:text-prof-text-primary'
                           }`}
                         >
