@@ -1446,7 +1446,7 @@ export const adminAPI = {
     const { data: session } = await supabase.auth.getSession();
     const token = session?.session?.access_token;
     
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
     const response = await fetch(`${backendUrl}/api/admin/users/society`, {
       method: 'POST',
       headers: {
@@ -1486,7 +1486,7 @@ export const adminAPI = {
 export async function createCanteenOwnerAccount(ownerData) {
   const { data: session } = await supabase.auth.getSession();
   const token = session?.session?.access_token;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/canteen-owner`, {
     method: 'POST',
     headers: {
@@ -1505,7 +1505,7 @@ export async function createCanteenOwnerAccount(ownerData) {
 export async function createPrintOwnerAccount(ownerData) {
   const { data: session } = await supabase.auth.getSession();
   const token = session?.session?.access_token;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/print-owner`, {
     method: 'POST',
     headers: {
