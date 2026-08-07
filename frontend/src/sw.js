@@ -37,7 +37,7 @@ const bgSyncPlugin = new BackgroundSyncPlugin('campus-blink-sync-queue', {
 registerRoute(
   ({ request }) => request.destination === 'image',
   new CacheFirst({
-    cacheName: 'cb-images-v2',
+    cacheName: 'cb-images-v4',
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 }),
@@ -52,7 +52,7 @@ registerRoute(
     request.destination === 'script' ||
     request.destination === 'worker'),
   new StaleWhileRevalidate({
-    cacheName: 'cb-app-shell-assets-v3',
+    cacheName: 'cb-app-shell-assets-v4',
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 250, maxAgeSeconds: 60 * 60 * 24 * 30 }),
@@ -63,7 +63,7 @@ registerRoute(
 registerRoute(
   ({ request }) => request.destination === 'font',
   new StaleWhileRevalidate({
-    cacheName: 'cb-fonts-v2',
+    cacheName: 'cb-fonts-v4',
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 365 }),
@@ -84,7 +84,7 @@ const isStudentContentApi = ({ url }) =>
 registerRoute(
   ({ url, request }) => isStudentContentApi({ url }) && request.method === 'GET',
   new StaleWhileRevalidate({
-    cacheName: 'cb-student-content-v2',
+    cacheName: 'cb-student-content-v4',
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
       new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 14 }),
@@ -97,7 +97,7 @@ registerRoute(
 registerRoute(
   ({ url, request }) => isApiRequest({ url }) && !isStudentContentApi({ url }) && request.method === 'GET',
   new NetworkFirst({
-    cacheName: 'cb-api-v2',
+    cacheName: 'cb-api-v4',
     networkTimeoutSeconds: 5,
     plugins: [
       new CacheableResponsePlugin({ statuses: [0, 200] }),
@@ -135,7 +135,7 @@ try {
 } catch (e) {
   // Fallback for dev mode where index.html might not be in the precache manifest
   registerRoute(new NavigationRoute(new NetworkFirst({
-    cacheName: 'cb-pages-v2',
+    cacheName: 'cb-pages-v4',
     networkTimeoutSeconds: 4,
   }), {
     denylist: [/^\/auth\/callback/],
