@@ -27,4 +27,6 @@ jobs:
           script: |
             # Navigate to the app directory and run the deployment script
             cd /app/campusblink
+            git stash || true
             bash deploy/github-deploy.sh
+            git stash pop || true
