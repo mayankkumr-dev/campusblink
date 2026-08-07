@@ -29,10 +29,14 @@ interface UsePWAInstallResult {
   canInstall: boolean;
   /** True if the app is currently running as an installed PWA. */
   isStandalone: boolean;
+  /** True if install is technically possible (ignores dismissal state). */
+  isInstallPossible: boolean;
   /** True if this is iOS Safari (needs manual share → add to home screen flow). */
   isIOS: boolean;
   /** True if the iOS install hint should be shown (only on first visit per session). */
   showIOSHint: boolean;
+  /** Force show the iOS install hint (e.g. when user manually clicks install). */
+  forceShowIOSHint: () => void;
   /** Trigger the native browser install prompt. Returns whether the user accepted. */
   promptInstall: () => Promise<boolean>;
   /** Dismiss the install banner for a given number of days (default: 7). */
@@ -107,7 +111,8 @@ export function usePWAInstall(): UsePWAInstallResult {
     }
   }, []);
 
-  const canInstall = Boolean(deferredPrompt) && !isStandalone && !isDismissed();
+  const isInstallPossible = Boolean(deferredPrompt) && !isStandalone;
+  const canInstall = isInstallPossible && !isDismissed();
 
   const promptInstall = useCallback(async (): Promise<boolean> => {
     if (!deferredPrompt) return false;
@@ -135,11 +140,19 @@ export function usePWAInstall(): UsePWAInstallResult {
     setShowIOSHint(false);
   }, []);
 
+  const forceShowIOSHint = useCallback((): void => {
+    if (!isStandalone && isIOS) {
+      setShowIOSHint(true);
+    }
+  }, [isStandalone, isIOS]);
+
   return {
     canInstall,
+    isInstallPossible,
     isStandalone,
     isIOS,
     showIOSHint,
+    forceShowIOSHint,
     promptInstall,
     dismissInstall,
     dismissIOSHint,
