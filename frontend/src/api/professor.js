@@ -168,7 +168,7 @@ export async function approveProfessor(adminId, professorId) {
     const token = session?.access_token;
     if (!token) throw new Error('Not authenticated');
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
     const res = await fetch(`${backendUrl}/api/admin/professors/${professorId}/approve`, {
       method: 'POST',
       headers: {
@@ -204,7 +204,7 @@ export async function rejectProfessor(adminId, professorId, reason) {
     const token = session?.access_token;
     if (!token) throw new Error('Not authenticated');
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
     const res = await fetch(`${backendUrl}/api/admin/professors/${professorId}/reject`, {
       method: 'POST',
       headers: {
