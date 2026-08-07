@@ -244,7 +244,10 @@ export async function createNotice({ authorId, college, title, content, targetYe
       const { data: authData } = await supabase.auth.getSession();
       if (authData?.session?.access_token) {
         let apiUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
-        if (!apiUrl) {
+        // Force relative URLs in production so Vercel rewrites take over and avoid Mixed Content (HTTP) errors
+        if (import.meta.env.PROD) {
+          apiUrl = '';
+        } else if (!apiUrl) {
           apiUrl = '';
         }
         
