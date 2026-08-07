@@ -53,9 +53,8 @@ export const NotificationBanner: React.FC = () => {
   const handleAllow = async () => {
     // subscribe() → calls requestPermission() then saves subscription to backend
     const success = await subscribe();
-    if (!success && typeof window !== 'undefined' && Notification.permission === 'denied') {
-      // Permission was denied — hide banner so we don't nag them
-      dismiss();
+    if (!success) {
+      dismiss(); // Dismiss to prevent hanging if backend fails or user denies
     }
   };
 

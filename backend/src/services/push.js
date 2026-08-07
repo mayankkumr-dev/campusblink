@@ -118,11 +118,14 @@ async function sendPushToUser(userId, notification) {
       });
 
       if (error?.statusCode === 404 || error?.statusCode === 410) {
-        await supabaseAdmin
+        const { error: delErr } = await supabaseAdmin
           .from('push_subscriptions')
           .delete()
-          .eq('endpoint', pushSubscription.endpoint)
-          .catch((delErr) => console.error('[WebPush Purge Error] Failed to delete stale subscription:', delErr));
+          .eq('endpoint', pushSubscription.endpoint);
+          
+        if (delErr) {
+          console.error('[WebPush Purge Error] Failed to delete stale subscription:', delErr);
+        }
       }
     }
   }
