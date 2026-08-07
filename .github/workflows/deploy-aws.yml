@@ -27,6 +27,6 @@ jobs:
           script: |
             # Navigate to the app directory and run the deployment script
             cd /app/campusblink
-            git stash || true
+            # Force discard any local server changes/conflicts
+            git reset --hard origin/main
             bash deploy/github-deploy.sh
-            git stash pop || true

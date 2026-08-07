@@ -21,9 +21,8 @@ echo "================================================"
 echo ""
 echo "[ 1/4 ] Pulling latest code from git..."
 cd "$APP_DIR"
-git stash || true
-git pull origin main
-git stash pop || true
+git fetch origin main
+git reset --hard origin/main
 echo "Code updated ✓"
 
 # ── 2. Install/update backend dependencies ──────────────────
