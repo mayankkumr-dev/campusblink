@@ -32,7 +32,9 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
       .range(offset, offset + limit - 1);
 
     if (college) {
-      query = query.eq('college', college);
+      query = query.or(`college.eq.${college},college.eq.All`);
+    } else {
+      query = query.eq('college', 'All');
     }
 
     if (studyYear) {
