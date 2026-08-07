@@ -16,6 +16,7 @@ interface DiaryCanvasProps {
   onParticipatePrompt: () => void;
   /** Opens the full-screen text overlay for editing the given element id */
   onOpenTextOverlay: (elementId: string) => void;
+  hideElements?: boolean;
 }
 
 export function DiaryCanvas({
@@ -29,6 +30,7 @@ export function DiaryCanvas({
   onDeleteNode,
   onParticipatePrompt,
   onOpenTextOverlay,
+  hideElements = false,
 }: DiaryCanvasProps) {
   const getCanvasStyle = (): React.CSSProperties => {
     if (selectedBg?.background) {
@@ -93,14 +95,14 @@ export function DiaryCanvas({
           }}
         >
           {/* Show Daily Prompt Card when text content is empty AND prompt is available */}
-          {isContentEmpty && dailyPrompt && (
+          {!hideElements && isContentEmpty && dailyPrompt && (
             <div className="mb-4">
               <DiaryPromptCard prompt={dailyPrompt} onParticipate={onParticipatePrompt} />
             </div>
           )}
 
           {/* Render Full Page Text Editor */}
-          {textElement && (
+          {!hideElements && textElement && (
             <DiaryDraggableText
               key={textElement.id}
               element={textElement}
@@ -113,19 +115,21 @@ export function DiaryCanvas({
           )}
 
           {/* Render Floating Overlay Stickers & Images */}
-          <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
-            {stickerElements.map((el) => (
-              <div key={el.id} className="pointer-events-auto">
-                <DiaryDraggableSticker
-                  element={el}
-                  isActive={activeNodeId === el.id}
-                  onFocus={() => onFocusNode(el.id)}
-                  onChange={(updates) => onUpdateNode(el.id, updates)}
-                  onDelete={() => onDeleteNode(el.id)}
-                />
-              </div>
-            ))}
-          </div>
+          {!hideElements && (
+            <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+              {stickerElements.map((el) => (
+                <div key={el.id} className="pointer-events-auto">
+                  <DiaryDraggableSticker
+                    element={el}
+                    isActive={activeNodeId === el.id}
+                    onFocus={() => onFocusNode(el.id)}
+                    onChange={(updates) => onUpdateNode(el.id, updates)}
+                    onDelete={() => onDeleteNode(el.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

@@ -108,14 +108,14 @@ export function DiaryTextSizeSlider({
 
   return (
     <div
-      className="relative flex items-center justify-center select-none"
-      style={{ width: 44, height: '100%', touchAction: 'none' }}
+      className="relative flex justify-center select-none w-full h-full"
+      style={{ touchAction: 'none' }}
     >
       {/* Invisible full-height pointer-capture zone */}
       <div
         ref={trackRef}
         className="absolute inset-0 cursor-ns-resize"
-        style={{ touchAction: 'none' }}
+        style={{ touchAction: 'none', zIndex: 10, margin: '-10px' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -128,42 +128,33 @@ export function DiaryTextSizeSlider({
         tabIndex={0}
       />
 
-      {/* Slim track — centered horizontally, h-64 */}
+      {/* The wedge shape */}
       <div
-        className="w-1 rounded-full pointer-events-none"
+        className="pointer-events-none relative"
         style={{
-          height: 256,
-          background: 'rgba(255,255,255,0.25)',
-          position: 'relative',
+          width: 12,
+          height: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
         }}
-      >
-        {/* Filled portion above the thumb */}
-        <div
-          className="absolute inset-x-0 top-0 rounded-full pointer-events-none transition-none"
-          style={{
-            height: `${thumbPercent}%`,
-            background: 'rgba(255,255,255,0.15)',
-          }}
-        />
-      </div>
+      />
 
-      {/* Thumb — white circle, floats at correct position along the track */}
+      {/* The circular handle */}
       <div
-        className="absolute left-1/2 pointer-events-none z-10"
+        className="absolute left-1/2 pointer-events-none z-20"
         style={{
-          // Track is 256px tall, centered in the flex container (50% - 128px = track top)
-          top: `calc(50% - 128px + ${(thumbPercent / 100) * 256}px)`,
+          top: `${thumbPercent}%`,
           transform: 'translate(-50%, -50%)',
         }}
       >
         <div
-          className={`rounded-full bg-white shadow-lg transition-transform duration-100 ${
+          className={`rounded-full bg-white transition-transform duration-100 ${
             isDragging ? 'scale-125' : 'scale-100'
           }`}
           style={{
-            width: 24,
-            height: 24,
-            boxShadow: '0 2px 10px rgba(0,0,0,0.4), 0 0 0 2px rgba(255,255,255,0.4)',
+            width: 18,
+            height: 18,
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
           }}
         />
       </div>
@@ -171,9 +162,10 @@ export function DiaryTextSizeSlider({
       {/* Floating size badge — shows only while dragging */}
       {isDragging && (
         <div
-          className="absolute left-10 px-2 py-0.5 rounded-full text-xs font-bold bg-white text-black shadow-md pointer-events-none whitespace-nowrap transition-all animate-fadeIn"
+          className="absolute left-8 px-2 py-0.5 rounded-full text-xs font-bold bg-white text-black shadow-md pointer-events-none whitespace-nowrap transition-all animate-fadeIn z-20"
           style={{
-            top: `calc(50% - 128px + ${(thumbPercent / 100) * 256}px - 10px)`,
+            top: `${thumbPercent}%`,
+            transform: 'translateY(-50%)',
           }}
         >
           {value}px

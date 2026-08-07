@@ -39,7 +39,7 @@ function normalizeMode(mode: TextStyleMode | undefined): 'none' | 'solid' | 'hig
   if (mode === 'plain') return 'none';
   if (mode === 'highlight') return 'highlight';
   if (mode === 'solid') return 'solid';
-  return 'none';
+  return 'solid';
 }
 
 /**
@@ -284,126 +284,99 @@ export function DiaryTextToolOverlay({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[70] flex flex-col transition-all duration-200 ease-out"
-      style={{ backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(20px)', touchAction: 'none' }}
+      className="absolute inset-0 z-[70]"
+      style={{ touchAction: 'none', borderRadius: '14px', clipPath: 'url(#paper-edges)', overflow: 'hidden' }}
     >
-      {/* ── Top bar ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 pt-safe-top pb-3 mt-2 transition-all duration-200 ease-out">
-        {/* Left: close/cancel */}
-        <button
-          onClick={onClose}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-90 transition-all duration-150 text-white text-sm font-medium"
-          aria-label="Cancel"
-        >
-          ✕
-        </button>
+      {/* Dimming Background */}
+      <div 
+        className="overlay" 
+        style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0, 0, 0, 0.45)', zIndex: 10 }}
+        onClick={onClose}
+      />
 
-        {/* Center controls */}
-        <div className="flex items-center gap-3">
-          {/* Aa style cycler — live-previews current mode + color, cycles none→solid→highlight */}
-          <button
-            onClick={cycleStyleMode}
-            className="rounded-xl px-3 py-1.5 font-bold text-lg transition-all duration-150 active:scale-90"
-            style={aaBtnStyle}
-            aria-label={`Text background: ${modeLabel}. Tap to cycle.`}
-            title={`Style: ${modeLabel}. Tap to cycle.`}
-          >
-            {currentFontLabel}
-          </button>
-
-          {/* Font family cycle */}
-          <button
-            onClick={cycleFontFamily}
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all duration-150 flex items-center justify-center text-white text-xs font-semibold"
-            aria-label="Cycle font family"
-            title="Change font"
+      {/* Top Navigation Bar */}
+      <div 
+        className="top-bar" 
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '24px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 20 }}
+      >
+        <div className="tools-left" style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div 
+            className="color-wheel" 
+            onClick={cycleStyleMode} 
+            style={{ width: 28, height: 28, borderRadius: '50%', background: 'conic-gradient(red, yellow, lime, cyan, blue, magenta, red)', border: '2px solid white', cursor: 'pointer' }}
+          ></div>
+          <div 
+            className="icon-aa" 
+            onClick={cycleFontFamily} 
+            style={{ backgroundColor: 'white', color: 'black', width: 28, height: 28, display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 700, fontSize: 15, borderRadius: 6, cursor: 'pointer' }}
           >
             Aa
-          </button>
-
-          {/* Alignment cycle */}
-          <button
-            onClick={cycleAlignment}
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:scale-90 transition-all duration-150 flex items-center justify-center text-white"
-            aria-label={`Alignment: ${textAlign}. Tap to cycle.`}
+          </div>
+          <div 
+            className="icon-align" 
+            onClick={cycleAlignment} 
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, paddingLeft: 2, cursor: 'pointer' }}
           >
-            {textAlign === 'left' && <AlignLeft className="w-5 h-5" />}
-            {textAlign === 'center' && <AlignCenter className="w-5 h-5" />}
-            {textAlign === 'right' && <AlignRight className="w-5 h-5" />}
-          </button>
-        </div>
-
-        {/* Right: Done */}
-        <button
-          onClick={handleDone}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-black font-bold text-sm active:scale-90 transition-all duration-150 shadow-lg"
-          aria-label="Done — commit text"
-        >
-          <Check className="w-4 h-4" />
-          Done
-        </button>
-      </div>
-
-      {/* ── Main editing area ────────────────────────────────── */}
-      <div className="flex-1 flex items-stretch overflow-hidden" style={{ touchAction: 'none' }}>
-        {/* Left: Size slider — slim Instagram-style vertical track */}
-        <div className="flex items-center justify-center px-2 py-6" style={{ width: 52, touchAction: 'none' }}>
-          <DiaryTextSizeSlider
-            value={fontSize}
-            min={MIN_FONT}
-            max={MAX_FONT}
-            onSizeChange={setFontSize}
-          />
-        </div>
-
-        {/* Center: Text input */}
-        <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-auto" style={{ touchAction: 'pan-y' }}>
-          <div
-            className="w-full max-w-sm transition-all duration-200 ease-out"
-            style={pillBgStyle}
-          >
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => {
-                setContent(e.target.value);
-              }}
-              onKeyDown={handleKeyDown}
-              onInput={autoGrow}
-              placeholder="Type something..."
-              className="diary-text-overlay-textarea w-full bg-transparent resize-none outline-none border-none leading-relaxed overflow-hidden min-h-[2em]"
-              style={{
-                fontFamily,
-                fontSize: `${fontSize}px`,
-                textAlign,
-                color: textColor,
-                caretColor: textColor,
-                lineHeight: 1.35,
-              }}
-              rows={1}
-              autoComplete="off"
-              autoCorrect="on"
-              spellCheck={true}
-            />
+            <span style={{ display: 'block', height: 2, backgroundColor: 'white', borderRadius: 2, width: 22 }}></span>
+            <span style={{ display: 'block', height: 2, backgroundColor: 'white', borderRadius: 2, width: 14 }}></span>
+            <span style={{ display: 'block', height: 2, backgroundColor: 'white', borderRadius: 2, width: 22 }}></span>
+            <span style={{ display: 'block', height: 2, backgroundColor: 'white', borderRadius: 2, width: 14 }}></span>
           </div>
         </div>
+        <div 
+          className="btn-done" 
+          onClick={handleDone} 
+          style={{ color: 'white', fontWeight: 'bold', fontSize: 16, textShadow: '0 1px 2px rgba(0,0,0,0.5)', cursor: 'pointer' }}
+        >
+          Done
+        </div>
       </div>
 
-      {/* ── Bottom: Color swatches ───────────────────────────── */}
-      <div className="shrink-0 pb-safe-bottom transition-all duration-200 ease-out">
-        <DiaryColorSwatchRow
-          activeColor={activeColor}
-          mode={styleMode === 'none' ? 'plain' : 'fill'}
-          onSelect={handleColorSelect}
+      {/* Left Tapered Slider */}
+      <div 
+        className="slider-wrapper" 
+        style={{ position: 'absolute', left: 20, top: 130, height: 180, width: 20, display: 'flex', justifyContent: 'center', zIndex: 20, touchAction: 'none' }}
+      >
+        <DiaryTextSizeSlider
+          value={fontSize}
+          min={MIN_FONT}
+          max={MAX_FONT}
+          onSizeChange={setFontSize}
         />
       </div>
 
-      {/* Placeholder styling */}
-      <style>{`
-        .diary-text-overlay-textarea::placeholder {
-          color: rgba(255,255,255,0.35);
-        }
-      `}</style>
+      {/* Center White Box with Cyan Cursor */}
+      <div 
+        className="text-box-container" 
+        style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 20 }}
+      >
+        <div 
+          className="fake-input-box" 
+          style={{ backgroundColor: 'white', borderRadius: 6, width: 190, minHeight: 48, display: 'flex', alignItems: 'center', paddingLeft: 20, paddingRight: 20, boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)' }}
+        >
+          <textarea
+            ref={textareaRef}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onInput={autoGrow}
+            placeholder=""
+            className="w-full bg-transparent resize-none outline-none border-none overflow-hidden"
+            style={{
+              color: 'black',
+              caretColor: '#6ebbb5',
+              fontSize: `${fontSize}px`,
+              fontFamily,
+              textAlign,
+              minHeight: '22px'
+            }}
+            rows={1}
+            autoComplete="off"
+            autoCorrect="on"
+            spellCheck={true}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -158,6 +158,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
             onDeleteNode={(id) => removeElement(id)}
             onParticipatePrompt={handleParticipatePrompt}
             onOpenTextOverlay={openEditTextOverlay}
+            hideElements={isOverlayOpen}
           />
 
           {/* Top Toolbar */}
@@ -170,27 +171,37 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
               onOpenMoreOptions={() => setIsBgDrawerOpen(true)}
             />
           )}
+
+          {/* Full-screen Text Tool Overlay */}
+          {isOverlayOpen && (
+            <DiaryTextToolOverlay
+              initialElement={overlayInitialElement}
+              onCommit={handleTextOverlayCommit}
+              onClose={closeTextOverlay}
+            />
+          )}
         </div>
 
         {/* Bottom Floating Bar (Visibility Selector & Share Button) */}
-        {!isOverlayOpen && (
-          <div className="w-full flex justify-between items-center px-4 py-3 pb-safe-bottom bg-[#020b18] z-10 capture-ignore pointer-events-auto">
-            <DiaryVisibilitySelector
-              visibility={visibility}
-              allowComments={allowComments}
-              isOpen={isPrivacyDrawerOpen}
-              onOpen={() => setIsPrivacyDrawerOpen(true)}
-              onClose={() => setIsPrivacyDrawerOpen(false)}
-              onSelectVisibility={(vis) => {
-                setVisibility(vis);
-                setIsPrivacyDrawerOpen(false);
-              }}
-              onToggleComments={setAllowComments}
-            />
+        <div 
+          className="w-full flex justify-between items-center px-4 py-3 pb-safe-bottom bg-[#020b18] z-10 capture-ignore pointer-events-auto"
+          style={{ visibility: isOverlayOpen ? 'hidden' : 'visible' }}
+        >
+          <DiaryVisibilitySelector
+            visibility={visibility}
+            allowComments={allowComments}
+            isOpen={isPrivacyDrawerOpen}
+            onOpen={() => setIsPrivacyDrawerOpen(true)}
+            onClose={() => setIsPrivacyDrawerOpen(false)}
+            onSelectVisibility={(vis) => {
+              setVisibility(vis);
+              setIsPrivacyDrawerOpen(false);
+            }}
+            onToggleComments={setAllowComments}
+          />
 
-            <DiaryShareBar isPublishing={isPublishing} onPublish={handlePublishClick} />
-          </div>
-        )}
+          <DiaryShareBar isPublishing={isPublishing} onPublish={handlePublishClick} />
+        </div>
       </div>
 
       {/* Sticker Picker Drawer */}
@@ -213,15 +224,6 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
             const bg = BACKGROUNDS.find((t) => t.id === themeId);
             if (bg) setSelectedBg(bg);
           }}
-        />
-      )}
-
-      {/* Full-screen Text Tool Overlay */}
-      {isOverlayOpen && (
-        <DiaryTextToolOverlay
-          initialElement={overlayInitialElement}
-          onCommit={handleTextOverlayCommit}
-          onClose={closeTextOverlay}
         />
       )}
     </div>
