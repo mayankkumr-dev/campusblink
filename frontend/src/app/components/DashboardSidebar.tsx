@@ -113,12 +113,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       icon: BookOpen,
       action: undefined,
     },
-    {
-      label: 'Messages',
-      path: '/student/messages',
-      icon: MessageCircle,
-      action: undefined,
-    },
+
     {
       label: 'Campus Exchange',
       path: '/student/campus-exchange',
@@ -135,12 +130,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       label: 'Print',
       path: '/student/print',
       icon: Printer,
-      action: undefined,
-    },
-    {
-      label: 'Societies',
-      path: '/student/societies',
-      icon: Building2,
       action: undefined,
     },
 

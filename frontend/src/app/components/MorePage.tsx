@@ -41,20 +41,7 @@ export const MorePage: React.FC = () => {
           <div className="text-[var(--yellow-dark)] text-xl">→</div>
         </NavLink>
 
-        {/* Societies Option */}
-        <NavLink
-          to="/student/societies"
-          className="flex items-center gap-4 rounded-2xl border border-black/10 bg-[var(--bg)] px-4 py-4 text-left transition-all hover:border-black/20 hover:shadow-md"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--yellow-light)] text-[var(--yellow-dark)] shrink-0">
-            <Building2 className="h-6 w-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-[var(--text-primary)] select-text">Societies</h3>
-            <p className="text-sm text-[var(--text-secondary)] select-text">Discover campus clubs and communities</p>
-          </div>
-          <div className="text-[var(--yellow-dark)] text-xl">→</div>
-        </NavLink>
+
 
         {/* Notices Option */}
         <NavLink

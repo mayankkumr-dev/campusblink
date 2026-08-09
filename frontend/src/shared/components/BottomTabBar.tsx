@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router';
 import { motion } from 'motion/react';
 import { useScrollDirection } from '../../hooks/useScrollDirection';
 import { useAuthStore } from '../../store/authStore';
-import { useChatStore } from '../../store/chatStore';
+
 
 export interface TabBarItem {
   key: string;
@@ -39,7 +39,6 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
   const location = useLocation();
   const scrollDirection = useScrollDirection({ threshold: 12 });
   const { profile } = useAuthStore();
-  const fetchConversations = useChatStore((state) => state.fetchConversations);
   const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   if (
@@ -52,14 +51,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
     return null;
   }
 
-  const handlePrefetch = (path?: string) => {
-    if (path && (path.includes('/messages') || path.includes('/chat')) && profile?.id) {
-      if (prefetchTimeoutRef.current) clearTimeout(prefetchTimeoutRef.current);
-      prefetchTimeoutRef.current = setTimeout(() => {
-        fetchConversations(profile.id);
-      }, 50); // Small debounce
-    }
-  };
+
 
   return (
     /*
@@ -173,8 +165,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
                 window.dispatchEvent(new CustomEvent('focus-search-bar'));
               }
             }}
-            onMouseEnter={() => handlePrefetch(item.path)}
-            onTouchStart={() => handlePrefetch(item.path)}
+            onMouseEnter={() => {}}
+            onTouchStart={() => {}}
             aria-label={item.label}
             className="group flex-1 flex flex-col items-center justify-center gap-1 py-1.5 px-2 rounded-full relative focus:outline-none active:scale-95 transition-transform duration-150"
             style={{ minHeight: 44, minWidth: 44 }}

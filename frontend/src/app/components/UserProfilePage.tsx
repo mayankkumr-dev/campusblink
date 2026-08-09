@@ -309,17 +309,7 @@ export const UserProfilePage: React.FC = () => {
                             }
                           }}
                         />
-                        {!(
-                          (currentProfile.role === 'student' && targetProfile.role === 'professor') ||
-                          (currentProfile.role === 'professor' && targetProfile.role === 'student')
-                        ) && (
-                          <button
-                            onClick={() => navigate(`/${currentProfile.role}/messages?newChat=${targetProfile.id}`)}
-                            className="rounded-xl border border-gray-100 bg-blue-50 px-4 py-2 text-xs font-bold text-[#0066cc] active:scale-95 transition-all"
-                          >
-                            Message
-                          </button>
-                        )}
+
                         <button
                           onClick={handleReportAccount}
                           className="rounded-xl border border-red-100 bg-red-50 px-3.5 py-2 text-xs font-semibold text-rose-600 active:scale-95 transition-colors"

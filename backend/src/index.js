@@ -24,7 +24,7 @@ const pushRoutes = require('./routes/push');
 const usersRoutes = require('./routes/users');
 const feedRoutes = require('./routes/feed');
 
-const messagingRoutes = require('./routes/messaging');
+
 const diaryRoutes = require('./routes/diary');
 const studentRoutes = require('./routes/student');
 const http = require('http');
@@ -129,7 +129,7 @@ app.use('/api/uploads', generalLimiter, uploadRoutes);
 app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
 
-app.use('/api/messages', generalLimiter, messagingRoutes);
+
 app.use('/api/diary', generalLimiter, diaryRoutes);
 app.use('/api/student', generalLimiter, studentRoutes);
 

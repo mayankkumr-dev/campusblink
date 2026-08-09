@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { Heart, MessageCircle, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, Heart, MessageCircle, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
@@ -13,20 +13,24 @@ import {
   getWishlistIds,
   toggleWishlist,
 } from '../../api/marketplace';
-import { uploadImage } from '../../lib/s3';
 import { ImageWithFallback } from '../../shared/components/ImageWithFallback';
 import { UploadOverlay } from '../../shared/components/UploadOverlay';
 import {
   MARKETPLACE_CATEGORIES,
   MARKETPLACE_CONDITIONS,
+  MARKETPLACE_SORT_OPTIONS,
+  MarketplaceConditionBadge,
   MarketplaceEmptyState,
   MarketplaceListing,
-  MarketplaceSectionCard,
+  MarketplaceListingCard,
+  MarketplaceListingCardSkeleton,
+  MarketplaceSortOption,
   formatMarketplaceTime,
   formatPrice,
-  getListingImage,
+  sortListings,
 } from './marketplace/marketplaceShared';
-import { ListSkeleton, ProductSkeleton } from '../../app/components/ui/Skeletons';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 type ListingDraft = {
   title: string;
@@ -36,6 +40,8 @@ type ListingDraft = {
   price: string;
   location: string;
 };
+
+type FormErrors = Partial<Record<keyof ListingDraft, string>>;
 
 const INITIAL_DRAFT: ListingDraft = {
   title: '',
@@ -47,12 +53,43 @@ const INITIAL_DRAFT: ListingDraft = {
 };
 
 function getErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === 'object' && error && 'message' in error && typeof error.message === 'string') {
-    return error.message;
+  if (typeof error === 'object' && error && 'message' in error && typeof (error as any).message === 'string') {
+    return (error as any).message;
   }
-
   return fallback;
 }
+
+// ─── Inline field error helper ───────────────────────────────────────────────
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <span
+      role="alert"
+      className="mt-1 block text-[13px]"
+      style={{ color: '#dc2626', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+    >
+      {message}
+    </span>
+  );
+}
+
+// ─── Input styles (DESIGN.md search-input spec) ──────────────────────────────
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  borderRadius: 11,
+  border: '1px solid #e0e0e0',
+  background: '#ffffff',
+  fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+  fontSize: 17,
+  letterSpacing: '-0.374px',
+  color: '#1d1d1f',
+  padding: '10px 16px',
+  outline: 'none',
+};
+
+// ─── Create Listing Modal ─────────────────────────────────────────────────────
 
 function CreateListingModal({
   open,
@@ -61,6 +98,7 @@ function CreateListingModal({
   previewUrls,
   isSubmitting,
   photoProgress,
+  errors,
   onClose,
   onChange,
   onFilesChange,
@@ -71,13 +109,37 @@ function CreateListingModal({
   files: File[];
   previewUrls: string[];
   isSubmitting: boolean;
-  /** Per-photo upload progress: index → 0-100 (undefined = not uploading) */
   photoProgress: Record<number, number | 'done' | 'error'>;
+  errors: FormErrors;
   onClose: () => void;
   onChange: (field: keyof ListingDraft, value: string) => void;
   onFilesChange: (nextFiles: File[]) => void;
   onSubmit: () => void;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    const valid = selected.filter((f) => {
+      if (!f.type.startsWith('image/')) {
+        toast.error(`${f.name} is not an image.`);
+        return false;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error(`${f.name} exceeds 10 MB limit.`);
+        return false;
+      }
+      return true;
+    });
+    onFilesChange([...files, ...valid].slice(0, 5));
+    // reset so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    onFilesChange(files.filter((_, i) => i !== index));
+  };
+
   return (
     <AnimatePresence>
       {open ? (
@@ -85,173 +147,367 @@ function CreateListingModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
           <motion.div
-            initial={{ y: 24, opacity: 0 }}
+            initial={{ y: 32, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 18, opacity: 0 }}
-            transition={{ duration: 0.24 }}
-              className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-[32px] bg-[var(--bg)] shadow-[var(--shadow-lg)] sm:rounded-[32px]"
+            exit={{ y: 24, opacity: 0 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="max-h-[94vh] w-full max-w-2xl overflow-y-auto"
+            style={{
+              background: '#ffffff',
+              borderRadius: '24px 24px 0 0',
+              boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+            }}
+            // On sm+ screens, full rounding
+            role="dialog"
+            aria-modal="true"
+            aria-label="Create a new listing"
           >
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[color:rgba(255,255,255,0.96)] px-5 py-4 sm:px-7">
+            {/* Header */}
+            <div
+              className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 sm:px-8"
+              style={{
+                background: 'rgba(255,255,255,0.96)',
+                backdropFilter: 'blur(10px)',
+                borderBottom: '1px solid #f0f0f0',
+              }}
+            >
               <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--accent)]">Sell something</div>
-                <h2 className="mt-1 text-2xl font-black tracking-tight text-[var(--text-primary)]">Post a listing in minutes</h2>
+                <div
+                  style={{
+                    fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: '0.6px',
+                    textTransform: 'uppercase',
+                    color: '#0066cc',
+                  }}
+                >
+                  Campus Marketplace
+                </div>
+                <h2
+                  style={{
+                    fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif',
+                    fontSize: 24,
+                    fontWeight: 600,
+                    letterSpacing: '-0.374px',
+                    color: '#1d1d1f',
+                    marginTop: 2,
+                  }}
+                >
+                  List an item
+                </h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                  className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-2)]"
+                aria-label="Close modal"
+                className="flex h-9 w-9 items-center justify-center rounded-full transition-transform active:scale-95"
+                style={{ background: '#f5f5f7', color: '#1d1d1f' }}
               >
-                Close
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="grid gap-7 p-5 sm:grid-cols-[1.1fr_0.9fr] sm:p-7">
+            <div className="grid gap-6 px-6 py-6 sm:grid-cols-[1.1fr_0.9fr] sm:px-8 sm:py-8">
+              {/* Left — form fields */}
               <div className="space-y-5">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Listing title</span>
+                {/* Title */}
+                <div>
+                  <label
+                    htmlFor="listing-title"
+                    style={{
+                      display: 'block',
+                      marginBottom: 6,
+                      fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1d1d1f',
+                    }}
+                  >
+                    Title <span aria-hidden="true" style={{ color: '#dc2626' }}>*</span>
+                  </label>
                   <input
+                    id="listing-title"
+                    type="text"
                     value={draft.title}
-                    onChange={(event) => onChange('title', event.target.value)}
+                    onChange={(e) => onChange('title', e.target.value)}
                     placeholder="MacBook Air M1, barely used"
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
+                    maxLength={100}
+                    aria-describedby={errors.title ? 'title-error' : undefined}
+                    style={{
+                      ...inputStyle,
+                      borderColor: errors.title ? '#dc2626' : '#e0e0e0',
+                    }}
+                    onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = '#0066cc'; }}
+                    onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = errors.title ? '#dc2626' : '#e0e0e0'; }}
                   />
-                </label>
-
-                <label className="block">
-                  <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Description</span>
-                  <textarea
-                    value={draft.description}
-                    onChange={(event) => onChange('description', event.target.value)}
-                    rows={5}
-                    placeholder="Add condition, reason for selling, and pickup details."
-                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
-                  />
-                </label>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Category</span>
-                    <select
-                      value={draft.category}
-                      onChange={(event) => onChange('category', event.target.value)}
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
-                    >
-                      {MARKETPLACE_CATEGORIES.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Condition</span>
-                    <select
-                      value={draft.condition}
-                      onChange={(event) => onChange('condition', event.target.value)}
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
-                    >
-                      {MARKETPLACE_CONDITIONS.map((condition) => (
-                        <option key={condition} value={condition}>
-                          {condition}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <FieldError message={errors.title} />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Price</span>
-                    <input
-                      value={draft.price}
-                      onChange={(event) => onChange('price', event.target.value.replace(/[^0-9]/g, ''))}
-                      placeholder="25000"
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
-                    />
+                {/* Description */}
+                <div>
+                  <label
+                    htmlFor="listing-description"
+                    style={{
+                      display: 'block',
+                      marginBottom: 6,
+                      fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1d1d1f',
+                    }}
+                  >
+                    Description <span aria-hidden="true" style={{ color: '#dc2626' }}>*</span>
                   </label>
+                  <textarea
+                    id="listing-description"
+                    value={draft.description}
+                    onChange={(e) => onChange('description', e.target.value)}
+                    rows={4}
+                    placeholder="Add condition details, reason for selling, pickup preferences…"
+                    maxLength={2000}
+                    aria-describedby={errors.description ? 'desc-error' : undefined}
+                    style={{
+                      ...inputStyle,
+                      resize: 'vertical',
+                      borderColor: errors.description ? '#dc2626' : '#e0e0e0',
+                    }}
+                    onFocus={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = '#0066cc'; }}
+                    onBlur={(e) => { (e.target as HTMLTextAreaElement).style.borderColor = errors.description ? '#dc2626' : '#e0e0e0'; }}
+                  />
+                  <FieldError message={errors.description} />
+                </div>
 
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">Location</span>
+                {/* Category + Condition */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="listing-category"
+                      style={{ display: 'block', marginBottom: 6, fontSize: 14, fontWeight: 600, color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+                    >
+                      Category <span aria-hidden="true" style={{ color: '#dc2626' }}>*</span>
+                    </label>
+                    <select
+                      id="listing-category"
+                      value={draft.category}
+                      onChange={(e) => onChange('category', e.target.value)}
+                      style={{ ...inputStyle, cursor: 'pointer' }}
+                    >
+                      {MARKETPLACE_CATEGORIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="listing-condition"
+                      style={{ display: 'block', marginBottom: 6, fontSize: 14, fontWeight: 600, color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+                    >
+                      Condition <span aria-hidden="true" style={{ color: '#dc2626' }}>*</span>
+                    </label>
+                    <select
+                      id="listing-condition"
+                      value={draft.condition}
+                      onChange={(e) => onChange('condition', e.target.value)}
+                      style={{ ...inputStyle, cursor: 'pointer' }}
+                    >
+                      {MARKETPLACE_CONDITIONS.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Price + Location */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="listing-price"
+                      style={{ display: 'block', marginBottom: 6, fontSize: 14, fontWeight: 600, color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+                    >
+                      Price (₹) <span aria-hidden="true" style={{ color: '#dc2626' }}>*</span>
+                    </label>
                     <input
-                      value={draft.location}
-                      onChange={(event) => onChange('location', event.target.value)}
-                      placeholder="Boys Hostel Gate"
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg)] px-4 py-3 text-sm outline-none transition focus:border-[var(--accent)]"
+                      id="listing-price"
+                      type="text"
+                      inputMode="numeric"
+                      value={draft.price}
+                      onChange={(e) => onChange('price', e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder="25000"
+                      aria-describedby={errors.price ? 'price-error' : undefined}
+                      style={{ ...inputStyle, borderColor: errors.price ? '#dc2626' : '#e0e0e0' }}
+                      onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = '#0066cc'; }}
+                      onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = errors.price ? '#dc2626' : '#e0e0e0'; }}
                     />
-                  </label>
+                    <FieldError message={errors.price} />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="listing-location"
+                      style={{ display: 'block', marginBottom: 6, fontSize: 14, fontWeight: 600, color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+                    >
+                      Meetup location
+                    </label>
+                    <input
+                      id="listing-location"
+                      type="text"
+                      value={draft.location}
+                      onChange={(e) => onChange('location', e.target.value)}
+                      placeholder="Boys Hostel Gate"
+                      maxLength={120}
+                      style={inputStyle}
+                      onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = '#0066cc'; }}
+                      onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = '#e0e0e0'; }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-5">
-                <label className="block rounded-[28px] border border-dashed border-[var(--border-accent)] bg-[var(--bg)] p-5 text-center">
-                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-md bg-[var(--accent-light)] text-[var(--accent)]">
-                    <Plus className="h-6 w-6" />
-                  </span>
-                  <div className="mt-4 text-base font-bold text-[var(--text-primary)]">Add up to 5 photos</div>
-                  <div className="mt-2 text-sm text-[var(--text-secondary)]">Clear photos get faster replies. Campus Blink will upload them for you.</div>
+              {/* Right — photos + preview + submit */}
+              <div className="space-y-4">
+                {/* Photo upload area */}
+                <div>
+                  <div
+                    style={{
+                      display: 'block',
+                      marginBottom: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1d1d1f',
+                      fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                    }}
+                  >
+                    Photos ({files.length}/5)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={files.length >= 5}
+                    className="flex w-full flex-col items-center justify-center gap-2 py-6 transition-all active:scale-95"
+                    style={{
+                      border: '1.5px dashed #e0e0e0',
+                      borderRadius: 14,
+                      background: '#f5f5f7',
+                      cursor: files.length >= 5 ? 'not-allowed' : 'pointer',
+                      opacity: files.length >= 5 ? 0.5 : 1,
+                    }}
+                    aria-label="Add photos"
+                  >
+                    <div
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                      style={{ background: '#0066cc' }}
+                    >
+                      <Plus className="h-5 w-5 text-white" />
+                    </div>
+                    <span
+                      style={{
+                        fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: '#1d1d1f',
+                      }}
+                    >
+                      Add photos
+                    </span>
+                    <span style={{ fontSize: 12, color: '#7a7a7a' }}>Max 5 photos, 10 MB each</span>
+                  </button>
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept="image/*"
                     multiple
                     className="hidden"
-                    onChange={(event) => onFilesChange(Array.from(event.target.files || []).slice(0, 5))}
+                    onChange={handleFileSelect}
                   />
-                </label>
-
-                <div className="grid grid-cols-2 gap-3">
-                  {(previewUrls.length ? previewUrls : new Array(4).fill(null)).map((preview, index) => {
-                    const progress = photoProgress[index];
-                    const isDone = progress === 'done';
-                    const isError = progress === 'error';
-                    const isUploading = typeof progress === 'number';
-                    return (
-                      <div
-                        key={`${preview || 'placeholder'}-${index}`}
-                        className="relative aspect-square overflow-hidden rounded-[24px] bg-[var(--bg-3)]"
-                      >
-                        {preview ? (
-                          <ImageWithFallback src={preview} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-3)]">
-                            Photo {index + 1}
-                          </div>
-                        )}
-                        {/* Upload progress overlay — shown during active upload */}
-                        {preview && (isUploading || isDone || isError) && (
-                          <UploadOverlay
-                            progress={typeof progress === 'number' ? progress : 100}
-                            done={isDone}
-                            error={isError}
-                          />
-                        )}
-                      </div>
-                    );
-                  })}
                 </div>
 
-                <div className="rounded-[28px] bg-[var(--accent)] p-5 text-white">
-                  <div className="text-xs font-semibold uppercase tracking-[0.24em] text-white/90">Preview</div>
-                  <div className="mt-3 text-3xl font-black tracking-tight">{draft.price ? formatPrice(Number(draft.price)) : 'Add a price'}</div>
-                  <div className="mt-2 text-base font-semibold">{draft.title || 'Your listing title will appear here'}</div>
-                  <div className="mt-3 text-sm leading-6 text-white/74">{draft.description || 'Describe the item honestly, include pickup details, and mention if the price is negotiable.'}</div>
+                {/* Preview grid */}
+                {previewUrls.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {previewUrls.map((url, i) => {
+                      const progress = photoProgress[i];
+                      const isDone = progress === 'done';
+                      const isError = progress === 'error';
+                      const isUploading = typeof progress === 'number';
+                      return (
+                        <div
+                          key={`${url}-${i}`}
+                          className="relative aspect-square overflow-hidden"
+                          style={{ borderRadius: 10 }}
+                        >
+                          <ImageWithFallback src={url} alt={`Preview ${i + 1}`} className="h-full w-full object-cover" />
+                          {url && (isUploading || isDone || isError) && (
+                            <UploadOverlay
+                              progress={typeof progress === 'number' ? progress : 100}
+                              done={isDone}
+                              error={isError}
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => removeFile(i)}
+                            aria-label={`Remove photo ${i + 1}`}
+                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Live preview card */}
+                <div
+                  style={{
+                    borderRadius: 14,
+                    background: '#f5f5f7',
+                    padding: 16,
+                    border: '1px solid #e0e0e0',
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a', marginBottom: 8 }}>
+                    Preview
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 600, color: '#0066cc', fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+                    {draft.price ? formatPrice(Number(draft.price)) : '₹—'}
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: '#1d1d1f', marginTop: 4 }}>
+                    {draft.title || 'Your listing title'}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#7a7a7a', marginTop: 4 }}>
+                    {draft.category} · <MarketplaceConditionBadge condition={draft.condition} />
+                  </div>
                 </div>
 
+                {/* Submit */}
                 <button
                   type="button"
                   onClick={onSubmit}
                   disabled={isSubmitting}
-                  className="w-full rounded-md bg-[var(--accent)] px-5 py-3.5 text-sm font-black uppercase tracking-[0.2em] text-white transition hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="w-full transition-transform active:scale-95"
+                  style={{
+                    padding: '14px 28px',
+                    borderRadius: 9999,
+                    background: isSubmitting ? '#7a7a7a' : '#0066cc',
+                    color: '#ffffff',
+                    fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                    fontSize: 18,
+                    fontWeight: 300,
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    border: 'none',
+                  }}
                 >
                   {isSubmitting
                     ? files.length > 0
-                      ? `Uploading photos…`
+                      ? 'Uploading photos…'
                       : 'Publishing…'
-                    : `Publish${files.length ? ` (${files.length} photo${files.length > 1 ? 's' : ''})` : ''}`
-                  }
+                    : `Publish${files.length ? ` (${files.length} photo${files.length > 1 ? 's' : ''})` : ''}`}
                 </button>
               </div>
             </div>
@@ -262,35 +518,184 @@ function CreateListingModal({
   );
 }
 
+// ─── Filter panel ─────────────────────────────────────────────────────────────
+
+type Filters = {
+  minPrice: string;
+  maxPrice: string;
+  condition: string;
+  sort: MarketplaceSortOption;
+};
+
+function FilterPanel({
+  open,
+  filters,
+  onChange,
+  onReset,
+  onClose,
+}: {
+  open: boolean;
+  filters: Filters;
+  onChange: (key: keyof Filters, value: string) => void;
+  onReset: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.15 }}
+          className="absolute left-0 right-0 z-30 mt-2 sm:left-auto sm:right-0 sm:w-80"
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 18,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            padding: 20,
+          }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <span style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 600, color: '#1d1d1f' }}>
+              Filters
+            </span>
+            <button type="button" onClick={onClose} aria-label="Close filters" className="flex h-7 w-7 items-center justify-center rounded-full" style={{ background: '#f5f5f7' }}>
+              <X className="h-3.5 w-3.5" style={{ color: '#1d1d1f' }} />
+            </button>
+          </div>
+
+          {/* Price range */}
+          <div className="mb-4">
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a', marginBottom: 8 }}>Price range (₹)</div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Min"
+                value={filters.minPrice}
+                onChange={(e) => onChange('minPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                style={{ ...inputStyle, fontSize: 14 }}
+                aria-label="Minimum price"
+              />
+              <span style={{ color: '#7a7a7a' }}>–</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Max"
+                value={filters.maxPrice}
+                onChange={(e) => onChange('maxPrice', e.target.value.replace(/[^0-9]/g, ''))}
+                style={{ ...inputStyle, fontSize: 14 }}
+                aria-label="Maximum price"
+              />
+            </div>
+          </div>
+
+          {/* Condition */}
+          <div className="mb-4">
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a', marginBottom: 8 }}>Condition</div>
+            <div className="flex flex-wrap gap-2">
+              {['', 'New', 'Like New', 'Good', 'Fair', 'Used', 'For Parts'].map((c) => (
+                <button
+                  key={c || 'all'}
+                  type="button"
+                  onClick={() => onChange('condition', c)}
+                  className="rounded-full px-3 py-1 text-[13px] font-medium transition-all active:scale-95"
+                  style={{
+                    border: filters.condition === c ? '2px solid #0066cc' : '1px solid #e0e0e0',
+                    background: filters.condition === c ? '#f0f6ff' : '#f5f5f7',
+                    color: filters.condition === c ? '#0066cc' : '#333333',
+                  }}
+                >
+                  {c || 'Any'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sort */}
+          <div className="mb-5">
+            <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a', marginBottom: 8 }}>Sort</div>
+            <div className="flex flex-col gap-1.5">
+              {MARKETPLACE_SORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange('sort', opt.value)}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-[14px] font-medium transition-all"
+                  style={{
+                    background: filters.sort === opt.value ? '#f0f6ff' : 'transparent',
+                    color: filters.sort === opt.value ? '#0066cc' : '#333333',
+                  }}
+                >
+                  <span
+                    className="flex h-4 w-4 items-center justify-center rounded-full border flex-shrink-0"
+                    style={{
+                      borderColor: filters.sort === opt.value ? '#0066cc' : '#e0e0e0',
+                      background: filters.sort === opt.value ? '#0066cc' : 'transparent',
+                    }}
+                  >
+                    {filters.sort === opt.value && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                  </span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onReset}
+            className="w-full rounded-full py-2 text-[14px] font-medium transition-all active:scale-95"
+            style={{ background: '#f5f5f7', color: '#7a7a7a', border: 'none' }}
+          >
+            Reset filters
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── Main BuySellPage ─────────────────────────────────────────────────────────
+
 export function BuySellPage() {
   const location = useLocation();
   const { profile } = useAuthStore();
   const { hasAccess: hasMarketplaceAccess, isChecking: checkingMarketplaceAccess } = useFeatureAccess('marketplace_access');
   const { isAllowed } = useFeatureAccess(profile);
+
+  // Data
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [myListings, setMyListings] = useState<MarketplaceListing[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Search & filter
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('all');
+  const [filters, setFilters] = useState<Filters>({ minPrice: '', maxPrice: '', condition: '', sort: 'newest' });
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Create listing modal
   const [showComposer, setShowComposer] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [draft, setDraft] = useState<ListingDraft>(INITIAL_DRAFT);
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [placeholderVisible, setPlaceholderVisible] = useState(true);
-  /** Per-photo S3 upload progress: index → 0-100 | 'done' | 'error' */
   const [photoProgress, setPhotoProgress] = useState<Record<number, number | 'done' | 'error'>>({});
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  const placeholderWords = ['Electronics', 'Books', 'Cycle', 'Hostel essentials', 'Furniture'];
-
+  // Load listings
   useEffect(() => {
     let active = true;
-
     async function load() {
       if (!profile?.id) return;
       setIsLoading(true);
+      setError(null);
 
       const [listingResult, myListingResult, wishlistResult] = await Promise.all([
         getListings({ category, searchTerm }),
@@ -301,67 +706,69 @@ export function BuySellPage() {
       if (!active) return;
 
       if (listingResult.error) {
-        toast.error(getErrorMessage(listingResult.error, 'Could not load marketplace listings.'));
+        setError(getErrorMessage(listingResult.error, 'Could not load marketplace listings.'));
       } else {
         setListings(listingResult.data || []);
       }
 
-      if (myListingResult.error) {
-        toast.error(getErrorMessage(myListingResult.error, 'Could not load your listings.'));
-      } else {
-        setMyListings(myListingResult.data || []);
-      }
-
-      if (!wishlistResult.error) {
-        setWishlistIds(wishlistResult.data || []);
-      }
-
+      if (!myListingResult.error) setMyListings(myListingResult.data || []);
+      if (!wishlistResult.error) setWishlistIds(wishlistResult.data || []);
       setIsLoading(false);
     }
 
     load();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [category, profile?.id, searchTerm]);
 
+  // Preview URLs for file upload
   useEffect(() => {
-    const urls = files.map((file) => URL.createObjectURL(file));
+    const urls = files.map((f) => URL.createObjectURL(f));
     setPreviewUrls(urls);
-
-    return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
-    };
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [files]);
 
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setPlaceholderVisible(false);
-      window.setTimeout(() => {
-        setPlaceholderIndex((prev) => (prev + 1) % placeholderWords.length);
-        setPlaceholderVisible(true);
-      }, 180);
-    }, 2200);
-
-    return () => window.clearInterval(interval);
-  }, [placeholderWords.length]);
-
+  // Open composer from URL param
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('compose') === '1') {
-      setShowComposer(true);
-    }
+    if (params.get('compose') === '1') setShowComposer(true);
   }, [location.search]);
 
-  const featuredListings = listings;
-  const activeListingsCount = myListings.filter((listing) => !listing.is_sold).length;
-  const soldListingsCount = myListings.filter((listing) => listing.is_sold).length;
+  // Close filter panel on outside click
+  useEffect(() => {
+    if (!showFilterPanel) return;
+    function handler(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setShowFilterPanel(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showFilterPanel]);
 
+  // Derived
+  const activeListingsCount = useMemo(() => myListings.filter((l) => !l.is_sold).length, [myListings]);
+  const soldListingsCount = useMemo(() => myListings.filter((l) => l.is_sold).length, [myListings]);
+
+  const displayedListings = useMemo(() => {
+    let result = [...listings];
+    if (filters.minPrice) result = result.filter((l) => l.price >= Number(filters.minPrice));
+    if (filters.maxPrice) result = result.filter((l) => l.price <= Number(filters.maxPrice));
+    if (filters.condition) result = result.filter((l) => l.condition === filters.condition);
+    return sortListings(result, filters.sort);
+  }, [listings, filters]);
+
+  const hasActiveFilters = filters.minPrice || filters.maxPrice || filters.condition || filters.sort !== 'newest';
+
+  // Auth / access guard
   if (checkingMarketplaceAccess) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] px-4 py-8">
-        <div className="mx-auto w-full max-w-[1280px]">
-          <ListSkeleton rows={4} />
+      <div className="min-h-screen" style={{ background: '#f5f5f7', padding: '32px 24px' }}>
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <MarketplaceListingCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -371,368 +778,494 @@ export function BuySellPage() {
     return <AccessDenied feature="Marketplace" />;
   }
 
+  // Handlers
   async function handleToggleWishlist(listingId: string) {
-    if (!profile?.id) {
-      toast.error('Please log in to use wishlist.');
-      return;
-    }
-
+    if (!profile?.id) { toast.error('Please log in to use wishlist.'); return; }
     const currentlyWished = wishlistIds.includes(listingId);
-    setWishlistIds((current) => currentlyWished ? current.filter((id) => id !== listingId) : [...current, listingId]);
-
+    setWishlistIds((cur) => currentlyWished ? cur.filter((id) => id !== listingId) : [...cur, listingId]);
     const { data, error } = await toggleWishlist(profile.id, listingId);
     if (error) {
-      setWishlistIds((current) => currentlyWished ? [...current, listingId] : current.filter((id) => id !== listingId));
+      setWishlistIds((cur) => currentlyWished ? [...cur, listingId] : cur.filter((id) => id !== listingId));
       toast.error(getErrorMessage(error, 'Could not update wishlist.'));
       return;
     }
-
     toast.success(data?.wished ? 'Saved to wishlist.' : 'Removed from wishlist.');
   }
 
+  function validateDraft(): FormErrors {
+    const errs: FormErrors = {};
+    if (!draft.title.trim()) errs.title = 'Title is required.';
+    else if (draft.title.trim().length < 5) errs.title = 'Title must be at least 5 characters.';
+    if (!draft.description.trim()) errs.description = 'Description is required.';
+    else if (draft.description.trim().length < 10) errs.description = 'Description must be at least 10 characters.';
+    if (!draft.price.trim()) errs.price = 'Price is required.';
+    else if (Number(draft.price) <= 0) errs.price = 'Price must be greater than 0.';
+    else if (Number(draft.price) > 10000000) errs.price = 'Price seems too high.';
+    return errs;
+  }
+
   async function handleCreateListing() {
-    if (!profile?.id) {
-      toast.error('Please log in again before posting.');
+    if (!profile?.id) { toast.error('Please log in again before posting.'); return; }
+    if (!isAllowed('listing_creation')) { toast.error('Listing creation is currently restricted for your account.'); return; }
+
+    const errs = validateDraft();
+    if (Object.keys(errs).length > 0) {
+      setFormErrors(errs);
+      toast.error('Please fix the highlighted errors.');
       return;
     }
-
-    if (!isAllowed('listing_creation')) {
-      toast.error('Listing creation is currently restricted for your account.');
-      return;
-    }
-
-    if (!draft.title.trim() || !draft.description.trim() || !draft.price.trim()) {
-      toast.error('Title, description, and price are required.');
-      return;
-    }
-
+    setFormErrors({});
     setIsSubmitting(true);
-    setPhotoProgress({});
 
-    // ── Upload each photo to S3 directly with per-thumbnail progress ────────
-    const imageUrls: string[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      setPhotoProgress((prev) => ({ ...prev, [i]: 0 }));
-
-      const { data: uploadData, error: uploadError } = await uploadImage(
-        file,
-        `listings/${profile.id}`,
-        {
-          onProgress: (percent: number) => {
-            setPhotoProgress((prev) => ({ ...prev, [i]: percent }));
-          },
-        }
-      );
-
-      if (uploadError) {
-        setPhotoProgress((prev) => ({ ...prev, [i]: 'error' }));
-        toast.error(
-          uploadError.message?.includes('paused') || uploadError.message?.includes('connection')
-            ? 'Upload paused. Check your connection.'
-            : `Photo ${i + 1} failed to upload. Try again.`
-        );
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (uploadData?.url) {
-        imageUrls.push(uploadData.url);
-        setPhotoProgress((prev) => ({ ...prev, [i]: 'done' }));
-      }
+    // Show visual progress for each file slot
+    if (files.length > 0) {
+      const init: Record<number, number> = {};
+      files.forEach((_, i) => { init[i] = 0; });
+      setPhotoProgress(init);
+      // Simulate progress animation while uploading
+      let pct = 0;
+      const ticker = setInterval(() => {
+        pct = Math.min(pct + 12, 90);
+        setPhotoProgress(Object.fromEntries(files.map((_, i) => [i, pct])));
+      }, 250);
+      setTimeout(() => clearInterval(ticker), 3500);
     }
 
-    // ── Create the listing record in Supabase with S3 image URLs ────────────
     const { data, error } = await createListing(
       {
         seller_id: profile.id,
         title: draft.title.trim(),
-        description: draft.description.trim() + (draft.location.trim() ? '\n\nLocation: ' + draft.location.trim() : ''),
+        description:
+          draft.description.trim() +
+          (draft.location.trim() ? '\n\nMeetup: ' + draft.location.trim() : ''),
         category: draft.category,
         condition: draft.condition,
         price: Number(draft.price),
         college: profile.college,
-        images: imageUrls,
       },
-      [] // Files already uploaded above — pass empty array to skip createListing's internal upload
+      files
     );
+
+    // Mark all uploads done
+    if (files.length > 0) {
+      setPhotoProgress(Object.fromEntries(files.map((_, i) => [i, 'done'])));
+    }
+
     setIsSubmitting(false);
 
     if (error) {
+      // Roll back progress UI
+      setPhotoProgress({});
       toast.error(getErrorMessage(error, 'Could not publish listing.'));
       return;
     }
 
-    setListings((current) => data ? [data, ...current] : current);
-    setMyListings((current) => data ? [data, ...current] : current);
+    setListings((cur) => (data ? [data, ...cur] : cur));
+    setMyListings((cur) => (data ? [data, ...cur] : cur));
     setShowComposer(false);
     setDraft(INITIAL_DRAFT);
     setFiles([]);
     setPhotoProgress({});
+    setFormErrors({});
     toast.success('Listing published! 🎉');
   }
 
+  function openComposer() {
+    if (!isAllowed('listing_creation')) {
+      toast.error('Listing creation is currently restricted for your account.');
+      return;
+    }
+    setShowComposer(true);
+  }
+
   return (
-    <div className="min-h-screen bg-surface px-4 pt-6 pb-6 md:pb-10 sm:px-6 lg:px-8 font-sans">
-      <div className="mx-auto max-w-7xl space-y-6">
-        {/* Marketplace Header Card */}
-        <section className="overflow-hidden rounded-3xl border border-border-subtle bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <div className="grid gap-8 px-6 py-8 sm:px-8 lg:grid-cols-[1.38fr_0.62fr] lg:px-10 lg:py-10">
+    <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
+      <div
+        className="mx-auto max-w-7xl space-y-4 px-4 pb-24 pt-6 sm:px-6 lg:px-8"
+        style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
+      >
+        {/* ── Hero tile (light canvas) ───────────────────────────────── */}
+        <section
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 18,
+            padding: '40px 32px',
+          }}
+        >
+          <div className="grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-accent-blue-soft px-3.5 py-1.5 text-xs font-semibold text-accent-blue">
+              <div
+                style={{
+                  display: 'inline-block',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: '0.6px',
+                  textTransform: 'uppercase',
+                  color: '#0066cc',
+                  marginBottom: 12,
+                }}
+              >
                 Campus Blink Marketplace
               </div>
-              <h1 className="mt-4 font-syne text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">
-                Buy smart, sell fast, campus-first.
+              <h1
+                style={{
+                  fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif',
+                  fontSize: 'clamp(32px, 5vw, 56px)',
+                  fontWeight: 600,
+                  lineHeight: 1.07,
+                  letterSpacing: '-0.28px',
+                  color: '#1d1d1f',
+                  margin: 0,
+                }}
+              >
+                Buy smart.<br />Sell fast.
               </h1>
-              <p className="mt-3.5 max-w-2xl text-sm leading-relaxed text-text-secondary sm:text-base">
-                A clean campus marketplace for gadgets, books, furniture, and quick hostel pickups.
+              <p
+                style={{
+                  fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                  fontSize: 17,
+                  fontWeight: 400,
+                  lineHeight: 1.47,
+                  letterSpacing: '-0.374px',
+                  color: '#7a7a7a',
+                  marginTop: 12,
+                  maxWidth: 480,
+                }}
+              >
+                A clean campus marketplace for gadgets, textbooks, furniture, and quick hostel pickups.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
+                {/* Primary CTA — button-primary spec */}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!isAllowed('listing_creation')) {
-                      toast.error('Listing creation is currently restricted for your account.');
-                      return;
-                    }
-                    setShowComposer(true);
+                  id="sell-now-btn"
+                  onClick={openComposer}
+                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
+                  style={{
+                    padding: '11px 22px',
+                    borderRadius: 9999,
+                    background: '#0066cc',
+                    color: '#ffffff',
+                    fontSize: 17,
+                    fontWeight: 400,
+                    letterSpacing: '-0.374px',
+                    border: 'none',
+                    cursor: 'pointer',
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs transition-all hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4" strokeWidth={2.2} />
                   Sell Now
                 </button>
+
+                {/* Ghost pill — button-secondary-pill spec */}
                 <Link
                   to="/student/campus-exchange/messages"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
+                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
+                  style={{
+                    padding: '11px 22px',
+                    borderRadius: 9999,
+                    background: '#ffffff',
+                    color: '#0066cc',
+                    fontSize: 17,
+                    fontWeight: 400,
+                    border: '1px solid #0066cc',
+                    letterSpacing: '-0.374px',
+                  }}
                 >
-                  <MessageCircle className="h-4 w-4 text-text-secondary" />
+                  <MessageCircle className="h-4 w-4" />
                   Messages
                 </Link>
+
                 <Link
                   to="/student/wishlist"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
+                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
+                  style={{
+                    padding: '11px 22px',
+                    borderRadius: 9999,
+                    background: '#f5f5f7',
+                    color: '#333333',
+                    fontSize: 17,
+                    border: '1px solid #e0e0e0',
+                  }}
                 >
-                  <Heart className="h-4 w-4 text-text-secondary" />
+                  <Heart className="h-4 w-4" />
                   Wishlist
                 </Link>
+
                 <Link
                   to="/student/buy-sell/manage"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border-subtle bg-surface px-5 py-3 text-sm font-semibold text-text-primary shadow-2xs transition-colors hover:bg-surface-elevated"
+                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
+                  style={{
+                    padding: '11px 22px',
+                    borderRadius: 9999,
+                    background: '#f5f5f7',
+                    color: '#333333',
+                    fontSize: 17,
+                    border: '1px solid #e0e0e0',
+                  }}
                 >
-                  Manage Listings
+                  My Listings
                 </Link>
               </div>
             </div>
 
-            {/* Active / Sold Stat Cards with Subtle Depth */}
+            {/* Stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-blue-50/60 to-white p-5 shadow-[0_4px_16px_rgba(37,99,235,0.06)]">
-                <div className="text-xs font-semibold uppercase tracking-wider text-accent-blue">Active listings</div>
-                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-text-primary">{activeListingsCount}</div>
-                <div className="mt-1 text-xs font-medium text-text-secondary">Items currently live on campus</div>
+              <div
+                style={{
+                  borderRadius: 14,
+                  background: '#f0f6ff',
+                  border: '1px solid #cce0ff',
+                  padding: 20,
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc' }}>Active listings</div>
+                <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 40, fontWeight: 600, color: '#1d1d1f', marginTop: 8, lineHeight: 1 }}>{activeListingsCount}</div>
+                <div style={{ fontSize: 13, color: '#7a7a7a', marginTop: 4 }}>Items currently on campus</div>
               </div>
-              <div className="rounded-2xl border border-border-subtle bg-surface p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-                <div className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Sold</div>
-                <div className="mt-2.5 font-syne text-4xl font-extrabold tracking-tight text-text-primary">{soldListingsCount}</div>
-                <div className="mt-1 text-xs font-medium text-text-secondary">Listings closed successfully</div>
+              <div
+                style={{
+                  borderRadius: 14,
+                  background: '#f5f5f7',
+                  border: '1px solid #e0e0e0',
+                  padding: 20,
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a' }}>Sold</div>
+                <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 40, fontWeight: 600, color: '#1d1d1f', marginTop: 8, lineHeight: 1 }}>{soldListingsCount}</div>
+                <div style={{ fontSize: 13, color: '#7a7a7a', marginTop: 4 }}>Listings closed</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Streamlined Search Bar and Category Navigation */}
-        <section className="rounded-3xl border border-border-subtle bg-surface p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative flex-1 max-w-xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary/70" />
+        {/* ── Search + filter tile (parchment) ──────────────────────── */}
+        <section
+          style={{
+            background: '#f5f5f7',
+            border: '1px solid #e0e0e0',
+            borderRadius: 18,
+            padding: '20px 24px',
+          }}
+        >
+          {/* Search row */}
+          <div className="flex gap-3">
+            {/* search-input spec: pill shape, 44px height, 1px rgba(0,0,0,0.08) border */}
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: '#7a7a7a' }} />
               <input
-                type="text"
+                id="marketplace-search"
+                type="search"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search campus listings by item, hostel, or seller..."
-                className="w-full rounded-2xl border border-border-subtle bg-surface-elevated pl-11 pr-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder outline-none transition-all focus:border-accent-blue focus:bg-surface focus:ring-2 focus:ring-accent-blue/20"
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search campus listings…"
+                aria-label="Search marketplace listings"
+                style={{
+                  width: '100%',
+                  height: 44,
+                  borderRadius: 9999,
+                  border: '1px solid rgba(0,0,0,0.08)',
+                  background: '#ffffff',
+                  fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
+                  fontSize: 17,
+                  letterSpacing: '-0.374px',
+                  color: '#1d1d1f',
+                  paddingLeft: 44,
+                  paddingRight: 16,
+                  outline: 'none',
+                }}
+                onFocus={(e) => { (e.target as HTMLInputElement).style.border = '1px solid #0066cc'; }}
+                onBlur={(e) => { (e.target as HTMLInputElement).style.border = '1px solid rgba(0,0,0,0.08)'; }}
               />
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="flex items-center gap-2 text-xs font-medium text-text-secondary">
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>Filter:</span>
-              </div>
-              <select
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-                className="rounded-xl border border-border-subtle bg-surface px-3.5 py-2.5 text-xs font-semibold text-text-primary outline-none transition-colors hover:bg-surface-elevated"
+            {/* Filter button — button-dark-utility spec */}
+            <div className="relative" ref={filterRef}>
+              <button
+                type="button"
+                id="filter-btn"
+                onClick={() => setShowFilterPanel((v) => !v)}
+                aria-expanded={showFilterPanel}
+                aria-controls="filter-panel"
+                className="flex h-11 items-center gap-2 transition-transform active:scale-95"
+                style={{
+                  padding: '8px 15px',
+                  borderRadius: 8,
+                  background: hasActiveFilters ? '#0066cc' : '#1d1d1f',
+                  color: '#ffffff',
+                  fontSize: 14,
+                  fontWeight: 400,
+                  letterSpacing: '-0.224px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
               >
-                <option value="all">All categories</option>
-                {MARKETPLACE_CATEGORIES.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {hasActiveFilters ? 'Filtered' : 'Filter'}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+              <div id="filter-panel">
+                <FilterPanel
+                  open={showFilterPanel}
+                  filters={filters}
+                  onChange={(key, value) => setFilters((f) => ({ ...f, [key]: value }))}
+                  onReset={() => setFilters({ minPrice: '', maxPrice: '', condition: '', sort: 'newest' })}
+                  onClose={() => setShowFilterPanel(false)}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-1 border-t border-border-subtle">
+          {/* Category chips */}
+          <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
             <button
               type="button"
               onClick={() => setCategory('all')}
-              className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
-                category === 'all'
-                  ? 'bg-blue-600 text-white shadow-2xs'
-                  : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
-              }`}
+              className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
+              style={{
+                background: category === 'all' ? '#0066cc' : '#ffffff',
+                color: category === 'all' ? '#ffffff' : '#333333',
+                border: category === 'all' ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
+              }}
+              aria-pressed={category === 'all'}
             >
               All
             </button>
-            {MARKETPLACE_CATEGORIES.map((item) => (
+            {MARKETPLACE_CATEGORIES.map((cat) => (
               <button
-                key={item}
+                key={cat}
                 type="button"
-                onClick={() => setCategory(item)}
-                className={`rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-150 ${
-                  category === item
-                    ? 'bg-blue-600 text-white shadow-2xs'
-                    : 'bg-surface text-text-secondary border border-border-subtle hover:bg-surface-elevated'
-                }`}
+                onClick={() => setCategory(cat === category ? 'all' : cat)}
+                className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
+                style={{
+                  background: category === cat ? '#0066cc' : '#ffffff',
+                  color: category === cat ? '#ffffff' : '#333333',
+                  border: category === cat ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
+                }}
+                aria-pressed={category === cat}
               >
-                {item}
+                {cat}
               </button>
             ))}
           </div>
         </section>
 
-        {/* Elegant Component-Based Product Cards Grid */}
-        <section className="rounded-3xl border border-border-subtle bg-surface p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)]">
-          {isLoading ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, index) => (
-                <ProductSkeleton key={`marketplace-product-skeleton-${index}`} />
+        {/* ── Listings grid (white canvas) ───────────────────────────── */}
+        <section
+          style={{
+            background: '#ffffff',
+            border: '1px solid #e0e0e0',
+            borderRadius: 18,
+            padding: '24px',
+          }}
+        >
+          {/* Section header */}
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc', marginBottom: 4 }}>
+                {category === 'all' ? 'All listings' : category}
+              </div>
+              <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 21, fontWeight: 600, color: '#1d1d1f' }}>
+                {isLoading ? 'Loading…' : `${displayedListings.length} listing${displayedListings.length !== 1 ? 's' : ''}`}
+              </div>
+            </div>
+          </div>
+
+          {/* Error state */}
+          {error && !isLoading && (
+            <div
+              className="flex flex-col items-center py-12 text-center"
+              style={{ border: '1.5px dashed #fca5a5', borderRadius: 14, background: '#fff5f5' }}
+            >
+              <p style={{ fontSize: 17, color: '#dc2626' }}>{error}</p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="mt-4 rounded-full px-5 py-2.5 text-sm font-medium text-white active:scale-95"
+                style={{ background: '#dc2626' }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Loading skeletons */}
+          {isLoading && !error && (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <MarketplaceListingCardSkeleton key={`skeleton-${i}`} />
               ))}
             </div>
-          ) : featuredListings.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredListings.map((listing) => (
-                <div
-                  key={listing.id}
-                  className="group overflow-hidden rounded-2xl border border-border-subtle bg-surface p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.09)] active:scale-[0.97] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div>
-                    <Link to={`/student/buy-sell/${listing.id}`} className="block relative">
-                      <div className="aspect-[4/3] overflow-hidden rounded-xl bg-surface">
-                        <ImageWithFallback
-                          src={getListingImage(listing)}
-                          alt={listing.title}
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                      </div>
-                      <span className="absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-text-primary shadow-xs">
-                        {listing.condition}
-                      </span>
-                    </Link>
+          )}
 
-                    <div className="pt-3.5 px-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <Link to={`/student/buy-sell/${listing.id}`}>
-                          <h3 className="font-syne font-bold text-sm text-text-primary line-clamp-1 group-hover:text-blue-600 transition-colors">
-                            {listing.title}
-                          </h3>
-                        </Link>
-                        <p className="font-syne text-base font-extrabold text-accent-blue shrink-0">
-                          {formatPrice(listing.price)}
-                        </p>
-                      </div>
-                      <p className="mt-1 text-xs text-text-secondary line-clamp-1">
-                        {listing.category} · {formatMarketplaceTime(listing.created_at)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-border-subtle flex items-center justify-between gap-2 px-1">
-                    <button
-                      onClick={() => handleToggleWishlist(listing.id)}
-                      className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-transform active:scale-90 ${
-                        wishlistIds.includes(listing.id)
-                          ? 'text-accent-red'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      <Heart
-                        className="h-3.5 w-3.5"
-                        fill={wishlistIds.includes(listing.id) ? 'currentColor' : 'none'}
-                      />
-                      {wishlistIds.includes(listing.id) ? 'Saved' : 'Save'}
-                    </button>
-
-                    <div className="flex items-center gap-1.5">
-                      {profile?.id && profile.id !== listing.seller_id ? (
-                        <Link
-                          to="/student/campus-exchange/messages"
-                          className="rounded-xl border border-border-subtle bg-surface px-3 py-1.5 text-xs font-semibold text-text-primary hover:bg-surface-elevated active:scale-95 transition-all"
-                        >
-                          Chat
-                        </Link>
-                      ) : null}
-                      <Link
-                        to={`/student/buy-sell/${listing.id}`}
-                        className="rounded-xl bg-surface-elevated hover:bg-slate-200 px-3 py-1.5 text-xs font-semibold text-text-primary active:scale-95 transition-all"
-                      >
-                        Details
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
+          {/* Empty state */}
+          {!isLoading && !error && displayedListings.length === 0 && (
             <MarketplaceEmptyState
-              title="No listings matched that search"
-              description="Try a broader keyword, switch categories, or post the first item in this niche."
+              title="No listings found"
+              description={searchTerm || category !== 'all'
+                ? 'Try broadening your search or switching categories.'
+                : 'Be the first to post something on campus.'}
               action={
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!isAllowed('listing_creation')) {
-                      toast.error('Listing creation is currently restricted for your account.');
-                      return;
-                    }
-                    setShowComposer(true);
-                  }}
-                  className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-xs hover:bg-blue-700 transition-colors"
+                  onClick={openComposer}
+                  className="inline-flex items-center gap-2 rounded-full text-white transition-transform active:scale-95"
+                  style={{ padding: '11px 22px', background: '#0066cc', fontSize: 17, border: 'none', cursor: 'pointer' }}
                 >
+                  <Plus className="h-4 w-4" />
                   Post a listing
                 </button>
               }
             />
           )}
+
+          {/* Cards */}
+          {!isLoading && !error && displayedListings.length > 0 && (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {displayedListings.map((listing) => (
+                <MarketplaceListingCard
+                  key={listing.id}
+                  listing={listing}
+                  wished={wishlistIds.includes(listing.id)}
+                  onToggleWishlist={handleToggleWishlist}
+                />
+              ))}
+            </div>
+          )}
         </section>
       </div>
 
-      {/* ── Prominent Floating Action Button (FAB) ──────────────── */}
+      {/* ── FAB — button-dark-utility style, pill ─────────────────────── */}
       <button
         type="button"
-        onClick={() => {
-          if (!isAllowed('listing_creation')) {
-            toast.error('Listing creation is currently restricted for your account.');
-            return;
-          }
-          setShowComposer(true);
+        id="fab-sell-now"
+        onClick={openComposer}
+        className="fixed z-40 flex items-center gap-2 transition-all active:scale-95 md:hidden"
+        style={{
+          bottom: 'calc(5.5rem + env(safe-area-inset-bottom, 0px))',
+          right: 16,
+          padding: '12px 20px',
+          borderRadius: 9999,
+          background: '#1d1d1f',
+          color: '#ffffff',
+          fontSize: 14,
+          fontWeight: 600,
+          border: 'none',
+          cursor: 'pointer',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
         }}
-        className="group fixed right-4 md:right-8 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-8 z-40 px-6 py-3.5 rounded-full flex items-center gap-2.5 transition-all duration-300 select-none cursor-pointer bg-white text-gray-900 border border-gray-200/90 shadow-[0_12px_36px_rgba(0,0,0,0.09)] hover:shadow-[0_16px_44px_rgba(0,0,0,0.13)] active:scale-95"
         aria-label="Post a new marketplace listing"
       >
-        <div className="w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:rotate-90 transition-transform duration-300">
-          <Plus size={16} strokeWidth={2.4} />
-        </div>
-        <span className="text-gray-900 text-sm font-extrabold font-syne tracking-tight pr-0.5">
-          Post Item
-        </span>
+        <Plus className="h-4 w-4" strokeWidth={2.4} />
+        Sell
       </button>
 
+      {/* ── Create listing modal ──────────────────────────────────────── */}
       <CreateListingModal
         open={showComposer}
         draft={draft}
@@ -740,8 +1273,12 @@ export function BuySellPage() {
         previewUrls={previewUrls}
         isSubmitting={isSubmitting}
         photoProgress={photoProgress}
-        onClose={() => setShowComposer(false)}
-        onChange={(field, value) => setDraft((current) => ({ ...current, [field]: value }))}
+        errors={formErrors}
+        onClose={() => { setShowComposer(false); setFormErrors({}); }}
+        onChange={(field, value) => {
+          setDraft((cur) => ({ ...cur, [field]: value }));
+          if (formErrors[field]) setFormErrors((prev) => ({ ...prev, [field]: undefined }));
+        }}
         onFilesChange={setFiles}
         onSubmit={handleCreateListing}
       />

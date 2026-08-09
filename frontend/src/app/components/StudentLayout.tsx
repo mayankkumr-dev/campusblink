@@ -44,11 +44,11 @@ import { BottomTabBar, TabBarItem } from '../../shared/components/BottomTabBar';
 function getFeatureKeyFromPath(pathname: string) {
   if (pathname.startsWith('/student/search')) return 'search';
   if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell') || pathname.startsWith('/student/roommate') || pathname.startsWith('/student/wishlist')) return 'exchange';
-  if (pathname.startsWith('/student/messages')) return 'messages';
+
   if (pathname.startsWith('/student/canteen')) return 'canteen';
   if (pathname.startsWith('/student/print')) return 'print';
   if (pathname.startsWith('/student/community')) return 'community';
-  if (pathname.startsWith('/student/societies')) return 'societies';
+
   if (pathname.startsWith('/student/notifications')) return 'alerts';
   if (pathname.startsWith('/student/profile')) return 'profile';
   return 'home';
@@ -56,11 +56,11 @@ function getFeatureKeyFromPath(pathname: string) {
 
 function getMobileHeaderTitle(pathname: string) {
   if (pathname.startsWith('/student/community')) return 'Diaries';
-  if (pathname.startsWith('/student/messages')) return 'Messages';
+
   if (pathname.startsWith('/student/search')) return 'Search';
   if (pathname.startsWith('/student/canteen')) return 'Canteen';
   if (pathname.startsWith('/student/print')) return 'Print';
-  if (pathname.startsWith('/student/societies')) return 'Societies';
+
   if (pathname.startsWith('/student/notices')) return 'Notices';
   if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell')) return 'Marketplace';
   return null;
@@ -126,7 +126,7 @@ export const StudentLayout: React.FC = () => {
   useNotifications(profile?.id);
   useMyOrderStatus(profile?.id);
 
-  const isChatSection = location.pathname.startsWith('/student/messages');
+  const isChatSection = false;
   const currentFeatureKey = getFeatureKeyFromPath(location.pathname);
   const currentFeatureDisabled = disabledFeatures.includes(currentFeatureKey);
 
@@ -169,10 +169,10 @@ export const StudentLayout: React.FC = () => {
     { icon: Search, path: '/student/search', label: 'Search People', feature: 'search' },
     { icon: BookOpen, path: '/student/community', label: 'Diaries', feature: 'community' },
     { icon: Store, path: '/student/campus-exchange', label: 'Campus Exchange', feature: 'exchange' },
-    { icon: MessageCircle, path: '/student/messages', label: 'Messages', feature: 'messages' },
+
     { icon: UtensilsCrossed, path: '/student/canteen', label: 'Canteen', feature: 'canteen' },
     { icon: Printer, path: '/student/print', label: 'Print', feature: 'print' },
-    { icon: Building2, path: '/student/societies', label: 'Societies', feature: 'societies' },
+
     { icon: Bell, path: '/student/notifications', label: 'Alerts', feature: 'alerts', badge: unreadCount > 0 ? unreadCount : undefined },
     { icon: User, path: '/student/profile', label: 'Profile', feature: 'profile' },
   ];
@@ -181,7 +181,7 @@ export const StudentLayout: React.FC = () => {
   const fallbackNavPath = visibleNavItems[0]?.path || '/student/settings';
   const bottomNavItems: TabBarItem[] = [
     { key: 'home', icon: Home, path: '/student/home', label: 'Home', exact: true },
-    { key: 'messages', icon: MessageCircle, path: '/student/messages', label: 'Chat' },
+
     { key: 'community', icon: BookOpen, path: '/student/community', label: 'Diaries' },
     { key: 'notices', icon: Megaphone, path: '/student/notices', label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
@@ -370,7 +370,7 @@ export const StudentLayout: React.FC = () => {
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
-                      { icon: Building2, label: 'Societies & Clubs', path: '/student/societies' },
+
                     ] as { icon: any; label: string; path: string; badge?: string }[]).map((link, idx, arr) => {
                       const IconComp = link.icon;
                       return (

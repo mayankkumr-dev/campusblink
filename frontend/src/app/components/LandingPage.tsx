@@ -669,10 +669,10 @@ export const LandingPage: React.FC = () => {
                     Official updates & peer discussions.
                   </h3>
                   <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed mb-6">
-                    Stay informed with college notices, internship opportunities, society updates, lost & found boards, and anonymous campus discussions.
+                    Stay informed with college notices, internship opportunities, lost & found boards, and anonymous campus discussions.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    {['Exam Notices', 'Internships', 'Societies'].map((tag, tIndex) => (
+                    {['Exam Notices', 'Internships', 'Discussions'].map((tag, tIndex) => (
                       <span key={tIndex} className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-slate-600 text-xs font-bold">
                         {tag}
                       </span>

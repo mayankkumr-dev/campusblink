@@ -11,6 +11,7 @@ import { DiaryShareBar } from './components/DiaryShareBar';
 import { DiaryStickerPicker } from './components/DiaryStickerPicker';
 import { DiaryTextToolOverlay } from './DiaryTextToolOverlay';
 import DiaryThemeSelector, { colorThemes, imageThemes } from './DiaryThemeSelector';
+import { DiaryBottomSheet } from './components/DiaryBottomSheet';
 
 const BACKGROUNDS = [...colorThemes, ...imageThemes];
 
@@ -45,6 +46,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
   } = useDiaryEditor({ initialState, onSaveDraft });
 
   const [isBgDrawerOpen, setIsBgDrawerOpen] = React.useState(false);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = React.useState(false);
 
   // ── Text Overlay State ──────────────────────────────────────────────────────
   /** null = closed, '' = creating new, 'elementId' = editing existing */
@@ -166,7 +168,7 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
             <DiaryToolbar
               onBack={onCancel}
               onAddText={openNewTextOverlay}
-              onOpenImagePicker={() => fileInputRef.current?.click()}
+              onOpenImagePicker={() => setIsBottomSheetOpen(true)}
               onOpenStickerPicker={() => setIsStickerPickerOpen(true)}
               onOpenMoreOptions={() => setIsBgDrawerOpen(true)}
             />
@@ -226,6 +228,18 @@ export function DiaryEditor({ initialState, onPublish, onCancel, onSaveDraft }: 
           }}
         />
       )}
+
+      {/* New Bottom Sheet Modal for Backgrounds & Images */}
+      <DiaryBottomSheet
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        selectedBgId={selectedBg?.id}
+        onSelectBg={setSelectedBg}
+        onUploadImage={() => {
+          setIsBottomSheetOpen(false);
+          fileInputRef.current?.click();
+        }}
+      />
     </div>
   );
 }

@@ -241,18 +241,7 @@ export const router = createBrowserRouter([
               Component: (await import('../features/community/DiaryCreatorPage')).DiaryCreatorPage,
             }),
           },
-          {
-            path: 'societies',
-            lazy: async () => ({
-              Component: (await import('../features/community/SocietiesFeedPage')).SocietiesFeedPage,
-            }),
-          },
-          {
-            path: 'societies/:societyId',
-            lazy: async () => ({
-              Component: (await import('../features/community/SocietyProfilePage')).SocietyProfilePage,
-            }),
-          },
+
           {
             path: 'notifications',
             lazy: async () => ({
@@ -323,18 +312,7 @@ export const router = createBrowserRouter([
               Component: (await import('./components/SavedBookmarks')).SavedBookmarks,
             }),
           },
-          {
-            path: 'messages',
-            lazy: async () => ({
-              Component: (await import('./components/MessagesPage')).MessagesPage,
-            }),
-          },
-          {
-            path: 'messages/requests',
-            lazy: async () => ({
-              Component: (await import('./components/MessagesPage')).MessagesPage,
-            }),
-          },
+
           {
             path: 'notices',
             lazy: async () => ({
@@ -441,12 +419,7 @@ export const router = createBrowserRouter([
               Component: (await import('../shared/components/OrderHistory/MyOrdersPage')).MyOrdersPage,
             }),
           },
-          {
-            path: 'societies',
-            lazy: async () => ({
-              Component: (await import('../features/community/SocietiesFeedPage')).SocietiesFeedPage,
-            }),
-          },
+
           {
             path: 'payments',
             lazy: async () => ({
@@ -459,18 +432,7 @@ export const router = createBrowserRouter([
               Component: (await import('../features/profile/ProfilePage')).ProfilePage,
             }),
           },
-          {
-            path: 'messages',
-            lazy: async () => ({
-              Component: (await import('./components/MessagesPage')).MessagesPage,
-            }),
-          },
-          {
-            path: 'messages/requests',
-            lazy: async () => ({
-              Component: (await import('./components/MessagesPage')).MessagesPage,
-            }),
-          },
+
           {
             path: 'settings',
             lazy: async () => ({

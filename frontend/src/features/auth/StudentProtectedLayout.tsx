@@ -23,7 +23,7 @@ function getRoleHome(role: string, professorStatus?: string): string {
     case 'print_shop':
       return '/print-dashboard';
     default:
-      // student, society, and any unknown roles use student layout
+      // student and any unknown roles use student layout
       return '/student/home';
   }
 }
@@ -61,8 +61,7 @@ export const ProtectedRoute: React.FC = () => {
 
   const role = profile.role || 'student';
 
-  // Roles that share the student UI (students + societies)
-  const allowedRoles = ['student', 'society'];
+  const allowedRoles = ['student'];
   if (!allowedRoles.includes(role)) {
     // Redirect professors, canteen owners, print shops to their own home
     const home = getRoleHome(role, profile.professor_status);

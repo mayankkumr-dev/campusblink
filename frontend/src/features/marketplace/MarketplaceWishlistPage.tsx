@@ -9,14 +9,16 @@ import {
   MarketplaceEmptyState,
   MarketplaceListing,
   MarketplaceListingCard,
-  MarketplaceSectionCard,
+  MarketplaceListingCardSkeleton,
 } from './marketplace/marketplaceShared';
 
-function getErrorMessage(error: unknown, fallback: string) {
-  if (typeof error === 'object' && error && 'message' in error && typeof error.message === 'string') {
-    return error.message;
-  }
+const SF = 'SF Pro Text, system-ui, -apple-system, sans-serif';
+const SF_DISPLAY = 'SF Pro Display, system-ui, -apple-system, sans-serif';
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (typeof error === 'object' && error && 'message' in error && typeof (error as any).message === 'string') {
+    return (error as any).message;
+  }
   return fallback;
 }
 
@@ -29,99 +31,153 @@ export function MarketplaceWishlistPage() {
 
   useEffect(() => {
     let active = true;
-
     async function load() {
       if (!profile?.id) return;
       setIsLoading(true);
       const { data, error } = await getWishlistedListings(profile.id, { category, searchTerm });
       if (!active) return;
-
       setIsLoading(false);
-      if (error) {
-        toast.error(getErrorMessage(error, 'Could not load wishlist.'));
-        return;
-      }
-
+      if (error) { toast.error(getErrorMessage(error, 'Could not load wishlist.')); return; }
       setListings(data || []);
     }
-
     load();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [category, profile?.id, searchTerm]);
 
   async function handleToggleWishlist(listingId: string) {
     if (!profile?.id) return;
-    const currentListings = listings;
-    setListings((current) => current.filter((item) => item.id !== listingId));
-
+    const prev = listings;
+    setListings((cur) => cur.filter((l) => l.id !== listingId));
     const { error } = await toggleWishlist(profile.id, listingId);
     if (error) {
-      setListings(currentListings);
+      setListings(prev);
       toast.error(getErrorMessage(error, 'Could not update wishlist.'));
       return;
     }
-
     toast.success('Removed from wishlist.');
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,var(--bg-primary)_0%,var(--bg-secondary)_100%)] px-4 py-5 sm:px-6 lg:px-8">
-      <div className="w-full space-y-6">
-        <section className="rounded-[34px] border border-black/8 bg-[var(--text-primary)] px-6 py-8 text-white shadow-[0_28px_110px_rgba(0,0,0,0.18)] sm:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+    <div style={{ minHeight: '100vh', background: '#f5f5f7', fontFamily: SF }}>
+      <div className="mx-auto max-w-7xl space-y-4 px-4 pb-24 pt-6 sm:px-6 lg:px-8">
+        {/* ── Hero tile (dark) ───────────────────────────────────── */}
+        <section
+          style={{ background: '#272729', border: '1px solid #3a3a3c', borderRadius: 18, padding: '40px 32px' }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-md bg-[var(--bg)]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--yellow)]">
-                Your shortlist
+              <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc', marginBottom: 10 }}>
+                Saved items
               </div>
-              <h1 className="mt-4 text-4xl font-black tracking-tight">Wishlist</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/72">Track the best campus deals in one place and jump back in before someone else grabs them.</p>
+              <h1 style={{ fontFamily: SF_DISPLAY, fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 600, letterSpacing: '-0.28px', color: '#f5f5f7', margin: 0, lineHeight: 1.1 }}>
+                Your wishlist
+              </h1>
+              <p style={{ fontSize: 17, lineHeight: 1.47, color: '#acacac', marginTop: 10, maxWidth: 440 }}>
+                Items you've saved to revisit before someone else grabs them.
+              </p>
+              <Link
+                to="/student/buy-sell"
+                className="mt-6 inline-flex items-center gap-2 transition-transform active:scale-95"
+                style={{ padding: '11px 22px', borderRadius: 9999, background: '#0066cc', color: '#ffffff', fontSize: 17, display: 'inline-flex' }}
+              >
+                Explore marketplace →
+              </Link>
             </div>
-            <div className="rounded-[28px] bg-[var(--bg)]/8 px-6 py-5 text-center ">
-              <Heart className="mx-auto h-6 w-6 text-[var(--yellow)]" />
-              <div className="mt-3 text-3xl font-black tracking-tight">{listings.length}</div>
-              <div className="mt-1 text-sm text-white/68">Saved listings</div>
+
+            {/* Stat */}
+            <div style={{ background: 'rgba(255,255,255,0.07)', borderRadius: 18, padding: '24px 32px', textAlign: 'center' }}>
+              <Heart className="mx-auto h-7 w-7" style={{ color: '#ef4444' }} />
+              <div style={{ fontFamily: SF_DISPLAY, fontSize: 48, fontWeight: 600, color: '#f5f5f7', marginTop: 8, lineHeight: 1 }}>
+                {isLoading ? '—' : listings.length}
+              </div>
+              <div style={{ fontSize: 13, color: '#acacac', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Saved listings
+              </div>
             </div>
           </div>
         </section>
 
-        <MarketplaceSectionCard eyebrow="Filter" title="Keep only the items you still want">
-          <div className="grid gap-4 lg:grid-cols-[1fr_240px]">
+        {/* ── Filter tile (parchment) ────────────────────────────── */}
+        <section
+          style={{ background: '#f5f5f7', border: '1px solid #e0e0e0', borderRadius: 18, padding: '20px 24px' }}
+        >
+          <div className="flex flex-wrap items-center gap-3">
             <input
+              type="search"
               value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search saved items"
-              className="w-full rounded-md border border-black/10 bg-[var(--bg-primary)] px-5 py-3 text-sm outline-none"
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search your saved items…"
+              aria-label="Search saved listings"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                height: 44,
+                borderRadius: 9999,
+                border: '1px solid rgba(0,0,0,0.08)',
+                background: '#ffffff',
+                fontFamily: SF,
+                fontSize: 17,
+                letterSpacing: '-0.374px',
+                color: '#1d1d1f',
+                padding: '0 16px',
+                outline: 'none',
+              }}
+              onFocus={(e) => { (e.target as HTMLInputElement).style.border = '1px solid #0066cc'; }}
+              onBlur={(e) => { (e.target as HTMLInputElement).style.border = '1px solid rgba(0,0,0,0.08)'; }}
             />
-            <select
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              className="rounded-md border border-black/10 bg-[var(--bg-primary)] px-5 py-3 text-sm outline-none"
-            >
-              <option value="all">All categories</option>
-              {MARKETPLACE_CATEGORIES.map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-            </select>
           </div>
-        </MarketplaceSectionCard>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+            <button
+              type="button"
+              onClick={() => setCategory('all')}
+              className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
+              style={{
+                background: category === 'all' ? '#0066cc' : '#ffffff',
+                color: category === 'all' ? '#ffffff' : '#333333',
+                border: category === 'all' ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
+              }}
+              aria-pressed={category === 'all'}
+            >
+              All
+            </button>
+            {MARKETPLACE_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat === category ? 'all' : cat)}
+                className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
+                style={{
+                  background: category === cat ? '#0066cc' : '#ffffff',
+                  color: category === cat ? '#ffffff' : '#333333',
+                  border: category === cat ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
+                }}
+                aria-pressed={category === cat}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </section>
 
-        <MarketplaceSectionCard eyebrow="Saved items" title="Your campus watchlist">
+        {/* ── Listings (white canvas) ────────────────────────────── */}
+        <section
+          style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18, padding: '24px' }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc', marginBottom: 6 }}>
+            Your saved items
+          </div>
+          <h2 style={{ fontFamily: SF_DISPLAY, fontSize: 21, fontWeight: 600, color: '#1d1d1f', marginBottom: 20 }}>
+            {isLoading ? 'Loading…' : `${listings.length} item${listings.length !== 1 ? 's' : ''} saved`}
+          </h2>
+
           {isLoading ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {new Array(6).fill(null).map((_, index) => (
-                <div key={index} className="overflow-hidden rounded-[30px] border border-black/8 bg-[var(--bg)]">
-                  <div className="aspect-square animate-pulse bg-[var(--bg-secondary)]" />
-                  <div className="space-y-3 p-5">
-                    <div className="h-5 w-28 animate-pulse rounded-md bg-[var(--bg-secondary)]" />
-                    <div className="h-4 w-full animate-pulse rounded-md bg-[var(--bg-secondary)]" />
-                  </div>
-                </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <MarketplaceListingCardSkeleton key={`sk-${i}`} />
               ))}
             </div>
-          ) : listings.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          ) : listings.length > 0 ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {listings.map((listing) => (
                 <MarketplaceListingCard
                   key={listing.id}
@@ -134,15 +190,19 @@ export function MarketplaceWishlistPage() {
           ) : (
             <MarketplaceEmptyState
               title="Nothing saved yet"
-              description="Tap the heart on any listing to keep it here and return when you're ready to chat."
+              description="Tap the heart icon on any listing to save it here and return when you're ready to buy."
               action={
-                <Link to="/student/buy-sell" className="rounded-md bg-[var(--yellow)] px-5 py-3 text-sm font-black uppercase tracking-[0.18em] text-[var(--text-primary)]">
+                <Link
+                  to="/student/buy-sell"
+                  className="inline-flex items-center gap-2 rounded-full text-white transition-transform active:scale-95"
+                  style={{ padding: '11px 22px', background: '#0066cc', fontSize: 17 }}
+                >
                   Explore marketplace
                 </Link>
               }
             />
           )}
-        </MarketplaceSectionCard>
+        </section>
       </div>
     </div>
   );

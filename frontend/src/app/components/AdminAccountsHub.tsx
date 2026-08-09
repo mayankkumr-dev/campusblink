@@ -8,14 +8,14 @@ import { AdminRolesPage } from './AdminRolesPage';
 import { AdminInvitesPage } from './AdminInvitesPage';
 import { AdminPrintShopsPage } from './AdminPrintShopsPage';
 import { AdminProfessorsPendingPage } from './AdminProfessorsPendingPage';
-import { AdminSocietiesPage } from './AdminSocietiesPage';
+
 import { AdminBatchPromotionPage } from './AdminBatchPromotionPage';
 import { Users, GraduationCap, Store, Building2, Ticket, Printer, Clock, Ban, Shield, ArrowUpCircle } from 'lucide-react';
 
 const PRIMARY_TABS = [
   { id: 'users', label: 'Users & Roles', icon: Users },
   { id: 'professors', label: 'Professors', icon: GraduationCap },
-  { id: 'societies', label: 'Societies', icon: Building2 },
+
   { id: 'canteens', label: 'Campus Shops', icon: Store },
 ] as const;
 
@@ -31,9 +31,7 @@ const SUB_TABS: Record<string, { id: string; label: string; icon?: React.Element
     { id: 'professors', label: 'All Professors', icon: GraduationCap },
     { id: 'professors_pending', label: 'Pending Approvals', icon: Clock },
   ],
-  societies: [
-    { id: 'societies', label: 'All Societies', icon: Building2 },
-  ],
+
   canteens: [
     { id: 'canteens', label: 'Canteen Shops', icon: Store },
     { id: 'print', label: 'Print Shops', icon: Printer },
@@ -120,7 +118,7 @@ export const AdminAccountsHub: React.FC = () => {
         {activeSubTab === 'users'     && <AdminUsersPage />}
         {activeSubTab === 'professors' && <AdminProfessorsPage />}
         {activeSubTab === 'professors_pending' && <AdminProfessorsPendingPage />}
-        {activeSubTab === 'societies' && <AdminSocietiesPage />}
+
         {activeSubTab === 'canteens'  && <AdminCanteensPage />}
         {activeSubTab === 'print'     && <AdminPrintShopsPage />}
         {activeSubTab === 'roles'     && <AdminRolesPage />}

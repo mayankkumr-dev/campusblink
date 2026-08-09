@@ -24,75 +24,7 @@ router.get('/stats', authMiddleware, adminOnlyMiddleware, async (req, res) => {
 });
 
 
-// Create society
-router.post('/users/society', authMiddleware, adminOnlyMiddleware, async (req, res) => {
-  try {
-    const { email, password, name, username, college, theme_color } = req.body;
-    
-    // Check if username already exists
-    const { data: existingUser, error: uErr } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('username', username)
-      .maybeSingle();
 
-    if (existingUser) {
-      return res.status(400).json({ error: 'Username is already taken' });
-    }
-
-    // Check if email already exists in profiles
-    const { data: existingEmail, error: eErr } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (existingEmail) {
-      return res.status(400).json({ error: 'Email is already registered' });
-    }
-
-    // Create auth user using admin API (bypasses signup limits/triggers optionally, but triggers still run)
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        role: 'society',
-        name,
-        username,
-        college,
-        theme_color
-      }
-    });
-
-    if (authError) {
-      return res.status(400).json({ error: authError.message });
-    }
-    
-    // Ensure profile is fully updated with theme color
-    const { error: updateError } = await supabaseAdmin.from('profiles').update({
-       role: 'society',
-       name,
-       username,
-       college,
-       theme_color
-    }).eq('id', authData.user.id);
-
-    if (updateError) {
-      // Revert created user if it fails
-      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      return res.status(400).json({ error: `Failed to update profile config: ${updateError.message}` });
-    }
-
-    // Log action
-    await supabaseService.createAuditLog(req.user.id, 'create_society', { societyId: authData.user.id });
-
-    res.json({ message: 'Society created successfully', user: authData.user });
-  } catch (error) {
-    console.error('Error creating society:', error);
-    res.status(500).json({ error: error.message || 'Failed to create society' });
-  }
-});
 
 // Create Canteen Owner Account + Canteen Shop
 router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (req, res) => {

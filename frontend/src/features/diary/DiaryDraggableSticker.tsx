@@ -15,7 +15,9 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const pinchStartDist = useRef<number | null>(null);
+  const pinchStartAngle = useRef<number | null>(null);
   const startSize = useRef<{ width: number; height: number } | null>(null);
+  const startRotation = useRef<number>(0);
 
   const parseNumeric = (val: string | number | undefined, fallback: number) => {
     if (typeof val === 'number') return val;
@@ -46,29 +48,48 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
     return Math.sqrt(dx * dx + dy * dy);
   };
 
+  const getTouchAngle = (touches: React.TouchList) => {
+    if (touches.length < 2) return 0;
+    const dx = touches[1].clientX - touches[0].clientX;
+    const dy = touches[1].clientY - touches[0].clientY;
+    return Math.atan2(dy, dx) * (180 / Math.PI);
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsHovered(true);
     if (onFocus) onFocus();
 
     if (e.touches.length === 2) {
       pinchStartDist.current = getTouchDistance(e.touches);
+      pinchStartAngle.current = getTouchAngle(e.touches);
       startSize.current = { width: widthNum, height: heightNum };
+      startRotation.current = element.rotation || 0;
     }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 2 && pinchStartDist.current && startSize.current) {
+    if (e.touches.length === 2 && pinchStartDist.current && startSize.current && pinchStartAngle.current !== null) {
       const currentDist = getTouchDistance(e.touches);
+      const currentAngle = getTouchAngle(e.touches);
+      
       const scaleRatio = currentDist / pinchStartDist.current;
       const newWidth = Math.max(40, Math.min(400, Math.round(startSize.current.width * scaleRatio)));
       const newHeight = Math.max(40, Math.min(400, Math.round(startSize.current.height * scaleRatio)));
-      onChange({ width: newWidth, height: newHeight });
+      
+      let deltaAngle = currentAngle - pinchStartAngle.current;
+      // Handle the wraparound at -180/180
+      if (deltaAngle > 180) deltaAngle -= 360;
+      if (deltaAngle < -180) deltaAngle += 360;
+      const newRotation = startRotation.current + deltaAngle;
+
+      onChange({ width: newWidth, height: newHeight, rotation: newRotation });
     }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (e.touches.length < 2) {
       pinchStartDist.current = null;
+      pinchStartAngle.current = null;
       startSize.current = null;
     }
     setTimeout(() => setIsHovered(false), 2500);
@@ -128,6 +149,10 @@ export function DiaryDraggableSticker({ element, isActive, onFocus, onChange, on
         onClick={(e) => {
           e.stopPropagation();
           if (onFocus) onFocus();
+        }}
+        style={{
+          transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none',
+          transformOrigin: 'center center'
         }}
       >
         {/* Delete Button */}

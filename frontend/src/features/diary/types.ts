@@ -29,6 +29,7 @@ export interface CanvasElement {
   width?: number | string;
   height?: number | string;
   scale?: number;
+  rotation?: number;
   fontFamily?: FontStyleOption | string;
   fontSize?: number;          // px, 14–72
   textAlign?: TextAlignOption;

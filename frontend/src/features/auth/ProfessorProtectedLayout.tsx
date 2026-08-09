@@ -33,7 +33,7 @@ export const ProfessorProtectedLayout: React.FC = () => {
       canteen_owner: '/canteen-dashboard',
       print_shop: '/print-dashboard',
       student: '/student/home',
-      society: '/student/home',
+
     };
     return <Navigate to={roleHome[profile.role] || '/student/home'} replace />;
   }

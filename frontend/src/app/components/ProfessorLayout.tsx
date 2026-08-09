@@ -13,7 +13,7 @@ import { BottomTabBar, TabBarItem } from '../../shared/components/BottomTabBar';
 
 const ProfessorNavItem = ({ to, icon: Icon, label, exact = false, onNavigate, badgeCount }: { key?: React.Key, to: string, icon: any, label: string, exact?: boolean, onNavigate: () => void, badgeCount?: number }) => {
   const location = useLocation();
-  const isChatSection = location.pathname.includes('/messages');
+  const isChatSection = false;
   const isActive = exact
     ? location.pathname === to
     : location.pathname.startsWith(to) && (to !== '/professor' || location.pathname === '/professor' || location.pathname === '/professor/home');
@@ -94,10 +94,10 @@ export const ProfessorLayout: React.FC = () => {
   const navItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
 
-    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
+
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
-    { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
+
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },
@@ -108,12 +108,12 @@ export const ProfessorLayout: React.FC = () => {
   const mobileNavItems: TabBarItem[] = [
     { key: 'home', path: '/professor/home', icon: Home, label: 'Home', exact: true },
 
-    { key: 'messages', path: '/professor/messages', icon: MessageCircle, label: 'Messages' },
+
     { key: 'notices', path: '/professor/notices', icon: Megaphone, label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
   ];
 
-  const isChatSection = location.pathname.includes('/messages');
+  const isChatSection = false;
 
   const sidebarContent = (
     <div className="w-[260px] h-full flex flex-col justify-between shrink-0">
@@ -191,10 +191,10 @@ export const ProfessorLayout: React.FC = () => {
   const mobileDrawerItems = [
     { to: '/professor/home', icon: Home, label: 'Home', exact: true },
 
-    { to: '/professor/messages', icon: MessageCircle, label: 'Messages', exact: false },
+
     { to: '/professor/canteen', icon: UtensilsCrossed, label: 'Canteen', exact: false },
     { to: '/professor/print', icon: Printer, label: 'Print Shop', exact: false },
-    { to: '/professor/societies', icon: Building2, label: 'Societies', exact: false },
+
     { to: '/professor/notices', icon: Megaphone, label: 'Notices', exact: true },
     { to: '/professor/notices/faculty', icon: Shield, label: 'Faculty Hub', exact: true },
     { to: '/professor/payments', icon: CreditCard, label: 'Payments', exact: false },

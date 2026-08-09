@@ -17,48 +17,7 @@ export const ProfessorSettingsPage: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   // Messages Privacy State
-  const [messagePrivacy, setMessagePrivacy] = useState('Your Followers');
-  const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token || '';
-      fetch('/api/messages/preferences', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.messagePrivacy) setMessagePrivacy(data.messagePrivacy);
-        })
-        .catch(console.error);
-    };
-    load();
-  }, []);
-
-  const handlePrivacyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = e.target.value;
-    setMessagePrivacy(newValue);
-    setIsUpdatingPrivacy(true);
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token || '';
-      const res = await fetch('/api/messages/preferences', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ messagePrivacy: newValue })
-      });
-      if (!res.ok) throw new Error();
-      toast.success('Privacy settings updated');
-    } catch (error) {
-      toast.error('Failed to update privacy');
-    } finally {
-      setIsUpdatingPrivacy(false);
-    }
-  };
 
   // Auto-expand 'schedule' section if navigated via CTA
   useEffect(() => {
@@ -665,47 +624,7 @@ export const ProfessorSettingsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Messages Privacy Section */}
-            <div className="border-b border-gray-100 dark:border-prof-border-subtle">
-              <button 
-                onClick={() => toggleSection('messages')}
-                className="w-full group flex items-center justify-between p-6 sm:p-8 hover:bg-gray-50 dark:hover:bg-prof-bg-surface-hover transition-colors text-left"
-              >
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-prof-accent-blue-soft-bg text-blue-500 dark:text-prof-accent-blue border border-blue-100 dark:border-prof-accent-blue/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <MessageSquare className="w-5 h-5" strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <h2 className="font-syne text-lg font-bold text-gray-900 dark:text-prof-text-primary mb-0.5">Messages</h2>
-                    <p className="text-sm text-gray-500 dark:text-prof-text-secondary font-medium">Who can send you direct messages?</p>
-                  </div>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-gray-300 dark:text-prof-text-tertiary group-hover:text-gray-500 dark:group-hover:text-prof-text-primary transition-transform flex-shrink-0 ${expandedSection === 'messages' ? 'rotate-180' : ''}`} />
-              </button>
-              
-              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${expandedSection === 'messages' ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="p-6 sm:p-8 pt-0 bg-gray-50/50 dark:bg-transparent">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-prof-bg-surface-raised border border-gray-200 dark:border-prof-border-subtle rounded-2xl p-5 shadow-sm dark:shadow-none">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-prof-text-primary">Privacy Controls</h3>
-                      <p className="text-xs text-gray-500 dark:text-prof-text-secondary mt-1">Control your inbox permissions.</p>
-                    </div>
-                    <div className="flex p-1 bg-[#FAFAFA] dark:bg-prof-bg-surface border border-gray-200 dark:border-prof-border-strong rounded-xl w-full md:w-auto self-start md:self-auto shrink-0">
-                      <select
-                        value={messagePrivacy}
-                        onChange={handlePrivacyChange}
-                        disabled={isUpdatingPrivacy}
-                        className="w-full md:w-48 bg-transparent text-gray-900 dark:text-prof-text-primary text-sm font-bold rounded-lg px-3 py-2 outline-none"
-                      >
-                        <option value="Everyone">Everyone</option>
-                        <option value="Your Followers">Your Followers</option>
-                        <option value="Nobody">Nobody</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+
 
             {/* Change Password Section */}
             <div className="border-b border-gray-100 dark:border-prof-border-subtle">
