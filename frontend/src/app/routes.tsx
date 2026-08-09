@@ -204,6 +204,42 @@ export const router = createBrowserRouter([
               Component: (await import('../features/canteen/CanteenMenuPage')).CanteenMenuPage,
             }),
           },
+          {
+            path: 'notes',
+            lazy: async () => ({
+              Component: (await import('../features/notes/StudentNotesFlow')).StudentNotesFlow,
+            }),
+          },
+          {
+            path: 'notes/:courseSlug',
+            lazy: async () => ({
+              Component: (await import('../features/notes/StudentNotesFlow')).StudentNotesFlow,
+            }),
+          },
+          {
+            path: 'notes/:courseSlug/:branchCode',
+            lazy: async () => ({
+              Component: (await import('../features/notes/StudentNotesFlow')).StudentNotesFlow,
+            }),
+          },
+          {
+            path: 'notes/:courseSlug/:branchCode/sem/:semester',
+            lazy: async () => ({
+              Component: (await import('../features/notes/StudentNotesFlow')).StudentNotesFlow,
+            }),
+          },
+          {
+            path: 'notes/offline',
+            lazy: async () => ({
+              Component: (await import('../features/notes/OfflineLibraryPage')).OfflineLibraryPage,
+            }),
+          },
+          {
+            path: 'notes/subject/:subjectId',
+            lazy: async () => ({
+              Component: (await import('../features/notes/SubjectDetailPage')).SubjectDetailPage,
+            }),
+          },
 
           {
             path: 'canteen/reorder/:orderId',
@@ -641,6 +677,24 @@ export const router = createBrowserRouter([
                 path: 'marketplace',
                 lazy: async () => ({
                   Component: (await import('./components/AdminMarketplacePage')).AdminMarketplacePage,
+                }),
+              },
+              {
+                path: 'notes',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesDashboard')).AdminNotesDashboard,
+                }),
+              },
+              {
+                path: 'notes/structure',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesStructure')).AdminNotesStructure,
+                }),
+              },
+              {
+                path: 'notes/upload',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesUploader')).AdminNotesUploader,
                 }),
               },
               {

@@ -79,7 +79,10 @@ const isStudentContentApi = ({ url }) =>
   url.href.includes('/rest/v1/print_orders') ||
   url.href.includes('/rest/v1/posts') ||
   url.href.includes('/rest/v1/notices') ||
-  url.href.includes('/rest/v1/announcements');
+  url.href.includes('/rest/v1/announcements') ||
+  url.href.includes('/api/notes/courses') ||
+  url.href.includes('/api/notes/branches') ||
+  url.href.includes('/api/notes/subjects');
 
 registerRoute(
   ({ url, request }) => isStudentContentApi({ url }) && request.method === 'GET',

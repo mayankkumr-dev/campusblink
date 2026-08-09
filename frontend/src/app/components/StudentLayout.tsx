@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import {
   Bell,
   BookOpen,
+  Library,
   Building2,
   CalendarCheck,
   Home,
@@ -47,6 +48,7 @@ function getFeatureKeyFromPath(pathname: string) {
 
   if (pathname.startsWith('/student/canteen')) return 'canteen';
   if (pathname.startsWith('/student/print')) return 'print';
+  if (pathname.startsWith('/student/notes')) return 'notes';
   if (pathname.startsWith('/student/community')) return 'community';
 
   if (pathname.startsWith('/student/notifications')) return 'alerts';
@@ -60,6 +62,7 @@ function getMobileHeaderTitle(pathname: string) {
   if (pathname.startsWith('/student/search')) return 'Search';
   if (pathname.startsWith('/student/canteen')) return 'Canteen';
   if (pathname.startsWith('/student/print')) return 'Print';
+  if (pathname.startsWith('/student/notes')) return 'Notes';
 
   if (pathname.startsWith('/student/notices')) return 'Notices';
   if (pathname.startsWith('/student/campus-exchange') || pathname.startsWith('/student/marketplace') || pathname.startsWith('/student/buy-sell') || pathname.startsWith('/student/buy-and-sell')) return 'Marketplace';
@@ -172,6 +175,7 @@ export const StudentLayout: React.FC = () => {
 
     { icon: UtensilsCrossed, path: '/student/canteen', label: 'Canteen', feature: 'canteen' },
     { icon: Printer, path: '/student/print', label: 'Print', feature: 'print' },
+    { icon: Library, path: '/student/notes', label: 'Notes', feature: 'notes' },
 
     { icon: Bell, path: '/student/notifications', label: 'Alerts', feature: 'alerts', badge: unreadCount > 0 ? unreadCount : undefined },
     { icon: User, path: '/student/profile', label: 'Profile', feature: 'profile' },
@@ -181,7 +185,7 @@ export const StudentLayout: React.FC = () => {
   const fallbackNavPath = visibleNavItems[0]?.path || '/student/settings';
   const bottomNavItems: TabBarItem[] = [
     { key: 'home', icon: Home, path: '/student/home', label: 'Home', exact: true },
-
+    { key: 'notes', icon: Library, path: '/student/notes', label: 'Notes' },
     { key: 'community', icon: BookOpen, path: '/student/community', label: 'Diaries' },
     { key: 'notices', icon: Megaphone, path: '/student/notices', label: 'Notices' },
     { key: 'menu', icon: Menu, label: 'Menu', isMenu: true, hasDot: unreadCount > 0 },
@@ -370,7 +374,7 @@ export const StudentLayout: React.FC = () => {
                       { icon: Store, label: 'Campus Exchange Market', path: '/student/campus-exchange' },
                       { icon: UtensilsCrossed, label: 'Canteen Food Orders', path: '/student/canteen' },
                       { icon: Printer, label: 'Print Shop Requests', path: '/student/print' },
-
+                      { icon: Library, label: 'Study Notes & Materials', path: '/student/notes' },
                     ] as { icon: any; label: string; path: string; badge?: string }[]).map((link, idx, arr) => {
                       const IconComp = link.icon;
                       return (

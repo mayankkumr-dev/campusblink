@@ -137,6 +137,9 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/canteen/menu': 'Canteen Menu Catalog',
   '/admin/print': 'Print Shops',
   '/admin/print/orders': 'Print Orders',
+  '/admin/notes': 'Notes & Materials Dashboard',
+  '/admin/notes/structure': 'Manage Course Structure',
+  '/admin/notes/upload': 'Upload Materials',
 };
 
 function getPageTitle(pathname: string): string {
@@ -253,6 +256,12 @@ export const AdminLayout: React.FC = () => {
           <SidebarNavLink to="/admin/flagged-diaries" icon={Flag} label="Flagged Diaries" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/notice-admins" icon={UserCheck} label="Notice Admin Access" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/notices" icon={Megaphone} label="Compose Notice" onNavigate={closeMenu} />
+        </AccordionCategory>
+
+        <AccordionCategory label="Education & Notes">
+          <SidebarNavLink to="/admin/notes" exact icon={GraduationCap} label="Notes Dashboard" onNavigate={closeMenu} />
+          <SidebarNavLink to="/admin/notes/structure" icon={LayoutTemplate} label="Manage Structure" onNavigate={closeMenu} />
+          <SidebarNavLink to="/admin/notes/upload" icon={Download} label="Upload Materials" onNavigate={closeMenu} />
         </AccordionCategory>
 
         <AccordionCategory label="Email Center">

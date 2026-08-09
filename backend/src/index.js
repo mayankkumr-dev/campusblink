@@ -23,6 +23,8 @@ const uploadRoutes = require('./routes/uploads');
 const pushRoutes = require('./routes/push');
 const usersRoutes = require('./routes/users');
 const feedRoutes = require('./routes/feed');
+const notesRoutes = require('./routes/notes');
+const adminNotesRoutes = require('./routes/adminNotes');
 
 
 const diaryRoutes = require('./routes/diary');
@@ -128,6 +130,8 @@ app.use('/api/print', generalLimiter, printRoutes);
 app.use('/api/uploads', generalLimiter, uploadRoutes);
 app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
+app.use('/api/notes', generalLimiter, notesRoutes);
+app.use('/api/admin/notes', adminNotesRoutes);
 
 
 app.use('/api/diary', generalLimiter, diaryRoutes);
