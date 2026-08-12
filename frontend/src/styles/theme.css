@@ -305,6 +305,12 @@
   background-color: var(--bg-surface-elevated, #202226) !important;
 }
 
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-gray-100:hover {
+  background-color: var(--bg-surface-elevated, #202226) !important;
+}
+
 /* Universal Hairline Border Overrides */
 .dark .border-gray-100,
 .dark .border-gray-200,

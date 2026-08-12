@@ -160,12 +160,12 @@ const pageCss = `
   .filter-row::-webkit-scrollbar { display: none; }
   
   .chip {
-      background-color: #ffffff;
-      color: #1d1d1f;
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
       font-size: 14px;
       padding: 12px 20px;
       border-radius: 9999px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--border-subtle);
       white-space: nowrap;
       cursor: pointer;
       font-family: "SF Pro Text", system-ui, sans-serif;
@@ -185,9 +185,9 @@ const pageCss = `
       flex: 1;
   }
   .listing-card {
-      background-color: #ffffff;
+      background-color: var(--bg-surface);
       border-radius: 18px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--border-subtle);
       padding: 24px;
       display: flex;
       gap: 20px;
@@ -225,7 +225,7 @@ const pageCss = `
   .product-title {
       font-size: 17px;
       font-weight: 600;
-      color: #1d1d1f;
+      color: var(--text-primary);
       font-family: "SF Pro Text", system-ui, sans-serif;
       margin: 0;
       display: -webkit-box;
@@ -236,7 +236,7 @@ const pageCss = `
   .product-price {
       font-size: 17px;
       font-weight: 400;
-      color: #1d1d1f;
+      color: var(--text-primary);
       font-family: "SF Pro Text", system-ui, sans-serif;
   }
   .product-meta {
@@ -568,22 +568,21 @@ function BottomSheet({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-md pb-8"
-            style={{ background: '#ffffff', borderRadius: '24px 24px 0 0' }}
+            className="w-full max-w-md pb-8 bg-white dark:bg-[#171A21] rounded-t-[24px] border-t border-gray-200 dark:border-[#262A33]"
           >
             <div className="flex justify-center pt-3 pb-2">
-              <div style={{ width: 36, height: 5, borderRadius: 2.5, background: '#d2d2d7' }} />
+              <div className="w-9 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700" />
             </div>
             <div className="px-6 py-4">
                <div className="flex flex-col">
-                 <button onClick={() => { onClose(); onView(); }} style={{ padding: '16px 0', borderBottom: '1px solid #e0e0e0', textAlign: 'left', fontFamily: SF, fontSize: 17, color: '#1d1d1f', background: 'none', border: 'none', cursor: 'pointer' }}>View Listing</button>
-                 <button onClick={() => { onClose(); onEdit(); }} style={{ padding: '16px 0', borderBottom: '1px solid #e0e0e0', textAlign: 'left', fontFamily: SF, fontSize: 17, color: '#1d1d1f', background: 'none', border: 'none', cursor: 'pointer' }}>Edit Listing</button>
+                 <button onClick={() => { onClose(); onView(); }} className="w-full py-4 text-left font-sans text-[17px] font-medium text-gray-900 dark:text-[#F4F5F7] border-b border-gray-100 dark:border-[#262A33] transition-colors">View Listing</button>
+                 <button onClick={() => { onClose(); onEdit(); }} className="w-full py-4 text-left font-sans text-[17px] font-medium text-gray-900 dark:text-[#F4F5F7] border-b border-gray-100 dark:border-[#262A33] transition-colors">Edit Listing</button>
                  {!listing.is_sold ? (
-                   <button onClick={() => { onClose(); onMarkSold(); }} style={{ padding: '16px 0', borderBottom: '1px solid #e0e0e0', textAlign: 'left', fontFamily: SF, fontSize: 17, color: '#1d1d1f', background: 'none', border: 'none', cursor: 'pointer' }}>Mark as Sold</button>
+                   <button onClick={() => { onClose(); onMarkSold(); }} className="w-full py-4 text-left font-sans text-[17px] font-medium text-gray-900 dark:text-[#F4F5F7] border-b border-gray-100 dark:border-[#262A33] transition-colors">Mark as Sold</button>
                  ) : (
-                   <button onClick={() => { onClose(); onMarkAvailable(); }} style={{ padding: '16px 0', borderBottom: '1px solid #e0e0e0', textAlign: 'left', fontFamily: SF, fontSize: 17, color: '#1d1d1f', background: 'none', border: 'none', cursor: 'pointer' }}>Relist Item</button>
+                   <button onClick={() => { onClose(); onMarkAvailable(); }} className="w-full py-4 text-left font-sans text-[17px] font-medium text-gray-900 dark:text-[#F4F5F7] border-b border-gray-100 dark:border-[#262A33] transition-colors">Relist Item</button>
                  )}
-                 <button onClick={() => { onClose(); onDelete(); }} style={{ padding: '16px 0', textAlign: 'left', fontFamily: SF, fontSize: 17, color: '#1d1d1f', background: 'none', border: 'none', cursor: 'pointer' }}>Delete</button>
+                 <button onClick={() => { onClose(); onDelete(); }} className="w-full py-4 text-left font-sans text-[17px] font-medium text-rose-600 dark:text-rose-400 transition-colors">Delete</button>
                </div>
             </div>
           </motion.div>
@@ -664,12 +663,7 @@ export function MarketplaceManagePage() {
   return (
     <>
       <style>{pageCss}</style>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        background: '#f5f5f7',
-        minHeight: '100vh',
-      }}>
+      <div className="min-h-screen bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7] font-sans flex justify-center">
         <div className="app-canvas">
           
           {/* Edge-to-Edge Dark Hero */}

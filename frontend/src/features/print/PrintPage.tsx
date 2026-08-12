@@ -409,22 +409,22 @@ export const PrintPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+    <div className="min-h-full font-sans pb-32 bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7]">
       {/* Sub-Nav Frosted */}
-      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
-        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-white/80 dark:bg-[#171A21]/80 backdrop-blur-xl border-b border-gray-200 dark:border-[#262A33] flex items-center justify-between mb-8">
+        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] dark:text-[#F4F5F7] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
           Print
         </h2>
         <div className="flex items-center gap-4">
-          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f] dark:text-[#F4F5F7]">
             Upload
           </div>
-          <Link to="/student/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+          <Link to="/student/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] dark:text-[#9BA1AC] hover:text-[#0066cc] dark:hover:text-[#60A5FA] transition-colors">
             History
           </Link>
           <button 
             onClick={() => navigate('/student/print/orders')}
-            className="px-[15px] py-[8px] bg-[#f5f5f7] border border-[#e0e0e0] text-[#1d1d1f] text-[14px] font-normal tracking-[-0.224px] rounded-[8px] hover:scale-95 transition-transform"
+            className="px-[15px] py-[8px] bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[#1d1d1f] dark:text-[#F4F5F7] text-[14px] font-normal tracking-[-0.224px] rounded-[8px] hover:scale-95 transition-transform"
           >
             My Orders
           </button>
@@ -435,7 +435,7 @@ export const PrintPage: React.FC = () => {
         
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-          <h1 className="hidden md:block text-[40px] font-semibold tracking-tight text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">Printout preview</h1>
+          <h1 className="hidden md:block text-[40px] font-semibold tracking-tight text-[#1d1d1f] dark:text-[#F4F5F7] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">Printout preview</h1>
           
           <div className="flex items-center gap-4">
              {/* Shop Selector */}

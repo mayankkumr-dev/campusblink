@@ -847,24 +847,24 @@ export const StudentDashboard: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.15 }}
-        className="bg-white border border-gray-100 rounded-3xl p-4 md:p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-4"
+        className="bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-3xl p-4 md:p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] space-y-4"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-bold text-base sm:text-lg text-gray-900" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+            <h2 className="font-bold text-base sm:text-lg text-gray-900 dark:text-[#F4F5F7]" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
               Recent Activity
             </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
+            <p className="text-xs text-gray-400 dark:text-[#9BA1AC] mt-0.5">
               Today & this week across your campus interactions
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-50 text-[11px] font-semibold text-gray-500 border border-gray-100">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-50 dark:bg-gray-800 text-[11px] font-semibold text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700">
               <Activity className="w-3 h-3 text-gray-400" /> Live
             </span>
             <Link
               to="/student/notifications"
-              className="text-xs font-semibold text-[#0066cc] min-h-[44px] flex items-center"
+              className="text-xs font-semibold text-[#0066cc] dark:text-[#60A5FA] min-h-[44px] flex items-center"
             >
               View all
             </Link>
@@ -878,42 +878,42 @@ export const StudentDashboard: React.FC = () => {
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="flex items-center justify-between py-3 px-2">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-gray-100 animate-pulse" />
+                    <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
                     <div className="space-y-1.5">
-                      <div className="w-36 h-4 bg-gray-100 rounded animate-pulse" />
-                      <div className="w-24 h-3 bg-gray-100 rounded animate-pulse" />
+                      <div className="w-36 h-4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                      <div className="w-24 h-3 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
                     </div>
                   </div>
-                  <div className="w-16 h-6 bg-gray-100 rounded-full animate-pulse" />
+                  <div className="w-16 h-6 bg-gray-100 dark:bg-gray-800 rounded-full animate-pulse" />
                 </div>
               ))}
             </div>
           ) : recentActivity.length === 0 ? (
             <div className="py-10 text-center space-y-2.5">
-              <div className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto text-gray-400">
+              <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center mx-auto text-gray-400">
                 <Activity className="w-5 h-5" />
               </div>
-              <p className="font-bold text-sm text-gray-900" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif' }}>No recent activity yet</p>
-              <p className="text-xs text-gray-400 max-w-sm mx-auto">
+              <p className="font-bold text-sm text-gray-900 dark:text-[#F4F5F7]" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif' }}>No recent activity yet</p>
+              <p className="text-xs text-gray-400 dark:text-[#9BA1AC] max-w-sm mx-auto">
                 Your campus activity including community posts, orders, and print requests will appear right here as a clean scannable list.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-[#262A33]">
               {recentActivity.map((act, index) => (
                 <div
                   key={index}
-                  className="py-3.5 px-2 first:pt-1 last:pb-1 flex items-center justify-between gap-4 hover:bg-gray-50 rounded-xl transition-colors"
+                  className="py-3.5 px-2 first:pt-1 last:pb-1 flex items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/60 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${getActivityIconBg(act.type)}`}>
                       {getActivityIcon(act.type)}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-sm text-gray-900 truncate" style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', letterSpacing: '-0.224px' }}>
+                      <h4 className="font-bold text-sm text-gray-900 dark:text-[#F4F5F7] truncate" style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', letterSpacing: '-0.224px' }}>
                         {act.title}
                       </h4>
-                      <div className="flex items-center gap-2 text-xs text-gray-400 truncate mt-0.5">
+                      <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-[#9BA1AC] truncate mt-0.5">
                         <span className="truncate">{act.subtitle}</span>
                         <span>•</span>
                         <span className="shrink-0">{act.time}</span>
@@ -938,37 +938,37 @@ export const StudentDashboard: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.2 }}
-        className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all"
+        className="bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-3xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all"
       >
         {/* Header Toggle Row */}
         <div
           onClick={() => setIsRewardsExpanded(!isRewardsExpanded)}
-          className="p-5 md:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors select-none min-h-[56px]"
+          className="p-5 md:p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors select-none min-h-[56px]"
         >
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-700">
+            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center text-gray-700 dark:text-gray-300">
               <Gift className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-gray-900" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+                <h3 className="font-bold text-base text-gray-900 dark:text-[#F4F5F7]" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                   Rewards & Invites
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-100">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700">
                   {availableCodes.length} Invites • {repBalance} pts
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-gray-400 dark:text-[#9BA1AC] mt-0.5">
                 Manage your campus reputation score and invite peers
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-gray-400 hidden sm:inline">
+            <span className="text-xs font-semibold text-gray-400 dark:text-[#9BA1AC] hidden sm:inline">
               {isRewardsExpanded ? 'Collapse' : 'See details'}
             </span>
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-300">
               {isRewardsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </div>
@@ -982,17 +982,17 @@ export const StudentDashboard: React.FC = () => {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="border-t border-gray-100 overflow-hidden"
+              className="border-t border-gray-100 dark:border-[#262A33] overflow-hidden"
             >
-              <div className="p-5 md:p-6 space-y-6 bg-gray-50">
+              <div className="p-5 md:p-6 space-y-6 bg-gray-50 dark:bg-[#101113]">
                 {/* Secondary Section Switcher Tabs */}
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-4">
+                <div className="flex items-center gap-2 border-b border-gray-100 dark:border-[#262A33] pb-4">
                   <button
                     onClick={() => setSecondaryTab('rewards')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px] active:scale-95 ${
                       secondaryTab === 'rewards'
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-white text-gray-500 border border-gray-100'
+                        ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                        : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700'
                     }`}
                   >
                     <Award className="w-4 h-4" />
@@ -1002,8 +1002,8 @@ export const StudentDashboard: React.FC = () => {
                     onClick={() => setSecondaryTab('invites')}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 min-h-[44px] active:scale-95 ${
                       secondaryTab === 'invites'
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-white text-gray-500 border border-gray-100'
+                        ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
+                        : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700'
                     }`}
                   >
                     <Share2 className="w-4 h-4" />
@@ -1014,37 +1014,37 @@ export const StudentDashboard: React.FC = () => {
                 {/* Tab 1: Reputation Points Breakdown */}
                 {secondaryTab === 'rewards' && (
                   <div className="space-y-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-gray-100 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-[#9BA1AC]">
                           Current Balance
                         </span>
                         <div className="flex items-baseline gap-2">
-                          <span className="font-extrabold text-3xl text-gray-900" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+                          <span className="font-extrabold text-3xl text-gray-900 dark:text-[#F4F5F7]" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                             {repBalance}
                           </span>
-                          <span className="text-sm text-gray-400 font-medium">
+                          <span className="text-sm text-gray-400 dark:text-[#9BA1AC] font-medium">
                             Campus Credits
                           </span>
                         </div>
                       </div>
 
                       <div className="sm:text-right">
-                        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50">
                           {repToTrusted > 0 ? `${repToTrusted} pts to Trusted Member` : '✓ Trusted Campus Member'}
                         </span>
                       </div>
                     </div>
 
                     {/* Tier Progress Bar */}
-                    <div className="space-y-2 bg-white border border-gray-100 rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                      <div className="flex items-center justify-between text-xs font-bold text-gray-700">
+                    <div className="space-y-2 bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                      <div className="flex items-center justify-between text-xs font-bold text-gray-700 dark:text-gray-300">
                         <span>Tier Progress</span>
                         <span>{repProgressPct}% to next milestone</span>
                       </div>
-                      <div className="h-2.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gray-900 rounded-full transition-all duration-700"
+                          className="h-full bg-gray-900 dark:bg-blue-500 rounded-full transition-all duration-700"
                           style={{ width: `${repProgressPct}%` }}
                         />
                       </div>
@@ -1059,14 +1059,14 @@ export const StudentDashboard: React.FC = () => {
                 {secondaryTab === 'invites' && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-600 font-medium">
-                        You have helped <strong className="text-gray-900">{usedCodesCount} friends</strong> join Campus Blink.
+                      <p className="text-xs text-gray-600 dark:text-[#9BA1AC] font-medium">
+                        You have helped <strong className="text-gray-900 dark:text-[#F4F5F7]">{usedCodesCount} friends</strong> join Campus Blink.
                       </p>
                       {canRefreshNow && (
                         <button
                           onClick={handleRefreshInvites}
                           disabled={isRefreshingInvites}
-                          className="px-3 py-1.5 rounded-xl bg-gray-900 text-white font-semibold text-xs active:scale-95 transition-all shrink-0 min-h-[44px]"
+                          className="px-3 py-1.5 rounded-xl bg-gray-900 dark:bg-blue-600 text-white font-semibold text-xs active:scale-95 transition-all shrink-0 min-h-[44px]"
                         >
                           {isRefreshingInvites ? 'Generating...' : 'Generate New Codes'}
                         </button>
@@ -1080,15 +1080,15 @@ export const StudentDashboard: React.FC = () => {
                         {availableCodes.map((item: any) => (
                           <div
                             key={item.id}
-                            className="bg-white border border-gray-100 rounded-2xl p-4 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                            className="bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-2xl p-4 space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-mono font-bold text-sm tracking-wider text-gray-900">
+                              <span className="font-mono font-bold text-sm tracking-wider text-gray-900 dark:text-[#F4F5F7]">
                                 {item.code}
                               </span>
                               <button
                                 onClick={() => handleCopyInvite(item.code)}
-                                className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 active:scale-95 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+                                className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-400 active:scale-95 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
                                 title="Copy code"
                               >
                                 {copiedCode === item.code ? (
@@ -1099,13 +1099,13 @@ export const StudentDashboard: React.FC = () => {
                               </button>
                             </div>
 
-                            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                              <span className="text-[11px] font-medium text-gray-400">
+                            <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-[#262A33]">
+                              <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
                                 Ready to use
                               </span>
                               <button
                                 onClick={() => handleShareInvite(item.code)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 text-gray-700 font-semibold text-xs active:scale-95 transition-all min-h-[44px]"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold text-xs active:scale-95 transition-all min-h-[44px]"
                               >
                                 <Share2 className="w-3.5 h-3.5" />
                                 Share
@@ -1115,16 +1115,16 @@ export const StudentDashboard: React.FC = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="bg-white border border-gray-100 rounded-2xl p-6 text-center space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                        <p className="text-xs text-gray-400 font-medium">
+                      <div className="bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-2xl p-6 text-center space-y-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                        <p className="text-xs text-gray-400 dark:text-[#9BA1AC] font-medium">
                           No unused invite codes right now.
                         </p>
                         {cooldownRemaining > 0 ? (
                           <div className="space-y-1">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">
                               New invites available in
                             </p>
-                            <p className="font-mono font-bold text-sm text-gray-900">
+                            <p className="font-mono font-bold text-sm text-gray-900 dark:text-[#F4F5F7]">
                               {cooldownHours}:{cooldownMinutes}:{cooldownSeconds}
                             </p>
                           </div>
