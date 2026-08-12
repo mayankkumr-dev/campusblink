@@ -112,10 +112,6 @@ export const StudentDashboard: React.FC = () => {
   const [secondaryTab, setSecondaryTab] = useState<'rewards' | 'invites'>('rewards');
   const [isRewardsExpanded, setIsRewardsExpanded] = useState(false);
 
-  // Pull to refresh touch tracking
-  const [touchStartY, setTouchStartY] = useState<number | null>(null);
-  const [pullDistance, setPullDistance] = useState<number>(0);
-
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
@@ -292,51 +288,10 @@ export const StudentDashboard: React.FC = () => {
     return 'bg-gray-100 text-gray-600 border border-gray-200';
   };
 
-  // Pull-to-refresh handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
-      setTouchStartY(e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartY !== null && window.scrollY === 0) {
-      const currentY = e.touches[0].clientY;
-      const diff = Math.max(0, currentY - touchStartY);
-      if (diff > 0) {
-        setPullDistance(Math.min(diff * 0.4, 80));
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (pullDistance > 50 && !isRefreshingAll) {
-      handleRefreshAll();
-    }
-    setTouchStartY(null);
-    setPullDistance(0);
-  };
-
   return (
     <div
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 bg-gray-50 min-h-full font-sans pb-24 md:pb-12 text-gray-900"
     >
-      {/* Pull-to-refresh Indicator */}
-      {pullDistance > 0 && (
-        <div
-          style={{ height: `${pullDistance}px`, opacity: pullDistance / 60 }}
-          className="flex items-center justify-center text-slate-400 transition-all duration-150 overflow-hidden"
-        >
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
-            <RefreshCw className={`w-4 h-4 ${pullDistance > 50 ? 'animate-spin text-gray-800' : ''}`} />
-            <span>{pullDistance > 50 ? 'Release to refresh' : 'Pull down to refresh'}</span>
-          </div>
-        </div>
-      )}
-
       {/* Offline Status Banner */}
       {isOffline && (
         <motion.div
@@ -424,33 +379,6 @@ export const StudentDashboard: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* 2. The One or Two Things Needing Action Today (Quick Actions Layer) */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.05 }}
-        className="grid grid-cols-2 sm:flex sm:items-center gap-3"
-      >
-        <button
-          onClick={() => navigate('/student/buy-sell?compose=1')}
-          className="flex-1 min-h-[46px] px-4 py-3 rounded-2xl bg-gray-900 text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] active:scale-95 transition-all group select-none"
-        >
-          <PlusCircle className="w-4 h-4 text-gray-400 group-hover:scale-110 transition-transform" />
-          <span>Sell an Item</span>
-          <ChevronRight className="w-4 h-4 opacity-60 ml-auto sm:ml-1" />
-        </button>
-
-        <button
-          onClick={() => navigate('/student/community?compose=1&type=notice')}
-          className="flex-1 min-h-[46px] px-4 py-3 rounded-2xl bg-white border border-gray-100 text-gray-900 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] active:scale-95 transition-all group select-none"
-        >
-          <MessageSquare className="w-4 h-4 text-gray-400" />
-          <span>Post a Notice</span>
-          <ChevronRight className="w-4 h-4 text-gray-400 ml-auto sm:ml-1" />
-        </button>
-      </motion.div>
-
-      
       <div className="hidden md:block w-full">
         {/* Today's Schedule & Classes Section (Pure Premium Light-Mode Theme) */}
       <section className="mb-14">

@@ -205,6 +205,12 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'canteen/orders',
+            lazy: async () => ({
+              Component: (await import('../features/canteen/StudentCanteenHistoryPage')).StudentCanteenHistoryPage,
+            }),
+          },
+          {
             path: 'notes',
             lazy: async () => ({
               Component: (await import('../features/notes/StudentNotesFlow')).StudentNotesFlow,
@@ -257,6 +263,12 @@ export const router = createBrowserRouter([
             path: 'print',
             lazy: async () => ({
               Component: (await import('../features/print/PrintPage')).PrintPage,
+            }),
+          },
+          {
+            path: 'print/orders',
+            lazy: async () => ({
+              Component: (await import('../features/print/StudentPrintHistoryPage')).StudentPrintHistoryPage,
             }),
           },
           {
@@ -405,10 +417,50 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => ({
-              Component: (await import('../features/canteen/CanteenDashboardPage')).CanteenDashboardPage,
-            }),
+            Component: () => <Navigate to="/canteen-dashboard/live/incoming" replace />,
           },
+          {
+            path: '',
+            lazy: async () => ({
+              Component: (await import('./components/AdminCanteenLayout')).AdminCanteenLayout,
+            }),
+            children: [
+              {
+                path: 'live',
+                lazy: async () => ({ Component: (await import('./components/AdminCanteenLiveLayout')).AdminCanteenLiveLayout }),
+                children: [
+                  {
+                    index: true,
+                    Component: () => <Navigate to="/canteen-dashboard/live/incoming" replace />,
+                  },
+                  {
+                    path: 'incoming',
+                    lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenLiveIncomingPage')).AdminCanteenLiveIncomingPage }),
+                  },
+                  {
+                    path: 'preparing',
+                    lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenLivePreparingPage')).AdminCanteenLivePreparingPage }),
+                  },
+                  {
+                    path: 'ready',
+                    lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenLiveReadyPage')).AdminCanteenLiveReadyPage }),
+                  }
+                ]
+              },
+              {
+                path: 'history',
+                lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenHistoryPage')).AdminCanteenHistoryPage }),
+              },
+              {
+                path: 'menu',
+                lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenMenuPage')).AdminCanteenMenuPage }),
+              },
+              {
+                path: 'settings',
+                lazy: async () => ({ Component: (await import('../features/canteen/AdminCanteenSettingsPage')).AdminCanteenSettingsPage }),
+              },
+            ]
+          }
         ],
       },
       {
@@ -419,10 +471,42 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => ({
-              Component: (await import('../features/print/PrintDashboardPage')).PrintDashboardPage,
-            }),
+            Component: () => <Navigate to="/print-dashboard/live/new" replace />,
           },
+          {
+            path: '',
+            lazy: async () => ({
+              Component: (await import('./components/AdminPrintLayout')).AdminPrintLayout,
+            }),
+            children: [
+              {
+                path: 'live',
+                lazy: async () => ({ Component: (await import('./components/AdminPrintLiveLayout')).AdminPrintLiveLayout }),
+                children: [
+                  {
+                    index: true,
+                    Component: () => <Navigate to="/print-dashboard/live/new" replace />,
+                  },
+                  {
+                    path: 'new',
+                    lazy: async () => ({ Component: (await import('../features/print/AdminPrintLiveNewPage')).AdminPrintLiveNewPage }),
+                  },
+                  {
+                    path: 'ready',
+                    lazy: async () => ({ Component: (await import('../features/print/AdminPrintLiveReadyPage')).AdminPrintLiveReadyPage }),
+                  }
+                ]
+              },
+              {
+                path: 'history',
+                lazy: async () => ({ Component: (await import('../features/print/AdminPrintHistoryPage')).AdminPrintHistoryPage }),
+              },
+              {
+                path: 'settings',
+                lazy: async () => ({ Component: (await import('../features/print/AdminPrintSettingsPage')).AdminPrintSettingsPage }),
+              }
+            ]
+          }
         ],
       },
       {
@@ -452,9 +536,21 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'canteen/orders',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorCanteenHistoryPage')).ProfessorCanteenHistoryPage,
+            }),
+          },
+          {
             path: 'print',
             lazy: async () => ({
               Component: (await import('./components/ProfessorPrintPage')).ProfessorPrintPage,
+            }),
+          },
+          {
+            path: 'print/orders',
+            lazy: async () => ({
+              Component: (await import('./components/ProfessorPrintHistoryPage')).ProfessorPrintHistoryPage,
             }),
           },
           {

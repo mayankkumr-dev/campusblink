@@ -70,20 +70,8 @@ export const CanteenMenuPage: React.FC = () => {
     }
   }, [selectedCanteenId, activeTab]);
 
-  // Load Order History
-  useEffect(() => {
-    async function loadHistory() {
-      setIsLoading(true);
-      if (profile?.id) {
-        const { data } = await getMyOrders(profile.id, profile.college);
-        if (data) setOrderHistory(data);
-      }
-      setIsLoading(false);
-    }
-    if (activeTab === 'history') {
-      loadHistory();
-    }
-  }, [activeTab, profile?.id, profile?.college]);
+  // Removed local order history loading as it is now in a separate page
+
 
   useEffect(() => {
     async function loadReorderRequests() {
@@ -97,7 +85,7 @@ export const CanteenMenuPage: React.FC = () => {
 
   // Realtime order status tracking
   useMyOrderStatus(profile?.id, (updatedOrder) => {
-     setOrderHistory(prev => prev.map(o => o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o));
+     // History updates handled on history page
   });
 
   const categories = [
@@ -174,7 +162,7 @@ export const CanteenMenuPage: React.FC = () => {
       }
       clearCart();
       setIsCartOpen(false);
-      setActiveTab('history');
+      navigate('/student/canteen/orders');
     }
     setIsPlacingOrder(false);
   };
@@ -191,7 +179,6 @@ export const CanteenMenuPage: React.FC = () => {
 
   const tabs = [
     { id: 'menu', label: 'Menu' },
-    { id: 'history', label: 'Order History' },
     { id: 'cart', label: `Cart ${cartItems.length > 0 ? `(${cartItems.length})` : ''}` }
   ];
 
@@ -268,6 +255,9 @@ export const CanteenMenuPage: React.FC = () => {
               </button>
             );
           })}
+          <button onClick={() => navigate('/student/canteen/orders')} className="relative py-4 text-[15px] font-semibold text-text-secondary hover:text-slate-800 transition-colors flex items-center gap-2">
+            Order History
+          </button>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -291,9 +281,8 @@ export const CanteenMenuPage: React.FC = () => {
           Menu
           {activeTab === 'menu' && !isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
         </button>
-        <button onClick={() => { setActiveTab('history'); setIsCartOpen(false); }} className={`flex-1 py-3.5 text-sm font-bold relative ${activeTab === 'history' ? 'text-text-primary' : 'text-text-secondary'}`}>
+        <button onClick={() => navigate('/student/canteen/orders')} className="flex-1 py-3.5 text-sm font-bold relative text-text-secondary">
           History
-          {activeTab === 'history' && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
         </button>
         <button onClick={() => setIsCartOpen(!isCartOpen)} className={`flex-1 py-3.5 text-sm font-bold relative flex justify-center items-center gap-1.5 ${isCartOpen ? 'text-text-primary' : 'text-text-secondary'}`}>
           Cart {cartItems.length > 0 && <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.5 rounded-md">{cartItems.length}</span>}
@@ -510,64 +499,7 @@ export const CanteenMenuPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <>
-                {activeTab === 'history' && (
-                  <div className="max-w-4xl mx-auto py-4 md:py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h2 className="font-bold text-3xl md:text-4xl mb-8 text-text-primary tracking-tight">Order History</h2>
-
-                    <div className="space-y-4">
-                      {orderHistory.length === 0 ? (
-                        <div className="p-12 text-center bg-surface rounded-2xl border border-dashed border-border-subtle">
-                          <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto mb-4 text-text-placeholder">
-                            <Utensils className="w-8 h-8" />
-                          </div>
-                          <p className="text-text-secondary font-medium">You haven't placed any canteen orders yet.</p>
-                        </div>
-                      ) : (
-                        orderHistory.map((order) => (
-                          <div key={order.id} className="bg-surface p-5 md:p-6 rounded-2xl shadow-[0_2px_15px_-4px_rgba(0,0,0,0.03)] border border-border-subtle flex flex-col md:flex-row md:items-center justify-between gap-5 transition-all hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)]">
-                            
-                            <div className="flex items-start gap-4 md:gap-5">
-                              <div className="w-12 h-12 rounded-xl bg-surface flex items-center justify-center flex-shrink-0 text-text-secondary/70 border border-border-subtle">
-                                <ShoppingBag className="w-5 h-5" />
-                              </div>
-                              <div>
-                                <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                                  <h4 className="font-bold text-text-primary text-lg">{order.canteen_shops?.name || 'Unknown Canteen'}</h4>
-                                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                    order.status === 'ready' ? 'bg-accent-green/15 text-accent-green border-emerald-100' :
-                                    order.status === 'preparing' ? 'bg-accent-amber-soft text-accent-amber border-amber-100' :
-                                    order.status === 'cancelled' ? 'bg-accent-red/15 text-accent-red border-rose-100' :
-                                    order.status === 'picked_up' ? 'bg-surface-elevated text-text-secondary border-border-subtle' :
-                                    'bg-accent-blue-soft text-accent-blue border-accent-blue-soft'
-                                  }`}>
-                                    {order.status.replace('_', ' ')}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-text-secondary mb-3 font-medium uppercase tracking-wider">
-                                  {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                                </p>
-                                <div className="text-sm text-text-primary font-medium leading-relaxed">
-                                   {Array.isArray(order.items) ? order.items.map((i:any) => {
-                                     const quantity = i.qty || i.quantity || 1;
-                                     return `${quantity}x ${i.name}`;
-                                   }).join(', ') : 'Custom Order'}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between md:flex-col md:items-end gap-1 border-t md:border-t-0 border-border-subtle pt-4 md:pt-0">
-                              <span className="text-xs text-text-secondary/70 font-bold uppercase tracking-wider">Total</span>
-                              <span className="font-bold text-2xl text-text-primary tracking-tight">₹{order.total}</span>
-                            </div>
-
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
-              </>
+              <></>
             )}
 
           </div>

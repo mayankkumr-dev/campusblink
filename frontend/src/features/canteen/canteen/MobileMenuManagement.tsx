@@ -163,17 +163,7 @@ export const MobileMenuManagement: React.FC<MobileMenuManagementProps> = ({
           </button>
         </div>
 
-        {/* Sleek Full-Width Soft-Fill Add Button Docked Below Header */}
-        <div className="pt-3">
-          <button
-            type="button"
-            onClick={() => handleOpenModal('add')}
-            className="w-full py-2.5 px-4 rounded-xl bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 active:scale-[0.98] text-blue-700 dark:text-blue-400 font-syne font-bold text-xs flex items-center justify-center gap-2 transition-all border border-blue-100/60 dark:border-blue-800/40"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add New Dish to Menu</span>
-          </button>
-        </div>
+        {/* Removed duplicate Add button dock */}
 
         {/* Horizontal Category Pill Filter */}
         <div className="flex items-center gap-2 overflow-x-auto pt-3 pb-0.5 no-scrollbar">
@@ -235,25 +225,25 @@ export const MobileMenuManagement: React.FC<MobileMenuManagementProps> = ({
                 </div>
 
                 {/* Right: Stack Item Name, Price, and Category Pills */}
-                <div className="min-w-0 flex-1 flex flex-col justify-between h-16 sm:h-20 py-0.5">
+                <div className="min-w-0 flex-1 flex flex-col justify-between py-1">
                   <div>
-                    <h3 className="font-syne font-extrabold text-sm text-gray-900 dark:text-shop-text-primary truncate leading-tight">
+                    <h3 className="font-syne font-bold text-sm text-gray-900 dark:text-shop-text-primary truncate">
                       {item.name}
                     </h3>
-                    <p className="font-syne font-black text-base text-gray-900 dark:text-shop-text-primary mt-0.5">
+                    <p className="font-syne font-black text-sm text-gray-900 dark:text-shop-text-primary">
                       ₹{item.price}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-shop-bg-surface-raised text-gray-600 dark:text-shop-text-secondary text-[10px] font-bold font-syne">
+                  <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                    <span className="px-2 py-0.5 rounded text-gray-600 bg-gray-100 dark:bg-[#2c2c2e] dark:text-[#86868b] text-[10px] font-bold font-syne">
                       {item.category || 'Snacks'}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-syne ${
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold font-syne ${
                         item.is_available
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
+                          ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
+                          : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400'
                       }`}
                     >
                       {item.is_available ? 'Available' : 'Out of Stock'}
@@ -261,8 +251,8 @@ export const MobileMenuManagement: React.FC<MobileMenuManagementProps> = ({
                   </div>
                 </div>
 
-                {/* Edit & Delete Actions: Touch-Friendly Thin-Line SVGs in Bottom Right */}
-                <div className="flex items-center gap-1.5 shrink-0 self-end ml-auto">
+                {/* Edit & Delete Actions */}
+                <div className="flex flex-col items-center gap-2 shrink-0 self-start">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -292,18 +282,16 @@ export const MobileMenuManagement: React.FC<MobileMenuManagementProps> = ({
                     className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center active:scale-95 transition-all"
                     aria-label="Delete dish"
                   >
-                    {/* Modern Thin-Line Trash Can SVG */}
+                    {/* Minus SVG */}
                     <svg
-                      className="w-4 h-4 stroke-[1.6]"
+                      className="w-4 h-4 stroke-[2]"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <path d="M3 6h18" />
-                      <path d="19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                      <path d="8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                      <path d="M5 12h14" />
                     </svg>
                   </button>
                 </div>

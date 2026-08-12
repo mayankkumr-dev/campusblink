@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Truck, Upload, FileText, X, MapPin, Printer, Check, ChevronRight, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -52,6 +53,7 @@ async function analyzePdfInk(file: File): Promise<InkAnalysis> {
 }
 
 export const ProfessorPrintPage: React.FC = () => {
+  const navigate = useNavigate();
   const profile = useAuthStore((state) => state.profile);
   const [shops, setShops] = useState<any[]>([]);
   const [selectedShop, setSelectedShop] = useState<any>(null);
@@ -214,7 +216,22 @@ export const ProfessorPrintPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20 transition-colors duration-200">
+      <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+        {/* Sub-Nav Frosted */}
+        <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+          <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+            Faculty Print
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+              Upload
+            </div>
+            <Link to="/professor/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+              History
+            </Link>
+          </div>
+        </div>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, index) => (
             <div key={index} className="bg-white dark:bg-prof-bg-surface rounded-3xl p-6 border border-gray-100 dark:border-prof-border-subtle h-64 shadow-sm dark:shadow-none animate-pulse flex flex-col gap-4">
@@ -226,13 +243,29 @@ export const ProfessorPrintPage: React.FC = () => {
           ))}
         </div>
       </div>
+      </div>
     );
   }
 
   // Shop Selection View
   if (!selectedShop) {
     return (
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 pb-20 bg-[#FAFAFA] dark:bg-prof-bg-base min-h-[calc(100vh-4rem)] transition-colors duration-200">
+      <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+        {/* Sub-Nav Frosted */}
+        <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+          <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+            Faculty Print
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+              Upload
+            </div>
+            <Link to="/professor/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+              History
+            </Link>
+          </div>
+        </div>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 pb-20 bg-[#FAFAFA] dark:bg-prof-bg-base min-h-[calc(100vh-4rem)] transition-colors duration-200">
         <header className="mb-12">
           <p className="text-xs font-bold tracking-widest text-gray-400 dark:text-prof-text-tertiary uppercase mb-2">Campus Print Services</p>
           <h1 className="font-syne font-extrabold text-4xl sm:text-5xl text-gray-900 dark:text-prof-text-primary tracking-tight leading-tight">
@@ -285,6 +318,7 @@ export const ProfessorPrintPage: React.FC = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
     );
   }
@@ -357,7 +391,22 @@ export const ProfessorPrintPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-[1400px] mx-auto min-h-screen bg-[#FAFAFA] dark:bg-prof-bg-base font-sans text-gray-900 dark:text-prof-text-primary pb-24 transition-colors duration-200">
+    <div className="min-h-full font-sans bg-[#ffffff]">
+      {/* Sub-Nav Frosted */}
+      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+          Faculty Print
+        </h2>
+        <div className="flex items-center gap-4">
+          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+            Upload
+          </div>
+          <Link to="/professor/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+            History
+          </Link>
+        </div>
+      </div>
+      <div className="max-w-[1400px] mx-auto min-h-screen bg-[#FAFAFA] dark:bg-prof-bg-base font-sans text-gray-900 dark:text-prof-text-primary pb-24 transition-colors duration-200">
       <div className="flex flex-col lg:flex-row gap-8 px-4 sm:px-6 lg:px-8 pt-8">
         
         {/* Left Main Configuration Area */}
@@ -528,6 +577,7 @@ export const ProfessorPrintPage: React.FC = () => {
           scrollbar-width: none;
         }
       `}</style>
+      </div>
     </div>
   );
 };

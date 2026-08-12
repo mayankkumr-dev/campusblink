@@ -53,49 +53,48 @@ export const ShopOrderHistoryList: React.FC<ShopOrderHistoryListProps> = ({ shop
   });
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <th className="p-4 w-1/5">Order Number</th>
-              <th className="p-4 w-1/5">Date & Time</th>
-              <th className="p-4 w-1/5">Customer</th>
-              <th className="p-4 w-1/5">Items</th>
-              <th className="p-4 w-1/5">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {data.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                <td className="p-4">
-                  <span className="font-extrabold text-blue-600 text-lg">
-                    #{order.short_id || '---'}
-                  </span>
-                </td>
-                <td className="p-4 text-sm text-gray-600 font-medium">
-                  {format(new Date(order.created_at), 'MMM d, yyyy • h:mm a')}
-                </td>
-                <td className="p-4 text-sm font-semibold text-gray-800">
-                  {order.profiles?.full_name || 'Unknown User'}
-                </td>
-                <td className="p-4 text-sm text-gray-500 max-w-[200px] truncate">
-                  {type === 'canteen' ? (
-                    order.items?.map((item: any) => `${item.qty || item.quantity}x ${item.name}`).join(', ')
-                  ) : (
-                    `${order.specification?.copies || 1} copies, ${order.specification?.color || 'B&W'}`
-                  )}
-                </td>
-                <td className="p-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold border uppercase tracking-wider bg-gray-100 text-gray-800 border-gray-200">
-                    {order.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="flex flex-col gap-3">
+      {data.map((order) => (
+        <div key={order.id} className="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-[0_2px_14px_rgba(0,0,0,0.03)] border border-gray-100 dark:border-[#38383a]">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <span className="font-syne font-extrabold text-[#0066cc] text-base">
+                #{order.short_id || order.id.slice(0, 6)}
+              </span>
+              <p className="text-xs text-gray-500 dark:text-[#86868b] mt-0.5">
+                {format(new Date(order.created_at), 'MMM d, yyyy • h:mm a')}
+              </p>
+            </div>
+            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+              order.status === 'completed' || order.status === 'collected' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+              : order.status === 'cancelled' || order.status === 'rejected' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400'
+              : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-500'
+            }`}>
+              {order.status}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50 dark:border-[#38383a]/50">
+            <div>
+              <p className="text-sm font-semibold text-gray-800 dark:text-[#f5f5f7]">
+                {order.profiles?.full_name || 'Unknown User'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-[#86868b] mt-0.5 line-clamp-1">
+                {type === 'canteen' ? (
+                  order.items?.map((item: any) => `${item.qty || item.quantity}x ${item.name}`).join(', ')
+                ) : (
+                  `${order.specification?.copies || order.copies || order.quantity || 1} copies, ${order.specification?.color || order.color_mode || 'B&W'}`
+                )}
+              </p>
+            </div>
+            {order.total_amount && (
+              <span className="font-syne font-bold text-gray-900 dark:text-[#f5f5f7]">
+                ₹{order.total_amount}
+              </span>
+            )}
+          </div>
+        </div>
+      ))}
 
       {isFetching && (
         <div className="p-4 space-y-4">
@@ -122,8 +121,8 @@ export const ShopOrderHistoryList: React.FC<ShopOrderHistoryListProps> = ({ shop
       )}
 
       {!hasMore && data.length === 0 && !isFetching && (
-        <div className="text-center py-10">
-          <p className="text-gray-500 font-medium">No order history found.</p>
+        <div className="text-center py-10 bg-white dark:bg-[#1c1c1e] rounded-2xl border border-gray-100 dark:border-[#38383a]">
+          <p className="text-gray-500 dark:text-[#86868b] font-medium">No order history found.</p>
         </div>
       )}
     </div>

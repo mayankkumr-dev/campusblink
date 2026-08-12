@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Minus, Plus, ShoppingCart, Truck, X, Clock, MapPin, ChevronRight, Check } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -7,6 +8,7 @@ import { insertPendingPayment } from '../../api/professor';
 import { ListSkeleton } from './ui/Skeletons';
 
 export const ProfessorCanteenPage: React.FC = () => {
+  const navigate = useNavigate();
   const profile = useAuthStore((state) => state.profile);
   const [shops, setShops] = useState<any[]>([]);
   const [selectedShop, setSelectedShop] = useState<any>(null);
@@ -139,12 +141,28 @@ export const ProfessorCanteenPage: React.FC = () => {
 
   if (loading && !selectedShop) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8">
+      <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+        {/* Sub-Nav Frosted */}
+        <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+          <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+            Faculty Dining
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+              Menu
+            </div>
+            <Link to="/professor/canteen/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+              Order History
+            </Link>
+          </div>
+        </div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <div className="grid gap-4">
           {Array.from({ length: 4 }).map((_, index) => (
             <ListSkeleton key={`prof-canteen-skeleton-${index}`} rows={1} />
           ))}
         </div>
+      </div>
       </div>
     );
   }
@@ -152,7 +170,22 @@ export const ProfessorCanteenPage: React.FC = () => {
   // Shop Selection View
   if (!selectedShop) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-20 transition-colors duration-200">
+      <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+        {/* Sub-Nav Frosted */}
+        <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+          <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+            Faculty Dining
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+              Menu
+            </div>
+            <Link to="/professor/canteen/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+              Order History
+            </Link>
+          </div>
+        </div>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 transition-colors duration-200">
         <header className="mb-10">
           <p className="text-xs font-semibold tracking-widest text-gray-400 dark:text-prof-text-tertiary uppercase mb-2">Campus Dining</p>
           <h1 className="font-syne font-extrabold text-4xl sm:text-5xl text-gray-900 dark:text-prof-text-primary tracking-tight leading-tight">
@@ -203,13 +236,29 @@ export const ProfessorCanteenPage: React.FC = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
     );
   }
 
   // Menu View
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-32 transition-colors duration-200">
+    <div className="min-h-full font-sans bg-[#ffffff]">
+      {/* Sub-Nav Frosted */}
+      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+          Faculty Dining
+        </h2>
+        <div className="flex items-center gap-4">
+          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+            Menu
+          </div>
+          <Link to="/professor/canteen/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+            Order History
+          </Link>
+        </div>
+      </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-32 transition-colors duration-200">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
         <div className="flex items-center gap-4">
@@ -488,6 +537,7 @@ export const ProfessorCanteenPage: React.FC = () => {
           scrollbar-width: none;
         }
       `}</style>
+      </div>
     </div>
   );
 };

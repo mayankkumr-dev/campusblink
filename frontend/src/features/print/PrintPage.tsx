@@ -3,7 +3,7 @@ import { Card } from '../../app/components/ui/card';
 import { Button } from '../../app/components/ui/button';
 import { Upload, FileText, X, CheckCircle2, ChevronRight, Plus, ShieldCheck, Printer, File, FileIcon, Shield, Store, Loader2, RotateCcw, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { getPrintShops, uploadPrintFile, createPrintOrder, calculatePrintCost, getMyReorderRequests, sendReorderInProgressNotification } from '../../api/print';
 import toast from 'react-hot-toast';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
@@ -409,12 +409,33 @@ export const PrintPage: React.FC = () => {
   }
 
   return (
-    <div className="p-4 md:p-8 bg-[var(--bg-primary)] min-h-full font-sans pb-32">
-      <div className="max-w-[1000px] mx-auto">
+    <div className="min-h-full font-sans pb-32 bg-[#ffffff]">
+      {/* Sub-Nav Frosted */}
+      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between mb-8">
+        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+          Print
+        </h2>
+        <div className="flex items-center gap-4">
+          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+            Upload
+          </div>
+          <Link to="/student/print/orders" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+            History
+          </Link>
+          <button 
+            onClick={() => navigate('/student/print/orders')}
+            className="px-[15px] py-[8px] bg-[#f5f5f7] border border-[#e0e0e0] text-[#1d1d1f] text-[14px] font-normal tracking-[-0.224px] rounded-[8px] hover:scale-95 transition-transform"
+          >
+            My Orders
+          </button>
+        </div>
+      </div>
+
+      <div className="px-4 md:px-8 max-w-[1000px] mx-auto">
         
         {/* Header Area */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-          <h1 className="hidden md:block font-syne font-bold text-2xl md:text-3xl text-[var(--text-primary)]">Printout preview</h1>
+          <h1 className="hidden md:block text-[40px] font-semibold tracking-tight text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">Printout preview</h1>
           
           <div className="flex items-center gap-4">
              {/* Shop Selector */}

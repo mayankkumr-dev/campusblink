@@ -26,58 +26,62 @@ export const OrderCard: React.FC<OrderCardProps> = ({
 
   if (variant === 'ready') {
     return (
-      <div className="flex flex-col overflow-hidden rounded-3xl border border-emerald-100 dark:border-emerald-900/30 bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(16,185,129,0.06)] dark:shadow-none transition-all hover:shadow-[0_6px_24px_rgba(16,185,129,0.1)] dark:hover:border-emerald-900/60">
+      <div className="flex flex-col overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-[0_4px_24px_rgba(16,185,129,0.06)] dark:shadow-none border border-emerald-100 dark:border-emerald-900/30 transition-all hover:border-emerald-200">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-emerald-100/60 dark:border-emerald-900/30 bg-emerald-50/70 dark:bg-shop-bg-surface-raised px-5 py-4">
-          <span className="font-syne text-base font-extrabold text-text-primary dark:text-shop-text-primary">
-            #{order.id.slice(0, 6)}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-emerald-50 dark:border-emerald-900/20">
+          <span className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7]">
+            #{order.short_id || order.id.slice(0, 6)}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-900/40 bg-emerald-100/80 dark:bg-emerald-900/20 px-3 py-1 text-[11px] font-bold text-accent-green">
-            <Check className="h-3 w-3 stroke-[2.5]" /> Ready for Pickup
+          <span className="inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <Check className="h-3 w-3 stroke-[2.5]" /> Ready
           </span>
         </div>
 
         {/* Customer Info */}
-        <div className="flex items-center gap-3.5 px-5 py-4">
-          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-emerald-50 dark:bg-[#2c2c2e]">
             <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-syne text-sm font-bold text-text-primary dark:text-shop-text-primary truncate">
-              {order.profiles?.name || 'Student Customer'}
+            <p className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7] truncate">
+              {order.profiles?.name || 'Student'}
             </p>
-            <p className="mt-0.5 text-xs text-text-secondary dark:text-shop-text-secondary">
-              {order.items?.length || 0} items • <span className="font-bold text-text-primary dark:text-shop-text-primary">₹{order.total}</span>
+            <p className="mt-0.5 text-[11px] text-gray-500 dark:text-[#86868b]">
+              {order.items?.length || 0} items
             </p>
             {order.is_delivery_order && (
-              <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft dark:bg-blue-900/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-400">
+              <span className="mt-1 inline-flex items-center gap-1 rounded bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
                 🚀 Delivery: Room {order.delivery_room_number || ''}
               </span>
             )}
           </div>
+          <div className="text-right">
+            <span className="block font-syne text-lg font-black text-gray-900 dark:text-[#f5f5f7]">
+              ₹{order.total}
+            </span>
+          </div>
         </div>
 
         {/* Order Items */}
-        <div className="border-t border-border-subtle dark:border-shop-border-subtle bg-background dark:bg-shop-bg-surface-raised px-5 py-3.5">
+        <div className="px-4 py-3 bg-emerald-50/30 dark:bg-[#2c2c2e]/50 border-t border-emerald-50 dark:border-emerald-900/20">
           <ul className="space-y-1.5">
             {order.items?.map((item: any, idx: number) => (
-              <li key={idx} className="flex items-center justify-between text-xs text-text-primary dark:text-shop-text-primary">
-                <span className="font-medium truncate pr-2">
-                  <span className="font-bold text-accent-green">{item.qty}x</span> {item.name}
-                </span>
+              <li key={idx} className="flex items-start gap-2 text-xs text-gray-700 dark:text-[#f5f5f7]">
+                <span className="font-bold text-emerald-600">{item.qty}x</span>
+                <span className="font-medium truncate">{item.name}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Action Button */}
-        <div className="p-4 bg-surface dark:bg-shop-bg-surface border-t border-border-subtle dark:border-shop-border-subtle">
+        <div className="p-3 bg-white dark:bg-[#1c1c1e] border-t border-emerald-50 dark:border-emerald-900/20">
           <button
             type="button"
             onClick={() => onDismissReady?.(order.id)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-600 dark:border-emerald-900 bg-surface dark:bg-shop-bg-surface-raised py-3 text-xs font-bold text-accent-green shadow-2xs dark:shadow-none transition-colors hover:bg-emerald-600 dark:hover:bg-emerald-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-emerald-600 dark:border-emerald-800 bg-white dark:bg-[#1c1c1e] py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-500 shadow-sm transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/30 active:scale-95"
           >
-            <Check className="h-4 w-4 stroke-[2.2]" /> Mark Collected
+            <Check className="h-4 w-4 stroke-[2.5]" /> Mark Collected
           </button>
         </div>
       </div>
@@ -86,58 +90,62 @@ export const OrderCard: React.FC<OrderCardProps> = ({
 
   if (variant === 'preparing') {
     return (
-      <div className="flex flex-col overflow-hidden rounded-3xl border border-amber-100 dark:border-amber-900/30 bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(245,158,11,0.06)] dark:shadow-none transition-all hover:shadow-[0_6px_24px_rgba(245,158,11,0.1)] dark:hover:border-amber-900/60">
+      <div className="flex flex-col overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-[0_4px_24px_rgba(245,158,11,0.06)] dark:shadow-none border border-amber-100 dark:border-amber-900/30 transition-all hover:border-amber-200">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-amber-100/60 dark:border-amber-900/30 bg-amber-50/70 dark:bg-shop-bg-surface-raised px-5 py-4">
-          <span className="font-syne text-base font-extrabold text-text-primary dark:text-shop-text-primary">
-            #{order.id.slice(0, 6)}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-amber-50 dark:border-amber-900/20">
+          <span className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7]">
+            #{order.short_id || order.id.slice(0, 6)}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-amber-soft dark:border-amber-900/30 bg-amber-100/80 dark:bg-amber-900/20 px-3 py-1 text-[11px] font-bold text-accent-amber">
+          <span className="inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-[10px] font-bold bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-500">
             <ChefHat className="h-3 w-3 stroke-[2.2]" /> Preparing
           </span>
         </div>
 
         {/* Customer Info */}
-        <div className="flex items-center gap-3.5 px-5 py-4">
-          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-amber-50 dark:bg-[#2c2c2e]">
             <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-syne text-sm font-bold text-text-primary dark:text-shop-text-primary truncate">
-              {order.profiles?.name || 'Student Customer'}
+            <p className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7] truncate">
+              {order.profiles?.name || 'Student'}
             </p>
-            <p className="mt-0.5 text-xs text-text-secondary dark:text-shop-text-secondary">
-              {order.items?.length || 0} items • <span className="font-bold text-text-primary dark:text-shop-text-primary">₹{order.total}</span>
+            <p className="mt-0.5 text-[11px] text-gray-500 dark:text-[#86868b]">
+              {order.items?.length || 0} items
             </p>
             {order.is_delivery_order && (
-              <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft dark:bg-blue-900/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-400">
+              <span className="mt-1 inline-flex items-center gap-1 rounded bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
                 🚀 Delivery: Room {order.delivery_room_number || ''}
               </span>
             )}
           </div>
+          <div className="text-right">
+            <span className="block font-syne text-lg font-black text-gray-900 dark:text-[#f5f5f7]">
+              ₹{order.total}
+            </span>
+          </div>
         </div>
 
         {/* Order Items */}
-        <div className="border-t border-border-subtle dark:border-shop-border-subtle bg-background dark:bg-shop-bg-surface-raised px-5 py-3.5">
+        <div className="px-4 py-3 bg-amber-50/30 dark:bg-[#2c2c2e]/50 border-t border-amber-50 dark:border-amber-900/20">
           <ul className="space-y-1.5">
             {order.items?.map((item: any, idx: number) => (
-              <li key={idx} className="flex items-center justify-between text-xs text-text-primary dark:text-shop-text-primary">
-                <span className="font-medium truncate pr-2">
-                  <span className="font-bold text-accent-amber">{item.qty}x</span> {item.name}
-                </span>
+              <li key={idx} className="flex items-start gap-2 text-xs text-gray-700 dark:text-[#f5f5f7]">
+                <span className="font-bold text-amber-500">{item.qty}x</span>
+                <span className="font-medium truncate">{item.name}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Action Button */}
-        <div className="p-4 bg-surface dark:bg-shop-bg-surface border-t border-border-subtle dark:border-shop-border-subtle">
+        <div className="p-3 bg-white dark:bg-[#1c1c1e] border-t border-amber-50 dark:border-amber-900/20">
           <button
             type="button"
             onClick={() => onMarkReady?.(order.id)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-500 dark:bg-shop-accent py-3 text-xs font-bold text-white shadow-xs dark:shadow-none transition-colors hover:bg-amber-600 dark:hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-shop-accent"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-amber-500 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-amber-600 active:scale-95"
           >
-            <Check className="h-4 w-4 stroke-[2.2]" /> Mark Ready for Pickup
+            <Check className="h-4 w-4 stroke-[2.5]" /> Mark Ready
           </button>
         </div>
       </div>
@@ -146,14 +154,14 @@ export const OrderCard: React.FC<OrderCardProps> = ({
 
   // Incoming / New Order
   return (
-    <div className="flex flex-col overflow-hidden rounded-3xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none transition-all hover:shadow-[0_6px_22px_rgba(0,0,0,0.06)] dark:hover:border-shop-border-strong">
+    <div className="flex flex-col overflow-hidden rounded-[20px] bg-white dark:bg-[#1c1c1e] shadow-[0_4px_24px_rgba(0,0,0,0.04)] dark:shadow-none border border-gray-100 dark:border-[#38383a] transition-all">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border-subtle dark:border-shop-border-subtle bg-surface-elevated dark:bg-shop-bg-surface-raised px-5 py-4">
-        <span className="font-syne text-base font-extrabold text-text-primary dark:text-shop-text-primary">
-          #{order.id.slice(0, 6)}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50 dark:border-[#38383a]/50">
+        <span className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7]">
+          #{order.short_id || order.id.slice(0, 6)}
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface px-2.5 py-1 text-[11px] font-semibold text-text-secondary dark:text-shop-text-secondary shadow-2xs dark:shadow-none">
-          <Clock className="h-3 w-3 text-text-secondary/70 dark:text-shop-text-tertiary" />
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-gray-500 dark:text-[#86868b]">
+          <Clock className="h-3 w-3" />
           {new Date(order.created_at).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -162,67 +170,58 @@ export const OrderCard: React.FC<OrderCardProps> = ({
       </div>
 
       {/* Customer Info */}
-      <div className="flex items-center gap-3.5 px-5 py-4">
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface">
+      <div className="flex items-center gap-3 px-4 py-3">
+        <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-50 dark:bg-[#2c2c2e]">
           <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-syne text-sm font-bold text-text-primary dark:text-shop-text-primary truncate">
-            {order.profiles?.name || 'Student Customer'}
+          <p className="font-syne text-sm font-bold text-gray-900 dark:text-[#f5f5f7] truncate">
+            {order.profiles?.name || 'Student'}
           </p>
-          <p className="mt-0.5 text-[11px] font-mono text-text-secondary/70 dark:text-shop-text-tertiary">
+          <p className="mt-0.5 text-[11px] text-gray-500 dark:text-[#86868b] truncate">
             ID: {order.student_id?.slice(0, 8)}
           </p>
           {order.is_delivery_order && (
-            <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-accent-blue-soft dark:border-blue-900/30 bg-accent-blue-soft dark:bg-blue-900/20 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-400">
+            <span className="mt-1 inline-flex items-center gap-1 rounded bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
               🚀 Delivery: Room {order.delivery_room_number || ''}
             </span>
           )}
         </div>
+        <div className="text-right">
+          <span className="block font-syne text-lg font-black text-gray-900 dark:text-[#f5f5f7]">
+            ₹{order.total}
+          </span>
+        </div>
       </div>
 
       {/* Order Details */}
-      <div className="flex-1 border-t border-border-subtle dark:border-shop-border-subtle bg-slate-50/40 dark:bg-shop-bg-surface-raised px-5 py-4">
-        <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-text-secondary/70 dark:text-shop-text-tertiary">
-          Order Items
-        </p>
+      <div className="px-4 py-3 bg-gray-50/50 dark:bg-[#2c2c2e]/50 border-t border-gray-50 dark:border-[#38383a]/50">
         <ul className="space-y-1.5">
           {order.items?.map((item: any, idx: number) => (
-            <li key={idx} className="flex items-start justify-between gap-2 text-xs text-text-primary dark:text-shop-text-primary">
-              <span className="font-medium">
-                <span className="font-bold text-accent-blue pr-1">{item.qty}x</span>
-                {item.name}
-              </span>
+            <li key={idx} className="flex items-start gap-2 text-xs text-gray-700 dark:text-[#f5f5f7]">
+              <span className="font-bold text-amber-500">{item.qty}x</span>
+              <span className="font-medium truncate">{item.name}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Total & Accessible Actions */}
-      <div className="flex flex-col gap-4 border-t border-border-subtle dark:border-shop-border-subtle bg-surface dark:bg-shop-bg-surface p-5">
-        <div className="flex items-end justify-between">
-          <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary dark:text-shop-text-secondary">
-            Total Amount
-          </span>
-          <span className="font-syne text-xl font-extrabold text-text-primary dark:text-shop-text-primary">
-            ₹{order.total}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5">
+      <div className="p-3 bg-white dark:bg-[#1c1c1e] border-t border-gray-50 dark:border-[#38383a]/50">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={() => onReject?.(order)}
-            className="flex items-center justify-center gap-1.5 rounded-2xl border border-rose-200 dark:border-red-900/30 bg-rose-50/70 dark:bg-red-900/20 py-2.5 text-xs font-bold text-accent-red transition-colors hover:bg-rose-100 dark:hover:bg-red-900/40 focus:outline-none focus:ring-2 focus:ring-accent-red"
+            className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-900/20 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 transition-colors active:scale-95"
           >
-            <X className="h-3.5 w-3.5 stroke-[2.2]" /> Reject
+            <X className="h-4 w-4 stroke-[2]" /> Reject
           </button>
           <button
             type="button"
             onClick={() => onAccept?.(order.id)}
-            className="flex items-center justify-center gap-1.5 rounded-2xl bg-blue-600 dark:bg-blue-600 py-2.5 text-xs font-bold text-white shadow-xs dark:shadow-none transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-[2] flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-2.5 text-xs font-bold text-white shadow-sm transition-colors active:scale-95"
           >
-            <Check className="h-3.5 w-3.5 stroke-[2.5]" /> Accept
+            <Check className="h-4 w-4 stroke-[2.5]" /> Accept
           </button>
         </div>
       </div>

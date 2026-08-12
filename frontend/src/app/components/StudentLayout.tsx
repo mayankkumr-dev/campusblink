@@ -167,6 +167,20 @@ export const StudentLayout: React.FC = () => {
     setActiveAnnouncement(null);
   };
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.overscrollBehaviorY = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.overscrollBehaviorY = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.overscrollBehaviorY = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const navItems = [
     { icon: Home, path: '/student/home', label: 'Home', feature: 'home' },
     { icon: Search, path: '/student/search', label: 'Search People', feature: 'search' },
