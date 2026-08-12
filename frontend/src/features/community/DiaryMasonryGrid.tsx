@@ -558,8 +558,28 @@ const DiaryCard = React.memo<DiaryCardProps>(({
   );
 });
 
-/* ─── Fullscreen Diary View (Strict Light Mode + PWA Story Sheet) ──── */
-/* ─── Single Fullscreen Story Card (Frameless Icons + Numerals Only) ─── */
+/* ─── Parchment Paper Diary Feed (TikTok-style snap scroll) ──── */
+
+/** Detects if the content starts with a date pattern like "Aug 12" or "12 Aug" */
+function extractDatePrefix(content: string): { month: string; day: string; rest: string } | null {
+  const patterns = [
+    /^([A-Z][a-z]{2})\s+(\d{1,2})\b[\s\S]*/,   // "Aug 12 ..."
+    /^(\d{1,2})\s+([A-Z][a-z]{2})\b[\s\S]*/,   // "12 Aug ..."
+  ];
+  const m1 = content.trim().match(patterns[0]);
+  if (m1) {
+    const rest = content.trim().slice(m1[1].length + 1 + m1[2].length).trim();
+    return { month: m1[1], day: m1[2], rest: rest || content.trim() };
+  }
+  const m2 = content.trim().match(patterns[1]);
+  if (m2) {
+    const rest = content.trim().slice(m2[1].length + 1 + m2[2].length).trim();
+    return { month: m2[2], day: m2[1], rest: rest || content.trim() };
+  }
+  return null;
+}
+
+/* ─── Single Fullscreen Parchment Card ─────────────────────────── */
 function DiaryFullscreenCard({
   entry,
   currentUserId,
@@ -592,43 +612,58 @@ function DiaryFullscreenCard({
 
   const isOwner = currentUserId && (entry.author?.id === currentUserId || (entry as any).author_id === currentUserId);
   const liked = currentUserId ? (entry.liked_by || []).includes(currentUserId) : false;
-  const paperBg = entry.bg_color && entry.bg_color !== '#0D1B2A' ? entry.bg_color : '#FFFFFF';
-  const textColor = entry.text_color && entry.text_color !== '#ffffff' ? entry.text_color : '#1F2937';
   const fontStyle = getHandwritingFont(entry.font_family);
   const hasImage = !imageFailed && (isValidDiaryImage(entry.image_url) || !!entry.thumbnail_url);
   const displayImageUrl = entry.thumbnail_url || entry.image_url;
+
+  // Parchment colour — use the diary's chosen bg if it's a warm/light colour, else default to tan
+  const parchmentBg = (() => {
+    const c = entry.bg_color;
+    if (!c || c === '#0D1B2A' || c === '#ffffff' || c === '#FFFFFF') return '#DFC38F';
+    return c;
+  })();
 
   const avatarUrl =
     entry.author?.avatar_url ||
     getAvatarDataUrl({ name: entry.author?.name, seed: entry.author?.id });
 
+  const dateInfo = !hasImage && entry.content?.trim() ? extractDatePrefix(entry.content) : null;
+
   const handleDoubleTap = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowPopHeart(true);
-    if (!liked) {
-      onLike(entry.id);
-    }
+    if (!liked) onLike(entry.id);
     setTimeout(() => setShowPopHeart(false), 900);
   };
 
   return (
     <div
       id={`fullscreen-card-${entry.id}`}
-      className="snap-always snap-start sm:snap-center w-full h-[100dvh] sm:h-screen flex flex-col items-center justify-center p-0 sm:p-6 relative shrink-0 select-none"
+      className="snap-always snap-start w-full shrink-0 select-none"
+      style={{ height: '100dvh', background: '#071224', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '75px 0 20px' }}
       onClick={onClose}
     >
+      {/* ── Parchment Paper Card ── */}
       <motion.div
-        className="w-full max-w-md aspect-[9/16] min-h-[500px] max-h-[92vh] rounded-3xl border border-gray-200/80 shadow-[0_25px_80px_rgba(0,0,0,0.28)] overflow-hidden flex flex-col relative my-auto bg-white"
+        className="relative overflow-hidden"
         style={{
-          background: hasImage ? '#0F172A' : paperBg,
+          width: '94%',
+          height: '100%',
+          maxWidth: '420px',
+          background: hasImage ? '#0F172A' : parchmentBg,
+          clipPath: hasImage
+            ? 'none'
+            : 'polygon(0 0, 42% 0, 44% 1.8%, 46% 0, 85% 0, 87% 1.5%, 89% 0, 100% 0, 100% 100%, 75% 100%, 73% 98.2%, 71% 100%, 35% 100%, 33% 98.5%, 31% 100%, 0 100%)',
+          borderRadius: hasImage ? '28px' : '4px',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.55), inset 0 0 60px rgba(139,90,43,0.08)',
         }}
-        initial={{ scale: 0.96 }}
-        animate={{ scale: 1 }}
+        initial={{ scale: 0.97, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', damping: 26, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
         onDoubleClick={handleDoubleTap}
       >
-        {/* Pop Heart Animation on Double Tap inside Fullscreen */}
+        {/* Pop Heart */}
         <AnimatePresence>
           {showPopHeart && (
             <motion.div
@@ -643,60 +678,81 @@ function DiaryFullscreenCard({
           )}
         </AnimatePresence>
 
-        {/* If image card, render background image edge-to-edge with error fallback */}
+        {/* Background image for photo stories */}
         {hasImage && (
           <img
             src={displayImageUrl!}
-            alt="Fullscreen memory"
+            alt="Diary moment"
             onError={() => setImageFailed(true)}
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
 
-        {/* Top & Bottom Dark Gradient Overlay strictly for Photo Stories */}
-        {hasImage && (
-          <>
-            <div className="absolute top-0 inset-x-0 pt-4 pb-24 px-5 bg-gradient-to-b from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
-            <div className="absolute bottom-0 inset-x-0 pt-36 pb-6 px-5 bg-gradient-to-t from-black/85 via-black/45 to-transparent pointer-events-none z-10" />
-          </>
+        {/* Parchment texture subtle grain overlay */}
+        {!hasImage && (
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`,
+              backgroundSize: '180px 180px',
+              mixBlendMode: 'multiply',
+              opacity: 0.5,
+            }}
+          />
         )}
 
-        {/* Top bar with Author Info & Calm Overflow Header */}
+        {/* Top gradient overlay for legibility */}
         <div
-          className="relative z-30 flex items-center justify-between px-5 pb-2"
-          style={{ paddingTop: `calc(1rem + env(safe-area-inset-top, 0px))` }}
+          className="absolute top-0 left-0 w-full pointer-events-none z-10"
+          style={{
+            height: '130px',
+            background: hasImage
+              ? 'linear-gradient(to bottom, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0) 100%)'
+              : 'linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 100%)',
+          }}
+        />
+
+        {/* Bottom gradient for photo stories */}
+        {hasImage && (
+          <div
+            className="absolute bottom-0 left-0 w-full pointer-events-none z-10"
+            style={{ height: '180px', background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0) 100%)' }}
+          />
+        )}
+
+        {/* ── Author Header ── */}
+        <div
+          className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4"
+          style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
         >
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <img
               src={avatarUrl}
               alt={entry.author?.name}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md shrink-0"
+              className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+              style={{ border: '1px solid rgba(255,255,255,0.5)' }}
             />
-            <div className="min-w-0 flex-1 font-sans">
-              <p className={`text-sm font-extrabold leading-tight truncate ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-900'}`}>
+            <div className="min-w-0 flex-1">
+              <p className="text-white font-bold text-sm leading-tight truncate" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
                 {entry.author?.name || 'Student'}
               </p>
-              <p className={`text-xs font-semibold mt-0.5 truncate ${hasImage ? 'text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-600'}`}>
+              <p className="text-xs font-semibold truncate" style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
                 {collegeName(entry.author?.college)} • {relativeTime(entry.created_at)}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 relative">
+          <div className="flex items-center gap-1.5 shrink-0 relative">
             {isOwner && (
               <div className="relative">
                 <button
                   onClick={() => setShowOverflowMenu(!showOverflowMenu)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
-                    hasImage
-                      ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
-                      : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
-                  }`}
+                  className="flex items-center justify-center cursor-pointer active:scale-90"
                   aria-label="Story options"
+                  style={{ minHeight: '44px', minWidth: '44px' }}
                 >
-                  <MoreHorizontal size={18} strokeWidth={2} />
+                  <MoreHorizontal size={20} strokeWidth={2} style={{ fill: 'white', color: 'white', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }} />
                 </button>
-
                 <AnimatePresence>
                   {showOverflowMenu && (
                     <motion.div
@@ -707,11 +763,7 @@ function DiaryFullscreenCard({
                       className="absolute right-0 top-12 w-44 bg-white/95 backdrop-blur-md rounded-2xl p-1.5 shadow-xl border border-gray-200 z-50 font-sans"
                     >
                       <button
-                        onClick={() => {
-                          setShowOverflowMenu(false);
-                          onDelete(entry.id);
-                          onClose();
-                        }}
+                        onClick={() => { setShowOverflowMenu(false); onDelete(entry.id); onClose(); }}
                         className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors text-left"
                       >
                         <Trash2 size={15} strokeWidth={2} />
@@ -722,139 +774,154 @@ function DiaryFullscreenCard({
                 </AnimatePresence>
               </div>
             )}
-
-            {!hideTopClose && (
-              <button
-                onClick={onClose}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer active:scale-90 min-h-[44px] min-w-[44px] ${
-                  hasImage
-                    ? 'bg-black/45 hover:bg-black/65 border border-white/25 text-white'
-                    : 'bg-white/90 hover:bg-white border border-slate-200 text-slate-700'
-                }`}
-                aria-label="Close"
-              >
-                <X size={18} strokeWidth={2} />
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Content Area with Guaranteed Safe Content Zone away from Action Rail, Top Bar, and Bottom Edge */}
-        <div className="relative z-10 flex-1 pt-24 pb-20 pl-6 sm:pl-8 pr-20 sm:pr-24 flex flex-col justify-center items-center text-center overflow-y-auto scrollbar-none max-h-full">
+        {/* ── Content Area ── */}
+        <div
+          className="absolute inset-0 z-20 flex flex-col pr-16"
+          style={{ paddingTop: '75px', paddingBottom: '24px', paddingLeft: '16px' }}
+        >
           {!hasImage && entry.content?.trim() && (
-            <div className="w-full">
-              <p
-                className="leading-relaxed whitespace-pre-wrap break-words"
-                style={{
-                  fontFamily: fontStyle,
-                  fontSize: Math.min(30, Math.max(16, Math.round(22 * (entry.scale || 1)))),
-                  color: textColor,
-                }}
-              >
-                {entry.content}
-              </p>
-            </div>
+            dateInfo ? (
+              /* Blue date-badge + gradient box layout (top-aligned) */
+              <div style={{ marginTop: '28px', width: '100%' }}>
+                <div style={{ display: 'flex', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
+                  {/* Date badge */}
+                  <div style={{ background: 'white', width: '52px', flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <div style={{ background: '#3eb4f0', color: 'white', fontSize: '13px', fontWeight: 700, textAlign: 'center', padding: '6px 0', fontFamily: 'sans-serif' }}>
+                      {dateInfo.month}
+                    </div>
+                    <div style={{ color: '#333', fontSize: '18px', fontWeight: 700, textAlign: 'center', padding: '8px 0', fontFamily: 'sans-serif' }}>
+                      {dateInfo.day}
+                    </div>
+                  </div>
+                  {/* Text box */}
+                  <div style={{ background: 'linear-gradient(90deg, #3eb4f0 0%, #135dd6 100%)', color: 'white', padding: '14px 16px', flexGrow: 1, fontSize: '16px', fontWeight: 500, lineHeight: 1.35, fontFamily: fontStyle }}>
+                    {dateInfo.rest}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Pink-purple gradient box layout (vertically centred) */
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                  style={{
+                    background: 'linear-gradient(90deg, #f02577 0%, #451073 100%)',
+                    color: 'white',
+                    padding: '16px 20px',
+                    borderRadius: '8px',
+                    fontSize: Math.min(22, Math.max(15, Math.round(19 * (entry.scale || 1)))),
+                    fontWeight: 500,
+                    textAlign: 'center',
+                    lineHeight: 1.45,
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+                    fontFamily: fontStyle,
+                    width: '100%',
+                  }}
+                >
+                  {entry.content}
+                </div>
+              </div>
+            )
           )}
         </div>
 
-        {/* Frameless Action Rail Stacked on Right Edge (No circular borders, numerals only, no text labels) */}
+        {/* ── Right-side Action Rail ── */}
         <div
-          className="absolute right-3.5 z-20 flex flex-col items-center gap-4"
-          style={{ bottom: `calc(1.8rem + env(safe-area-inset-bottom, 0px))` }}
+          className="absolute right-3 z-30 flex flex-col items-center"
+          style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))', gap: '22px' }}
         >
           {/* Like */}
-          <div className="flex flex-col items-center">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <motion.button
               onClick={() => onLike(entry.id)}
               whileTap={{ scale: 1.5, rotate: [0, -15, 15, -10, 0] }}
               whileHover={{ scale: 1.1 }}
-              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
+              className="flex items-center justify-center cursor-pointer"
+              style={{ minHeight: '44px', minWidth: '44px' }}
               aria-label="Like story"
             >
               <Heart
-                size={28}
-                className={liked ? 'fill-rose-500 text-rose-500 drop-shadow-[0_4px_10px_rgba(244,63,94,0.6)]' : hasImage ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]' : 'text-slate-800 drop-shadow-sm'}
-                strokeWidth={2.2}
+                size={32}
+                style={{
+                  fill: liked ? '#f43f5e' : 'white',
+                  color: liked ? '#f43f5e' : 'white',
+                  filter: liked ? 'drop-shadow(0 4px 10px rgba(244,63,94,0.6))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))',
+                }}
+                strokeWidth={liked ? 0 : 2}
               />
             </motion.button>
-            <span className={`text-xs font-extrabold mt-0.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
+            <span style={{ color: 'white', fontSize: '12px', fontWeight: 600, textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
               {entry.likes_count || 0}
             </span>
           </div>
 
-          {/* Comment (Numeral Only, no label text) */}
-          <div className="flex flex-col items-center">
+          {/* Comment */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <motion.button
               onClick={() => onCommentClick(entry)}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
+              className="flex items-center justify-center cursor-pointer"
+              style={{ minHeight: '44px', minWidth: '44px' }}
               aria-label="Comment on story"
             >
-              <MessageCircle size={28} className={hasImage ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]' : 'text-slate-800 drop-shadow-sm'} strokeWidth={2.2} />
+              <MessageCircle size={32} style={{ fill: 'white', color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} strokeWidth={0} />
             </motion.button>
-            <span className={`text-xs font-extrabold mt-0.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
+            <span style={{ color: 'white', fontSize: '12px', fontWeight: 600, textShadow: '0 1px 2px rgba(0,0,0,0.4)' }}>
               {entry.comments_count || 0}
             </span>
           </div>
 
-          {/* Gift / Reward (Numeral Only, no label text) */}
-          <div className="flex flex-col items-center">
+          {/* Gift */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <motion.button
               onClick={() => toast.success('Send reputation gift to support this author!')}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
+              className="flex items-center justify-center cursor-pointer"
+              style={{ minHeight: '44px', minWidth: '44px' }}
               aria-label="Send gift"
             >
-              <Gift size={28} className={hasImage ? 'text-amber-300 drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]' : 'text-amber-600 drop-shadow-sm'} strokeWidth={2.2} />
-            </motion.button>
-            <span className={`text-xs font-extrabold mt-0.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
-              {(entry as any).gifts_count || 0}
-            </span>
-          </div>
-
-          {/* Bookmark / Save */}
-          <div className="flex flex-col items-center">
-            <motion.button
-              onClick={() => {
-                const nextState = !isBookmarked;
-                setIsBookmarked(nextState);
-                if (onBookmark) onBookmark(entry.id);
-              }}
-              whileTap={{ scale: 1.4, rotate: [0, -10, 10, 0] }}
-              whileHover={{ scale: 1.1 }}
-              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
-              aria-label="Save story"
-            >
-              <Bookmark
-                size={26}
-                className={
-                  isBookmarked
-                    ? 'fill-amber-400 text-amber-400 drop-shadow-[0_4px_10px_rgba(251,191,36,0.6)]'
-                    : hasImage
-                    ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]'
-                    : 'text-slate-800 drop-shadow-sm'
-                }
-                strokeWidth={2.2}
-              />
+              <Gift size={30} style={{ fill: 'white', color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} strokeWidth={0} />
             </motion.button>
           </div>
 
-          {/* Send / Share (Numeral Only, no label text, opens Send Sheet) */}
-          <div className="flex flex-col items-center">
+          {/* Send / Share */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
             <motion.button
               onClick={() => onSendClick && onSendClick(entry)}
               whileTap={{ scale: 1.3 }}
               whileHover={{ scale: 1.1 }}
-              className="p-1 flex items-center justify-center transition-all cursor-pointer min-h-[44px] min-w-[44px]"
+              className="flex items-center justify-center cursor-pointer"
+              style={{ minHeight: '44px', minWidth: '44px' }}
               aria-label="Send story"
             >
-              <Send size={26} className={hasImage ? 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.85)]' : 'text-slate-800 drop-shadow-sm'} strokeWidth={2.2} />
+              <Send size={28} style={{ fill: 'white', color: 'white', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} strokeWidth={0} />
             </motion.button>
-            <span className={`text-xs font-extrabold mt-0.5 leading-none ${hasImage ? 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]' : 'text-slate-800'}`}>
-              {(entry as any).shares_count || 0}
-            </span>
+          </div>
+
+          {/* Bookmark */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <motion.button
+              onClick={() => { const next = !isBookmarked; setIsBookmarked(next); if (onBookmark) onBookmark(entry.id); }}
+              whileTap={{ scale: 1.4, rotate: [0, -10, 10, 0] }}
+              whileHover={{ scale: 1.1 }}
+              className="flex items-center justify-center cursor-pointer"
+              style={{ minHeight: '44px', minWidth: '44px' }}
+              aria-label="Save story"
+            >
+              <Bookmark
+                size={28}
+                style={{
+                  fill: isBookmarked ? '#fbbf24' : 'white',
+                  color: isBookmarked ? '#fbbf24' : 'white',
+                  filter: isBookmarked ? 'drop-shadow(0 4px 10px rgba(251,191,36,0.6))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))',
+                }}
+                strokeWidth={0}
+              />
+            </motion.button>
           </div>
         </div>
       </motion.div>
@@ -908,19 +975,28 @@ export function DiaryFullscreen({
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col overflow-y-scroll snap-y snap-mandatory snap-always no-scrollbar bg-slate-950/90 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex flex-col overflow-y-scroll snap-y snap-mandatory snap-always no-scrollbar"
+      style={{ background: '#071224' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Top Header Bar inside Fullscreen Reel */}
-      <div className="fixed top-0 inset-x-0 z-[60] flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-auto">
-        {/* Left: Filter selector dropdown */}
+      {/* Top Navigation Bar — floats over parchment */}
+      <div
+        className="fixed top-0 inset-x-0 z-[60] flex items-center justify-between px-5 pointer-events-auto"
+        style={{
+          paddingTop: 'calc(24px + env(safe-area-inset-top, 0px))',
+          paddingBottom: '16px',
+          background: 'linear-gradient(to bottom, rgba(7,18,36,0.9) 0%, rgba(7,18,36,0) 100%)',
+        }}
+      >
+        {/* Left: Filter selector */}
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowFilterDropdown((prev) => !prev); }}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/55 hover:bg-black/75 border border-white/25 text-white font-extrabold text-xs sm:text-sm transition-all cursor-pointer shadow-md min-h-[36px]"
+            className="flex items-center gap-1.5 text-white font-semibold cursor-pointer"
+            style={{ fontSize: '17px' }}
           >
             <span>
               {currentFilter === 'friends' || currentFilter === 'following'
@@ -928,19 +1004,19 @@ export function DiaryFullscreen({
                 : currentFilter === 'popular'
                 ? 'Popular'
                 : currentFilter === 'mine'
-                ? 'My Stories'
+                ? 'Mine'
                 : 'New'}
             </span>
-            <ChevronDown size={14} className={`transition-transform duration-200 ${showFilterDropdown ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} strokeWidth={2.5} className={`transition-transform duration-200 ${showFilterDropdown ? 'rotate-180' : ''}`} />
           </button>
 
-          {/* Dropdown Menu */}
           {showFilterDropdown && (
             <div className="absolute top-full left-0 mt-2 w-36 bg-slate-900/95 border border-white/15 rounded-2xl shadow-2xl py-1.5 backdrop-blur-md overflow-hidden z-50">
               {[
                 { id: 'friends', label: 'Friends', icon: '👥' },
                 { id: 'popular', label: 'Popular', icon: '🔥' },
                 { id: 'new', label: 'New', icon: '✨' },
+                { id: 'mine', label: 'Mine', icon: '📖' },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -964,10 +1040,19 @@ export function DiaryFullscreen({
         </div>
 
         {/* Right: Create Pill + Close X */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-4">
           <button
             onClick={(e) => { e.stopPropagation(); if (onOpenCreate) onOpenCreate(); else onClose(); }}
-            className="bg-white hover:bg-slate-100 text-slate-900 px-3.5 py-1.5 rounded-full font-extrabold text-xs sm:text-sm flex items-center gap-1.5 shadow-md transition-transform active:scale-95 cursor-pointer min-h-[36px]"
+            className="flex items-center gap-1.5 cursor-pointer active:scale-95 transition-transform"
+            style={{
+              background: 'white',
+              color: '#3bb2ec',
+              border: 'none',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontWeight: 700,
+              fontSize: '14px',
+            }}
           >
             <span>✍️</span>
             <span>Create</span>
@@ -975,10 +1060,11 @@ export function DiaryFullscreen({
 
           <button
             onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-black/55 hover:bg-black/75 border border-white/25 text-white transition-all shadow-md cursor-pointer active:scale-90 min-h-[36px] min-w-[36px]"
-            aria-label="Close"
+            className="flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+            style={{ background: 'none', border: 'none', minHeight: '44px', minWidth: '44px' }}
+            aria-label="Close diary reel"
           >
-            <X size={18} strokeWidth={2.2} />
+            <X size={20} strokeWidth={2.5} style={{ color: 'white' }} />
           </button>
         </div>
       </div>
