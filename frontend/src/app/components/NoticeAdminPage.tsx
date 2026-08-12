@@ -324,11 +324,6 @@ export const NoticeAdminPage: React.FC = () => {
                       >
                         <option value="All">All Colleges</option>
                         <option value="Maharaja Agrasen Institute of Technology (MAIT)">Maharaja Agrasen Institute of Technology (MAIT)</option>
-                        <option value="Maharaja Surajmal Institute of Technology (MSIT)">Maharaja Surajmal Institute of Technology (MSIT)</option>
-                        <option value="Vivekananda Institute of Professional Studies (VIPS)">Vivekananda Institute of Professional Studies (VIPS)</option>
-                        <option value="Bharati Vidyapeeth's College of Engineering (BVP)">Bharati Vidyapeeth's College of Engineering (BVP)</option>
-                        <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
-                        <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
                       </select>
                     </div>
                   )}

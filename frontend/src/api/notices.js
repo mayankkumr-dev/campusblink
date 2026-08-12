@@ -22,11 +22,8 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
         target_year,
         attachments,
         is_pinned,
-        pin_expires_at,
-        is_deleted,
         created_at
       `)
-      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -64,13 +61,10 @@ export async function getNoticesForFaculty({ college, limit = 50, offset = 0 } =
         target_year,
         attachments,
         is_pinned,
-        pin_expires_at,
-        is_deleted,
         created_at,
         author:profiles!official_notices_author_id_fkey(name, email, role)
       `)
       .eq('target_year', 'faculty')
-      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -101,12 +95,9 @@ export async function getCampusNoticesForProfessor({ college, limit = 50, offset
         target_year,
         attachments,
         is_pinned,
-        pin_expires_at,
-        is_deleted,
         created_at
       `)
       .eq('target_year', 'all')
-      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -139,8 +130,6 @@ export async function getUnreadNoticeCount() {
     const { count, error } = await supabase
       .from('official_notices')
       .select('id', { count: 'exact', head: true })
-      .eq('is_deleted', false)
-      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .gt('created_at', lastSeen);
 
     if (error) throw error;
@@ -171,13 +160,9 @@ export async function getNoticesForAdmin(college = null) {
         target_year,
         attachments,
         is_pinned,
-        pin_expires_at,
-        is_deleted,
         created_at,
-        author:profiles!official_notices_author_id_fkey(name, email, role),
-        deleted_by:profiles!official_notices_deleted_by_id_fkey(name, email, role)
+        author:profiles!official_notices_author_id_fkey(name, email, role)
       `)
-      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('created_at', { ascending: false });
 
     if (college && college !== 'All') {
