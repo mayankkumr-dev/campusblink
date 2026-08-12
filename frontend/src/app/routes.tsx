@@ -380,6 +380,14 @@ export const router = createBrowserRouter([
             }),
           },
           {
+            path: 'notices/:id',
+            Component: () => <Navigate to="/student/notices" replace />,
+          },
+          {
+            path: 'notices',
+            Component: () => <Navigate to="/student/notices" replace />,
+          },
+          {
             path: 'admin/*',
             Component: () => <Navigate to="/admin" replace />,
           },

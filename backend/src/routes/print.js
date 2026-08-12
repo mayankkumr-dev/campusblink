@@ -40,7 +40,19 @@ router.post('/orders', authMiddleware, async (req, res) => {
     }
 
     // Notify print shop owner
-    await notificationService.notifyPrintShopOwner(print_shop_id, order);
+    try {
+      const { data: shop } = await supabaseAdmin
+        .from('print_shops')
+        .select('owner_id')
+        .eq('id', print_shop_id)
+        .single();
+        
+      if (shop?.owner_id) {
+        await notificationService.notifyPrintShopOwner(shop.owner_id, order);
+      }
+    } catch (e) {
+      console.error('Failed to notify print shop owner:', e);
+    }
 
     res.json({ message: 'Order placed successfully', order });
   } catch (error) {

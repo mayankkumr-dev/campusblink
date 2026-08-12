@@ -39,7 +39,19 @@ router.post('/orders', authMiddleware, async (req, res) => {
     }
 
     // Notify canteen owner
-    await notificationService.notifyCanteenOwner(canteen_id, order);
+    try {
+      const { data: shop } = await supabaseAdmin
+        .from('canteen_shops')
+        .select('owner_id')
+        .eq('id', canteen_id)
+        .single();
+        
+      if (shop?.owner_id) {
+        await notificationService.notifyCanteenOwner(shop.owner_id, order);
+      }
+    } catch (e) {
+      console.error('Failed to notify canteen owner:', e);
+    }
 
     res.json({ message: 'Order placed successfully', order });
   } catch (error) {
