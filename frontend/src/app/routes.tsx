@@ -902,6 +902,201 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                lazy: async () => ({
+                  Component: (await import('./components/AdminInviteWaitlistPage')).AdminInviteWaitlistPage,
+                }),
+              },
+              {
+                path: 'professors',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminProfessorsPage')).AdminProfessorsPage,
+                }),
+              },
+              {
+                path: 'professors/pending',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminProfessorsPendingPage')).AdminProfessorsPendingPage,
+                }),
+              },
+              {
+                path: 'users/:userId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminUserDetailPage')).AdminUserDetailPage,
+                }),
+              },
+              /*
+               * NOTE: In React Router v7, static route paths must be defined BEFORE
+               * dynamic parameter routes (e.g. :shopId) sharing the same prefix.
+               * Otherwise, dynamic routes shadow static segments, causing requests
+               * like "/admin/canteen/orders" to match "canteen/:shopId" with shopId="orders".
+               */
+              {
+                path: 'canteen',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteensPage')).AdminCanteensPage,
+                }),
+              },
+              {
+                path: 'canteen/orders',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenOrdersPage')).AdminCanteenOrdersPage,
+                }),
+              },
+              {
+                path: 'canteen/menu',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenMenuPage')).AdminCanteenMenuPage,
+                }),
+              },
+              {
+                path: 'canteen/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCanteenSchedulePage')).AdminCanteenSchedulePage,
+                }),
+              },
+              {
+                path: 'print',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintShopsPage')).AdminPrintShopsPage,
+                }),
+              },
+              {
+                path: 'print/orders',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintOrdersPage')).AdminPrintOrdersPage,
+                }),
+              },
+              {
+                path: 'print/:shopId',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPrintSchedulePage')).AdminPrintSchedulePage,
+                }),
+              },
+              {
+                path: 'marketplace',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminMarketplacePage')).AdminMarketplacePage,
+                }),
+              },
+              {
+                path: 'notes',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesDashboard')).AdminNotesDashboard,
+                }),
+              },
+              {
+                path: 'notes/structure',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesStructure')).AdminNotesStructure,
+                }),
+              },
+              {
+                path: 'notes/upload',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminNotesUploader')).AdminNotesUploader,
+                }),
+              },
+              {
+                path: 'marketplace/reported',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminMarketplaceReportedPage')).AdminMarketplaceReportedPage,
+                }),
+              },
+              {
+                path: 'community',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityPage')).AdminCommunityPage,
+                }),
+              },
+              {
+                path: 'community/reported',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityReportedPage')).AdminCommunityReportedPage,
+                }),
+              },
+              {
+                path: 'community/notice',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminCommunityNoticePage')).AdminCommunityNoticePage,
+                }),
+              },
+              {
+                path: 'email',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailPage')).AdminEmailPage,
+                }),
+              },
+              {
+                path: 'email/compose',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailComposePage')).AdminEmailComposePage,
+                }),
+              },
+              {
+                path: 'email/history',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailHistoryPage')).AdminEmailHistoryPage,
+                }),
+              },
+              {
+                path: 'email/templates',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminEmailTemplatesPage')).AdminEmailTemplatesPage,
+                }),
+              },
+              {
+                path: 'finance',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinancePage')).AdminFinancePage,
+                }),
+              },
+              {
+                path: 'finance/credits',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinanceCreditsPage')).AdminFinanceCreditsPage,
+                }),
+              },
+              {
+                path: 'finance/revenue',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminFinanceRevenuePage')).AdminFinanceRevenuePage,
+                }),
+              },
+              {
+                path: 'settings',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminSettingsPage')).AdminSettingsPage,
+                }),
+              },
+              {
+                path: 'feedback',
+                lazy: async () => ({ Component: (await import('./components/AdminFeedbackPage')).AdminFeedbackPage }),
+              },
+              {
+                path: 'announcements',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminAnnouncementsPage')).AdminAnnouncementsPage,
+                }),
+              },
+              {
+                path: 'contact-issues',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminContactIssuesPage')).AdminContactIssuesPage,
+                }),
+              },
+              {
+                path: 'legal',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminLegalPage')).AdminLegalPage,
+                }),
+              },
+              {
+                path: 'legal/export',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminLegalExportPage')).AdminLegalExportPage,
+                }),
+              },
+              {
                 path: 'audit',
                 lazy: async () => ({
                   Component: (await import('./components/AdminAuditPage')).AdminAuditPage,
@@ -916,8 +1111,12 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: '*',
-        Component: NotFoundPage,
+        path: 'notices/:id',
+        Component: () => <Navigate to="/student/notices" replace />,
+      },
+      {
+        path: 'notices',
+        Component: () => <Navigate to="/student/notices" replace />,
       },
     ],
   },
