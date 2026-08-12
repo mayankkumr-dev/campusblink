@@ -186,12 +186,12 @@ export const PWALayer: React.FC = () => {
           {/* Sheet */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`absolute bottom-0 left-0 right-0 rounded-t-[28px] bg-white shadow-2xl transition-transform duration-300 ease-out ${sheetVisible ? 'translate-y-0' : 'translate-y-full'}`}
+            className={`absolute bottom-0 left-0 right-0 rounded-t-[28px] bg-white dark:bg-[#171A21] border-t border-transparent dark:border-border-subtle shadow-2xl transition-transform duration-300 ease-out ${sheetVisible ? 'translate-y-0' : 'translate-y-full'}`}
             style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 24px)' }}
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1">
-              <div className="h-1 w-10 rounded-full bg-black/15" />
+              <div className="h-1 w-10 rounded-full bg-black/15 dark:bg-white/20" />
             </div>
 
             <div className="px-6 pt-4 pb-6">
@@ -200,13 +200,13 @@ export const PWALayer: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Logo alt="Campus Blink" className="h-12 w-12 rounded-2xl shadow-md" />
                   <div>
-                    <p className="text-[17px] font-extrabold text-[#0A0F1E] leading-tight">Campus Blink</p>
-                    <p className="text-[12px] text-[#64748B] font-medium">Your campus, one tap away</p>
+                    <p className="text-[17px] font-extrabold text-[#0A0F1E] dark:text-[#F4F5F7] leading-tight">Campus Blink</p>
+                    <p className="text-[12px] text-[#64748B] dark:text-[#9AA0AC] font-medium">Your campus, one tap away</p>
                   </div>
                 </div>
                 <button
                   onClick={() => closeSheet(true)}
-                  className="rounded-full p-2 text-[#64748B] hover:bg-black/5 transition-colors"
+                  className="rounded-full p-2 text-[#64748B] dark:text-[#9AA0AC] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                   aria-label="Dismiss install prompt"
                 >
                   <X className="h-5 w-5" />
@@ -227,7 +227,7 @@ export const PWALayer: React.FC = () => {
                     >
                       <Icon className="h-4 w-4" style={{ color }} />
                     </div>
-                    <p className="text-[13px] text-[#334155] leading-snug pt-1">{text}</p>
+                    <p className="text-[13px] text-[#334155] dark:text-[#E2E8F0] leading-snug pt-1">{text}</p>
                   </div>
                 ))}
               </div>
@@ -243,7 +243,7 @@ export const PWALayer: React.FC = () => {
               </button>
               <button
                 onClick={() => closeSheet(true)}
-                className="w-full mt-3 py-2.5 text-[13px] font-semibold text-[#64748B] transition-colors hover:text-[#334155]"
+                className="w-full mt-3 py-2.5 text-[13px] font-semibold text-[#64748B] dark:text-[#9AA0AC] transition-colors hover:text-[#334155] dark:hover:text-white"
               >
                 Not now
               </button>
@@ -268,27 +268,27 @@ export const PWALayer: React.FC = () => {
           </div>
 
           <div
-            className="mx-4 rounded-2xl bg-white border border-black/8 shadow-2xl px-5 py-4"
+            className="mx-4 rounded-2xl bg-white dark:bg-[#171A21] border border-black/8 dark:border-border-subtle shadow-2xl px-5 py-4"
             role="dialog"
             aria-label="iOS install instructions"
           >
             <div className="flex items-start gap-3">
               <Logo alt="" className="h-9 w-9 rounded-xl flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-extrabold text-[#0A0F1E] mb-1">Add to Home Screen</p>
-                <p className="text-[12px] text-[#64748B] leading-relaxed">
+                <p className="text-[14px] font-extrabold text-[#0A0F1E] dark:text-[#F4F5F7] mb-1">Add to Home Screen</p>
+                <p className="text-[12px] text-[#64748B] dark:text-[#9AA0AC] leading-relaxed">
                   Tap the{' '}
                   <span className="inline-flex items-center gap-0.5 font-semibold text-[#2D4EF5]">
                     <IOSShareIcon /> Share
                   </span>
                   {' '}button below, then select{' '}
-                  <span className="font-semibold text-[#0A0F1E]">"Add to Home Screen"</span>
+                  <span className="font-semibold text-[#0A0F1E] dark:text-[#F4F5F7]">"Add to Home Screen"</span>
                   {' '}for the full app experience.
                 </p>
               </div>
               <button
                 onClick={dismissIOSHint}
-                className="flex-shrink-0 rounded-full p-1.5 text-[#94A3B8] hover:bg-black/5"
+                className="flex-shrink-0 rounded-full p-1.5 text-[#94A3B8] dark:text-[#9AA0AC] hover:bg-black/5 dark:hover:bg-white/10"
                 aria-label="Dismiss iOS install hint"
               >
                 <X className="h-4 w-4" />
@@ -306,8 +306,8 @@ export const PWALayer: React.FC = () => {
                   <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#2D4EF5] text-[10px] font-bold text-white">
                     {step}
                   </span>
-                  <span className="text-[11px] font-medium text-[#475569]">{label}</span>
-                  {step !== '3' && <span className="text-[#CBD5E1] text-xs">›</span>}
+                  <span className="text-[11px] font-medium text-[#475569] dark:text-[#CBD5E1]">{label}</span>
+                  {step !== '3' && <span className="text-[#CBD5E1] dark:text-[#64748B] text-xs">›</span>}
                 </div>
               ))}
             </div>
@@ -323,37 +323,37 @@ export const PWALayer: React.FC = () => {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-t-[28px] md:rounded-2xl bg-white p-6 shadow-2xl"
+            className="w-full max-w-md rounded-t-[28px] md:rounded-2xl bg-white dark:bg-[#171A21] border border-transparent dark:border-border-subtle p-6 shadow-2xl"
             style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 24px)' }}
           >
             {/* Drag handle (mobile) */}
             <div className="flex justify-center mb-4 md:hidden">
-              <div className="h-1 w-10 rounded-full bg-black/15" />
+              <div className="h-1 w-10 rounded-full bg-black/15 dark:bg-white/20" />
             </div>
 
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FEF9C3]">
-                <Bell className="h-5 w-5 text-[#92400E]" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FEF9C3] dark:bg-amber-900/30">
+                <Bell className="h-5 w-5 text-[#92400E] dark:text-amber-400" />
               </div>
               <div>
-                <h3 className="text-[16px] font-extrabold text-[#0A0F1E]">Stay in the loop</h3>
-                <p className="text-[12px] text-[#64748B]">Real-time alerts for your campus</p>
+                <h3 className="text-[16px] font-extrabold text-[#0A0F1E] dark:text-[#F4F5F7]">Stay in the loop</h3>
+                <p className="text-[12px] text-[#64748B] dark:text-[#9AA0AC]">Real-time alerts for your campus</p>
               </div>
             </div>
-            <p className="text-[13px] text-[#475569] leading-relaxed mb-5">
+            <p className="text-[13px] text-[#475569] dark:text-[#CBD5E1] leading-relaxed mb-5">
               Get notified when your canteen order is ready, when someone replies to your post, or when there's an important campus notice.
             </p>
             <div className="flex flex-col gap-2">
               <button
                 id="pwa-notification-enable"
                 onClick={handleEnableNotifications}
-                className="w-full rounded-xl bg-[#0A0F1E] py-3.5 text-[14px] font-bold text-white transition-all active:scale-[0.97]"
+                className="w-full rounded-xl bg-[#0A0F1E] dark:bg-[#2D4EF5] py-3.5 text-[14px] font-bold text-white transition-all active:scale-[0.97]"
               >
                 Enable Notifications
               </button>
               <button
                 onClick={() => setShowNotificationPrompt(false)}
-                className="w-full rounded-xl border border-black/10 py-3.5 text-[14px] font-semibold text-[#475569] transition-colors hover:bg-black/[0.02]"
+                className="w-full rounded-xl border border-black/10 dark:border-white/10 py-3.5 text-[14px] font-semibold text-[#475569] dark:text-[#CBD5E1] transition-colors hover:bg-black/[0.02] dark:hover:bg-white/[0.05]"
               >
                 Not now
               </button>

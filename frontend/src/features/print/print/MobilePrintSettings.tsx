@@ -1,5 +1,6 @@
 import React from 'react';
 import { Settings, Printer, Bell, Shield, Sliders, CheckCircle2 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export interface MobilePrintSettingsProps {
   shop: any;
@@ -10,13 +11,12 @@ export const MobilePrintSettings: React.FC<MobilePrintSettingsProps> = ({
   shop,
   onOverride,
 }) => {
-  const [, forceUpdate] = React.useState({});
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
   const isOpen = Boolean(shop?.is_open_now || shop?.is_active);
 
   React.useEffect(() => {
-    const handleStorage = () => forceUpdate({});
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    setMounted(true);
   }, []);
 
   const handleToggleShopStatus = async () => {
@@ -147,40 +147,13 @@ export const MobilePrintSettings: React.FC<MobilePrintSettingsProps> = ({
               { id: 'dark', label: 'Dark Mode' },
               { id: 'system', label: 'System' },
             ].map((themeOpt) => {
-              const currentTheme =
-                typeof document !== 'undefined'
-                  ? document.documentElement.classList.contains('dark')
-                    ? 'dark'
-                    : 'light'
-                  : 'light';
-              const isSelected =
-                themeOpt.id === 'system'
-                  ? !localStorage.getItem('theme')
-                  : localStorage.getItem('theme') === themeOpt.id ||
-                    (!localStorage.getItem('theme') && currentTheme === themeOpt.id);
+              const isSelected = mounted && theme === themeOpt.id;
 
               return (
                 <button
                   key={themeOpt.id}
                   type="button"
-                  onClick={() => {
-                    if (themeOpt.id === 'system') {
-                      localStorage.removeItem('theme');
-                      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                        document.documentElement.classList.add('dark');
-                      } else {
-                        document.documentElement.classList.remove('dark');
-                      }
-                    } else {
-                      localStorage.setItem('theme', themeOpt.id);
-                      if (themeOpt.id === 'dark') {
-                        document.documentElement.classList.add('dark');
-                      } else {
-                        document.documentElement.classList.remove('dark');
-                      }
-                    }
-                    window.dispatchEvent(new Event('storage'));
-                  }}
+                  onClick={() => setTheme(themeOpt.id)}
                   className={`flex flex-col items-center justify-center py-3 px-2 rounded-2xl border-2 font-syne text-xs font-bold transition-all ${
                     isSelected
                       ? 'border-amber-500 bg-amber-50/60 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'
