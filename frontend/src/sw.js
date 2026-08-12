@@ -145,9 +145,23 @@ try {
   }));
 }
 
+const OFFLINE_CACHE = 'offline-fallback-v1';
+const OFFLINE_URL = '/offline.html';
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_URL))
+  );
+});
+
 setCatchHandler(async ({ event }) => {
   if (event.request.destination === 'document') {
-    return (await matchPrecache('/offline.html')) || (await caches.match('/offline.html')) || Response.error();
+    const cache = await caches.open(OFFLINE_CACHE);
+    const cachedResponse = await cache.match(OFFLINE_URL);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    return (await matchPrecache(OFFLINE_URL)) || Response.error();
   }
   return Response.error();
 });
