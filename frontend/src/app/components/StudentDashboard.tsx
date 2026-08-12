@@ -318,24 +318,24 @@ export const StudentDashboard: React.FC = () => {
 
   return (
     <div
-      className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 bg-gray-50 min-h-full font-sans pb-24 md:pb-12 text-gray-900"
+      className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 bg-gray-50 dark:bg-[#101113] min-h-full font-sans pb-24 md:pb-12 text-gray-900 dark:text-[#F4F5F7]"
     >
       {/* Offline Status Banner */}
       {isOffline && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+          className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
               <WifiOff className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-bold text-amber-900" style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}>
+              <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
                 You are currently offline
               </p>
-              <p className="text-xs text-amber-700 font-medium">
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
                 Cached features available. New actions will sync when connection restores.
               </p>
             </div>
@@ -346,52 +346,52 @@ export const StudentDashboard: React.FC = () => {
         </motion.div>
       )}
 
-      {/* 1. Identity & Greeting Hero Card (Linear/Arc Consumer App Style) */}
+      {/* 1. Identity & Greeting Hero Card */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
+        className="bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
       >
         <div className="relative z-10 space-y-1.5 min-w-0 flex-1">
           <div className="flex items-center justify-between gap-4">
-            <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl text-gray-900 tracking-tight leading-tight truncate" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+            <h1 className="font-extrabold text-2xl sm:text-3xl md:text-4xl text-gray-900 dark:text-[#F4F5F7] tracking-tight leading-tight truncate">
               Hello, {firstName}.
             </h1>
             <button
               onClick={handleRefreshAll}
               disabled={isRefreshingAll}
               title="Refresh dashboard"
-              className="md:hidden p-2 rounded-xl bg-gray-100 text-gray-400 active:scale-95 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="md:hidden p-2 rounded-xl bg-gray-100 dark:bg-[#202226] text-gray-400 dark:text-[#9AA0AC] active:scale-95 transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshingAll ? 'animate-spin' : ''}`} />
             </button>
           </div>
-          <p className="text-sm md:text-base text-gray-400 font-medium max-w-lg leading-relaxed" style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}>
+          <p className="text-sm md:text-base text-gray-400 dark:text-[#9AA0AC] font-medium max-w-lg leading-relaxed">
             Your campus command center. Scan services, track live requests, and access daily essentials.
           </p>
         </div>
 
         {/* Reputation Stat */}
-        <div className="relative z-10 flex items-center justify-between sm:justify-start gap-4 bg-gray-50 border border-gray-100 rounded-2xl p-3.5 sm:px-5 sm:py-4 shrink-0 shadow-sm">
+        <div className="relative z-10 flex items-center justify-between sm:justify-start gap-4 bg-gray-50 dark:bg-[#202226] border border-gray-100 dark:border-[#262A33] rounded-2xl p-3.5 sm:px-5 sm:py-4 shrink-0 shadow-sm">
           <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-500 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/40 flex items-center justify-center text-amber-500 shrink-0">
               <Award className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-[#9AA0AC]">
                   Reputation Tier
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-[#171A21] text-gray-600 dark:text-[#F4F5F7]">
                   {repBalance >= 300 ? 'Trusted' : 'Member'}
                 </span>
               </div>
               <div className="flex items-baseline gap-1 mt-0.5">
-                <span className="font-extrabold text-xl sm:text-2xl text-gray-900" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif' }}>
+                <span className="font-extrabold text-xl sm:text-2xl text-gray-900 dark:text-[#F4F5F7]">
                   {repBalance}
                 </span>
-                <span className="text-xs font-semibold text-gray-400">pts</span>
+                <span className="text-xs font-semibold text-gray-400 dark:text-[#9AA0AC]">pts</span>
               </div>
             </div>
           </div>
@@ -400,7 +400,7 @@ export const StudentDashboard: React.FC = () => {
             onClick={handleRefreshAll}
             disabled={isRefreshingAll}
             title="Refresh dashboard"
-            className="hidden md:flex p-2.5 rounded-xl bg-white border border-gray-100 text-gray-400 active:scale-95 transition-all ml-2 min-h-[44px] min-w-[44px] items-center justify-center shadow-sm"
+            className="hidden md:flex p-2.5 rounded-xl bg-white dark:bg-[#171A21] border border-gray-100 dark:border-[#262A33] text-gray-400 dark:text-[#9AA0AC] active:scale-95 transition-all ml-2 min-h-[44px] min-w-[44px] items-center justify-center shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshingAll ? 'animate-spin' : ''}`} />
           </button>
@@ -441,28 +441,28 @@ export const StudentDashboard: React.FC = () => {
         {isRefreshingAll && schedule.length === 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white rounded-3xl border border-gray-100 p-6 h-48 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <div className="h-4 bg-gray-100 rounded w-1/3 mb-4" />
-                <div className="h-6 bg-gray-100 rounded w-3/4 mb-3" />
-                <div className="h-4 bg-gray-100 rounded w-1/2" />
+              <div key={n} className="bg-white dark:bg-[#171A21] rounded-3xl border border-gray-100 dark:border-[#262A33] p-6 h-48 shadow-sm">
+                <div className="h-4 bg-gray-100 dark:bg-[#202226] rounded w-1/3 mb-4" />
+                <div className="h-6 bg-gray-100 dark:bg-[#202226] rounded w-3/4 mb-3" />
+                <div className="h-4 bg-gray-100 dark:bg-[#202226] rounded w-1/2" />
               </div>
             ))}
           </div>
         ) : schedule.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-gray-100 p-8 sm:p-10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-center max-w-3xl mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#0066cc] border border-blue-100 flex items-center justify-center mx-auto mb-5">
+          <div className="bg-white dark:bg-[#171A21] rounded-3xl border border-gray-100 dark:border-[#262A33] p-8 sm:p-10 shadow-sm text-center max-w-3xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-[#0066cc] dark:text-blue-400 border border-blue-100 dark:border-blue-800/40 flex items-center justify-center mx-auto mb-5">
               <Calendar className="w-8 h-8" strokeWidth={1.5} />
             </div>
-            <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-2" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-[#F4F5F7] mb-2">
               Upload your schedule to see today's classes
             </h3>
-            <p className="text-sm text-gray-400 font-medium max-w-md mx-auto mb-6 leading-relaxed">
+            <p className="text-sm text-gray-400 dark:text-[#9AA0AC] font-medium max-w-md mx-auto mb-6 leading-relaxed">
               Our automated parsing engine extracts your lectures, room numbers, and batches directly from your university timetable PDF or image.
             </p>
             <button
               type="button"
               onClick={() => navigate('/student/settings?section=schedule')}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0066cc] text-white text-sm font-semibold active:scale-95 transition-all"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#0066cc] dark:bg-[#2D4EF5] text-white text-sm font-semibold active:scale-95 transition-all"
             >
               <Upload className="w-4 h-4" /> Upload Schedule
             </button>
@@ -483,16 +483,16 @@ export const StudentDashboard: React.FC = () => {
             });
             if (todayClasses.length === 0) {
               return (
-                <div className="bg-white rounded-3xl border border-gray-100 p-8 text-center shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                <div className="bg-white dark:bg-[#171A21] rounded-3xl border border-gray-100 dark:border-[#262A33] p-8 text-center shadow-sm">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-3">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif' }}>No classes scheduled for today</h3>
-                  <p className="text-sm text-gray-400 font-medium mb-4">You have a clear schedule on {getCurrentDayCode()}.</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-[#F4F5F7] mb-1">No classes scheduled for today</h3>
+                  <p className="text-sm text-gray-400 dark:text-[#9AA0AC] font-medium mb-4">You have a clear schedule on {getCurrentDayCode()}.</p>
                   <button
                     type="button"
                     onClick={() => setShowTimetableModal(true)}
-                    className="text-xs font-bold text-[#0066cc] bg-blue-50 px-4 py-2 rounded-xl active:scale-95 transition-all"
+                    className="text-xs font-bold text-[#0066cc] dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-xl active:scale-95 transition-all"
                   >
                     View Entire Week
                   </button>
@@ -510,18 +510,18 @@ export const StudentDashboard: React.FC = () => {
                   return (
                     <div
                       key={cls.id || idx}
-                      className={`bg-white rounded-3xl p-6 border transition-all duration-300 relative overflow-hidden group shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${
+                      className={`bg-white dark:bg-[#171A21] rounded-3xl p-6 border transition-all duration-300 relative overflow-hidden group shadow-sm ${
                         isCompleted
-                          ? 'border-gray-100 opacity-80 hover:opacity-100'
+                          ? 'border-gray-100 dark:border-[#262A33] opacity-80 hover:opacity-100'
                           : isInProgress
-                          ? 'border-blue-100 ring-1 ring-blue-200'
-                          : 'border-gray-100'
+                          ? 'border-blue-200 dark:border-blue-800 ring-1 ring-blue-300 dark:ring-blue-800'
+                          : 'border-gray-100 dark:border-[#262A33]'
                       }`}
                     >
                       {/* Left color bar */}
                       <div
                         className={`absolute top-0 left-0 w-1.5 h-full rounded-l-3xl ${
-                          isCompleted ? 'bg-gray-200' : isInProgress ? 'bg-[#0066cc]' : 'bg-amber-400'
+                          isCompleted ? 'bg-gray-200 dark:bg-gray-700' : isInProgress ? 'bg-[#0066cc] dark:bg-[#2D4EF5]' : 'bg-amber-400'
                         }`}
                       ></div>
 
@@ -530,16 +530,16 @@ export const StudentDashboard: React.FC = () => {
                         <span
                           className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${
                             isCompleted
-                              ? 'bg-gray-100 text-gray-500'
+                              ? 'bg-gray-100 dark:bg-[#202226] text-gray-500 dark:text-[#9AA0AC]'
                               : isInProgress
-                              ? 'bg-[#0066cc] text-white'
-                              : 'bg-amber-50 text-amber-700 border border-amber-100'
+                              ? 'bg-[#0066cc] dark:bg-[#2D4EF5] text-white'
+                              : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-800/40'
                           }`}
                         >
                           {isCompleted ? 'Completed' : isInProgress ? 'In Progress' : 'Later Today'}
                         </span>
                         {cls.batch && (
-                          <span className="text-[11px] font-bold text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-lg">
+                          <span className="text-[11px] font-bold text-gray-400 dark:text-[#9AA0AC] bg-gray-50 dark:bg-[#202226] border border-gray-100 dark:border-[#262A33] px-2.5 py-0.5 rounded-lg">
                             {cls.batch}
                           </span>
                         )}
@@ -548,22 +548,21 @@ export const StudentDashboard: React.FC = () => {
                       {/* Subject */}
                       <h3
                         className={`text-lg font-bold mb-2 ${
-                          isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'
+                          isCompleted ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-[#F4F5F7]'
                         }`}
-                        style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}
                       >
                         {cls.subject || cls.code || 'Lecture Class'}
                       </h3>
 
                       {/* Room */}
-                      <p className="text-sm text-gray-400 flex items-center gap-2 mb-6 font-medium">
-                        <MapPin className="w-4 h-4 text-gray-300" strokeWidth={2} />
+                      <p className="text-sm text-gray-400 dark:text-[#9AA0AC] flex items-center gap-2 mb-6 font-medium">
+                        <MapPin className="w-4 h-4 text-gray-300 dark:text-gray-600" strokeWidth={2} />
                         Room {cls.room || 'TBA'}
                         {cls.statusLabel && ` • ${cls.statusLabel}`}
                       </p>
 
                       {/* Time */}
-                      <div className="text-sm font-bold text-gray-900 flex items-center justify-between border-t border-gray-100 pt-4">
+                      <div className="text-sm font-bold text-gray-900 dark:text-[#F4F5F7] flex items-center justify-between border-t border-gray-100 dark:border-[#262A33] pt-4">
                         <span>{cls.startTime} - {cls.endTime}</span>
                         {isCompleted && (
                           <CheckCircle2 className="w-4 h-4 text-emerald-500" />

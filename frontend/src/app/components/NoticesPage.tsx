@@ -224,15 +224,15 @@ const NoticeCard: React.FC<{
   return (
     <article
       className={[
-        'relative bg-white rounded-2xl border overflow-hidden transition-all duration-300 group',
+        'relative bg-white dark:bg-[#171A21] rounded-2xl border overflow-hidden transition-all duration-300 group',
         pinActive
-          ? 'border-amber-200 shadow-[0_4px_20px_rgba(245,158,11,0.12)]'
-          : 'border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)]',
+          ? 'border-amber-200 dark:border-amber-900/50 shadow-sm'
+          : 'border-gray-100 dark:border-[#262A33] shadow-sm hover:border-gray-200 dark:hover:border-gray-700',
       ].join(' ')}
       style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${index * 60}ms` }}
     >
       {/* Category gradient background */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient} pointer-events-none`} />
+      <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient} pointer-events-none opacity-40 dark:opacity-20`} />
 
       {/* Left color bar */}
       <div className={`absolute top-0 left-0 bottom-0 w-1 ${meta.bar} rounded-l-2xl`} />
@@ -247,9 +247,9 @@ const NoticeCard: React.FC<{
         {pinActive && (
           <div className="flex items-center gap-1.5 mb-3">
             <Pin className="w-3 h-3 text-amber-500 fill-amber-500" />
-            <span className="text-[10px] font-extrabold text-amber-600 uppercase tracking-[0.1em]">Pinned</span>
+            <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-[0.1em]">Pinned</span>
             {notice.pin_expires_at && (
-              <span className="ml-auto text-[10px] text-amber-500 font-medium">
+              <span className="ml-auto text-[10px] text-amber-500 dark:text-amber-400 font-medium">
                 Expires {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
               </span>
             )}
@@ -261,11 +261,11 @@ const NoticeCard: React.FC<{
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.badge}`}>
             {meta.label}
           </span>
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-[10px] font-semibold text-gray-400 dark:text-[#9AA0AC] uppercase tracking-wider">
             {yearLabel(notice.target_year)}
           </span>
-          <span className="text-gray-200">•</span>
-          <span className="text-[10px] font-medium text-gray-400">
+          <span className="text-gray-200 dark:text-gray-700">•</span>
+          <span className="text-[10px] font-medium text-gray-400 dark:text-[#9AA0AC]">
             {formatRelativeTime(notice.created_at)}
           </span>
         </div>
@@ -273,8 +273,7 @@ const NoticeCard: React.FC<{
         {/* Title row with delete */}
         <div className="flex items-start justify-between gap-4 mb-2">
           <h2
-            className="text-[15px] font-extrabold text-gray-900 leading-snug flex-1"
-            style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.3px' }}
+            className="text-[15px] font-extrabold text-gray-900 dark:text-[#F4F5F7] leading-snug flex-1"
           >
             {notice.title}
           </h2>
@@ -284,7 +283,7 @@ const NoticeCard: React.FC<{
               title="Delete notice"
               onClick={handleSoftDelete}
               disabled={deletingId}
-              className="w-8 h-8 rounded-full hover:bg-rose-50 text-gray-300 hover:text-rose-500 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 sm:opacity-100 shrink-0 -mt-1"
+              className="w-8 h-8 rounded-full hover:bg-rose-50 dark:hover:bg-rose-900/30 text-gray-300 dark:text-gray-600 hover:text-rose-500 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 sm:opacity-100 shrink-0 -mt-1"
             >
               {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
             </button>
@@ -293,7 +292,7 @@ const NoticeCard: React.FC<{
 
         {/* Content */}
         {notice.content && (
-          <p className={`text-sm text-gray-500 leading-relaxed whitespace-pre-wrap font-medium ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
+          <p className={`text-sm text-gray-500 dark:text-[#9AA0AC] leading-relaxed whitespace-pre-wrap font-medium ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
             {notice.content}
           </p>
         )}
@@ -301,7 +300,7 @@ const NoticeCard: React.FC<{
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
-            className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
+            className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-colors"
           >
             {expanded
               ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
@@ -320,10 +319,10 @@ const NoticeCard: React.FC<{
         )}
 
         {/* Footer date */}
-        <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-          <span className="text-[10px] font-medium text-gray-400">{formatDate(notice.created_at)}</span>
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#262A33] flex items-center justify-between">
+          <span className="text-[10px] font-medium text-gray-400 dark:text-[#9AA0AC]">{formatDate(notice.created_at)}</span>
           {attachments.length > 0 && (
-            <span className="text-[10px] font-semibold text-gray-400">
+            <span className="text-[10px] font-semibold text-gray-400 dark:text-[#9AA0AC]">
               {attachments.length} attachment{attachments.length > 1 ? 's' : ''}
             </span>
           )}

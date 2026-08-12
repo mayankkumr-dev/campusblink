@@ -62,7 +62,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
      */
     <nav
       aria-label="Bottom Navigation"
-      className={`md:hidden fixed bottom-0 left-0 right-0 w-full z-[999] flex items-center justify-between select-none transition-all duration-300 ease-in-out bg-white/90 backdrop-blur-xl border-t border-gray-200 pb-safe ${
+      className={`md:hidden fixed bottom-0 left-0 right-0 w-full z-[999] flex items-center justify-between select-none transition-all duration-300 ease-in-out bg-white/95 dark:bg-[#171A21]/95 backdrop-blur-xl border-t border-gray-200 dark:border-[#262A33] pb-safe ${
         scrollDirection === 'down'
           ? 'translate-y-[160%] opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
@@ -88,15 +88,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
         const content = (
           <>
             {isActive && (
-              /*
-               * Active pill indicator — ink (#1d1d1f) background.
-               * DESIGN.md: `rounded.pill` shape, `transform: scale(0.95)` on press.
-               */
               <motion.div
                 layoutId="activeBottomTabPill"
                 transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-                className="absolute inset-0 rounded-full z-0"
-                style={{ backgroundColor: '#1d1d1f' }}
+                className="absolute inset-0 rounded-full z-0 bg-[#1d1d1f] dark:bg-[#2D4EF5]"
               />
             )}
             <div className="relative z-10 flex items-center justify-center">

@@ -185,29 +185,29 @@ export const AdminCanteenMenuPage: React.FC = () => {
 
       {/* ── DESKTOP PC VIEWPORT ONLY ── */}
       <div className="hidden md:block space-y-6 animate-in fade-in duration-500 font-sans">
-        <div className="flex flex-col gap-3 rounded-lg border border-black/[0.08] bg-white p-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-black/[0.08] dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-4 md:flex-row md:items-center md:justify-between transition-colors">
           <div className="flex items-center gap-3">
             <select
               value={selectedShop}
               onChange={(event) => setSelectedShop(event.target.value)}
-              className="rounded-lg border border-amber-400/30 bg-slate-100 px-4 py-2.5 text-sm font-bold text-amber-500 outline-none"
+              className="rounded-lg border border-amber-400/30 dark:border-admin-border-subtle bg-slate-100 dark:bg-admin-bg-surface-raised px-4 py-2.5 text-sm font-bold text-amber-500 outline-none"
             >
               <option value="all">All Canteens</option>
               {(canteens || []).map((canteen) => (
                 <option key={canteen.id} value={canteen.id}>{canteen.name}</option>
               ))}
             </select>
-            <span className="hidden text-sm text-slate-500 md:block">Live menu inventory</span>
+            <span className="hidden text-sm text-slate-500 dark:text-admin-text-secondary md:block">Live menu inventory</span>
           </div>
 
           <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-400 transition-colors" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-admin-text-tertiary transition-colors" />
             <input
               type="text"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               placeholder="Search items..."
-              className="w-full rounded-lg border border-black/10 bg-slate-100 py-2 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-amber-400/50"
+              className="w-full rounded-lg border border-black/10 dark:border-admin-border-subtle bg-slate-100 dark:bg-admin-bg-surface-raised py-2 pl-9 pr-3 text-sm text-slate-900 dark:text-admin-text-primary placeholder:text-slate-400 dark:placeholder:text-admin-text-tertiary outline-none focus:border-amber-400/50"
             />
           </div>
         </div>
@@ -219,8 +219,8 @@ export const AdminCanteenMenuPage: React.FC = () => {
               onClick={() => setSelectedCategory(category)}
               className={`rounded-md px-4 py-2 text-xs font-bold transition-colors ${
                 selectedCategory === category
-                  ? 'bg-white text-slate-900'
-                  : 'border border-black/[0.08] bg-white text-slate-500 hover:text-slate-900'
+                  ? 'bg-amber-500 dark:bg-admin-accent text-white dark:text-admin-bg-surface-elevated'
+                  : 'border border-black/[0.08] dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface text-slate-500 dark:text-admin-text-secondary hover:text-slate-900 dark:hover:text-admin-text-primary'
               }`}
             >
               {category}
@@ -230,17 +230,17 @@ export const AdminCanteenMenuPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredItems.map((item) => (
-            <div key={item.id} className="relative rounded-lg border border-black/[0.08] bg-white p-4">
+            <div key={item.id} className="relative rounded-lg border border-black/[0.08] dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-4 transition-colors">
               {!item.is_available && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-50/70">
-                  <span className="rounded bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-900">Out of Stock</span>
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-slate-50/70 dark:bg-black/60 backdrop-blur-[1px]">
+                  <span className="rounded bg-rose-600 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">Out of Stock</span>
                 </div>
               )}
 
               <div className="mb-3 flex items-start justify-between gap-2">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{item.name}</h3>
-                  <p className="text-xs text-slate-500">{item.shop?.name || 'Unknown canteen'} • {item.category || 'Uncategorized'}</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-admin-text-primary">{item.name}</h3>
+                  <p className="text-xs text-slate-500 dark:text-admin-text-secondary">{item.shop?.name || 'Unknown canteen'} • {item.category || 'Uncategorized'}</p>
                 </div>
                 <span className="font-syne text-lg font-bold text-amber-500">₹{item.price}</span>
               </div>
@@ -249,7 +249,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
                 <span className={`rounded px-2 py-1 font-bold ${item.is_veg ? 'bg-emerald-600/10 text-accent-green' : 'bg-rose-600/10 text-rose-600'}`}>
                   {item.is_veg ? 'Veg' : 'Non-veg'}
                 </span>
-                <span className={`rounded px-2 py-1 font-bold ${item.is_available ? 'bg-slate-100 text-slate-900' : 'bg-rose-600/15 text-rose-600'}`}>
+                <span className={`rounded px-2 py-1 font-bold ${item.is_available ? 'bg-slate-100 dark:bg-admin-bg-surface-raised text-slate-900 dark:text-admin-text-primary' : 'bg-rose-600/15 text-rose-600'}`}>
                   {item.is_available ? 'Available' : 'Unavailable'}
                 </span>
               </div>
@@ -257,14 +257,14 @@ export const AdminCanteenMenuPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleToggleAvailability(item)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-black/10 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-900 hover:border-amber-400/40"
+                  className="inline-flex items-center gap-2 rounded-lg border border-black/10 dark:border-admin-border-subtle bg-slate-100 dark:bg-admin-bg-surface-raised px-3 py-2 text-xs font-bold text-slate-900 dark:text-admin-text-primary hover:border-amber-400/40 transition-colors"
                 >
                   {item.is_available ? <StopCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                   {item.is_available ? 'Disable' : 'Enable'}
                 </button>
                 <button
                   onClick={() => handleDeleteItem(item)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-600/10 px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-600/15"
+                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 dark:border-rose-900/40 bg-rose-600/10 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-600/15 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" /> Delete
                 </button>
@@ -274,7 +274,7 @@ export const AdminCanteenMenuPage: React.FC = () => {
         </div>
 
         {filteredItems.length === 0 && (
-          <div className="rounded-lg border border-dashed border-black/10 bg-white p-10 text-center text-sm text-slate-500">
+          <div className="rounded-lg border border-dashed border-black/10 dark:border-admin-border-subtle bg-white dark:bg-admin-bg-surface p-10 text-center text-sm text-slate-500 dark:text-admin-text-secondary transition-colors">
             <AlertCircle className="mx-auto mb-3 h-5 w-5 text-amber-500 dark:text-amber-400 transition-colors" />
             No menu items found for the selected filters.
           </div>
