@@ -332,12 +332,13 @@ export const StudentLayout: React.FC = () => {
                   setIsMobileMenuOpen(false);
                 }
               }}
-              className="relative w-full max-h-[85vh] flex flex-col z-10 overflow-hidden"
+              className="relative w-full max-h-[85vh] flex flex-col z-10 overflow-hidden overscroll-y-none"
               style={{
                 backgroundColor: '#ffffff',
                 borderRadius: '22px 22px 0 0',
                 borderTop: '1px solid #e0e0e0',
                 paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+                touchAction: 'pan-x pan-y',
               }}
             >
               {/* Drawer handle pill */}
@@ -366,7 +367,7 @@ export const StudentLayout: React.FC = () => {
               </div>
 
               {/* Scrollable drawer body */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ backgroundColor: '#f5f5f7' }}>
+              <div className="flex-1 overflow-y-auto overscroll-y-contain p-4 space-y-4" style={{ backgroundColor: '#f5f5f7' }}>
 
                 {/* Campus Services section */}
                 <div>

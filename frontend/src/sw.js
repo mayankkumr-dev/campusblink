@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { clientsClaim } from 'workbox-core';
-import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
-import { registerRoute, NavigationRoute } from 'workbox-routing';
+import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL, matchPrecache } from 'workbox-precaching';
+import { registerRoute, NavigationRoute, setCatchHandler } from 'workbox-routing';
 import { CacheFirst, NetworkFirst, StaleWhileRevalidate, NetworkOnly } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
@@ -144,6 +144,13 @@ try {
     denylist: [/^\/auth\/callback/],
   }));
 }
+
+setCatchHandler(async ({ event }) => {
+  if (event.request.destination === 'document') {
+    return (await matchPrecache('/offline.html')) || (await caches.match('/offline.html')) || Response.error();
+  }
+  return Response.error();
+});
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
