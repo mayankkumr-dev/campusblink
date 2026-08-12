@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { 
   UtensilsCrossed, Printer, Clock, ChevronRight, 
@@ -78,6 +78,9 @@ export const ProfessorDashboard: React.FC = () => {
   });
   const [showTimetableModal, setShowTimetableModal] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  // Refs for auto-scrolling to the ongoing class
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const desktopScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -114,6 +117,26 @@ export const ProfessorDashboard: React.FC = () => {
     load();
     return () => { mounted = false; };
   }, [profile?.id]);
+
+  // Auto-scroll to the in-progress (ongoing) class card when schedule loads
+  useEffect(() => {
+    if (schedule.length === 0) return;
+    const todayClasses = schedule.filter((c: any) => c.day === getCurrentDayCode());
+    const inProgressIdx = todayClasses.findIndex((c: any) => getClassTimeStatus(c.startTime, c.endTime) === 'in_progress');
+    if (inProgressIdx < 0) return;
+    const mobileContainer = mobileScrollRef.current;
+    if (mobileContainer) {
+      const cards = mobileContainer.querySelectorAll(':scope > div');
+      const card = cards[inProgressIdx] as HTMLElement;
+      if (card) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' }), 300);
+    }
+    const desktopContainer = desktopScrollRef.current;
+    if (desktopContainer) {
+      const cards = desktopContainer.querySelectorAll(':scope > div');
+      const card = cards[inProgressIdx] as HTMLElement;
+      if (card) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+    }
+  }, [schedule]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pb-20 font-sans bg-[#FAFAFA] dark:bg-prof-bg-base min-h-screen transition-colors duration-200 text-gray-900 dark:text-prof-text-primary">
@@ -270,7 +293,7 @@ export const ProfessorDashboard: React.FC = () => {
             }
 
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div ref={desktopScrollRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {todayClasses.map((cls: any, idx: number) => {
                   const status = getClassTimeStatus(cls.startTime, cls.endTime);
                   const isCompleted = status === 'completed';
@@ -739,7 +762,7 @@ export const ProfessorDashboard: React.FC = () => {
             }
 
             return (
-              <div className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 scroll-px-4 hide-scrollbar">
+              <div ref={mobileScrollRef} className="flex gap-3.5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-4 px-4 scroll-px-4 hide-scrollbar">
                 {todayClasses.map((cls: any, idx: number) => {
                   const status = getClassTimeStatus(cls.startTime, cls.endTime);
                   const isCompleted = status === 'completed';

@@ -129,10 +129,24 @@ registerRoute(mutationMatcher, mutationStrategy, 'DELETE');
 
 // ─── Navigation Routes — Instant PWA Shell Fallback ──────────────
 // Serves the precached index.html instantly without waiting for the network!
-// This makes the app launch instantly without the 4-second NetworkFirst delay.
+// When truly offline (no connection at OS level), serves offline.html instead.
 try {
-  const handler = createHandlerBoundToURL('/index.html');
-  registerRoute(new NavigationRoute(handler, {
+  const shellHandler = createHandlerBoundToURL('/index.html');
+
+  // Custom handler: serve offline.html when the browser is offline at OS level,
+  // otherwise fall through to the precached index.html shell.
+  const navigationHandler = async (context) => {
+    if (!navigator.onLine) {
+      const cache = await caches.open(OFFLINE_CACHE);
+      const offlineResponse = await cache.match(OFFLINE_URL);
+      if (offlineResponse) return offlineResponse;
+      const precached = await matchPrecache(OFFLINE_URL);
+      if (precached) return precached;
+    }
+    return shellHandler(context);
+  };
+
+  registerRoute(new NavigationRoute(navigationHandler, {
     denylist: [/^\/auth\/callback/],
   }));
 } catch (e) {
