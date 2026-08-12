@@ -149,6 +149,7 @@ const OFFLINE_CACHE = 'offline-fallback-v1';
 const OFFLINE_URL = '/offline.html';
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_URL))
   );

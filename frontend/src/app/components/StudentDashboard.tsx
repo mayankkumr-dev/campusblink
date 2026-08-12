@@ -728,14 +728,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              {isActivityLoading || isRefreshingAll ? (
-                <div className="w-24 h-4 bg-gray-100 animate-pulse rounded" />
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  {activeListingsCount > 0 ? `${activeListingsCount} Active Listing${activeListingsCount > 1 ? 's' : ''}` : 'Live Campus Market'}
-                </span>
-              )}
+
               <h3 className="font-bold text-base sm:text-lg text-gray-900 leading-tight" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                 Marketplace
               </h3>
@@ -760,14 +753,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              {isActivityLoading || isRefreshingAll ? (
-                <div className="w-24 h-4 bg-gray-100 animate-pulse rounded" />
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {canteenOrdersCount > 0 ? `${canteenOrdersCount} Order${canteenOrdersCount > 1 ? 's' : ''} in Progress` : 'Instant Pickup Ready'}
-                </span>
-              )}
+
               <h3 className="font-bold text-base sm:text-lg text-gray-900 leading-tight" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                 Canteen
               </h3>
@@ -792,14 +778,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              {isActivityLoading || isRefreshingAll ? (
-                <div className="w-24 h-4 bg-gray-100 animate-pulse rounded" />
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-50 text-cyan-700 border border-cyan-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-                  {printOrdersCount > 0 ? `${printOrdersCount} Job${printOrdersCount > 1 ? 's' : ''} Processing` : 'Document Services Ready'}
-                </span>
-              )}
+
               <h3 className="font-bold text-base sm:text-lg text-gray-900 leading-tight" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                 Print Shop
               </h3>
@@ -824,14 +803,7 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="mt-3 sm:mt-4 space-y-1">
-              {isActivityLoading || isRefreshingAll ? (
-                <div className="w-24 h-4 bg-gray-100 animate-pulse rounded" />
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                  Stories & Campus Secrets
-                </span>
-              )}
+
               <h3 className="font-bold text-base sm:text-lg text-gray-900 leading-tight" style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', letterSpacing: '-0.374px' }}>
                 Diaries
               </h3>
