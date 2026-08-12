@@ -58,7 +58,7 @@ export function MarketplaceWishlistPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f7', fontFamily: SF }}>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7] font-sans">
       <div className="mx-auto max-w-7xl space-y-4 px-4 pb-24 pt-6 sm:px-6 lg:px-8">
         {/* ── Hero tile (dark) ───────────────────────────────────── */}
         <section
@@ -97,9 +97,9 @@ export function MarketplaceWishlistPage() {
           </div>
         </section>
 
-        {/* ── Filter tile (parchment) ────────────────────────────── */}
+        {/* ── Filter tile ────────────────────────────── */}
         <section
-          style={{ background: '#f5f5f7', border: '1px solid #e0e0e0', borderRadius: 18, padding: '20px 24px' }}
+          className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-5 sm:p-6"
         >
           <div className="flex flex-wrap items-center gap-3">
             <input
@@ -108,34 +108,18 @@ export function MarketplaceWishlistPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search your saved items…"
               aria-label="Search saved listings"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                height: 44,
-                borderRadius: 9999,
-                border: '1px solid rgba(0,0,0,0.08)',
-                background: '#ffffff',
-                fontFamily: SF,
-                fontSize: 17,
-                letterSpacing: '-0.374px',
-                color: '#1d1d1f',
-                padding: '0 16px',
-                outline: 'none',
-              }}
-              onFocus={(e) => { (e.target as HTMLInputElement).style.border = '1px solid #0066cc'; }}
-              onBlur={(e) => { (e.target as HTMLInputElement).style.border = '1px solid rgba(0,0,0,0.08)'; }}
+              className="flex-1 min-w-0 h-[44px] rounded-full border border-gray-200 dark:border-[#262A33] bg-gray-50 dark:bg-gray-800 font-sans text-[17px] tracking-[-0.374px] text-gray-900 dark:text-[#F4F5F7] px-4 outline-none focus:border-[#0066cc] dark:focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
           <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
             <button
               type="button"
               onClick={() => setCategory('all')}
-              className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
-              style={{
-                background: category === 'all' ? '#0066cc' : '#ffffff',
-                color: category === 'all' ? '#ffffff' : '#333333',
-                border: category === 'all' ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
-              }}
+              className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95 ${
+                category === 'all'
+                  ? 'bg-[#0066cc] dark:bg-blue-600 text-white border border-[#0066cc] dark:border-blue-600'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
               aria-pressed={category === 'all'}
             >
               All
@@ -145,12 +129,11 @@ export function MarketplaceWishlistPage() {
                 key={cat}
                 type="button"
                 onClick={() => setCategory(cat === category ? 'all' : cat)}
-                className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
-                style={{
-                  background: category === cat ? '#0066cc' : '#ffffff',
-                  color: category === cat ? '#ffffff' : '#333333',
-                  border: category === cat ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
-                }}
+                className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95 ${
+                  category === cat
+                    ? 'bg-[#0066cc] dark:bg-blue-600 text-white border border-[#0066cc] dark:border-blue-600'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+                }`}
                 aria-pressed={category === cat}
               >
                 {cat}
@@ -159,14 +142,14 @@ export function MarketplaceWishlistPage() {
           </div>
         </section>
 
-        {/* ── Listings (white canvas) ────────────────────────────── */}
+        {/* ── Listings ────────────────────────────── */}
         <section
-          style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18, padding: '24px' }}
+          className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-6"
         >
-          <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc', marginBottom: 6 }}>
+          <div className="text-xs font-semibold uppercase tracking-[0.6px] text-[#0066cc] dark:text-[#60A5FA] mb-1">
             Your saved items
           </div>
-          <h2 style={{ fontFamily: SF_DISPLAY, fontSize: 21, fontWeight: 600, color: '#1d1d1f', marginBottom: 20 }}>
+          <h2 className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[21px] font-semibold text-gray-900 dark:text-[#F4F5F7] mb-5">
             {isLoading ? 'Loading…' : `${listings.length} item${listings.length !== 1 ? 's' : ''} saved`}
           </h2>
 
@@ -194,8 +177,7 @@ export function MarketplaceWishlistPage() {
               action={
                 <Link
                   to="/student/buy-sell"
-                  className="inline-flex items-center gap-2 rounded-full text-white transition-transform active:scale-95"
-                  style={{ padding: '11px 22px', background: '#0066cc', fontSize: 17 }}
+                  className="inline-flex items-center gap-2 px-[22px] py-[11px] rounded-full bg-[#0066cc] dark:bg-blue-600 text-white text-[17px] transition-transform active:scale-95"
                 >
                   Explore marketplace
                 </Link>

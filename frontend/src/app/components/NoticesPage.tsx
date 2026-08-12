@@ -424,15 +424,15 @@ export const NoticesPage: React.FC = () => {
         }
       `}</style>
 
-      <div className="min-h-full bg-gray-50 pb-16">
+      <div className="min-h-full bg-gray-50 dark:bg-[#101113] pb-16">
         {/* Slim action bar — icons only (layout already renders "Notices" title) */}
-        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#171A21]/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#262A33]">
           <div className="max-w-2xl mx-auto px-4 py-2.5 flex items-center gap-2">
             {isSearchActive ? (
               <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-right-4 duration-200">
                 <button
                   onClick={() => { setIsSearchActive(false); setSearchQuery(''); }}
-                  className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500 transition-colors"
+                  className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
@@ -444,12 +444,12 @@ export const NoticesPage: React.FC = () => {
                     placeholder="Search notices…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-gray-100 pl-9 pr-4 py-2 rounded-full text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-gray-400 transition-all"
+                    className="w-full bg-gray-100 dark:bg-[#202226] pl-9 pr-4 py-2 rounded-full text-sm font-medium text-gray-900 dark:text-[#F4F5F7] focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -460,7 +460,7 @@ export const NoticesPage: React.FC = () => {
               <div className="flex items-center justify-end w-full gap-1">
                 <button
                   onClick={() => setIsSearchActive(true)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500 transition-colors"
+                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
                 >
                   <Search className="w-4 h-4" />
                 </button>
@@ -468,7 +468,7 @@ export const NoticesPage: React.FC = () => {
                   type="button"
                   onClick={() => load(true)}
                   disabled={isRefreshing}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500 transition-colors disabled:opacity-40"
+                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors disabled:opacity-40"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </button>
@@ -482,17 +482,17 @@ export const NoticesPage: React.FC = () => {
           {isAdmin && (
             <Link
               to="/student/notices/admin"
-              className="mb-5 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 active:scale-[0.99] transition-all group hover:shadow-md"
+              className="mb-5 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-amber-950/40 dark:to-orange-950/40 rounded-2xl border border-orange-100 dark:border-amber-900/50 active:scale-[0.99] transition-all group hover:shadow-md"
               style={{ animation: 'slideUpFade 0.3s ease both' }}
             >
-              <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-amber-900/60 flex items-center justify-center text-orange-600 dark:text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
                 <Megaphone className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-orange-900">Notice Admin Panel</p>
-                <p className="text-[11px] text-orange-600/70 font-medium">Publish &amp; manage notices</p>
+                <p className="text-sm font-bold text-orange-900 dark:text-amber-300">Notice Admin Panel</p>
+                <p className="text-[11px] text-orange-600/70 dark:text-amber-400/80 font-medium">Publish &amp; manage notices</p>
               </div>
-              <ExternalLink className="w-4 h-4 text-orange-400 shrink-0 group-hover:text-orange-500 transition-colors" />
+              <ExternalLink className="w-4 h-4 text-orange-400 dark:text-amber-400 shrink-0 group-hover:text-orange-500 dark:group-hover:text-amber-300 transition-colors" />
             </Link>
           )}
 

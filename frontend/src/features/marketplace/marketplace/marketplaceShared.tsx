@@ -221,8 +221,7 @@ export function MarketplaceListingCard({
 }) {
   return (
     <div
-      className="group relative flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
-      style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18 }}
+      className="group relative flex flex-col overflow-hidden transition-transform duration-200 hover:-translate-y-0.5 active:scale-[0.98] bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px]"
     >
       <Link to={`/student/buy-sell/${listing.id}`} className="relative block aspect-[4/3] overflow-hidden">
         <ImageWithFallback
@@ -234,8 +233,7 @@ export function MarketplaceListingCard({
         {listing.is_sold && (
           <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)' }}>
             <span
-              className="rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white"
-              style={{ background: '#1d1d1f' }}
+              className="rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white bg-[#1d1d1f] dark:bg-slate-800"
             >
               Sold
             </span>
@@ -252,12 +250,11 @@ export function MarketplaceListingCard({
             e.stopPropagation();
             onToggleWishlist?.(listing.id);
           }}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform active:scale-90"
-          style={{ border: '1px solid #e0e0e0' }}
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 dark:bg-slate-900/90 shadow-sm transition-transform active:scale-90 border border-gray-200 dark:border-gray-700"
         >
           <Heart
-            className="h-4 w-4"
-            style={{ color: wished ? '#ef4444' : '#7a7a7a' }}
+            style={{ color: wished ? '#ef4444' : undefined }}
+            className={`h-4 w-4 ${!wished ? 'text-gray-400 dark:text-gray-400' : ''}`}
             fill={wished ? '#ef4444' : 'none'}
           />
         </button>
@@ -266,27 +263,14 @@ export function MarketplaceListingCard({
       <div style={{ padding: 24 }} className="flex flex-1 flex-col gap-2">
         <Link to={`/student/buy-sell/${listing.id}`} className="block min-w-0">
           <div
-            className="line-clamp-2 leading-snug"
-            style={{
-              fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-              fontSize: 17,
-              fontWeight: 600,
-              letterSpacing: '-0.374px',
-              color: '#1d1d1f',
-            }}
+            className="line-clamp-2 leading-snug font-sans text-[17px] font-semibold tracking-[-0.374px] text-gray-900 dark:text-[#F4F5F7]"
           >
             {listing.title}
           </div>
         </Link>
 
         <div
-          style={{
-            fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-            fontSize: 17,
-            fontWeight: 600,
-            letterSpacing: '-0.374px',
-            color: '#0066cc',
-          }}
+          className="font-sans text-[17px] font-semibold tracking-[-0.374px] text-[#0066cc] dark:text-[#60A5FA]"
         >
           {formatPrice(listing.price)}
         </div>
@@ -294,31 +278,28 @@ export function MarketplaceListingCard({
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {listing.category && (
             <span
-              className="rounded-full px-2.5 py-0.5 text-[11px] font-medium"
-              style={{ background: '#f5f5f7', color: '#7a7a7a' }}
+              className="rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
             >
               {listing.category}
             </span>
           )}
-          <span className="text-[12px]" style={{ color: '#7a7a7a' }}>
+          <span className="text-[12px] text-gray-500 dark:text-gray-400">
             {formatMarketplaceTime(listing.created_at)}
           </span>
         </div>
 
         <div
-          className="mt-auto flex items-center justify-between gap-2 pt-2"
-          style={{ borderTop: '1px solid #f0f0f0' }}
+          className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-[#262A33]"
         >
           <div className="flex min-w-0 items-center gap-2">
             <MarketplaceAvatar profile={listing.seller_profile} size="sm" />
-            <span className="truncate text-[13px] font-medium" style={{ color: '#333333' }}>
+            <span className="truncate text-[13px] font-medium text-gray-700 dark:text-gray-300">
               {getProfileName(listing.seller_profile)}
             </span>
           </div>
           <Link
             to={`/student/buy-sell/${listing.id}`}
-            className="flex flex-shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white transition-transform active:scale-95"
-            style={{ background: '#0066cc' }}
+            className="flex flex-shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-[13px] font-medium text-white transition-transform active:scale-95 bg-[#0066cc] dark:bg-blue-600"
             aria-label={`View listing: ${listing.title}`}
           >
             <MessageCircle className="h-3.5 w-3.5" />
@@ -345,36 +326,20 @@ export function MarketplaceSectionCard({
 }) {
   return (
     <section
-      style={{
-        background: variant === 'parchment' ? '#f5f5f7' : '#ffffff',
-        border: '1px solid #e0e0e0',
-        borderRadius: 18,
-        padding: '32px 24px',
-      }}
+      className={`rounded-[18px] p-6 sm:p-8 border border-gray-200 dark:border-[#262A33] ${
+        variant === 'parchment'
+          ? 'bg-gray-100 dark:bg-[#171A21]'
+          : 'bg-white dark:bg-[#171A21]'
+      }`}
     >
       <div style={{ marginBottom: 24 }}>
         <div
-          style={{
-            fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: '0.6px',
-            textTransform: 'uppercase',
-            color: '#0066cc',
-            marginBottom: 6,
-          }}
+          className="font-sans text-xs font-semibold uppercase tracking-[0.6px] text-[#0066cc] dark:text-[#60A5FA] mb-1.5"
         >
           {eyebrow}
         </div>
         <h2
-          style={{
-            fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif',
-            fontSize: 34,
-            fontWeight: 600,
-            letterSpacing: '-0.374px',
-            color: '#1d1d1f',
-            margin: 0,
-          }}
+          className="font-sans text-3xl sm:text-[34px] font-semibold tracking-[-0.374px] text-gray-900 dark:text-[#F4F5F7] m-0"
         >
           {title}
         </h2>
@@ -397,37 +362,22 @@ export function MarketplaceEmptyState({
 }) {
   return (
     <div
-      className="flex flex-col items-center justify-center py-16 text-center"
-      style={{ border: '1.5px dashed #e0e0e0', borderRadius: 18 }}
+      className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 dark:border-[#262A33] rounded-[18px] bg-white dark:bg-[#171A21]"
     >
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full" style={{ background: '#f5f5f7' }}>
-        <ShoppingBag className="h-7 w-7" style={{ color: '#7a7a7a' }} />
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+        <ShoppingBag className="h-7 w-7 text-gray-400 dark:text-gray-500" />
       </div>
       <h3
-        style={{
-          fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif',
-          fontSize: 21,
-          fontWeight: 600,
-          letterSpacing: '0.231px',
-          color: '#1d1d1f',
-          marginBottom: 8,
-        }}
+        className="font-sans text-[21px] font-semibold tracking-[0.231px] text-gray-900 dark:text-[#F4F5F7] mb-2"
       >
         {title}
       </h3>
       <p
-        style={{
-          fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-          fontSize: 17,
-          lineHeight: 1.47,
-          letterSpacing: '-0.374px',
-          color: '#7a7a7a',
-          maxWidth: 380,
-        }}
+        className="font-sans text-[17px] leading-[1.47] tracking-[-0.374px] text-gray-500 dark:text-gray-400 max-w-[380px]"
       >
         {description}
       </p>
-      {action && <div style={{ marginTop: 24 }}>{action}</div>}
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }
@@ -436,15 +386,15 @@ export function MarketplaceEmptyState({
 
 export function MarketplaceListingCardSkeleton() {
   return (
-    <div style={{ background: '#ffffff', border: '1px solid #e0e0e0', borderRadius: 18, overflow: 'hidden' }}>
-      <div className="aspect-[4/3] animate-pulse" style={{ background: '#f5f5f7' }} />
+    <div className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] overflow-hidden">
+      <div className="aspect-[4/3] animate-pulse bg-gray-100 dark:bg-gray-800" />
       <div style={{ padding: 24 }} className="space-y-3">
-        <div className="h-4 w-3/4 animate-pulse rounded-full" style={{ background: '#f5f5f7' }} />
-        <div className="h-4 w-1/2 animate-pulse rounded-full" style={{ background: '#f5f5f7' }} />
-        <div className="h-3 w-1/3 animate-pulse rounded-full" style={{ background: '#f5f5f7' }} />
+        <div className="h-4 w-3/4 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
+        <div className="h-4 w-1/2 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
+        <div className="h-3 w-1/3 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
         <div className="mt-4 flex items-center justify-between">
-          <div className="h-7 w-7 animate-pulse rounded-full" style={{ background: '#f5f5f7' }} />
-          <div className="h-7 w-16 animate-pulse rounded-full" style={{ background: '#f5f5f7' }} />
+          <div className="h-7 w-7 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
+          <div className="h-7 w-16 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
         </div>
       </div>
     </div>
