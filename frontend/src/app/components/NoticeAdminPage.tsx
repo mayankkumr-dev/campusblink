@@ -153,6 +153,7 @@ export const NoticeAdminPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetYear, setTargetYear] = useState('all');
+  const [targetCollege, setTargetCollege] = useState('All');
   const [isPinned, setIsPinned] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -210,7 +211,7 @@ export const NoticeAdminPage: React.FC = () => {
 
     const { error } = await createNotice({
       authorId: profile.id,
-      college: profile.college,
+      college: profile.role === 'admin' ? targetCollege : profile.college,
       title: title.trim(),
       content: content.trim(),
       targetYear,
@@ -260,7 +261,11 @@ export const NoticeAdminPage: React.FC = () => {
                 </h1>
               </div>
               <p className="text-xs text-text-secondary font-medium mt-0.5">
-                Managing notices for <span className="font-bold text-text-primary">{profile?.college}</span>
+                {profile?.role === 'admin' ? (
+                  <>Publishing as <span className="font-bold text-text-primary">Super Admin</span></>
+                ) : (
+                  <>Managing notices for <span className="font-bold text-text-primary">{profile?.college}</span></>
+                )}
               </p>
             </div>
           </div>
@@ -305,6 +310,28 @@ export const NoticeAdminPage: React.FC = () => {
                       className="w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-sm font-medium text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400 resize-none leading-relaxed"
                     />
                   </div>
+
+                  {/* Super Admin College Selector */}
+                  {profile?.role === 'admin' && (
+                    <div>
+                      <label className="block text-[11px] font-bold text-text-primary uppercase tracking-wider mb-1.5">
+                        Target College
+                      </label>
+                      <select
+                        value={targetCollege}
+                        onChange={(e) => setTargetCollege(e.target.value)}
+                        className="w-full h-11 rounded-xl border border-border-subtle bg-surface px-4 text-sm font-semibold text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all cursor-pointer"
+                      >
+                        <option value="All">All Colleges</option>
+                        <option value="Maharaja Agrasen Institute of Technology (MAIT)">Maharaja Agrasen Institute of Technology (MAIT)</option>
+                        <option value="Maharaja Surajmal Institute of Technology (MSIT)">Maharaja Surajmal Institute of Technology (MSIT)</option>
+                        <option value="Vivekananda Institute of Professional Studies (VIPS)">Vivekananda Institute of Professional Studies (VIPS)</option>
+                        <option value="Bharati Vidyapeeth's College of Engineering (BVP)">Bharati Vidyapeeth's College of Engineering (BVP)</option>
+                        <option value="Delhi Technological University (DTU)">Delhi Technological University (DTU)</option>
+                        <option value="Netaji Subhas University of Technology (NSUT)">Netaji Subhas University of Technology (NSUT)</option>
+                      </select>
+                    </div>
+                  )}
 
                   {/* Target Year */}
                   <div>
