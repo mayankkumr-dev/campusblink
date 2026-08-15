@@ -171,20 +171,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
      * Width collapses to icon-only (88px) in chat section, hovers to full (260px).
      */
     <aside
-      className={`${isMobileMenu ? 'w-full h-full static flex-1' : 'group fixed top-0 left-0 h-dvh z-[40]'} select-none transition-all duration-300 overflow-hidden ${
+      className={`${isMobileMenu ? 'w-full h-full static flex-1' : 'group fixed top-0 left-0 h-dvh z-[40]'} select-none transition-all duration-300 overflow-hidden bg-white dark:bg-[#171A21] border-r border-gray-200 dark:border-[#262A33] ${
         !isMobileMenu && isChatSection ? 'w-[260px] md:w-[88px] hover:md:w-[260px]' : (!isMobileMenu ? 'w-[260px]' : '')
       }`}
-      style={{
-        backgroundColor: '#ffffff',
-        borderRight: isMobileMenu ? 'none' : '1px solid #e0e0e0',
-      }}
     >
       <div className={`${isMobileMenu ? 'w-full' : 'w-[260px]'} h-full flex flex-col justify-between`}>
 
         {/* ── Top: Branding & User Profile ────────────────────────────────── */}
         <div
-          className="flex flex-col px-4 pt-5 pb-4 space-y-4 shrink-0"
-          style={{ borderBottom: '1px solid #e0e0e0' }}
+          className="flex flex-col px-4 pt-5 pb-4 space-y-4 shrink-0 border-b border-gray-200 dark:border-[#262A33]"
         >
           {/* Campus Blink Logo */}
           <div className="flex items-center justify-between">
@@ -202,20 +197,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             </NavLink>
           </div>
 
-          {/*
-           * User Profile Card — store-utility-card style:
-           * bg canvas-parchment #f5f5f7, border hairline #e0e0e0, rounded-[18px], no shadow
-           */}
+          {/* User Profile Card */}
           <div
-            className={`flex items-center gap-3 transition-all duration-300 cursor-default overflow-hidden ${
+            className={`flex items-center gap-3 transition-all duration-300 cursor-default overflow-hidden bg-[#f5f5f7] dark:bg-[#202226] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-2 ${
               !isMobileMenu && isChatSection ? 'md:w-[56px] group-hover:md:w-full w-full' : 'w-full'
             }`}
-            style={{
-              backgroundColor: '#f5f5f7',
-              border: '1px solid #e0e0e0',
-              borderRadius: 18,
-              padding: '8px',
-            }}
           >
             {/* Avatar */}
             <div className="relative shrink-0">
@@ -223,37 +209,31 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 <img
                   src={profile.avatar_url}
                   alt={displayName}
-                  className="w-10 h-10 rounded-full object-cover"
-                  style={{ border: '1px solid #e0e0e0' }}
+                  className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-white/10"
                 />
               ) : (
                 /* Placeholder: Action Blue soft bg */
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm"
-                  style={{ backgroundColor: 'rgba(0,102,204,0.1)', color: '#0066cc', border: '1px solid rgba(0,102,204,0.15)' }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-blue-50 dark:bg-blue-900/30 text-[#0066cc] dark:text-blue-400 border border-blue-100 dark:border-blue-800/40"
                 >
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
-              {/* Online indicator — accent-green functional dot */}
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2" style={{ backgroundColor: '#10B981', borderColor: '#f5f5f7' }} />
+              {/* Online indicator */}
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 bg-emerald-500 border-[#f5f5f7] dark:border-[#202226]" />
             </div>
 
             {/* Name + college */}
             <div
               className={`min-w-0 flex-1 whitespace-nowrap transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}
             >
-              {/* caption-strong: 14px/600/-0.224px */}
               <p
-                className="truncate leading-tight"
-                style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 600, letterSpacing: '-0.224px' }}
+                className="truncate leading-tight text-gray-900 dark:text-[#F4F5F7] font-semibold text-sm tracking-tight"
               >
                 {displayName}
               </p>
-              {/* fine-print / nav-link: 12px/400/-0.12px */}
               <p
-                className="truncate mt-0.5"
-                style={{ color: '#7a7a7a', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 12, fontWeight: 400, letterSpacing: '-0.12px' }}
+                className="truncate mt-0.5 text-gray-500 dark:text-[#9AA0AC] text-xs font-normal"
               >
                 {displayCollege}
               </p>
@@ -266,6 +246,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {navItems.map((item) => {
             const IconComponent = item.icon;
             const isActive = location.pathname.startsWith(item.path);
+            const isDarkTheme = theme === 'dark';
+
+            const activeBg = isDarkTheme ? 'rgba(91,141,239,0.18)' : 'rgba(0,102,204,0.09)';
+            const activeColor = isDarkTheme ? '#60A5FA' : '#0066cc';
+            const inactiveColor = isDarkTheme ? '#9AA0AC' : '#7a7a7a';
 
             const baseStyle: React.CSSProperties = {
               display: 'flex',
@@ -280,10 +265,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               cursor: 'pointer',
               textDecoration: 'none',
               width: '100%',
-              // Active: Action Blue soft bg + Action Blue text
-              // Inactive: transparent, ink-muted-48 text
-              backgroundColor: isActive ? 'rgba(0,102,204,0.09)' : 'transparent',
-              color: isActive ? '#0066cc' : '#7a7a7a',
+              backgroundColor: isActive ? activeBg : 'transparent',
+              color: isActive ? activeColor : inactiveColor,
             };
 
             const widthClass = !isMobileMenu && isChatSection
@@ -296,10 +279,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                   <IconComponent
                     size={20}
                     strokeWidth={isActive ? 2 : 1.6}
-                    style={{ color: isActive ? '#0066cc' : '#7a7a7a', transition: 'color 0.2s ease' }}
+                    style={{ color: isActive ? activeColor : inactiveColor, transition: 'color 0.2s ease' }}
                   />
                   {(item as any).badge !== undefined && (
-                    /* Notification badge — rose-500 functional signal */
                     <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                       {(item as any).badge}
                     </span>
@@ -342,31 +324,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
         {/* ── Bottom Footer: Theme Toggle ──────────────────────────────────── */}
         <div
-          className="p-4 shrink-0"
-          style={{ borderTop: '1px solid #e0e0e0' }}
+          className="p-4 shrink-0 border-t border-gray-200 dark:border-[#262A33]"
         >
-          {/*
-           * button-dark-utility style adapted: bg canvas-parchment, text ink,
-           * rounded.sm (8px), caption 14px/400/-0.224px
-           */}
           <button
             onClick={cycleTheme}
-            className={`flex items-center justify-start gap-3 transition-all duration-300 overflow-hidden whitespace-nowrap active:scale-95 ${
+            className={`flex items-center justify-start gap-3 transition-all duration-300 overflow-hidden whitespace-nowrap active:scale-95 bg-[#f5f5f7] dark:bg-[#202226] border border-gray-200 dark:border-[#262A33] rounded-lg p-2.5 ${
               isChatSection ? 'md:w-[42px] group-hover:md:w-full w-full' : 'w-full'
             }`}
-            style={{
-              backgroundColor: '#f5f5f7',
-              border: '1px solid #e0e0e0',
-              borderRadius: 8,
-              padding: '10px 12px',
-            }}
           >
             <div className="shrink-0 flex items-center justify-center">
               {getThemeIcon()}
             </div>
             <span
-              className={`text-xs font-semibold transition-opacity duration-300 ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}
-              style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 14, fontWeight: 400, letterSpacing: '-0.224px' }}
+              className={`text-xs font-semibold transition-opacity duration-300 text-[#1d1d1f] dark:text-[#F4F5F7] ${isChatSection ? 'opacity-100 md:opacity-0 group-hover:md:opacity-100' : 'opacity-100'}`}
             >
               {getThemeLabel()}
             </span>

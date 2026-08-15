@@ -237,11 +237,11 @@ export const AdminPrintShopsPage: React.FC = () => {
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
             <tr className="border-b border-black/[0.08] bg-slate-100 hover:bg-slate-50 transition-colors duration-150">
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Shop</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Owner Info</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Orders Total</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Status</th>
-              <th className="p-4 w-16 text-center text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Shop</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Owner Info</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Orders Total</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Status</th>
+              <th className="p-4 w-16 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-black/[0.06] relative">

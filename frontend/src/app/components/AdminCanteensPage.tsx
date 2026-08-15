@@ -179,15 +179,15 @@ export const AdminCanteensPage: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-500 relative">
       
       {/* Top Bar */}
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white p-4 rounded-lg border border-black/[0.08]">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 bg-white dark:bg-admin-bg-surface p-4 rounded-lg border border-black/[0.08] dark:border-admin-border-subtle transition-colors">
         <div className="relative w-full lg:w-96 group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-amber-500 transition-colors dark:text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 dark:text-admin-text-tertiary group-focus-within:text-amber-500 transition-colors" />
           <input 
             type="text" 
             placeholder="Search canteen or owner..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-100 border border-black/10 rounded-lg py-2 pl-9 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-400/50 focus:bg-slate-100 transition-colors"
+            className="w-full bg-slate-100 dark:bg-admin-bg-surface-raised border border-black/10 dark:border-admin-border-subtle rounded-lg py-2 pl-9 pr-4 text-sm text-slate-900 dark:text-admin-text-primary placeholder-slate-400 dark:placeholder-admin-text-tertiary focus:outline-none focus:border-amber-400/50 transition-colors"
           />
         </div>
 
@@ -196,15 +196,15 @@ export const AdminCanteensPage: React.FC = () => {
             <button 
               key={pill} 
               onClick={() => setFilterStatus(pill)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-sans transition-colors ${filterStatus === pill ? 'bg-amber-500 text-slate-900' : 'bg-slate-100 text-slate-500 hover:text-slate-900 border border-black/[0.08] hover:border-black/10'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-sans transition-colors ${filterStatus === pill ? 'bg-amber-500 text-slate-900 dark:bg-admin-accent dark:text-admin-bg-surface-elevated' : 'bg-slate-100 text-slate-500 hover:text-slate-900 border border-black/[0.08] dark:bg-admin-bg-surface-raised dark:text-admin-text-secondary dark:border-admin-border-subtle dark:hover:text-admin-text-primary'}`}
             >
               {pill}
             </button>
           ))}
-          <div className="h-6 w-px bg-slate-100 mx-2 hidden lg:block" />
+          <div className="h-6 w-px bg-slate-100 dark:bg-admin-border-subtle mx-2 hidden lg:block" />
           <button 
             onClick={() => setIsOwnerModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-sans font-bold transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-admin-border-strong hover:bg-slate-800 text-white rounded-lg text-sm font-sans font-bold transition-colors"
           >
             <PlusCircle className="w-4 h-4" /> Create Owner & Shop
           </button>
@@ -218,28 +218,28 @@ export const AdminCanteensPage: React.FC = () => {
       </div>
 
       {/* Table Area */}
-      <div className="bg-white border border-black/[0.08] rounded-lg overflow-x-auto min-h-[400px]">
+      <div className="bg-white dark:bg-admin-bg-surface border border-black/[0.08] dark:border-admin-border-subtle rounded-lg overflow-x-auto min-h-[400px] transition-colors">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-amber-500 dark:text-amber-400 transition-colors" />
           </div>
         ) : (
         <table className="w-full text-left border-collapse">
-          <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
-            <tr className="border-b border-black/[0.08] bg-slate-100 hover:bg-slate-50 transition-colors duration-150">
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Canteen</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Owner Info</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Performance</th>
-              <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Status</th>
-              <th className="p-4 w-16 text-center text-xs font-bold text-slate-500 uppercase tracking-wider font-sans px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
+          <thead className="bg-slate-50 dark:bg-admin-bg-surface-raised h-[40px] border-b border-[rgba(15,23,42,0.08)] dark:border-admin-border-subtle">
+            <tr className="border-b border-black/[0.08] dark:border-admin-border-subtle bg-slate-100 dark:bg-admin-bg-surface-raised transition-colors duration-150">
+              <th className="p-4 text-xs font-semibold text-slate-500 dark:text-admin-text-secondary uppercase tracking-wider font-sans text-left">Canteen</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 dark:text-admin-text-secondary uppercase tracking-wider font-sans text-left">Owner Info</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 dark:text-admin-text-secondary uppercase tracking-wider font-sans text-left">Performance</th>
+              <th className="p-4 text-xs font-semibold text-slate-500 dark:text-admin-text-secondary uppercase tracking-wider font-sans text-left">Status</th>
+              <th className="p-4 w-16 text-center text-xs font-semibold text-slate-500 dark:text-admin-text-secondary uppercase tracking-wider font-sans">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-black/[0.06] relative">
+          <tbody className="divide-y divide-black/[0.06] dark:divide-admin-border-subtle relative">
             {filteredCanteens.map((canteen) => (
-              <tr key={canteen.id} className="hover:bg-black/[0.03] transition-colors group">
+              <tr key={canteen.id} className="hover:bg-black/[0.03] dark:hover:bg-white/5 transition-colors group">
                 <td className="p-4 min-w-[200px]">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-slate-900 flex items-center justify-center font-syne font-bold text-lg text-amber-500 border border-black/[0.08] shrink-0 overflow-hidden">
+                    <div className="w-10 h-10 rounded-lg bg-slate-900 dark:bg-admin-bg-surface-raised flex items-center justify-center font-syne font-bold text-lg text-amber-500 border border-black/[0.08] dark:border-admin-border-subtle shrink-0 overflow-hidden">
                       {canteen.logo_url ? (
                         <img src={canteen.logo_url} className="w-full h-full object-cover" />
                       ) : (
@@ -247,18 +247,18 @@ export const AdminCanteensPage: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <div className="font-sans font-bold text-sm text-slate-900 mb-0.5">{canteen.name}</div>
-                      <div className="font-sans text-xs text-slate-500">{canteen.college}</div>
+                      <div className="font-sans font-bold text-sm text-slate-900 dark:text-admin-text-primary mb-0.5">{canteen.name}</div>
+                      <div className="font-sans text-xs text-slate-500 dark:text-admin-text-secondary">{canteen.college}</div>
                     </div>
                   </div>
                 </td>
                 <td className="p-4">
-                   <div className="font-sans text-sm text-slate-900 font-medium mb-0.5">{canteen.owner?.name || 'Unknown'}</div>
-                   <div className="font-sans text-xs text-slate-500">{canteen.owner?.email || 'No email associated'}</div>
+                   <div className="font-sans text-sm text-slate-900 dark:text-admin-text-primary font-medium mb-0.5">{canteen.owner?.name || 'Unknown'}</div>
+                   <div className="font-sans text-xs text-slate-500 dark:text-admin-text-secondary">{canteen.owner?.email || 'No email associated'}</div>
                 </td>
                 <td className="p-4">
-                  <div className="font-sans text-sm text-slate-900 flex gap-2 mb-0.5">
-                     <span className="text-slate-500">Orders:</span> {canteen.total_orders || 0}
+                  <div className="font-sans text-sm text-slate-900 dark:text-admin-text-primary flex gap-2 mb-0.5">
+                     <span className="text-slate-500 dark:text-admin-text-secondary">Orders:</span> {canteen.total_orders || 0}
                   </div>
                   <div className="font-sans text-xs text-accent-green font-bold">
                      ₹{(canteen.total_revenue || 0).toLocaleString()}
@@ -270,25 +270,25 @@ export const AdminCanteensPage: React.FC = () => {
                 <td className="p-4 text-center relative">
                   <button 
                     onClick={() => setActiveDropdown(activeDropdown === canteen.id ? null : canteen.id)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 rounded-lg text-slate-500 dark:text-admin-text-secondary hover:text-slate-900 dark:hover:text-admin-text-primary hover:bg-slate-100 dark:hover:bg-admin-bg-surface-raised transition-colors"
                   >
                     <MoreVertical className="w-5 h-5" />
                   </button>
 
                   {/* Actions Dropdown */}
                   {activeDropdown === canteen.id && (
-                    <div className="absolute right-[50px] top-4 w-56 bg-slate-100 border border-black/10 rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100">
+                    <div className="absolute right-[50px] top-4 w-56 bg-slate-100 dark:bg-admin-bg-surface-raised border border-black/10 dark:border-admin-border-subtle rounded-lg shadow-md z-20 py-1 font-sans text-sm overflow-hidden animate-in zoom-in-95 duration-100">
                       
-                      <button onClick={() => { navigate(`/admin/canteen/${canteen.id}`); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Eye className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Schedule & Status
+                      <button onClick={() => { navigate(`/admin/canteen/${canteen.id}`); setActiveDropdown(null); }} className="w-full text-left px-4 py-2 text-slate-900 dark:text-admin-text-primary hover:bg-black/[0.03] dark:hover:bg-white/5 flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-slate-500 dark:text-admin-text-tertiary transition-colors" /> Schedule & Status
                       </button>
-                      <button onClick={() => handleOpenEdit(canteen)} className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
-                        <Edit3 className="w-4 h-4 text-slate-500 dark:text-slate-400 transition-colors" /> Edit Details
+                      <button onClick={() => handleOpenEdit(canteen)} className="w-full text-left px-4 py-2 text-slate-900 dark:text-admin-text-primary hover:bg-black/[0.03] dark:hover:bg-white/5 flex items-center gap-2">
+                        <Edit3 className="w-4 h-4 text-slate-500 dark:text-admin-text-tertiary transition-colors" /> Edit Details
                       </button>
                       
-                      <div className="h-px bg-slate-100 my-1" />
+                      <div className="h-px bg-slate-100 dark:bg-admin-border-subtle my-1" />
                       
-                      <button className="w-full text-left px-4 py-2 text-slate-900 hover:bg-black/[0.03] flex items-center gap-2">
+                      <button className="w-full text-left px-4 py-2 text-slate-900 dark:text-admin-text-primary hover:bg-black/[0.03] dark:hover:bg-white/5 flex items-center gap-2">
                         <Mail className="w-4 h-4 text-amber-500 dark:text-amber-400 transition-colors" /> Contact Owner
                       </button>
                       
@@ -309,7 +309,7 @@ export const AdminCanteensPage: React.FC = () => {
             ))}
             {filteredCanteens.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-slate-500 font-sans">
+                <td colSpan={5} className="p-8 text-center text-slate-500 dark:text-admin-text-secondary font-sans">
                   No canteens found matching your filters.
                 </td>
               </tr>

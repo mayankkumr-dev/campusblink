@@ -240,14 +240,14 @@ export const CanteenMenuPage: React.FC = () => {
                   }
                 }}
                 className={`relative py-4 text-[15px] font-semibold transition-colors flex items-center gap-2 ${
-                  isActive ? 'text-text-primary' : 'text-text-secondary hover:text-slate-800'
+                  isActive ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {tab.label}
                 {isActive && (
                   <motion.div
                     layoutId="activeTabIndicator"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900 rounded-t-full"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900 dark:bg-accent-blue rounded-t-full"
                     initial={false}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
@@ -255,7 +255,7 @@ export const CanteenMenuPage: React.FC = () => {
               </button>
             );
           })}
-          <button onClick={() => navigate('/student/canteen/orders')} className="relative py-4 text-[15px] font-semibold text-text-secondary hover:text-slate-800 transition-colors flex items-center gap-2">
+          <button onClick={() => navigate('/student/canteen/orders')} className="relative py-4 text-[15px] font-semibold text-text-secondary hover:text-text-primary transition-colors flex items-center gap-2">
             Order History
           </button>
         </nav>
@@ -279,14 +279,14 @@ export const CanteenMenuPage: React.FC = () => {
       <div className="md:hidden flex bg-surface border-b border-border-subtle sticky top-16 z-30 shadow-sm">
         <button onClick={() => { setActiveTab('menu'); setIsCartOpen(false); }} className={`flex-1 py-3.5 text-sm font-bold relative ${activeTab === 'menu' && !isCartOpen ? 'text-text-primary' : 'text-text-secondary'}`}>
           Menu
-          {activeTab === 'menu' && !isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
+          {activeTab === 'menu' && !isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900 dark:bg-accent-blue" />}
         </button>
         <button onClick={() => navigate('/student/canteen/orders')} className="flex-1 py-3.5 text-sm font-bold relative text-text-secondary">
           History
         </button>
         <button onClick={() => setIsCartOpen(!isCartOpen)} className={`flex-1 py-3.5 text-sm font-bold relative flex justify-center items-center gap-1.5 ${isCartOpen ? 'text-text-primary' : 'text-text-secondary'}`}>
-          Cart {cartItems.length > 0 && <span className="bg-slate-900 text-white text-[10px] px-1.5 py-0.5 rounded-md">{cartItems.length}</span>}
-          {isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900" />}
+          Cart {cartItems.length > 0 && <span className="bg-slate-900 dark:bg-accent-blue text-white text-[10px] px-1.5 py-0.5 rounded-md">{cartItems.length}</span>}
+          {isCartOpen && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-slate-900 dark:bg-accent-blue" />}
         </button>
       </div>
 

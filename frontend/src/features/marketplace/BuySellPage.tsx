@@ -548,21 +548,14 @@ function FilterPanel({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.15 }}
-          className="absolute left-0 right-0 z-30 mt-2 sm:left-auto sm:right-0 sm:w-80"
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e0e0e0',
-            borderRadius: 18,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            padding: 20,
-          }}
+          className="absolute left-0 right-0 z-30 mt-2 sm:left-auto sm:right-0 sm:w-80 rounded-[18px] bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] shadow-2xl p-5"
         >
           <div className="flex items-center justify-between mb-4">
-            <span style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 600, color: '#1d1d1f' }}>
+            <span className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[17px] font-semibold text-gray-900 dark:text-[#F4F5F7]">
               Filters
             </span>
-            <button type="button" onClick={onClose} aria-label="Close filters" className="flex h-7 w-7 items-center justify-center rounded-full" style={{ background: '#f5f5f7' }}>
-              <X className="h-3.5 w-3.5" style={{ color: '#1d1d1f' }} />
+            <button type="button" onClick={onClose} aria-label="Close filters" className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -879,100 +872,46 @@ export function BuySellPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f5f7' }}>
-      <div
-        className="mx-auto max-w-7xl space-y-4 px-4 pb-24 pt-6 sm:px-6 lg:px-8"
-        style={{ fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}
-      >
-        {/* ── Hero tile (light canvas) ───────────────────────────────── */}
+    <div className="min-h-screen bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7] font-sans">
+      <div className="mx-auto max-w-7xl space-y-4 px-4 pb-24 pt-6 sm:px-6 lg:px-8">
+        {/* ── Hero tile (responsive canvas) ───────────────────────────────── */}
         <section
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e0e0e0',
-            borderRadius: 18,
-            padding: '40px 32px',
-          }}
+          className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-8 sm:p-10"
         >
           <div className="grid gap-8 lg:grid-cols-[1.4fr_0.6fr]">
             <div>
               <div
-                style={{
-                  display: 'inline-block',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: '0.6px',
-                  textTransform: 'uppercase',
-                  color: '#0066cc',
-                  marginBottom: 12,
-                }}
+                className="inline-block text-xs font-semibold uppercase tracking-[0.6px] text-[#0066cc] dark:text-[#60A5FA] mb-3"
               >
                 Campus Blink Marketplace
               </div>
               <h1
-                style={{
-                  fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif',
-                  fontSize: 'clamp(32px, 5vw, 56px)',
-                  fontWeight: 600,
-                  lineHeight: 1.07,
-                  letterSpacing: '-0.28px',
-                  color: '#1d1d1f',
-                  margin: 0,
-                }}
+                className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[32px] sm:text-[56px] font-semibold leading-[1.07] tracking-[-0.28px] text-gray-900 dark:text-[#F4F5F7] m-0"
               >
                 Buy smart.<br />Sell fast.
               </h1>
               <p
-                style={{
-                  fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-                  fontSize: 17,
-                  fontWeight: 400,
-                  lineHeight: 1.47,
-                  letterSpacing: '-0.374px',
-                  color: '#7a7a7a',
-                  marginTop: 12,
-                  maxWidth: 480,
-                }}
+                className="font-sans text-[17px] font-normal leading-[1.47] tracking-[-0.374px] text-gray-500 dark:text-[#9BA1AC] mt-3 max-w-[480px]"
               >
                 A clean campus marketplace for gadgets, textbooks, furniture, and quick hostel pickups.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
-                {/* Primary CTA — button-primary spec */}
+                {/* Primary CTA */}
                 <button
                   type="button"
                   id="sell-now-btn"
                   onClick={openComposer}
-                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
-                  style={{
-                    padding: '11px 22px',
-                    borderRadius: 9999,
-                    background: '#0066cc',
-                    color: '#ffffff',
-                    fontSize: 17,
-                    fontWeight: 400,
-                    letterSpacing: '-0.374px',
-                    border: 'none',
-                    cursor: 'pointer',
-                  }}
+                  className="inline-flex items-center gap-2 px-[22px] py-[11px] rounded-full bg-[#0066cc] dark:bg-blue-600 text-white text-[17px] font-normal tracking-[-0.374px] border-none cursor-pointer transition-transform active:scale-95"
                 >
                   <Plus className="h-4 w-4" strokeWidth={2.2} />
                   Sell Now
                 </button>
 
-                {/* Ghost pill — button-secondary-pill spec */}
+                {/* Messages Pill */}
                 <Link
                   to="/student/campus-exchange/messages"
-                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
-                  style={{
-                    padding: '11px 22px',
-                    borderRadius: 9999,
-                    background: '#ffffff',
-                    color: '#0066cc',
-                    fontSize: 17,
-                    fontWeight: 400,
-                    border: '1px solid #0066cc',
-                    letterSpacing: '-0.374px',
-                  }}
+                  className="inline-flex items-center gap-2 px-[22px] py-[11px] rounded-full bg-white dark:bg-gray-800 text-[#0066cc] dark:text-[#60A5FA] border border-[#0066cc] dark:border-blue-500 text-[17px] font-normal tracking-[-0.374px] transition-transform active:scale-95"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Messages
@@ -980,15 +919,7 @@ export function BuySellPage() {
 
                 <Link
                   to="/student/wishlist"
-                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
-                  style={{
-                    padding: '11px 22px',
-                    borderRadius: 9999,
-                    background: '#f5f5f7',
-                    color: '#333333',
-                    fontSize: 17,
-                    border: '1px solid #e0e0e0',
-                  }}
+                  className="inline-flex items-center gap-2 px-[22px] py-[11px] rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[17px] transition-transform active:scale-95"
                 >
                   <Heart className="h-4 w-4" />
                   Wishlist
@@ -996,15 +927,7 @@ export function BuySellPage() {
 
                 <Link
                   to="/student/buy-sell/manage"
-                  className="inline-flex items-center gap-2 transition-transform active:scale-95"
-                  style={{
-                    padding: '11px 22px',
-                    borderRadius: 9999,
-                    background: '#f5f5f7',
-                    color: '#333333',
-                    fontSize: 17,
-                    border: '1px solid #e0e0e0',
-                  }}
+                  className="inline-flex items-center gap-2 px-[22px] py-[11px] rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[17px] transition-transform active:scale-95"
                 >
                   My Listings
                 </Link>
@@ -1014,47 +937,31 @@ export function BuySellPage() {
             {/* Stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div
-                style={{
-                  borderRadius: 14,
-                  background: '#f0f6ff',
-                  border: '1px solid #cce0ff',
-                  padding: 20,
-                }}
+                className="rounded-[14px] bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 p-5"
               >
-                <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc' }}>Active listings</div>
-                <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 40, fontWeight: 600, color: '#1d1d1f', marginTop: 8, lineHeight: 1 }}>{activeListingsCount}</div>
-                <div style={{ fontSize: 13, color: '#7a7a7a', marginTop: 4 }}>Items currently on campus</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.6px] text-[#0066cc] dark:text-[#60A5FA]">Active listings</div>
+                <div className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[40px] font-semibold text-[#1d1d1f] dark:text-[#F4F5F7] mt-2 leading-none">{activeListingsCount}</div>
+                <div className="text-[13px] text-gray-500 dark:text-[#9BA1AC] mt-1">Items currently on campus</div>
               </div>
               <div
-                style={{
-                  borderRadius: 14,
-                  background: '#f5f5f7',
-                  border: '1px solid #e0e0e0',
-                  padding: 20,
-                }}
+                className="rounded-[14px] bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] p-5"
               >
-                <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#7a7a7a' }}>Sold</div>
-                <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 40, fontWeight: 600, color: '#1d1d1f', marginTop: 8, lineHeight: 1 }}>{soldListingsCount}</div>
-                <div style={{ fontSize: 13, color: '#7a7a7a', marginTop: 4 }}>Listings closed</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.6px] text-gray-500 dark:text-[#9BA1AC]">Sold</div>
+                <div className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[40px] font-semibold text-[#1d1d1f] dark:text-[#F4F5F7] mt-2 leading-none">{soldListingsCount}</div>
+                <div className="text-[13px] text-gray-500 dark:text-[#9BA1AC] mt-1">Listings closed</div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Search + filter tile (parchment) ──────────────────────── */}
+        {/* ── Search + filter tile ──────────────────────── */}
         <section
-          style={{
-            background: '#f5f5f7',
-            border: '1px solid #e0e0e0',
-            borderRadius: 18,
-            padding: '20px 24px',
-          }}
+          className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-5 sm:p-6"
         >
           {/* Search row */}
           <div className="flex gap-3">
-            {/* search-input spec: pill shape, 44px height, 1px rgba(0,0,0,0.08) border */}
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: '#7a7a7a' }} />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
               <input
                 id="marketplace-search"
                 type="search"
@@ -1062,26 +969,11 @@ export function BuySellPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search campus listings…"
                 aria-label="Search marketplace listings"
-                style={{
-                  width: '100%',
-                  height: 44,
-                  borderRadius: 9999,
-                  border: '1px solid rgba(0,0,0,0.08)',
-                  background: '#ffffff',
-                  fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif',
-                  fontSize: 17,
-                  letterSpacing: '-0.374px',
-                  color: '#1d1d1f',
-                  paddingLeft: 44,
-                  paddingRight: 16,
-                  outline: 'none',
-                }}
-                onFocus={(e) => { (e.target as HTMLInputElement).style.border = '1px solid #0066cc'; }}
-                onBlur={(e) => { (e.target as HTMLInputElement).style.border = '1px solid rgba(0,0,0,0.08)'; }}
+                className="w-full h-[44px] rounded-full border border-gray-200 dark:border-[#262A33] bg-gray-50 dark:bg-gray-800 font-sans text-[17px] tracking-[-0.374px] text-gray-900 dark:text-[#F4F5F7] pl-11 pr-4 outline-none focus:border-[#0066cc] dark:focus:border-blue-500 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-500"
               />
             </div>
 
-            {/* Filter button — button-dark-utility spec */}
+            {/* Filter button */}
             <div className="relative" ref={filterRef}>
               <button
                 type="button"
@@ -1089,19 +981,11 @@ export function BuySellPage() {
                 onClick={() => setShowFilterPanel((v) => !v)}
                 aria-expanded={showFilterPanel}
                 aria-controls="filter-panel"
-                className="flex h-11 items-center gap-2 transition-transform active:scale-95"
-                style={{
-                  padding: '8px 15px',
-                  borderRadius: 8,
-                  background: hasActiveFilters ? '#0066cc' : '#1d1d1f',
-                  color: '#ffffff',
-                  fontSize: 14,
-                  fontWeight: 400,
-                  letterSpacing: '-0.224px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                }}
+                className={`flex h-11 items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 cursor-pointer whitespace-nowrap ${
+                  hasActiveFilters
+                    ? 'bg-[#0066cc] dark:bg-blue-600 text-white'
+                    : 'bg-[#1d1d1f] dark:bg-gray-800 text-white dark:text-gray-200 border border-transparent dark:border-gray-700'
+                }`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">
@@ -1126,12 +1010,11 @@ export function BuySellPage() {
             <button
               type="button"
               onClick={() => setCategory('all')}
-              className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
-              style={{
-                background: category === 'all' ? '#0066cc' : '#ffffff',
-                color: category === 'all' ? '#ffffff' : '#333333',
-                border: category === 'all' ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
-              }}
+              className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95 ${
+                category === 'all'
+                  ? 'bg-[#0066cc] dark:bg-blue-600 text-white border border-[#0066cc] dark:border-blue-600'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
               aria-pressed={category === 'all'}
             >
               All
@@ -1141,12 +1024,11 @@ export function BuySellPage() {
                 key={cat}
                 type="button"
                 onClick={() => setCategory(cat === category ? 'all' : cat)}
-                className="rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95"
-                style={{
-                  background: category === cat ? '#0066cc' : '#ffffff',
-                  color: category === cat ? '#ffffff' : '#333333',
-                  border: category === cat ? '1.5px solid #0066cc' : '1px solid #e0e0e0',
-                }}
+                className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-all active:scale-95 ${
+                  category === cat
+                    ? 'bg-[#0066cc] dark:bg-blue-600 text-white border border-[#0066cc] dark:border-blue-600'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+                }`}
                 aria-pressed={category === cat}
               >
                 {cat}
@@ -1155,22 +1037,17 @@ export function BuySellPage() {
           </div>
         </section>
 
-        {/* ── Listings grid (white canvas) ───────────────────────────── */}
+        {/* ── Listings grid ───────────────────────────── */}
         <section
-          style={{
-            background: '#ffffff',
-            border: '1px solid #e0e0e0',
-            borderRadius: 18,
-            padding: '24px',
-          }}
+          className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-6"
         >
           {/* Section header */}
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.6px', color: '#0066cc', marginBottom: 4 }}>
+              <div className="text-xs font-semibold uppercase tracking-[0.6px] text-[#0066cc] dark:text-[#60A5FA] mb-1">
                 {category === 'all' ? 'All listings' : category}
               </div>
-              <div style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: 21, fontWeight: 600, color: '#1d1d1f' }}>
+              <div className="font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] text-[21px] font-semibold text-gray-900 dark:text-[#F4F5F7]">
                 {isLoading ? 'Loading…' : `${displayedListings.length} listing${displayedListings.length !== 1 ? 's' : ''}`}
               </div>
             </div>

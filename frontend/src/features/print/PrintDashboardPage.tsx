@@ -17,6 +17,7 @@ import { Logo } from '../../app/components/ui/Logo';
 import { ListSkeleton } from '../../app/components/ui/Skeletons';
 import { FeatureErrorBoundary } from '../../shared/components/FeatureErrorBoundary';
 import { ShopOrderHistoryList } from '../../shared/components/OrderHistory/ShopOrderHistoryList';
+import { useTheme } from 'next-themes';
 import {
   MobilePrintOrdersDashboard,
   MobilePrintOrderHistory,
@@ -34,7 +35,13 @@ type InkMeta = {
 
 export const PrintDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [activeView, setActiveView] = useState('Live Orders');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const scrollDirection = useScrollDirection({ threshold: 12 });
   const profile = useAuthStore(state => state.profile);
   const user = useAuthStore(state => state.user);
@@ -1059,34 +1066,13 @@ export const PrintDashboardPage: React.FC = () => {
                          { id: 'dark', label: 'Dark Mode', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> },
                          { id: 'system', label: 'System', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
                        ].map((themeOpt) => {
-                         // Safely access document for theme switching
-                         const isSelected = typeof document !== 'undefined' ? 
-                           (themeOpt.id === 'system' ? !localStorage.theme : localStorage.theme === themeOpt.id)
-                           : themeOpt.id === 'light';
+                         const isSelected = mounted && theme === themeOpt.id;
                            
                          return (
                            <button
                              type="button"
                              key={themeOpt.id}
-                             onClick={() => {
-                               if (themeOpt.id === 'system') {
-                                 localStorage.removeItem('theme');
-                                 if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                                   document.documentElement.classList.add('dark');
-                                 } else {
-                                   document.documentElement.classList.remove('dark');
-                                 }
-                               } else {
-                                 localStorage.theme = themeOpt.id;
-                                 if (themeOpt.id === 'dark') {
-                                   document.documentElement.classList.add('dark');
-                                 } else {
-                                   document.documentElement.classList.remove('dark');
-                                 }
-                               }
-                               // Force re-render just to update the UI
-                               setActiveView('Settings');
-                             }}
+                             onClick={() => setTheme(themeOpt.id)}
                              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border-2 transition-all ${
                                isSelected
                                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400'

@@ -49,10 +49,10 @@ export const AdminBannedUsersPage: React.FC = () => {
           <table className="w-full border-collapse text-left">
             <thead className="bg-slate-50 h-[40px] border-b border-[rgba(15,23,42,0.08)]">
               <tr className="border-b border-black/[0.08] bg-slate-100 hover:bg-slate-50 transition-colors duration-150">
-                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">User</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Reason</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Banned At</th>
-                <th className="p-4 text-xs font-bold uppercase tracking-wider text-slate-500 px-4 text-left font-sans font-semibold text-[12px] text-slate-400 uppercase tracking-[0.6px]">Actions</th>
+                <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">User</th>
+                <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Reason</th>
+                <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Banned At</th>
+                <th className="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-left">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/[0.06]">

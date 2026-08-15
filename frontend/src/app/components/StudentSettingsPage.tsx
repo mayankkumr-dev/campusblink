@@ -16,6 +16,10 @@ export const StudentSettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);

@@ -38,11 +38,11 @@ export const StudentCanteenHistoryPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'pending': return 'bg-[#f5f5f7] text-[#1d1d1f] border-[#e0e0e0]';
-      case 'preparing': return 'bg-[#f5f5f7] text-[#0066cc] border-[#0066cc]';
-      case 'ready': return 'bg-[#e0e0e0] text-[#1d1d1f] border-[#e0e0e0]';
-      case 'cancelled': return 'bg-[#f5f5f7] text-[#1d1d1f] border-[#e0e0e0]';
-      default: return 'bg-[#f5f5f7] text-[#1d1d1f] border-[#e0e0e0]';
+      case 'pending': return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+      case 'preparing': return 'bg-blue-50 dark:bg-blue-950/50 text-[#0066cc] dark:text-[#60A5FA] border-blue-200 dark:border-blue-800';
+      case 'ready': return 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800';
+      case 'cancelled': return 'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -51,22 +51,22 @@ export const StudentCanteenHistoryPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7] font-sans">
       {/* Sub-Nav Frosted */}
-      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-[#e0e0e0] flex items-center justify-between">
-        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
+      <div className="sticky top-0 z-40 h-[52px] px-6 md:px-12 bg-white/80 dark:bg-[#171A21]/80 backdrop-blur-xl border-b border-gray-200 dark:border-[#262A33] flex items-center justify-between">
+        <h2 className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] dark:text-[#F4F5F7] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif]">
           Canteen
         </h2>
         <div className="flex items-center gap-4">
-          <Link to="/student/canteen" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] hover:text-[#0066cc] transition-colors">
+          <Link to="/student/canteen" className="text-[14px] font-normal tracking-[-0.224px] text-[#1d1d1f] dark:text-[#9BA1AC] hover:text-[#0066cc] dark:hover:text-[#60A5FA] transition-colors">
             Menu
           </Link>
-          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f]">
+          <div className="text-[14px] font-semibold tracking-[-0.224px] text-[#1d1d1f] dark:text-[#F4F5F7]">
             Order History
           </div>
           <button 
             onClick={() => navigate('/student/canteen')}
-            className="px-[15px] py-[8px] bg-[#1d1d1f] text-[#ffffff] text-[14px] font-normal tracking-[-0.224px] rounded-[8px] hover:scale-95 transition-transform"
+            className="px-[15px] py-[8px] bg-[#1d1d1f] dark:bg-blue-600 text-[#ffffff] text-[14px] font-normal tracking-[-0.224px] rounded-[8px] hover:scale-95 transition-transform"
           >
             New Order
           </button>
@@ -75,22 +75,22 @@ export const StudentCanteenHistoryPage: React.FC = () => {
 
       <main className="max-w-[980px] mx-auto px-6 py-12 md:py-20">
         <div className="mb-12">
-          <h1 className="text-[40px] font-semibold tracking-tight text-[#1d1d1f] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] leading-[1.1]">
+          <h1 className="text-[40px] font-semibold tracking-tight text-[#1d1d1f] dark:text-[#F4F5F7] font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] leading-[1.1]">
             Order History
           </h1>
-          <p className="text-[28px] font-normal tracking-[0.196px] text-[#1d1d1f] mt-4 font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] leading-[1.14]">
+          <p className="text-[28px] font-normal tracking-[0.196px] text-gray-500 dark:text-[#9BA1AC] mt-4 font-['SF_Pro_Display',system-ui,-apple-system,sans-serif] leading-[1.14]">
             Your past canteen orders and payment status.
           </p>
         </div>
 
         {loading ? (
           <div className="space-y-6">
-             <div className="h-[120px] bg-[#f5f5f7] rounded-[18px] animate-pulse" />
-             <div className="h-[120px] bg-[#f5f5f7] rounded-[18px] animate-pulse" />
+             <div className="h-[120px] bg-gray-200 dark:bg-[#171A21] rounded-[18px] animate-pulse" />
+             <div className="h-[120px] bg-gray-200 dark:bg-[#171A21] rounded-[18px] animate-pulse" />
           </div>
         ) : orders.length === 0 ? (
-          <div className="p-12 text-center bg-[#f5f5f7] rounded-[18px]">
-            <p className="text-[17px] font-normal text-[#1d1d1f]">You haven't placed any canteen orders yet.</p>
+          <div className="p-12 text-center bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px]">
+            <p className="text-[17px] font-normal text-gray-600 dark:text-[#9BA1AC]">You haven't placed any canteen orders yet.</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -101,41 +101,41 @@ export const StudentCanteenHistoryPage: React.FC = () => {
                }
 
                return (
-                 <div key={order.id} className="bg-[#ffffff] border border-[#e0e0e0] rounded-[18px] p-6 hover:border-[#1d1d1f]/20 transition-colors">
+                 <div key={order.id} className="bg-white dark:bg-[#171A21] border border-gray-200 dark:border-[#262A33] rounded-[18px] p-6 hover:border-[#1d1d1f]/20 dark:hover:border-gray-600 transition-colors">
                    <div className="flex flex-col md:flex-row justify-between gap-6">
                      <div className="flex-1">
                        <div className="flex items-center gap-3 mb-2">
-                         <h3 className="text-[17px] font-semibold tracking-[-0.374px] text-[#1d1d1f]">
+                         <h3 className="text-[17px] font-semibold tracking-[-0.374px] text-[#1d1d1f] dark:text-[#F4F5F7]">
                            {order.canteen_shops?.name || 'Canteen'}
                          </h3>
-                         <span className="text-[14px] text-[#7a7a7a]">
+                         <span className="text-[14px] text-gray-500 dark:text-[#9BA1AC]">
                            {format(new Date(order.created_at), 'MMM d, yyyy')}
                          </span>
                        </div>
-                       <p className="text-[17px] font-normal tracking-[-0.374px] text-[#1d1d1f] leading-[1.47] mb-4">
+                       <p className="text-[17px] font-normal tracking-[-0.374px] text-gray-700 dark:text-[#D1D5DB] leading-[1.47] mb-4">
                          {itemsSummary}
                        </p>
                        <div className="flex items-center gap-3">
                          <span className={`px-3 py-1 rounded-full text-[12px] font-semibold border ${getStatusColor(order.status)}`}>
                            {order.status.toUpperCase()}
                          </span>
-                         <span className={`px-3 py-1 rounded-full text-[12px] font-semibold border ${order.payment_status === 'completed' || order.payment_status === 'paid' ? 'bg-[#f5f5f7] text-[#1d1d1f] border-[#e0e0e0]' : 'bg-[#fff5e6] text-[#cc7700] border-[#ffe0b2]'}`}>
+                         <span className={`px-3 py-1 rounded-full text-[12px] font-semibold border ${order.payment_status === 'completed' || order.payment_status === 'paid' ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700' : 'bg-[#fff5e6] dark:bg-amber-950/50 text-[#cc7700] dark:text-amber-400 border-[#ffe0b2] dark:border-amber-800'}`}>
                            {getPaymentStatusText(order.payment_status)}
                          </span>
                        </div>
                      </div>
                      
-                     <div className="flex flex-col items-start md:items-end justify-between border-t md:border-t-0 border-[#f0f0f0] pt-4 md:pt-0">
+                     <div className="flex flex-col items-start md:items-end justify-between border-t md:border-t-0 border-gray-200 dark:border-[#262A33] pt-4 md:pt-0">
                        <div className="text-left md:text-right">
-                         <div className="text-[14px] text-[#7a7a7a] mb-1">Total</div>
-                         <div className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f]">
+                         <div className="text-[14px] text-gray-500 dark:text-[#9BA1AC] mb-1">Total</div>
+                         <div className="text-[21px] font-semibold tracking-[0.231px] text-[#1d1d1f] dark:text-[#F4F5F7]">
                            ₹{order.total_amount?.toFixed(2)}
                          </div>
                        </div>
                        
                        <Link 
                          to={`/student/canteen/reorder/${order.id}`}
-                         className="mt-4 md:mt-0 text-[17px] font-normal text-[#0066cc] hover:underline"
+                         className="mt-4 md:mt-0 text-[17px] font-normal text-[#0066cc] dark:text-[#60A5FA] hover:underline"
                        >
                          Reorder
                        </Link>

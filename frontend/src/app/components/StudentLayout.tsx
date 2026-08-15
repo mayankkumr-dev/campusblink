@@ -209,14 +209,11 @@ export const StudentLayout: React.FC = () => {
 
   return (
     /* Root shell */
-    <div className="relative min-h-screen w-full bg-gray-50 pb-24 select-none no-touch-callout" style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif' }}>
-      {/* ── Global Nav (top header) ──────────────────────────────────────────
-          DESIGN.md: global-nav — bg #000000, height 44px, text #ffffff, 12px/400/-0.12px
-          Visible only on mobile (md:hidden), never on desktop (sidebar replaces it)
-      */}
+    <div className="relative min-h-screen w-full bg-gray-50 dark:bg-[#101113] text-[#1d1d1f] dark:text-[#F4F5F7] pb-24 select-none no-touch-callout">
+      {/* ── Global Nav (top header) ────────────────────────────────────────── */}
       {!isDiaryOpen && (
         <header
-          className="safe-area-top safe-area-inline fixed top-0 z-50 flex w-full items-center justify-between px-4 md:hidden select-none bg-white/80 backdrop-blur-xl border-b border-gray-100"
+          className="safe-area-top safe-area-inline fixed top-0 z-50 flex w-full items-center justify-between px-4 md:hidden select-none bg-white/95 dark:bg-[#171A21]/95 backdrop-blur-xl border-b border-gray-100 dark:border-[#262A33]"
           style={{
             height: 'calc(44px + env(safe-area-inset-top, 0px))',
             paddingTop: 'env(safe-area-inset-top, 0px)',
@@ -227,9 +224,8 @@ export const StudentLayout: React.FC = () => {
             const title = getMobileHeaderTitle(location.pathname);
             return title ? (
               <Link to={location.pathname} className="no-underline cursor-pointer flex items-center min-h-[44px] justify-start">
-                {/* tagline token: 21px/600/0.231px — white on black nav */}
                 <h1
-                  className="capitalize text-gray-900"
+                  className="capitalize text-gray-900 dark:text-[#F4F5F7]"
                   style={{ fontFamily: 'SF Pro Display, system-ui, -apple-system, sans-serif', fontSize: '21px', fontWeight: 600, letterSpacing: '0.231px', lineHeight: 1.19 }}
                 >
                   {title}
@@ -242,13 +238,13 @@ export const StudentLayout: React.FC = () => {
             );
           })()}
 
-          {/* Right: icon action buttons — button-icon-circular spec: 44×44px */}
+          {/* Right: icon action buttons */}
           <div className="flex items-center gap-0.5">
             {location.pathname === '/student/home' && (
               <button
                 type="button"
                 onClick={() => navigate('/student/search-people')}
-                className="flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900"
+                className="flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900 dark:text-[#F4F5F7]"
                 style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
                 aria-label="Search"
               >
@@ -260,13 +256,12 @@ export const StudentLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/student/notifications')}
-              className="relative flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900"
+              className="relative flex items-center justify-center rounded-full transition-colors active:scale-95 text-gray-900 dark:text-[#F4F5F7]"
               style={{ width: 44, height: 44, minWidth: 44, minHeight: 44 }}
               aria-label="Open notifications"
             >
               <Bell size={20} strokeWidth={2} />
               {Number(unreadCount || 0) > 0 && (
-                /* Notification badge — rose-500 is a functional signal, not a brand accent */
                 <span className="absolute right-1.5 top-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-black">
                   {Number(unreadCount) > 99 ? '99+' : unreadCount}
                 </span>
@@ -277,14 +272,14 @@ export const StudentLayout: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/student/profile')}
-              className="overflow-hidden rounded-full transition-transform active:scale-95 flex items-center justify-center ml-1 border border-gray-200 bg-gray-50 text-gray-900"
+              className="overflow-hidden rounded-full transition-transform active:scale-95 flex items-center justify-center ml-1 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#202226] text-gray-900 dark:text-[#F4F5F7]"
               style={{ width: 32, height: 32, minWidth: 44, minHeight: 44 }}
               aria-label="Open profile"
             >
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="profile" className="h-full w-full object-cover rounded-full" style={{ width: 32, height: 32 }} />
               ) : (
-                <div className="flex items-center justify-center text-gray-900"><User size={16} /></div>
+                <div className="flex items-center justify-center text-gray-900 dark:text-[#F4F5F7]"><User size={16} /></div>
               )}
             </button>
           </div>
@@ -302,10 +297,7 @@ export const StudentLayout: React.FC = () => {
         />
       </div>
 
-      {/* ── Mobile Slide-Up Bottom Sheet / Drawer ──────────────────────────
-          DESIGN.md: bg #ffffff, rounded-t-[22px], hairline border-t (#e0e0e0)
-          No box-shadow on chrome — depth comes from backdrop blur + color change.
-      */}
+      {/* ── Mobile Slide-Up Bottom Sheet / Drawer ────────────────────────── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-[70] md:hidden flex flex-col justify-end">
@@ -314,7 +306,7 @@ export const StudentLayout: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-[2px]"
               onClick={() => setIsMobileMenuOpen(false)}
             />
 
@@ -332,42 +324,37 @@ export const StudentLayout: React.FC = () => {
                   setIsMobileMenuOpen(false);
                 }
               }}
-              className="relative w-full max-h-[85vh] flex flex-col z-10 overflow-hidden overscroll-y-none"
+              className="relative w-full max-h-[85vh] flex flex-col z-10 overflow-hidden overscroll-y-none bg-white dark:bg-[#171A21] border-t border-gray-200 dark:border-[#262A33] rounded-t-[22px]"
               style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '22px 22px 0 0',
-                borderTop: '1px solid #e0e0e0',
                 paddingBottom: 'env(safe-area-inset-bottom, 16px)',
                 touchAction: 'pan-x pan-y',
               }}
             >
               {/* Drawer handle pill */}
               <div
-                className="mx-auto mt-3 mb-1 shrink-0 rounded-full"
-                style={{ width: 36, height: 5, backgroundColor: '#d2d2d7' }}
+                className="mx-auto mt-3 mb-1 shrink-0 rounded-full bg-gray-300 dark:bg-white/20"
+                style={{ width: 36, height: 5 }}
               />
 
               {/* Drawer header row */}
               <div
-                className="h-12 flex items-center justify-between px-5 shrink-0"
-                style={{ borderBottom: '1px solid #e0e0e0' }}
+                className="h-12 flex items-center justify-between px-5 shrink-0 border-b border-gray-200 dark:border-[#262A33]"
               >
-                {/* body-strong token: 17px/600/-0.374px */}
-                <span style={{ color: '#1d1d1f', fontFamily: 'SF Pro Text, system-ui, -apple-system, sans-serif', fontSize: 17, fontWeight: 600, letterSpacing: '-0.374px' }}>
+                <span className="text-gray-900 dark:text-[#F4F5F7] font-semibold text-base">
                   More Services &amp; Settings
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center rounded-full active:scale-95 transition-transform"
-                  style={{ width: 28, height: 28, backgroundColor: '#f5f5f7', color: '#7a7a7a' }}
+                  className="flex items-center justify-center rounded-full active:scale-95 transition-transform bg-[#f5f5f7] dark:bg-[#202226] text-gray-600 dark:text-[#9AA0AC]"
+                  style={{ width: 28, height: 28 }}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Scrollable drawer body */}
-              <div className="flex-1 overflow-y-auto overscroll-y-contain p-4 space-y-4" style={{ backgroundColor: '#f5f5f7' }}>
+              <div className="flex-1 overflow-y-auto overscroll-y-contain p-4 space-y-4 bg-[#f5f5f7] dark:bg-[#101113]">
 
                 {/* Campus Services section */}
                 <div>
