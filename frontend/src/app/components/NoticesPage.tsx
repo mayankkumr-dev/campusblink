@@ -372,12 +372,12 @@ export const NoticesPage: React.FC = () => {
     else setIsLoading(true);
     const { data } = await getNoticesForStudent({
       college: profile?.college,
-      studyYear: profile?.study_year,
+      studyYear: profile?.study_year || profile?.academic_year,
     });
     setNotices(data);
     if (refresh) setIsRefreshing(false);
     else setIsLoading(false);
-  }, [profile?.college, profile?.study_year]);
+  }, [profile?.college, profile?.study_year, profile?.academic_year]);
 
   useEffect(() => {
     setInitialLastSeen(localStorage.getItem('campus_blink_notices_last_seen'));

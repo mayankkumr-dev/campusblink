@@ -38,8 +38,20 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
     }
 
     if (studyYear) {
-      const yrPrefix = studyYear.split(':')[0].trim();
-      query = query.in('target_year', ['all', yrPrefix]);
+      // Extract the numeric year (e.g., '1st Year' -> '1', '2' -> '2')
+      const yrStr = String(studyYear);
+      const yrDigit = yrStr.match(/\d/)?.[0] || yrStr.split(':')[0].trim();
+      
+      // Fetch 'all' notices, plus any formats of the specific year ('1', '1st Year')
+      const targetYearFormats = [
+        'all', 
+        yrDigit,
+        `${yrDigit}st Year`,
+        `${yrDigit}nd Year`,
+        `${yrDigit}rd Year`,
+        `${yrDigit}th Year`
+      ];
+      query = query.in('target_year', targetYearFormats);
     }
 
     const { data, error } = await query;

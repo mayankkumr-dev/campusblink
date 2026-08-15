@@ -197,8 +197,12 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
       if (targetYear === 'faculty') {
         query = query.eq('role', 'faculty');
       } else {
-        const yrPrefix = targetYear.split(':')[0].trim();
-        query = query.eq('study_year', yrPrefix);
+        // Extract the numeric year (e.g., '1st Year' -> '1', '2' -> '2')
+        const yrDigit = targetYear.match(/\d/)?.[0] || targetYear.split(':')[0].trim();
+        
+        // Match users where study_year or academic_year is either '1' or '1st Year', etc.
+        // Profiles might have it in `academic_year` (int) or `study_year` (string)
+        query = query.or(`study_year.eq.${yrDigit},study_year.eq.${yrDigit}st Year,study_year.eq.${yrDigit}nd Year,study_year.eq.${yrDigit}rd Year,study_year.eq.${yrDigit}th Year,academic_year.eq.${yrDigit}`);
       }
     }
 
