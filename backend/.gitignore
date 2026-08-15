@@ -4,3 +4,5 @@ dist/
 .DS_Store
 # Firebase Admin SDK service account — NEVER commit this file
 firebase-service-account.json
+firebase-service-account.json.json
+firebase-service-account*.json
