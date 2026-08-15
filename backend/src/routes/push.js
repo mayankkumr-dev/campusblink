@@ -5,24 +5,21 @@ const { supabaseAdmin } = require('../config/supabase');
 const { sendPushToUser } = require('../services/push');
 
 // ── POST /api/push/subscribe ──────────────────────────────────────────────────
-// Saves (upserts) a Web Push subscription for the authenticated user.
-// The frontend sends this after Notification.requestPermission() is granted.
+// Saves (upserts) an FCM registration token for the authenticated user.
+// The frontend sends this after Notification.requestPermission() is granted
+// and a Firebase FCM token is obtained via getToken().
 router.post('/subscribe', authMiddleware, async (req, res) => {
   try {
-    const { endpoint, p256dh, auth, deviceName } = req.body || {};
+    const { fcmToken, deviceName } = req.body || {};
 
-    if (!endpoint || !p256dh || !auth) {
+    if (!fcmToken) {
       return res.status(400).json({
-        error: 'Missing required fields: endpoint, p256dh, auth',
+        error: 'Missing required field: fcmToken',
       });
     }
 
-    if (
-      typeof endpoint !== 'string' ||
-      typeof p256dh !== 'string' ||
-      typeof auth !== 'string'
-    ) {
-      return res.status(400).json({ error: 'endpoint, p256dh and auth must be strings' });
+    if (typeof fcmToken !== 'string' || !fcmToken.trim()) {
+      return res.status(400).json({ error: 'fcmToken must be a non-empty string' });
     }
 
     const { data, error } = await supabaseAdmin
@@ -30,26 +27,25 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
       .upsert(
         {
           user_id: req.user.id,
-          endpoint: endpoint.trim(),
-          p256dh: p256dh.trim(),
-          auth: auth.trim(),
+          fcm_token: fcmToken.trim(),
           device_name: String(deviceName || 'Unknown').trim(),
           updated_at: new Date().toISOString(),
+          token_updated_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,endpoint' }
+        { onConflict: 'user_id,fcm_token' }
       )
       .select()
       .single();
 
     if (error) {
       console.error('[push/subscribe] Supabase upsert error:', error);
-      return res.status(500).json({ error: 'Failed to save subscription' });
+      return res.status(500).json({ error: 'Failed to save FCM token' });
     }
 
-    console.log('[push/subscribe] Subscription saved', {
+    console.log('[push/subscribe] FCM token saved', {
       userId: req.user.id,
       subscriptionId: data?.id,
-      endpoint: endpoint.slice(0, 60) + '…',
+      tokenPrefix: fcmToken.slice(0, 40) + '…',
     });
 
     return res.status(200).json({ success: true, id: data?.id });
@@ -60,30 +56,30 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
 });
 
 // ── DELETE /api/push/unsubscribe ──────────────────────────────────────────────
-// Deletes a specific push subscription by endpoint for the authenticated user.
+// Deletes a specific FCM token subscription for the authenticated user.
 // Called when the user revokes notification permission or signs out.
 router.delete('/unsubscribe', authMiddleware, async (req, res) => {
   try {
-    const { endpoint } = req.body || {};
+    const { fcmToken } = req.body || {};
 
-    if (!endpoint) {
-      return res.status(400).json({ error: 'Missing required field: endpoint' });
+    if (!fcmToken) {
+      return res.status(400).json({ error: 'Missing required field: fcmToken' });
     }
 
     const { error } = await supabaseAdmin
       .from('push_subscriptions')
       .delete()
       .eq('user_id', req.user.id)
-      .eq('endpoint', endpoint.trim());
+      .eq('fcm_token', fcmToken.trim());
 
     if (error) {
       console.error('[push/unsubscribe] Supabase delete error:', error);
-      return res.status(500).json({ error: 'Failed to delete subscription' });
+      return res.status(500).json({ error: 'Failed to delete FCM token' });
     }
 
-    console.log('[push/unsubscribe] Subscription removed', {
+    console.log('[push/unsubscribe] FCM token removed', {
       userId: req.user.id,
-      endpoint: endpoint.slice(0, 60) + '…',
+      tokenPrefix: fcmToken.slice(0, 40) + '…',
     });
 
     return res.status(204).send();
@@ -94,7 +90,7 @@ router.delete('/unsubscribe', authMiddleware, async (req, res) => {
 });
 
 // ── POST /api/push/test ───────────────────────────────────────────────────────
-// Sends a test notification to the authenticated user's subscribed devices.
+// Sends a test FCM notification to the authenticated user's registered devices.
 router.post('/test', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -181,7 +177,7 @@ router.put('/preferences', authMiddleware, async (req, res) => {
 });
 
 // ── POST /api/push/broadcast-notice ───────────────────────────────────────────
-// Trigger endpoint to broadcast a notice to targeted students.
+// Trigger endpoint to broadcast a notice push to targeted students.
 // Called by the frontend immediately after saving an official notice.
 router.post('/broadcast-notice', authMiddleware, async (req, res) => {
   try {
@@ -192,11 +188,11 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
 
     // Determine target users based on college and targetYear
     let query = supabaseAdmin.from('profiles').select('id').eq('status', 'active');
-    
+
     if (college && college !== 'All') {
       query = query.eq('college', college);
     }
-    
+
     if (targetYear && targetYear !== 'all') {
       if (targetYear === 'faculty') {
         query = query.eq('role', 'faculty');
@@ -209,11 +205,13 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
     const { data: users, error } = await query;
     if (error) throw error;
 
-    const targetUserIds = users?.map(u => u.id) || [];
-    
+    const targetUserIds = users?.map((u) => u.id) || [];
+
     if (targetUserIds.length > 0) {
       const notificationService = require('../services/notifications');
-      notificationService.notifyOfficialNotice(targetUserIds, title, noticeId).catch(console.error);
+      notificationService
+        .notifyOfficialNotice(targetUserIds, title, noticeId)
+        .catch(console.error);
     }
 
     res.json({ message: 'Notice broadcast queued', targetedUsers: targetUserIds.length });

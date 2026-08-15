@@ -1,4 +1,76 @@
 /// <reference lib="webworker" />
+
+// ─── Firebase Cloud Messaging — Background Handler ────────────────────────────
+// importScripts loads Firebase compat SDK so we can handle FCM messages that
+// arrive while the PWA is in the background or closed.
+// These scripts are served by Firebase's CDN and do NOT need bundling.
+// IMPORTANT: Keep these importScripts ABOVE all Workbox imports so Firebase
+// claims the `push` event before Workbox's event listener does.
+try {
+  importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+  importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
+
+  // Initialize Firebase inside the service worker using the same project config.
+  // These values are inlined at build time by Vite's define plugin replacement.
+  // If VITE_FIREBASE_* vars are not set, the initialisation is skipped gracefully.
+  const firebaseSWConfig = {
+    apiKey: self.__FIREBASE_API_KEY__,
+    authDomain: self.__FIREBASE_AUTH_DOMAIN__,
+    projectId: self.__FIREBASE_PROJECT_ID__,
+    storageBucket: self.__FIREBASE_STORAGE_BUCKET__,
+    messagingSenderId: self.__FIREBASE_MESSAGING_SENDER_ID__,
+    appId: self.__FIREBASE_APP_ID__,
+  };
+
+  if (
+    firebaseSWConfig.apiKey &&
+    firebaseSWConfig.projectId &&
+    firebaseSWConfig.messagingSenderId
+  ) {
+    firebase.initializeApp(firebaseSWConfig);
+    const messaging = firebase.messaging();
+
+    /**
+     * onBackgroundMessage fires when the PWA is in the background or closed
+     * and an FCM data/notification message arrives from the Firebase servers.
+     *
+     * We construct the notification ourselves so it matches the same format
+     * used by the foreground `push` event listener below.
+     */
+    messaging.onBackgroundMessage((payload) => {
+      console.log('[SW FCM] Background message received:', payload);
+
+      const { notification: fcmNotification, data: fcmData } = payload;
+
+      const title = fcmNotification?.title || fcmData?.title || 'Campus Blink';
+      const body = fcmNotification?.body || fcmData?.body || 'You have a new update.';
+      const targetUrl = fcmData?.url || fcmData?.click_action || fcmNotification?.click_action || '/';
+
+      const options = {
+        body,
+        icon: fcmData?.icon || '/logo2/Blue_transparent.png?v=8',
+        badge: fcmData?.badge || '/logo2/Blue_transparent.png?v=8',
+        data: {
+          url: new URL(targetUrl, self.location.origin).href,
+        },
+        vibrate: [200, 100, 200],
+        requireInteraction: false,
+        silent: false,
+        tag: 'campus-blink-fcm',
+        renotify: true,
+      };
+
+      return self.registration.showNotification(title, options);
+    });
+
+    console.log('[SW FCM] Firebase background messaging registered');
+  } else {
+    console.warn('[SW FCM] Firebase config missing — background messaging disabled');
+  }
+} catch (err) {
+  console.error('[SW FCM] Failed to initialise Firebase in service worker:', err);
+}
+
 import { clientsClaim } from 'workbox-core';
 import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL, matchPrecache } from 'workbox-precaching';
 import { registerRoute, NavigationRoute, setCatchHandler } from 'workbox-routing';
@@ -6,6 +78,7 @@ import { CacheFirst, NetworkFirst, StaleWhileRevalidate, NetworkOnly } from 'wor
 import { ExpirationPlugin } from 'workbox-expiration';
 import { BackgroundSyncPlugin } from 'workbox-background-sync';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
+
 
 clientsClaim();
 

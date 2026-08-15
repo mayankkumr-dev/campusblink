@@ -425,4 +425,42 @@ router.post('/promote-batch', authMiddleware, adminOnlyMiddleware, async (req, r
   }
 });
 
+// ── POST /api/admin/push ──────────────────────────────────────────────────────
+// Super-admin only: broadcast a custom FCM push notification to ALL devices.
+// Body: { title: string, body: string, link: string }
+// Returns: { success: true, message: string }
+router.post('/push', authMiddleware, adminOnlyMiddleware, async (req, res) => {
+  try {
+    const { title, body, link } = req.body || {};
+
+    if (!title || !body) {
+      return res.status(400).json({ error: 'title and body are required' });
+    }
+
+    // Import lazily to avoid circular dependency issues at module load time
+    const { sendPushToAll } = require('../services/push');
+
+    // Run async — do not await so the HTTP response is immediate
+    sendPushToAll(title, body, link || '/').catch((err) => {
+      console.error('[admin/push] sendPushToAll error:', err);
+    });
+
+    // Log action
+    await supabaseService.createAuditLog(req.user.id, 'broadcast_push', {
+      title,
+      body,
+      link: link || '/',
+    });
+
+    return res.json({
+      success: true,
+      message: 'Broadcast queued — all subscribed devices will receive the notification.',
+    });
+  } catch (error) {
+    console.error('Error broadcasting push:', error);
+    res.status(500).json({ error: error.message || 'Failed to broadcast push' });
+  }
+});
+
 module.exports = router;
+

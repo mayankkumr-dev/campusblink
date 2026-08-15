@@ -8,9 +8,9 @@ import { AdminRolesPage } from './AdminRolesPage';
 import { AdminInvitesPage } from './AdminInvitesPage';
 import { AdminPrintShopsPage } from './AdminPrintShopsPage';
 import { AdminProfessorsPendingPage } from './AdminProfessorsPendingPage';
-
 import { AdminBatchPromotionPage } from './AdminBatchPromotionPage';
-import { Users, GraduationCap, Store, Building2, Ticket, Printer, Clock, Ban, Shield, ArrowUpCircle } from 'lucide-react';
+import { AdminBroadcastPushCard } from './AdminBroadcastPushCard';
+import { Users, GraduationCap, Store, Ticket, Printer, Clock, Ban, Shield, ArrowUpCircle } from 'lucide-react';
 
 const PRIMARY_TABS = [
   { id: 'users', label: 'Users & Roles', icon: Users },
@@ -114,7 +114,7 @@ export const AdminAccountsHub: React.FC = () => {
       )}
 
       {/* Content Area */}
-      <div className="pb-10">
+      <div className="pb-6">
         {activeSubTab === 'users'     && <AdminUsersPage />}
         {activeSubTab === 'professors' && <AdminProfessorsPage />}
         {activeSubTab === 'professors_pending' && <AdminProfessorsPendingPage />}
@@ -125,6 +125,12 @@ export const AdminAccountsHub: React.FC = () => {
         {activeSubTab === 'banned'    && <AdminBannedUsersPage />}
         {activeSubTab === 'invites'   && <AdminInvitesPage />}
         {activeSubTab === 'promotion' && <AdminBatchPromotionPage />}
+      </div>
+
+      {/* ── Broadcast Push Card — always visible at the bottom ───────────── */}
+      {/* Follows DESIGN.md: white canvas, hairline border, 18px radius, no card shadow */}
+      <div className="pb-10">
+        <AdminBroadcastPushCard />
       </div>
     </div>
   );

@@ -1,13 +1,53 @@
-const webpush = require('web-push');
+const admin = require('firebase-admin');
+const path = require('path');
 const { supabaseAdmin } = require('../config/supabase');
 
-const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
-const vapidEmail = process.env.VAPID_EMAIL;
+// ─── Firebase Admin Initialisation ────────────────────────────────────────────
+// Initialise once. If the app is already initialised (e.g. hot-reload in dev),
+// reuse the existing instance instead of throwing.
+let firebaseApp;
 
-if (vapidPublicKey && vapidPrivateKey && vapidEmail) {
-  webpush.setVapidDetails(vapidEmail, vapidPublicKey, vapidPrivateKey);
+function getFirebaseApp() {
+  if (firebaseApp) return firebaseApp;
+
+  const existingApps = admin.apps;
+  if (existingApps.length > 0) {
+    firebaseApp = existingApps[0];
+    return firebaseApp;
+  }
+
+  const serviceAccountPath =
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
+    path.resolve(__dirname, '../../firebase-service-account.json');
+
+  try {
+    // eslint-disable-next-line import/no-dynamic-require
+    const serviceAccount = require(serviceAccountPath);
+    firebaseApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    console.log('[FCM] Firebase Admin initialised from service account:', serviceAccountPath);
+  } catch (err) {
+    console.error(
+      '[FCM] FATAL: Could not load Firebase service account from',
+      serviceAccountPath,
+      '\nDetails:', err.message,
+      '\nSet FIREBASE_SERVICE_ACCOUNT_PATH env var or place the file at backend/firebase-service-account.json'
+    );
+    // Do not crash — push will simply be a no-op until credentials are provided.
+    return null;
+  }
+
+  return firebaseApp;
 }
+
+function getMessaging() {
+  const app = getFirebaseApp();
+  if (!app) return null;
+  return admin.messaging(app);
+}
+
+// ─── Preference helper ────────────────────────────────────────────────────────
 
 function preferenceDisabled(preferences, notificationType) {
   if (!preferences || !notificationType) return false;
@@ -30,23 +70,154 @@ function preferenceDisabled(preferences, notificationType) {
   return preferences[prefKey] === false;
 }
 
+// ─── Stale token cleanup ──────────────────────────────────────────────────────
+
+/**
+ * Removes FCM tokens from push_subscriptions that have been reported as invalid.
+ * FCM error codes that indicate a token is permanently invalid:
+ *   messaging/registration-token-not-registered
+ *   messaging/invalid-registration-token
+ */
+async function purgeStaleTokens(staleTokens) {
+  if (!staleTokens?.length) return;
+
+  for (const token of staleTokens) {
+    const { error } = await supabaseAdmin
+      .from('push_subscriptions')
+      .delete()
+      .eq('fcm_token', token);
+
+    if (error) {
+      console.error('[FCM] Failed to purge stale token from DB:', error);
+    } else {
+      console.log('[FCM] Purged stale FCM token:', token.slice(0, 40) + '…');
+    }
+  }
+}
+
+// ─── Core: send to a batch of tokens ─────────────────────────────────────────
+
+/**
+ * Sends a multicast FCM message to up to 500 tokens.
+ * Returns the list of stale tokens to be purged.
+ *
+ * @param {string[]} tokens  - FCM registration tokens (max 500)
+ * @param {object}   payload - { title, body, link }
+ * @returns {string[]}       - tokens that should be purged
+ */
+async function sendMulticast(tokens, payload) {
+  const messaging = getMessaging();
+  if (!messaging || !tokens.length) return [];
+
+  const { title, body, link } = payload;
+  const clickAction = link || '/';
+
+  const message = {
+    tokens,
+    notification: {
+      title: title || 'Campus Blink',
+      body: body || 'You have a new update.',
+    },
+    data: {
+      url: clickAction,
+      click_action: clickAction,
+      icon: '/logo2/Blue_transparent.png?v=8',
+      badge: '/logo2/Blue_transparent.png?v=8',
+    },
+    webpush: {
+      notification: {
+        icon: '/logo2/Blue_transparent.png?v=8',
+        badge: '/logo2/Blue_transparent.png?v=8',
+        click_action: clickAction,
+        requireInteraction: false,
+      },
+      fcmOptions: {
+        link: clickAction,
+      },
+    },
+    android: {
+      notification: {
+        icon: 'ic_launcher',
+        clickAction: 'FLUTTER_NOTIFICATION_CLICK',
+      },
+    },
+    apns: {
+      payload: {
+        aps: {
+          badge: 1,
+          sound: 'default',
+        },
+      },
+    },
+  };
+
+  let response;
+  try {
+    response = await messaging.sendEachForMulticast(message);
+  } catch (err) {
+    console.error('[FCM] sendEachForMulticast threw:', err.message);
+    return [];
+  }
+
+  const staleTokens = [];
+
+  response.responses.forEach((res, idx) => {
+    if (res.success) return;
+
+    const code = res.error?.code;
+    console.warn('[FCM] Token send failed:', {
+      token: tokens[idx].slice(0, 40) + '…',
+      code,
+      message: res.error?.message,
+    });
+
+    if (
+      code === 'messaging/registration-token-not-registered' ||
+      code === 'messaging/invalid-registration-token'
+    ) {
+      staleTokens.push(tokens[idx]);
+    }
+  });
+
+  console.log('[FCM] Multicast result:', {
+    successCount: response.successCount,
+    failureCount: response.failureCount,
+    staleCount: staleTokens.length,
+  });
+
+  return staleTokens;
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Sends a push notification to a single user (all their registered devices).
+ *
+ * @param {string} userId       - Supabase user ID
+ * @param {object} notification - { title, body, link, type, important, ... }
+ */
 async function sendPushToUser(userId, notification) {
-  if (!userId || !notification || !vapidPublicKey || !vapidPrivateKey || !vapidEmail) {
+  if (!userId || !notification) return;
+
+  const messaging = getMessaging();
+  if (!messaging) {
+    console.warn('[FCM] sendPushToUser skipped — Firebase not initialised');
     return;
   }
 
   const { data: subscriptions, error: subscriptionError } = await supabaseAdmin
     .from('push_subscriptions')
-    .select('*')
-    .eq('user_id', userId);
+    .select('fcm_token')
+    .eq('user_id', userId)
+    .not('fcm_token', 'is', null);
 
   if (subscriptionError) {
-    console.error('SUPABASE PUSH SUBSCRIPTION QUERY FAILED', subscriptionError);
+    console.error('[FCM] SUPABASE PUSH SUBSCRIPTION QUERY FAILED', subscriptionError);
     return;
   }
 
   if (!subscriptions?.length) {
-    console.warn('NO PUSH SUBSCRIPTIONS FOUND FOR USER', { userId });
+    console.warn('[FCM] NO FCM SUBSCRIPTIONS FOUND FOR USER', { userId });
     return;
   }
 
@@ -58,110 +229,122 @@ async function sendPushToUser(userId, notification) {
 
   if (preferenceDisabled(preferences, notification.type)) return;
 
-  const payload = JSON.stringify({
+  const tokens = subscriptions.map((s) => s.fcm_token).filter(Boolean);
+  if (!tokens.length) return;
+
+  const payload = {
     title: notification.title,
     body: notification.body,
-    icon: notification.icon || '/logo2/Blue_transparent.png?v=8',
-    badge: notification.badge || '/logo2/Blue_transparent.png?v=8',
-    image: notification.image || null,
-    url: notification.url || '/',
-    tag: notification.tag || `campus-blink-${userId}`,
-    notificationId: notification.notificationId || notification.id || null,
-    requireInteraction: Boolean(notification.important),
-    actions: notification.actions || [],
-  });
+    link: notification.url || notification.link || '/',
+  };
 
-  for (const subscription of subscriptions) {
-    const pushSubscription = {
-      endpoint: subscription?.endpoint,
-      keys: {
-        p256dh: subscription?.p256dh,
-        auth: subscription?.auth,
-      },
-    };
-
-    if (
-      !pushSubscription.endpoint ||
-      typeof pushSubscription.endpoint !== 'string' ||
-      !pushSubscription.endpoint.trim() ||
-      !pushSubscription.keys ||
-      typeof pushSubscription.keys !== 'object' ||
-      typeof pushSubscription.keys.p256dh !== 'string' ||
-      !pushSubscription.keys.p256dh.trim() ||
-      typeof pushSubscription.keys.auth !== 'string' ||
-      !pushSubscription.keys.auth.trim()
-    ) {
-      console.error('INVALID PUSH SUBSCRIPTION SKIPPED', subscription, pushSubscription);
-      continue;
-    }
-
-    try {
-      const webPushResponse = await webpush.sendNotification(
-        pushSubscription,
-        payload,
-        {
-          TTL: 86400,
-          urgency: notification.important ? 'high' : 'normal',
-        }
-      );
-
-      console.log('[WebPush Send Success]', {
-        userId,
-        eventType: notification.type || 'unknown',
-        endpoint: pushSubscription.endpoint.slice(0, 60) + '…',
-        statusCode: webPushResponse?.statusCode,
-      });
-    } catch (error) {
-      console.error('[WebPush Delivery Failure]', {
-        userId,
-        eventType: notification.type || 'unknown',
-        timestamp: new Date().toISOString(),
-        endpoint: pushSubscription.endpoint.slice(0, 60) + '…',
-        statusCode: error?.statusCode || 'N/A',
-        message: error?.message || String(error),
-      });
-
-      if (error?.statusCode === 404 || error?.statusCode === 410) {
-        const { error: delErr } = await supabaseAdmin
-          .from('push_subscriptions')
-          .delete()
-          .eq('endpoint', pushSubscription.endpoint);
-          
-        if (delErr) {
-          console.error('[WebPush Purge Error] Failed to delete stale subscription:', delErr);
-        }
-      }
-    }
-  }
+  const stale = await sendMulticast(tokens, payload);
+  await purgeStaleTokens(stale);
 }
 
 /**
- * Sends a push notification to an array of user IDs using chunked batching
- * (e.g., 500 subscriptions per batch with a short delay between batches)
- * instead of firing all simultaneously via Promise.allSettled().
+ * Sends a push notification to an array of user IDs using chunked batching.
+ *
+ * @param {string[]} userIds      - Array of Supabase user IDs
+ * @param {object}   notification - { title, body, link, ... }
+ * @param {number}   batchSize    - Tokens per FCM multicast call (max 500)
+ * @param {number}   delayMs      - Delay between batches (ms)
  */
 async function sendPushBatch(userIds, notification, batchSize = 500, delayMs = 250) {
   if (!Array.isArray(userIds) || !userIds.length) return;
 
-  for (let i = 0; i < userIds.length; i += batchSize) {
-    const batch = userIds.slice(i, i + batchSize);
-    await Promise.allSettled(batch.map((id) => sendPushToUser(id, notification)));
-    if (i + batchSize < userIds.length && delayMs > 0) {
+  // Fetch all FCM tokens for the given user IDs in one query
+  const { data: subscriptions, error } = await supabaseAdmin
+    .from('push_subscriptions')
+    .select('fcm_token')
+    .in('user_id', userIds)
+    .not('fcm_token', 'is', null);
+
+  if (error) {
+    console.error('[FCM] sendPushBatch subscription fetch error:', error);
+    return;
+  }
+
+  if (!subscriptions?.length) {
+    console.warn('[FCM] sendPushBatch: no FCM tokens found for target users');
+    return;
+  }
+
+  const tokens = [...new Set(subscriptions.map((s) => s.fcm_token).filter(Boolean))];
+  const payload = {
+    title: notification.title,
+    body: notification.body,
+    link: notification.url || notification.link || '/',
+  };
+
+  for (let i = 0; i < tokens.length; i += batchSize) {
+    const chunk = tokens.slice(i, i + batchSize);
+    const stale = await sendMulticast(chunk, payload);
+    await purgeStaleTokens(stale);
+
+    if (i + batchSize < tokens.length && delayMs > 0) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 }
 
-async function sendPushToAll(notification) {
-  const { data: users } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('status', 'active');
+/**
+ * Sends a push notification to ALL active users who have FCM tokens.
+ *
+ * @param {string|object} titleOrNotification - Either a title string (new API) or full notification object (legacy)
+ * @param {string} [body]                     - Message body (new API)
+ * @param {string} [link]                     - Deep link URL (new API)
+ */
+async function sendPushToAll(titleOrNotification, body, link) {
+  const messaging = getMessaging();
+  if (!messaging) {
+    console.warn('[FCM] sendPushToAll skipped — Firebase not initialised');
+    return;
+  }
 
-  if (!users?.length) return;
+  // Support both new simple API (title, body, link) and old notification-object API
+  let notification;
+  if (typeof titleOrNotification === 'string') {
+    notification = { title: titleOrNotification, body, link };
+  } else {
+    notification = titleOrNotification;
+  }
 
-  const userIds = users.map((u) => u.id);
-  await sendPushBatch(userIds, notification);
+  // Fetch all distinct FCM tokens for active users
+  const { data: subscriptions, error } = await supabaseAdmin
+    .from('push_subscriptions')
+    .select('fcm_token, user_id')
+    .not('fcm_token', 'is', null);
+
+  if (error) {
+    console.error('[FCM] sendPushToAll fetch error:', error);
+    return;
+  }
+
+  if (!subscriptions?.length) {
+    console.warn('[FCM] sendPushToAll: no FCM tokens found');
+    return;
+  }
+
+  const tokens = [...new Set(subscriptions.map((s) => s.fcm_token).filter(Boolean))];
+  console.log('[FCM] sendPushToAll broadcasting to', tokens.length, 'tokens');
+
+  const payload = {
+    title: notification.title,
+    body: notification.body,
+    link: notification.url || notification.link || '/',
+  };
+
+  const BATCH_SIZE = 500;
+  for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
+    const chunk = tokens.slice(i, i + BATCH_SIZE);
+    const stale = await sendMulticast(chunk, payload);
+    await purgeStaleTokens(stale);
+
+    if (i + BATCH_SIZE < tokens.length) {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+  }
 }
 
 module.exports = {

@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
+import { getFCMToken, deleteFCMToken, getMessagingInstance } from './firebase';
 
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+const FIREBASE_VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || '';
+
 let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 // Force relative URLs in production so Vercel rewrites take over and avoid Mixed Content (HTTP) errors
 if (import.meta.env.PROD) {
@@ -9,20 +11,13 @@ if (import.meta.env.PROD) {
   BACKEND_URL = '';
 }
 
+// LocalStorage key to remember the token we registered with the backend so
+// we can delete it cleanly on unsubscribe.
+const FCM_TOKEN_CACHE_KEY = 'cb_fcm_token_v1';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; i += 1) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
 
 /** Returns the current Supabase access token, or null. */
 async function getAccessToken() {
@@ -46,13 +41,15 @@ async function authHeaders() {
 export async function isPushSupported() {
   return (
     'serviceWorker' in navigator &&
-    'PushManager' in window &&
-    'Notification' in window
+    'Notification' in window &&
+    typeof window !== 'undefined'
   );
 }
 
 export async function getPushUnavailableReason() {
-  if (!(await isPushSupported())) {
+  if (typeof window === 'undefined') return 'Not available in this environment.';
+
+  if (!('Notification' in window)) {
     return 'Push notifications are not supported on this device/browser.';
   }
 
@@ -60,8 +57,18 @@ export async function getPushUnavailableReason() {
     return 'Notifications require a secure connection (HTTPS).';
   }
 
-  if (!VAPID_PUBLIC_KEY) {
+  if (!FIREBASE_VAPID_KEY) {
     return 'Notifications are not configured yet. Please try again in a bit.';
+  }
+
+  // Check FCM/Firebase is available
+  try {
+    const messaging = await getMessagingInstance();
+    if (!messaging) {
+      return 'Push notifications are not supported on this browser.';
+    }
+  } catch {
+    return 'Push notification service is unavailable.';
   }
 
   if (Notification.permission === 'denied') {
@@ -73,10 +80,23 @@ export async function getPushUnavailableReason() {
 
 export async function isPushSubscribed() {
   if (!(await isPushSupported())) return false;
-  const registration = await navigator.serviceWorker.getRegistration();
-  if (!registration) return false;
-  const subscription = await registration.pushManager.getSubscription();
-  return Boolean(subscription);
+  // We consider the user subscribed if we have a cached FCM token
+  const cachedToken = localStorage.getItem(FCM_TOKEN_CACHE_KEY);
+  if (cachedToken) return true;
+
+  // Secondary check: can we get a token without re-prompting?
+  if (Notification.permission === 'granted' && FIREBASE_VAPID_KEY) {
+    try {
+      const token = await getFCMToken(FIREBASE_VAPID_KEY);
+      if (token) {
+        localStorage.setItem(FCM_TOKEN_CACHE_KEY, token);
+        return true;
+      }
+    } catch {
+      // Ignore — user is not subscribed
+    }
+  }
+  return false;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -84,7 +104,7 @@ export async function isPushSubscribed() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Requests notification permission, creates a PushManager subscription,
+ * Requests notification permission, obtains an FCM registration token,
  * then saves it to the backend (which uses the service-role key).
  *
  * @param {string} userId - Supabase user ID
@@ -105,43 +125,25 @@ export async function subscribeToPush(userId) {
       return false;
     }
 
-    // 2. Get or create PushManager subscription
-    let registration = await navigator.serviceWorker.getRegistration();
-    if (!registration) {
-      // Fallback to wait for ready if not registered yet, with a timeout to avoid hangs
-      registration = await Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Service Worker not ready')), 3000))
-      ]);
-    }
-    let subscription = await registration.pushManager.getSubscription();
-
-    if (!subscription) {
-      const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey,
-      });
+    // 2. Get FCM registration token
+    const fcmToken = await getFCMToken(FIREBASE_VAPID_KEY);
+    if (!fcmToken) {
+      console.error('[push] Failed to obtain FCM token');
+      return false;
     }
 
-    const keys = subscription.toJSON();
     const deviceName = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent)
       ? 'Mobile'
       : 'Desktop';
 
     // 3. Save via backend endpoint (server-authoritative, uses service role)
-    if (BACKEND_URL) {
+    if (BACKEND_URL !== undefined) {
       const headers = await authHeaders();
       const response = await fetch(`${BACKEND_URL}/api/push/subscribe`, {
         method: 'POST',
         headers,
         credentials: 'include',
-        body: JSON.stringify({
-          endpoint: subscription.endpoint,
-          p256dh: keys.keys?.p256dh,
-          auth: keys.keys?.auth,
-          deviceName,
-        }),
+        body: JSON.stringify({ fcmToken, deviceName }),
       });
 
       if (!response.ok) {
@@ -154,12 +156,11 @@ export async function subscribeToPush(userId) {
       const { error } = await supabase.from('push_subscriptions').upsert(
         {
           user_id: userId,
-          endpoint: subscription.endpoint,
-          p256dh: keys.keys?.p256dh,
-          auth: keys.keys?.auth,
+          fcm_token: fcmToken,
           device_name: deviceName,
+          token_updated_at: new Date().toISOString(),
         },
-        { onConflict: 'user_id,endpoint' }
+        { onConflict: 'user_id,fcm_token' }
       );
 
       if (error) {
@@ -168,7 +169,13 @@ export async function subscribeToPush(userId) {
       }
     }
 
-    console.log('[push] Subscribed successfully', { userId, endpoint: subscription.endpoint.slice(0, 60) + '…' });
+    // 4. Cache token locally for clean unsubscribe later
+    localStorage.setItem(FCM_TOKEN_CACHE_KEY, fcmToken);
+
+    console.log('[push] FCM subscribed successfully', {
+      userId,
+      tokenPrefix: fcmToken.slice(0, 40) + '…',
+    });
     return true;
   } catch (error) {
     console.error('[push] subscribeToPush error:', error);
@@ -181,46 +188,43 @@ export async function subscribeToPush(userId) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Unsubscribes from the PushManager and removes the record from the backend.
+ * Deletes the FCM token from the browser and removes the record from the backend.
  *
  * @param {string} userId - Supabase user ID (used for fallback only)
  */
 export async function unsubscribeFromPush(userId) {
   if (!(await isPushSupported())) return;
 
-  const registration = await navigator.serviceWorker.getRegistration();
-  if (!registration) return;
-  const subscription = await registration.pushManager.getSubscription();
+  const fcmToken = localStorage.getItem(FCM_TOKEN_CACHE_KEY);
 
-  if (!subscription) return;
-
-  const endpoint = subscription.endpoint;
-
-  // Unsubscribe from PushManager first
-  await subscription.unsubscribe().catch((e) =>
-    console.warn('[push] PushManager unsubscribe error:', e)
-  );
-
-  // Remove from backend
-  if (BACKEND_URL) {
-    const headers = await authHeaders();
-    await fetch(`${BACKEND_URL}/api/push/unsubscribe`, {
-      method: 'DELETE',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({ endpoint }),
-    }).catch((e) => console.warn('[push] Backend unsubscribe error:', e));
-  } else {
-    // Fallback: direct Supabase delete
-    await supabase
-      .from('push_subscriptions')
-      .delete()
-      .eq('user_id', userId)
-      .eq('endpoint', endpoint)
-      .catch((e) => console.warn('[push] Supabase fallback unsubscribe error:', e));
+  // Remove from backend first
+  if (fcmToken) {
+    if (BACKEND_URL !== undefined) {
+      const headers = await authHeaders();
+      await fetch(`${BACKEND_URL}/api/push/unsubscribe`, {
+        method: 'DELETE',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ fcmToken }),
+      }).catch((e) => console.warn('[push] Backend unsubscribe error:', e));
+    } else {
+      // Fallback: direct Supabase delete
+      await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('fcm_token', fcmToken)
+        .catch((e) => console.warn('[push] Supabase fallback unsubscribe error:', e));
+    }
   }
 
-  console.log('[push] Unsubscribed', { endpoint: endpoint.slice(0, 60) + '…' });
+  // Delete the token from Firebase SDK (revokes the registration on the FCM side)
+  await deleteFCMToken();
+
+  // Clear local cache
+  localStorage.removeItem(FCM_TOKEN_CACHE_KEY);
+
+  console.log('[push] FCM unsubscribed', { tokenPrefix: fcmToken?.slice(0, 40) + '…' });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -273,8 +277,6 @@ export async function sendTestPush() {
 }
 
 export async function sendPushNotification(userId, notification) {
-  if (!BACKEND_URL) return false;
-
   const headers = await authHeaders();
   const response = await fetch(`${BACKEND_URL}/api/push/notify`, {
     method: 'POST',
