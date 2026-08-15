@@ -162,14 +162,38 @@ export const ProfessorNoticeAdminPage: React.FC = () => {
       }
     }
 
-    const { error } = await createNotice({
+    const { data, error } = await createNotice({
       authorId: profile?.id, college: profile?.college, title, content, targetYear, attachments, isPinned
     });
 
     setIsSubmitting(false);
-    if (error) return toast.error('Publish failed.');
+    if (error || !data) return toast.error('Publish failed.');
 
     toast.success('Notice published to students!');
+
+    // ── Broadcast FCM push to all targeted students ────────────────────────
+    try {
+      const token = await import('../../lib/supabase').then(m => m.supabase.auth.getSession())
+        .then(({ data: s }) => s?.session?.access_token || null);
+
+      fetch('/api/push/broadcast-notice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          noticeId: data.id,
+          title: data.title || title.trim(),
+          college: profile?.college,
+          targetYear,
+        }),
+      }).catch((err) => console.warn('[notices] broadcast-notice call failed:', err));
+    } catch (broadcastErr) {
+      console.warn('[notices] Could not queue push broadcast:', broadcastErr);
+    }
+
     setTitle(''); setContent(''); setTargetYear('all'); setIsPinned(false); setFiles([]); setFileProgress({});
     loadNotices();
   };

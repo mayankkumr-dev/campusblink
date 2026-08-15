@@ -209,7 +209,7 @@ export const NoticeAdminPage: React.FC = () => {
       setIsUploading(false);
     }
 
-    const { error } = await createNotice({
+    const { data, error } = await createNotice({
       authorId: profile.id,
       college: profile.role === 'admin' ? targetCollege : profile.college,
       title: title.trim(),
@@ -219,13 +219,38 @@ export const NoticeAdminPage: React.FC = () => {
       isPinned,
     });
 
-    if (error) {
+    if (error || !data) {
       toast.error((error as any).message || 'Could not publish notice.');
       setIsSubmitting(false);
       return;
     }
 
     toast.success('Notice published!');
+
+    // ── Broadcast FCM push to all targeted students ────────────────────────
+    // Fire-and-forget: errors here must NOT block the UI success flow.
+    try {
+      const token = await import('../../lib/supabase').then(m => m.supabase.auth.getSession())
+        .then(({ data: s }) => s?.session?.access_token || null);
+
+      fetch('/api/push/broadcast-notice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          noticeId: data.id,
+          title: data.title || title.trim(),
+          college: profile.role === 'admin' ? targetCollege : profile.college,
+          targetYear,
+        }),
+      }).catch((err) => console.warn('[notices] broadcast-notice call failed:', err));
+    } catch (broadcastErr) {
+      console.warn('[notices] Could not queue push broadcast:', broadcastErr);
+    }
+
     setTitle('');
     setContent('');
     setTargetYear('all');
