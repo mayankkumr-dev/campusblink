@@ -16,6 +16,23 @@ function getFirebaseApp() {
     return firebaseApp;
   }
 
+  // Priority 1: Inline JSON string in env var (preferred for cloud deployments)
+  const inlineJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (inlineJson) {
+    try {
+      const serviceAccount = JSON.parse(inlineJson);
+      firebaseApp = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('[FCM] Firebase Admin initialised from FIREBASE_SERVICE_ACCOUNT_JSON env var');
+      return firebaseApp;
+    } catch (err) {
+      console.error('[FCM] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON:', err.message);
+      // Fall through to file-based approach
+    }
+  }
+
+  // Priority 2: Service account file path
   const serviceAccountPath =
     process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
     path.resolve(__dirname, '../../firebase-service-account.json');
@@ -26,13 +43,14 @@ function getFirebaseApp() {
     firebaseApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log('[FCM] Firebase Admin initialised from service account:', serviceAccountPath);
+    console.log('[FCM] Firebase Admin initialised from service account file:', serviceAccountPath);
   } catch (err) {
     console.error(
-      '[FCM] FATAL: Could not load Firebase service account from',
-      serviceAccountPath,
-      '\nDetails:', err.message,
-      '\nSet FIREBASE_SERVICE_ACCOUNT_PATH env var or place the file at backend/firebase-service-account.json'
+      '[FCM] FATAL: Could not load Firebase service account.\n' +
+      '  Option A: Set FIREBASE_SERVICE_ACCOUNT_JSON env var with the full JSON string\n' +
+      '  Option B: Set FIREBASE_SERVICE_ACCOUNT_PATH env var pointing to the JSON file\n' +
+      '  Option C: Place the file at backend/firebase-service-account.json\n' +
+      '  Error:', err.message
     );
     // Do not crash — push will simply be a no-op until credentials are provided.
     return null;

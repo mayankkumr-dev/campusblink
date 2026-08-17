@@ -153,7 +153,6 @@ export function usePushNotifications(userId?: string | null): PushNotificationHo
       !isSubscribed &&
       !suppressed &&
       !unavailableReason &&
-      isStandalone &&
       isSecure &&
       permission !== 'denied' &&
       permission !== 'unsupported'

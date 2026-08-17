@@ -8,9 +8,10 @@ import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { PWALayer } from './components/PWALayer';
 import { PushOnboardingModal } from './components/PushOnboardingModal';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { OfflineBanner } from './components/OfflineBanner';
 import { useThemeColor } from '../hooks/useThemeColor';
+import { onForegroundMessage } from '../lib/firebase';
 const DEFAULT_BANNER_IMAGE_URL = '/banner-background.png';
 const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || 'contactus.mayank@gmail.com').toLowerCase();
 
@@ -43,6 +44,64 @@ function App() {
   useEffect(() => {
     initTheme();
   }, [initTheme]);
+
+  // ── FCM foreground message handler ────────────────────────────────────────
+  // When the app is open and a push notification arrives, FCM suppresses the
+  // OS notification. We show an in-app toast instead so users never miss it.
+  useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+
+    onForegroundMessage((payload: any) => {
+      const title =
+        payload?.notification?.title ||
+        payload?.data?.title ||
+        'Campus Blink 🔔';
+      const body =
+        payload?.notification?.body ||
+        payload?.data?.body ||
+        'You have a new update.';
+      const url = payload?.data?.url || payload?.fcmOptions?.link || null;
+
+      toast(
+        (t) => (
+          <div
+            className="flex items-start gap-3 cursor-pointer"
+            onClick={() => {
+              if (url) window.location.href = url;
+              toast.dismiss(t.id);
+            }}
+          >
+            <img
+              src="/logo2/Blue_transparent.png"
+              alt=""
+              className="w-8 h-8 rounded-lg object-contain flex-shrink-0"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold text-gray-900 leading-snug">{title}</p>
+              <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">{body}</p>
+            </div>
+          </div>
+        ),
+        {
+          duration: 5000,
+          style: {
+            background: '#fff',
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            padding: '12px',
+            maxWidth: '360px',
+          },
+        }
+      );
+    }).then((unsub) => {
+      if (typeof unsub === 'function') unsubscribe = unsub;
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {

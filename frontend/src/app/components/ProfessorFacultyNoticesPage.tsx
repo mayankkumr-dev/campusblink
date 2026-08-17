@@ -153,7 +153,7 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
       }
     }
 
-    const { error } = await createNotice({
+    const { data, error } = await createNotice({
       authorId: profile?.id, college: profile?.college, title, content, targetYear: 'faculty', attachments, isPinned: false
     });
 
@@ -161,8 +161,36 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
     if (error) return toast.error('Publish failed.');
 
     toast.success('Shared with faculty!');
+
+    // ── Broadcast FCM push to all faculty members ────────────────────────────
+    // Fire-and-forget: errors here must NOT block the UI success flow.
+    if (data?.id) {
+      try {
+        const { supabase: sb } = await import('../../lib/supabase');
+        const { data: authSession } = await sb.auth.getSession();
+        const token = authSession?.session?.access_token;
+        fetch('/api/push/broadcast-notice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            noticeId: data.id,
+            title: data.title || title.trim(),
+            college: profile?.college || 'All',
+            targetYear: 'faculty',
+          }),
+        }).catch((err) => console.warn('[faculty-notices] broadcast-notice call failed:', err));
+      } catch (broadcastErr) {
+        console.warn('[faculty-notices] Could not queue push broadcast:', broadcastErr);
+      }
+    }
+
     setTitle(''); setContent(''); setFiles([]); setFileProgress({}); setShowCompose(false);
     loadNotices();
+
   };
 
   return (

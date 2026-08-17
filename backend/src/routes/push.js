@@ -195,7 +195,8 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
 
     if (targetYear && targetYear !== 'all') {
       if (targetYear === 'faculty') {
-        query = query.eq('role', 'faculty');
+        // 'faculty' maps to the 'professor' role in the profiles table
+        query = query.eq('role', 'professor');
       } else {
         // Extract the numeric year (e.g., '1st Year' -> '1', '2' -> '2')
         const yrDigit = targetYear.match(/\d/)?.[0] || targetYear.split(':')[0].trim();

@@ -253,36 +253,6 @@ export async function createNotice({ authorId, college, title, content, targetYe
 
     if (error) throw error;
 
-    // Trigger push notification broadcast via backend
-    if (data?.id) {
-      const { data: authData } = await supabase.auth.getSession();
-      if (authData?.session?.access_token) {
-        let apiUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
-        // Force relative URLs in production so Vercel rewrites take over and avoid Mixed Content (HTTP) errors
-        if (import.meta.env.PROD) {
-          apiUrl = '';
-        } else if (!apiUrl) {
-          apiUrl = '';
-        }
-        
-        console.log('[Notice] Triggering broadcast via:', apiUrl);
-        
-        fetch(`${apiUrl}/api/push/broadcast-notice`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authData.session.access_token}`
-          },
-          body: JSON.stringify({
-            noticeId: data.id,
-            title: data.title,
-            college: data.college,
-            targetYear: data.target_year
-          })
-        }).catch(err => console.error('Failed to trigger broadcast notification:', err));
-      }
-    }
-
     return { data, error: null };
   } catch (error) {
     return { data: null, error };

@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getMessaging, getToken, deleteToken, isSupported } from 'firebase/messaging';
+import { getMessaging, getToken, deleteToken, isSupported, onMessage } from 'firebase/messaging';
 
 // ─── Firebase Config ──────────────────────────────────────────────────────────
 // All values come from VITE_FIREBASE_* environment variables.
@@ -112,3 +112,23 @@ export async function deleteFCMToken() {
 }
 
 export { firebaseApp };
+
+/**
+ * Registers a handler for FCM messages received while the app is in the
+ * foreground. FCM does NOT show a system notification in this case, so the
+ * caller is responsible for showing an in-app toast or custom UI.
+ *
+ * @param {function} handler - Called with the FCM MessagePayload
+ * @returns {function} unsubscribe - Call to remove the listener
+ */
+export async function onForegroundMessage(handler) {
+  try {
+    const messaging = await getMessagingInstance();
+    if (!messaging) return () => {};
+    return onMessage(messaging, handler);
+  } catch (err) {
+    console.warn('[firebase] onForegroundMessage setup error:', err);
+    return () => {};
+  }
+}
+
