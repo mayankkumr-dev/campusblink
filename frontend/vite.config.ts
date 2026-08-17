@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     esbuild: {
-      drop: ['console', 'debugger'],
+      drop: ['debugger'],
     },
     // Inject Firebase config as global constants into sw.js so the service worker
     // can initialise Firebase without ES module imports (importScripts compat).
