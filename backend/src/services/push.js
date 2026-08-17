@@ -272,6 +272,8 @@ async function sendPushToUser(userId, notification) {
 async function sendPushBatch(userIds, notification, batchSize = 500, delayMs = 250) {
   if (!Array.isArray(userIds) || !userIds.length) return;
 
+  console.log('[FCM] sendPushBatch called for', userIds.length, 'users, title:', notification.title);
+
   // Fetch all FCM tokens for the given user IDs in one query
   const { data: subscriptions, error } = await supabaseAdmin
     .from('push_subscriptions')
@@ -285,11 +287,13 @@ async function sendPushBatch(userIds, notification, batchSize = 500, delayMs = 2
   }
 
   if (!subscriptions?.length) {
-    console.warn('[FCM] sendPushBatch: no FCM tokens found for target users');
+    console.warn('[FCM] sendPushBatch: no FCM tokens found for', userIds.length, 'target users — have they subscribed?');
     return;
   }
 
   const tokens = [...new Set(subscriptions.map((s) => s.fcm_token).filter(Boolean))];
+  console.log('[FCM] sendPushBatch: found', tokens.length, 'unique tokens for', userIds.length, 'users');
+
   const payload = {
     title: notification.title,
     body: notification.body,

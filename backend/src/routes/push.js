@@ -187,7 +187,12 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
     }
 
     // Determine target users based on college and targetYear
-    let query = supabaseAdmin.from('profiles').select('id').eq('status', 'active');
+    // IMPORTANT: profiles.status can be NULL for most users (the field is not always set on signup).
+    // We must include NULL-status users. Only exclude explicitly banned users.
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .neq('status', 'banned');
 
     if (college && college !== 'All') {
       query = query.eq('college', college);
@@ -198,13 +203,16 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
         // 'faculty' maps to the 'professor' role in the profiles table
         query = query.eq('role', 'professor');
       } else {
+        // Exclude professors and canteen/print owners — they are not students
+        query = query.eq('role', 'student');
         // Extract the numeric year (e.g., '1st Year' -> '1', '2' -> '2')
         const yrDigit = targetYear.match(/\d/)?.[0] || targetYear.split(':')[0].trim();
-        
-        // Match users where study_year or academic_year is either '1' or '1st Year', etc.
-        // Profiles might have it in `academic_year` (int) or `study_year` (string)
+        // Match users where study_year contains the digit or the full text format
         query = query.or(`study_year.eq.${yrDigit},study_year.eq.${yrDigit}st Year,study_year.eq.${yrDigit}nd Year,study_year.eq.${yrDigit}rd Year,study_year.eq.${yrDigit}th Year,academic_year.eq.${yrDigit}`);
       }
+    } else {
+      // 'all' target — exclude professors from student-wide notices unless explicitly targeting faculty
+      // Keep this broad: students + professors both receive 'all' notices
     }
 
     const { data: users, error } = await query;
@@ -212,11 +220,21 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
 
     const targetUserIds = users?.map((u) => u.id) || [];
 
+    console.log('[push/broadcast-notice] Targeting users:', {
+      noticeId,
+      title,
+      college,
+      targetYear,
+      userCount: targetUserIds.length,
+    });
+
     if (targetUserIds.length > 0) {
       const notificationService = require('../services/notifications');
       notificationService
         .notifyOfficialNotice(targetUserIds, title, noticeId)
         .catch(console.error);
+    } else {
+      console.warn('[push/broadcast-notice] No users matched the targeting criteria — no push sent');
     }
 
     res.json({ message: 'Notice broadcast queued', targetedUsers: targetUserIds.length });
