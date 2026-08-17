@@ -153,11 +153,12 @@ async function sendMulticast(tokens, payload) {
         link: clickAction,
       },
     },
+    // Android PWA (Chrome on Android) uses the webpush config above.
+    // The android block below sets delivery priority to wake the device
+    // but does NOT override the notification UI — that comes from webpush.
     android: {
-      notification: {
-        icon: 'ic_launcher',
-        clickAction: 'FLUTTER_NOTIFICATION_CLICK',
-      },
+      priority: 'high',
+      ttl: 86400, // 24 hours in seconds
     },
     apns: {
       payload: {
