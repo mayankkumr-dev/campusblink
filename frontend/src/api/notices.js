@@ -88,7 +88,9 @@ export async function getNoticesForFaculty({ college, limit = 50, offset = 0 } =
       .range(offset, offset + limit - 1);
 
     if (college) {
-      query = query.eq('college', college);
+      query = query.in('college', [college, 'All']);
+    } else {
+      query = query.eq('college', 'All');
     }
 
     const { data, error } = await query;
@@ -124,7 +126,9 @@ export async function getCampusNoticesForProfessor({ college, limit = 50, offset
       .range(offset, offset + limit - 1);
 
     if (college) {
-      query = query.eq('college', college);
+      query = query.in('college', [college, 'All']);
+    } else {
+      query = query.eq('college', 'All');
     }
 
     const { data, error } = await query;
