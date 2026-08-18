@@ -121,17 +121,19 @@ export const LoginPage: React.FC = () => {
         });
       } else {
         // Handle multi-step sign-in
+        console.log('SIGN IN INCOMPLETE RESULT:', result);
+        
         if (result.status === 'needs_first_factor') {
           setAuthStatus({
             type: 'info',
             title: 'Verification Required',
-            message: 'Your account requires verification to sign in. Please complete this step.',
+            message: `First factor required. Supported: ${result.supportedFirstFactors?.map((f: any) => f.strategy).join(', ')}`,
           });
         } else if (result.status === 'needs_second_factor') {
           setAuthStatus({
             type: 'info',
             title: '2FA Required',
-            message: 'Two-factor authentication is required for this account.',
+            message: `Second factor required by Clerk. Supported factors: ${result.supportedSecondFactors?.map((f: any) => f.strategy).join(', ') || 'None'}`,
           });
         } else {
           setAuthStatus({
