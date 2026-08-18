@@ -3,32 +3,25 @@ import { useNavigate, useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Input } from '../../app/components/ui/input';
-import { signIn, resetPassword, resendConfirmationEmail } from '../../api/auth';
-import { useAuthStore } from '../../store/authStore';
-import { getFirstName } from '../../lib/user';
+import { useSignIn, useClerk } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/authStore';
 import {
   AuthScreenShell,
   AuthHeader,
   AuthStatusBanner,
   AuthStatus,
-  EmailVerifiedBanner,
-  ResendConfirmationBanner,
   PasswordFormField,
   AuthSubmitButton,
   AuthSwitchLink,
   ForgotPasswordModal,
   ProfessorPendingScreen,
-  VERIFY_EMAIL_KEY,
-  VERIFY_NAME_KEY,
 } from './AuthFormShared';
 
 export const LoginPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const authLoading = useAuthStore((state) => state.isLoading);
-  const setUser = useAuthStore((state) => state.setUser);
-  const setProfile = useAuthStore((state) => state.setProfile);
+  const { isLoaded, signIn, setActive } = useSignIn();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,10 +31,6 @@ export const LoginPage: React.FC = () => {
   // Verification & feedback states
   const [showProfessorPendingScreen, setShowProfessorPendingScreen] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [emailVerifiedBanner, setEmailVerifiedBanner] = useState(false);
-  const [verifyingEmailLink, setVerifyingEmailLink] = useState(false);
 
   // Forgot Password Modal
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -49,173 +38,125 @@ export const LoginPage: React.FC = () => {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotSuccessEmail, setForgotSuccessEmail] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const id = window.setInterval(() => {
-      setResendCooldown((prev) => (prev > 1 ? prev - 1 : 0));
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [resendCooldown]);
-
-  useEffect(() => {
-    const savedEmail = localStorage.getItem(VERIFY_EMAIL_KEY) || '';
-
-    const query = new URLSearchParams(location.search);
-    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-    const tokenHash = query.get('token_hash');
-    const otpType = query.get('type');
-    const statusCode = query.get('status');
-    const hashType = hashParams.get('type');
-
-    if (statusCode === 'professor_pending') {
-      setShowProfessorPendingScreen(true);
-    } else if (statusCode === 'professor_rejected') {
-      setAuthStatus({
-        type: 'error',
-        title: 'Application Not Approved',
-        message: 'Your professor application was not approved.',
-      });
-    }
-
-    const finalizeVerification = async () => {
-      if (tokenHash && otpType === 'signup') {
-        setVerifyingEmailLink(true);
-        let error = null;
-        try {
-          const res = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: 'signup',
-          });
-          error = res.error;
-        } catch (err: any) {
-          error = err;
-        }
-        setVerifyingEmailLink(false);
-
-        if (error) {
-          const message = String(error?.message || '').toLowerCase();
-          setAuthStatus({
-            type: 'error',
-            title: 'Verification link invalid or expired',
-            message: message.includes('expired')
-              ? 'This verification link has expired. Please request a new one.'
-              : 'We could not verify your email from this link. Please request a new one.',
-          });
-          setShowResendConfirmation(true);
-          return;
-        }
-
-        setEmailVerifiedBanner(true);
-        if (savedEmail) setEmail(savedEmail);
-        setAuthStatus({
-          type: 'success',
-          title: 'Email verified',
-          message: 'Your email is verified. You can log in now.',
-        });
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
-      }
-
-      const isEmailVerified = hashType === 'signup' || query.get('verified') === '1';
-
-      if (isEmailVerified) {
-        setEmailVerifiedBanner(true);
-        if (savedEmail) setEmail(savedEmail);
-        setTimeout(() => {
-          const passwordEl = document.getElementById('auth-password');
-          if (passwordEl instanceof HTMLInputElement) passwordEl.focus();
-        }, 50);
-
-        if (window.location.hash) {
-          window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
-        }
-      }
-
-      if (!isEmailVerified && savedEmail && !email) {
-        setEmail(savedEmail);
-      }
-      if (savedEmail) {
-        setPendingVerificationEmail(savedEmail);
-      }
-    };
-
-    finalizeVerification();
-  }, [location.search]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded || !signIn) return;
+
     setIsLoading(true);
     setAuthStatus(null);
 
-    const { data, error } = await signIn(email, password);
-    if (error) {
-      const accountStatus = (error as any)?.accountStatus || '';
-      const errorCode = (error as any)?.code || '';
-      const restrictionReason = (error as any)?.reason || '';
-      const message =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message?: string }).message)
-          : 'Invalid credentials';
-      const normalizedMessage = message.toLowerCase();
+    try {
+      // Resolve username → email if user typed a username
+      let identifier = email.trim();
+      if (identifier && !identifier.includes('@')) {
+        // Look up email by username in Supabase profiles
+        const { data: profileRow } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier.toLowerCase())
+          .maybeSingle();
 
-      if (errorCode === 'PROFESSOR_PENDING') {
+        if (!profileRow?.email) {
+          setAuthStatus({
+            type: 'error',
+            title: 'Username not found',
+            message: 'No account found with that username. Try your email address instead.',
+          });
+          setIsLoading(false);
+          return;
+        }
+        identifier = profileRow.email;
+      }
+
+      const result = await signIn.create({
+        identifier,
+        password,
+      });
+
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
+
+        // Fetch Supabase profile to determine where to redirect
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role, professor_status, status, ban_reason')
+          .eq('email', identifier)
+          .maybeSingle();
+
+        const role = profile?.role;
+        const redirectState =
+          typeof location.state === 'object' && location.state && 'from' in location.state
+            ? String((location.state as any).from || '')
+            : '';
+        const redirectTarget = new URLSearchParams(location.search).get('redirect');
+
+        // Check account status
+        const status = String(profile?.status || 'active').toLowerCase();
+        if (status === 'restricted' || status === 'banned') {
+          const params = new URLSearchParams({ status });
+          if (profile?.ban_reason) params.set('reason', profile.ban_reason);
+          params.set('email', identifier);
+          navigate(`/account-restricted?${params.toString()}`);
+          setIsLoading(false);
+          return;
+        }
+
+        if (redirectState && redirectState.startsWith('/')) {
+          navigate(redirectState, { replace: true });
+          return;
+        }
+        if (redirectTarget && redirectTarget.startsWith('/')) {
+          navigate(redirectTarget, { replace: true });
+          return;
+        }
+
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'professor') {
+          const profStatus = String(profile?.professor_status || 'pending').toLowerCase();
+          if (profStatus === 'pending') {
+            setShowProfessorPendingScreen(true);
+          } else if (profStatus === 'rejected') {
+            navigate('/professor/rejected');
+          } else {
+            navigate('/professor/home');
+          }
+        } else if (role === 'canteen_owner') navigate('/canteen-dashboard');
+        else if (role === 'print_shop') navigate('/print-dashboard');
+        else navigate('/student/home');
+
+        setAuthStatus({
+          type: 'success',
+          title: 'Signed in successfully',
+          message: 'Redirecting you to your dashboard now.',
+        });
+      } else {
+        // Handle multi-step sign-in (e.g. email verification required)
         setAuthStatus({
           type: 'info',
-          title: 'Application Under Review',
-          message:
-            'Your professor account is pending admin approval. You will receive an email once your account is approved.',
+          title: 'Additional step required',
+          message: 'Please check your email for a verification link before signing in.',
         });
-        toast('Your professor account is pending admin approval.', { icon: '⏳' });
-        setIsLoading(false);
-        return;
       }
+    } catch (err: any) {
+      const clerkError = err?.errors?.[0];
+      const code = clerkError?.code || '';
+      const message = clerkError?.longMessage || clerkError?.message || 'Invalid credentials';
 
-      if (errorCode === 'PROFESSOR_REJECTED') {
-        setAuthStatus({
-          type: 'error',
-          title: 'Application Not Approved',
-          message: message,
-        });
-        toast.error(message);
-        setIsLoading(false);
-        return;
-      }
-
-      if (
-        errorCode === 'ACCOUNT_RESTRICTED' ||
-        normalizedMessage.includes('account has been restricted') ||
-        normalizedMessage.includes('account has been banned')
-      ) {
-        const params = new URLSearchParams({ status: accountStatus || 'restricted' });
-        if (restrictionReason) params.set('reason', restrictionReason);
-        if (email) params.set('email', email);
-        navigate(`/account-restricted?${params.toString()}`);
-        setIsLoading(false);
-        return;
-      }
-
-      if (
-        normalizedMessage.includes('verify your email') ||
-        normalizedMessage.includes('email not confirmed') ||
-        normalizedMessage.includes('email_not_confirmed')
-      ) {
-        setShowResendConfirmation(true);
-        setAuthStatus({
-          type: 'info',
-          title: 'Email not verified',
-          message: 'Please verify your email first. Check your inbox for the verification link.',
-        });
-        toast.error('Please verify your email first. Check your inbox for the verification link.');
-      } else if (normalizedMessage.includes('invalid login credentials')) {
-        setShowResendConfirmation(false);
+      if (code === 'form_password_incorrect' || code === 'form_identifier_not_found') {
         setAuthStatus({
           type: 'error',
           title: 'Wrong email or password',
-          message: 'Either the password is wrong, or this email does not have a confirmed account yet.',
+          message: 'Either the password is wrong, or this email does not have an account yet.',
         });
-        toast.error(message);
+        toast.error('Wrong email or password');
+      } else if (code === 'form_identifier_not_found') {
+        setAuthStatus({
+          type: 'error',
+          title: 'Account not found',
+          message: 'No account found with this email. Please sign up first.',
+        });
+        toast.error('Account not found');
       } else {
-        setShowResendConfirmation(false);
         setAuthStatus({
           type: 'error',
           title: 'Sign in failed',
@@ -223,75 +164,9 @@ export const LoginPage: React.FC = () => {
         });
         toast.error(message);
       }
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    if (!data) {
-      setAuthStatus({
-        type: 'error',
-        title: 'Sign in failed',
-        message: 'Unexpected authentication response.',
-      });
-      toast.error('Unexpected authentication response.');
-      setIsLoading(false);
-      return;
-    }
-
-    setShowResendConfirmation(false);
-    setAuthStatus({
-      type: 'success',
-      title: 'Signed in successfully',
-      message: 'Redirecting you to your dashboard now.',
-    });
-
-    const resolvedEmail = data.user?.email || data.profile?.email || email;
-    const resolvedProfile = data.profile
-      ? { ...data.profile, email: resolvedEmail }
-      : data.profile;
-
-    setUser(data.user);
-    setProfile(resolvedProfile);
-    const role = resolvedProfile?.role;
-    const pendingTeacherRequest =
-      data.user?.user_metadata?.requested_role === 'teacher' &&
-      String(data.user?.user_metadata?.role_request_status || '').toLowerCase() === 'pending' &&
-      String(resolvedProfile?.professor_status || 'pending').toLowerCase() === 'pending';
-    const isAdminEmail = false;
-    const redirectState =
-      typeof location.state === 'object' && location.state && 'from' in location.state
-        ? String((location.state as any).from || '')
-        : '';
-    const redirectTarget = new URLSearchParams(location.search).get('redirect');
-
-    if (redirectState && redirectState.startsWith('/')) {
-      navigate(redirectState, { replace: true });
-      setIsLoading(false);
-      return;
-    }
-
-    if (redirectTarget && redirectTarget.startsWith('/')) {
-      navigate(redirectTarget, { replace: true });
-      setIsLoading(false);
-      return;
-    }
-
-    if (role === 'admin' || isAdminEmail) {
-      navigate('/admin');
-    } else if (role === 'professor') {
-      const status = String(resolvedProfile?.professor_status || 'pending').toLowerCase();
-      if (status === 'pending') navigate('/professor/pending');
-      else if (status === 'rejected') navigate('/professor/rejected');
-      else navigate('/professor/home');
-    } else if (role === 'canteen_owner') navigate('/canteen-dashboard');
-    else if (role === 'print_shop') navigate('/print-dashboard');
-    else navigate('/student/home');
-
-    if (pendingTeacherRequest) {
-      toast('Your professor account request is pending admin approval.');
-    }
-
-    setIsLoading(false);
   };
 
   const handleForgotPassword = () => {
@@ -302,97 +177,46 @@ export const LoginPage: React.FC = () => {
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded || !signIn) return;
+
     const inputVal = forgotEmailInput.trim();
     if (!inputVal) {
-      toast.error('Please enter your registered email or username.');
+      toast.error('Please enter your registered email.');
       return;
     }
 
     setForgotLoading(true);
     let targetEmail = inputVal;
+
+    // Resolve username → email
     if (!inputVal.includes('@')) {
-      try {
-        const { data, error: rpcError } = await supabase.rpc('get_email_by_username', {
-          p_username: inputVal,
-        });
-        if (rpcError || !data) {
-          toast.error('Username not found. Please enter your registered email address.');
-          setForgotLoading(false);
-          return;
-        }
-        targetEmail = data;
-      } catch (err) {
-        toast.error('Failed to look up username.');
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('username', inputVal.toLowerCase())
+        .maybeSingle();
+
+      if (!profileRow?.email) {
+        toast.error('Username not found. Please enter your registered email address.');
         setForgotLoading(false);
         return;
       }
+      targetEmail = profileRow.email;
     }
 
-    const { error } = await resetPassword(
-      targetEmail,
-      `${window.location.origin}/auth/callback?type=recovery`
-    );
-    setForgotLoading(false);
-
-    if (error) {
-      const errorMessage =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message?: string }).message)
-          : 'Failed to send reset email.';
-      toast.error(errorMessage);
-      return;
-    }
-
-    setForgotSuccessEmail(targetEmail);
-    toast.success('Password reset email sent!');
-  };
-
-  const handleResendConfirmation = async () => {
-    const targetEmail = email || pendingVerificationEmail;
-    if (!targetEmail) {
-      toast.error('Enter your email first.');
-      return;
-    }
-    if (resendCooldown > 0) return;
-
-    const { error } = await resendConfirmationEmail(
-      targetEmail,
-      `${window.location.origin}/auth/callback?type=signup`
-    );
-    if (error) {
-      const errorMessage =
-        error && typeof error === 'object' && 'message' in error
-          ? String((error as { message?: string }).message)
-          : 'Failed to resend confirmation email.';
-
-      if (errorMessage.toLowerCase().includes('rate limit')) {
-        setResendCooldown((prev) => (prev > 0 ? prev : 60));
-        setAuthStatus({
-          type: 'info',
-          title: 'Too many resend attempts',
-          message: 'Please wait 60 seconds and try again.',
-        });
-        toast.error('Please wait 60 seconds before requesting another email.');
-        return;
-      }
-
-      setAuthStatus({
-        type: 'error',
-        title: 'Resend failed',
-        message: errorMessage,
+    try {
+      await signIn.create({
+        strategy: 'reset_password_email_code',
+        identifier: targetEmail,
       });
-      toast.error(errorMessage);
-      return;
+      setForgotSuccessEmail(targetEmail);
+      toast.success('Password reset email sent!');
+    } catch (err: any) {
+      const msg = err?.errors?.[0]?.longMessage || 'Failed to send reset email.';
+      toast.error(msg);
+    } finally {
+      setForgotLoading(false);
     }
-
-    setResendCooldown(60);
-    setAuthStatus({
-      type: 'info',
-      title: 'Verification email sent',
-      message:
-        'Check your inbox and spam folder, then open the confirmation link and try signing in again.',
-    });
-    toast.success('Verification email resent! Check your inbox.');
   };
 
   if (showProfessorPendingScreen) {
@@ -411,22 +235,7 @@ export const LoginPage: React.FC = () => {
         subtitle="Enter your details to sign in to your account"
       />
 
-      {verifyingEmailLink && (
-        <div className="mb-5 rounded-lg border border-[var(--yellow)]/40 bg-[var(--yellow)]/10 px-4 py-3 flex items-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-[var(--text-primary)]" />
-          <p className="font-sans font-bold text-sm text-[var(--text-primary)]">
-            Verifying your email link...
-          </p>
-        </div>
-      )}
-
-      <EmailVerifiedBanner show={emailVerifiedBanner} />
       <AuthStatusBanner status={authStatus} />
-      <ResendConfirmationBanner
-        show={showResendConfirmation}
-        resendCooldown={resendCooldown}
-        onResend={handleResendConfirmation}
-      />
 
       <form onSubmit={handleLogin} className="space-y-4 lg:space-y-3.5">
         <div>

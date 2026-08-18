@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import { getLandingSocialProof, joinWaitlist } from '../../api/invites';
 import { useAuthStore } from '../../store/authStore';
 import { Logo } from './ui/Logo';
+import { UserButton } from '@clerk/clerk-react';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -183,14 +184,36 @@ export const LandingPage: React.FC = () => {
               <Download className="w-3.5 h-3.5 text-slate-500" />
               <span>Install App</span>
             </button>
-            <button
-              type="button"
-              onMouseEnter={prefetchLogin}
-              onClick={() => navigate(user ? getDashboardPath() : '/login')}
-              className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold tracking-wide transition-all shadow-[0_4px_14px_rgba(245,158,11,0.25)]"
-            >
-              {user ? 'Dashboard →' : 'Get Early Access'}
-            </button>
+            {user ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => navigate(getDashboardPath())}
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold tracking-wide transition-all shadow-[0_4px_14px_rgba(245,158,11,0.25)]"
+                >
+                  Dashboard →
+                </button>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onMouseEnter={prefetchLogin}
+                  onClick={() => navigate('/login')}
+                  className="px-5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold tracking-wide transition-all"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold tracking-wide transition-all shadow-[0_4px_14px_rgba(245,158,11,0.25)]"
+                >
+                  Get Early Access
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -254,17 +277,47 @@ export const LandingPage: React.FC = () => {
                     <Download className="w-4 h-4" />
                     <span>Install App</span>
                   </button>
-                  <button
-                    type="button"
-                    onMouseEnter={prefetchLogin}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      navigate(user ? getDashboardPath() : '/login');
-                    }}
-                    className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold text-xs text-center shadow-md"
-                  >
-                    {user ? 'Go to Dashboard →' : 'Get Early Access'}
-                  </button>
+                  {user ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate(getDashboardPath());
+                        }}
+                        className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold text-xs text-center shadow-md"
+                      >
+                        Go to Dashboard →
+                      </button>
+                      <div className="flex justify-center pt-1">
+                        <UserButton afterSignOutUrl="/" />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onMouseEnter={prefetchLogin}
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate('/login');
+                        }}
+                        className="w-full py-3 rounded-xl border border-slate-200 bg-white text-slate-900 font-bold text-xs text-center"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate('/register');
+                        }}
+                        className="w-full py-3 rounded-xl bg-amber-500 text-white font-bold text-xs text-center shadow-md"
+                      >
+                        Get Early Access
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
