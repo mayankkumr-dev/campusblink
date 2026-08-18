@@ -121,8 +121,6 @@ export const LoginPage: React.FC = () => {
         });
       } else {
         // Handle multi-step sign-in
-        console.log('SIGN IN INCOMPLETE RESULT:', result);
-        
         if (result.status === 'needs_first_factor') {
           setAuthStatus({
             type: 'info',
