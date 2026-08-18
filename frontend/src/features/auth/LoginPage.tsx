@@ -146,6 +146,17 @@ export const LoginPage: React.FC = () => {
           message: 'No account found with this email. Please sign up first.',
         });
         toast.error('Account not found');
+      } else if (code === 'form_password_pwned') {
+        setAuthStatus({
+          type: 'error',
+          title: 'Security Warning',
+          message: 'Your password was found in an online data breach. For account safety, please reset your password.',
+        });
+        toast.error('Password breached. Please reset your password.');
+        // Automatically open the forgot password modal
+        setForgotEmailInput(email);
+        setForgotSuccessEmail(null);
+        setShowForgotModal(true);
       } else {
         setAuthStatus({
           type: 'error',
