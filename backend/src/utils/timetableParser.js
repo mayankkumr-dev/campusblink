@@ -1,96 +1,131 @@
 /**
  * timetableParser.js
- * Intelligent Document & Tabular Timetable Extractor
+ * Intelligent Document & Tabular Timetable Extractor using Google Gemini Vision
  * Extracts Timeslots, Days, Subjects, Rooms, and Batches from uploaded PDF or Image files.
  */
+const { GoogleGenAI } = require('@google/genai');
 
-// Default structured university timetable (supports Dr Mahim Sharma format and fallback extraction)
+// We still keep the samples as a fallback in case the API key is missing or the AI fails
 const SAMPLE_PROFESSOR_SCHEDULE = [
-  // Monday
   { id: 'mon-1', day: 'MON', startTime: '09:00', endTime: '09:50', subject: 'HVE', code: 'HVE', room: '346', batch: 'M', statusLabel: 'Lecture' },
   { id: 'mon-2', day: 'MON', startTime: '09:50', endTime: '10:40', subject: 'CS', code: 'CS', room: '346', batch: 'C', statusLabel: 'Lecture' },
-  { id: 'mon-3', day: 'MON', startTime: '10:40', endTime: '11:30', subject: 'CS', code: 'CS', room: '346', batch: 'C', statusLabel: 'Lecture' },
-  { id: 'mon-4', day: 'MON', startTime: '13:40', endTime: '14:30', subject: 'TW', code: 'TW', room: '347', batch: '4ECVLSI', statusLabel: 'Tutorial' },
-
-  // Tuesday
-  { id: 'tue-1', day: 'TUES', startTime: '13:40', endTime: '14:30', subject: 'UHV', code: 'UHV', room: '536', batch: '6ME(CAD)', statusLabel: 'Lecture' },
-  { id: 'tue-2', day: 'TUES', startTime: '14:30', endTime: '15:20', subject: 'POM', code: 'POM', room: '536', batch: '6AIML8', statusLabel: 'Lecture' },
-  { id: 'tue-3', day: 'TUES', startTime: '15:20', endTime: '16:10', subject: 'POM', code: 'POM', room: '536', batch: '6AIML8', statusLabel: 'Lecture' },
-
-  // Wednesday
-  { id: 'wed-1', day: 'WED', startTime: '09:50', endTime: '10:40', subject: 'TW', code: 'TW', room: '346', batch: '4I789', statusLabel: 'Tutorial' },
-  { id: 'wed-2', day: 'WED', startTime: '11:30', endTime: '12:20', subject: 'CS', code: 'CS', room: '346', batch: 'B', statusLabel: 'Lecture' },
-  { id: 'wed-3', day: 'WED', startTime: '12:20', endTime: '13:10', subject: 'CS', code: 'CS', room: '346', batch: 'B', statusLabel: 'Lecture' },
-  { id: 'wed-4', day: 'WED', startTime: '14:30', endTime: '15:20', subject: 'POM', code: 'POM', room: '853', batch: '6AIML8', statusLabel: 'Lecture' },
-  { id: 'wed-5', day: 'WED', startTime: '15:20', endTime: '16:10', subject: 'MENTOR', code: 'MENTOR', room: 'Faculty Lounge', batch: 'M2 Group', statusLabel: 'Mentoring' },
-
-  // Thursday
-  { id: 'thu-1', day: 'THURS', startTime: '10:40', endTime: '11:30', subject: 'TW', code: 'TW', room: '446', batch: '4ECACT', statusLabel: 'Tutorial' },
-  { id: 'thu-2', day: 'THURS', startTime: '12:20', endTime: '13:10', subject: 'UHV', code: 'UHV', room: '142', batch: '6AIML1', statusLabel: 'Lecture' },
-  { id: 'thu-3', day: 'THURS', startTime: '13:40', endTime: '14:30', subject: 'TW', code: 'TW', room: '536', batch: '4CST', statusLabel: 'Tutorial' },
-  { id: 'thu-4', day: 'THURS', startTime: '15:20', endTime: '16:10', subject: 'UHV', code: 'UHV', room: '346', batch: '6AIML4', statusLabel: 'Lecture' },
-
-  // Friday
-  { id: 'fri-1', day: 'FRI', startTime: '12:20', endTime: '13:10', subject: 'UHV', code: 'UHV', room: '536', batch: '6AIML8', statusLabel: 'Lecture' }
+  { id: 'wed-1', day: 'WED', startTime: '09:50', endTime: '10:40', subject: 'TW', code: 'TW', room: '346', batch: '4I789', statusLabel: 'Tutorial' }
 ];
 
 const SAMPLE_STUDENT_SCHEDULE = [
-  // Monday
   { id: 'mon-1', day: 'MON', startTime: '11:30', endTime: '12:20', subject: 'Compiler Design', code: 'Compiler Design', room: '1145', statusLabel: 'Ms. Aneesha' },
-  { id: 'mon-2', day: 'MON', startTime: '12:20', endTime: '13:10', subject: 'Operating Systems', code: 'Operating Systems', room: '1145', statusLabel: 'Dr. Mohit Mittal' },
-  { id: 'mon-3', day: 'MON', startTime: '13:40', endTime: '15:20', subject: 'Software Engineering Lab G1', code: 'Software Engineering Lab G1', room: '1156', statusLabel: 'Dr. Tripti Lamba' },
-  { id: 'mon-4', day: 'MON', startTime: '13:40', endTime: '15:20', subject: 'Operating Systems Lab G2', code: 'Operating Systems Lab G2', room: '1157', statusLabel: 'Dr. Anshu Khurana' },
-  { id: 'mon-5', day: 'MON', startTime: '15:20', endTime: '16:10', subject: 'Computer Networks', code: 'Computer Networks', room: '1145', statusLabel: 'Mr. Nitish uppal' },
-  { id: 'mon-6', day: 'MON', startTime: '16:10', endTime: '17:00', subject: 'Design and Analysis of Algorithm', code: 'Design and Analysis of Algorithm', room: '1145', statusLabel: 'X' },
-
-  // Tuesday
-  { id: 'tue-1', day: 'TUES', startTime: '11:30', endTime: '12:20', subject: 'Compiler Design', code: 'Compiler Design', room: '1145', statusLabel: 'Ms. Aneesha' },
-  { id: 'tue-2', day: 'TUES', startTime: '12:20', endTime: '13:10', subject: 'Operating Systems', code: 'Operating Systems', room: '1145', statusLabel: 'Dr. Mohit Mittal' },
-  { id: 'tue-3', day: 'TUES', startTime: '13:40', endTime: '15:20', subject: 'Compiler Design Lab G1', code: 'Compiler Design Lab G1', room: '1136', statusLabel: 'Ms. Aneesha' },
-  { id: 'tue-4', day: 'TUES', startTime: '13:40', endTime: '15:20', subject: 'Computer Networks Lab G2', code: 'Computer Networks Lab G2', room: '1137', statusLabel: 'Mr. Nitish uppal' },
-  { id: 'tue-5', day: 'TUES', startTime: '15:20', endTime: '16:10', subject: 'Computer Networks', code: 'Computer Networks', room: '1145', statusLabel: 'Mr. Nitish uppal' },
-  { id: 'tue-6', day: 'TUES', startTime: '16:10', endTime: '17:00', subject: 'Design and Analysis of Algorithm', code: 'Design and Analysis of Algorithm', room: '1145', statusLabel: 'X' },
-
-  // Wednesday
-  { id: 'wed-1', day: 'WED', startTime: '11:30', endTime: '12:20', subject: 'Software Engineering', code: 'Software Engineering', room: '1144', statusLabel: 'Dr. Tripti Lamba' },
-  { id: 'wed-2', day: 'WED', startTime: '12:20', endTime: '13:10', subject: 'Operating Systems', code: 'Operating Systems', room: '1144', statusLabel: 'Dr. Mohit Mittal' },
-  { id: 'wed-3', day: 'WED', startTime: '13:40', endTime: '15:20', subject: 'Operating Systems lab G1', code: 'Operating Systems lab G1', room: '1136', statusLabel: 'Dr. Anshu Khurana' },
-  { id: 'wed-4', day: 'WED', startTime: '13:40', endTime: '15:20', subject: 'Design and Analysis of Algorithm Lab G2', code: 'Design and Analysis of Algorithm Lab G2', room: '1137', statusLabel: 'X' },
-  { id: 'wed-5', day: 'WED', startTime: '15:20', endTime: '16:10', subject: 'Design and Analysis of Algorithm', code: 'Design and Analysis of Algorithm', room: '1144', statusLabel: 'X' },
-
-  // Thursday
-  { id: 'thu-1', day: 'THURS', startTime: '09:00', endTime: '09:50', subject: 'Computer Networks', code: 'Computer Networks', room: '1144', statusLabel: 'Mr. Nitish uppal' },
-  { id: 'thu-2', day: 'THURS', startTime: '09:50', endTime: '10:40', subject: 'Economics for Engineers', code: 'Economics for Engineers', room: '1158', statusLabel: 'Dr Meenu Dudeja' },
-  { id: 'thu-3', day: 'THURS', startTime: '10:40', endTime: '11:30', subject: 'Design and Analysis of Algorithm', code: 'Design and Analysis of Algorithm', room: '1158', statusLabel: 'X' },
-  { id: 'thu-4', day: 'THURS', startTime: '11:30', endTime: '12:20', subject: 'Software Engineering', code: 'Software Engineering', room: '1158', statusLabel: 'Dr. Tripti Lamba' },
-  { id: 'thu-5', day: 'THURS', startTime: '12:20', endTime: '13:10', subject: 'Operating Systems', code: 'Operating Systems', room: '1158', statusLabel: 'Dr. Mohit Mittal' },
-  { id: 'thu-6', day: 'THURS', startTime: '13:40', endTime: '15:20', subject: 'Design and Analysis of Algorithm Lab G1', code: 'Design and Analysis of Algorithm Lab G1', room: '1146', statusLabel: 'X' },
-  { id: 'thu-7', day: 'THURS', startTime: '13:40', endTime: '15:20', subject: 'Compiler Design Lab G2', code: 'Compiler Design Lab G2', room: '1147', statusLabel: 'Ms. Aneesha' },
-
-  // Friday
-  { id: 'fri-1', day: 'FRI', startTime: '09:50', endTime: '10:40', subject: 'Economics for Engineers', code: 'Economics for Engineers', room: '1144', statusLabel: 'Dr Meenu Dudeja' },
-  { id: 'fri-2', day: 'FRI', startTime: '10:40', endTime: '11:30', subject: 'Software Engineering', code: 'Software Engineering', room: '1144', statusLabel: 'Dr. Tripti Lamba' },
-  { id: 'fri-3', day: 'FRI', startTime: '11:30', endTime: '13:10', subject: 'Computer Network Lab G1', code: 'Computer Network Lab G1', room: '1146', statusLabel: 'Y' },
-  { id: 'fri-4', day: 'FRI', startTime: '11:30', endTime: '13:10', subject: 'Software Engineering Lab G2', code: 'Software Engineering Lab G2', room: '1147', statusLabel: 'Dr. Tripti Lamba' },
-  { id: 'fri-5', day: 'FRI', startTime: '13:40', endTime: '14:30', subject: 'Compiler Design', code: 'Compiler Design', room: '1144', statusLabel: 'Ms. Aneesha' },
-  { id: 'fri-6', day: 'FRI', startTime: '14:30', endTime: '15:20', subject: 'Computer Networks', code: 'Computer Networks', room: '1144', statusLabel: 'Mr. Nitish uppal' }
+  { id: 'mon-2', day: 'MON', startTime: '12:20', endTime: '13:10', subject: 'Operating Systems', code: 'Operating Systems', room: '1145', statusLabel: 'Dr. Mohit Mittal' }
 ];
 
 /**
- * Parses a timetable document (PDF / Image buffer or text)
+ * Validates and cleans the AI parsed JSON to ensure it matches the schema.
+ */
+function sanitizeScheduleJSON(rawArray, userRole) {
+  if (!Array.isArray(rawArray)) return [];
+  
+  return rawArray.map((item, index) => {
+    // Generate an ID if missing
+    const day = String(item.day || 'MON').toUpperCase().substring(0, 5);
+    const id = item.id || `${day.toLowerCase()}-${index + 1}-${Date.now()}`;
+    
+    // Normalize times
+    let startTime = String(item.startTime || '00:00');
+    let endTime = String(item.endTime || '00:00');
+    // Ensure HH:MM format
+    if (!startTime.includes(':')) startTime += ':00';
+    if (!endTime.includes(':')) endTime += ':00';
+
+    return {
+      id,
+      day,
+      startTime,
+      endTime,
+      subject: String(item.subject || 'Unknown Subject'),
+      code: String(item.code || item.subject || 'N/A'),
+      room: String(item.room || 'TBD'),
+      batch: item.batch ? String(item.batch) : null,
+      statusLabel: String(item.statusLabel || (userRole === 'student' ? 'Faculty' : 'Class')),
+    };
+  });
+}
+
+/**
+ * Parses a timetable document (PDF / Image buffer) using Google Gemini Vision
  * Returns a structured JSON array of class schedule items.
  */
 async function parseTimetableDocument(fileBuffer, mimeType, originalName = '', userRole = 'professor') {
   try {
-    let parsedSchedule = userRole === 'student' ? [...SAMPLE_STUDENT_SCHEDULE] : [...SAMPLE_PROFESSOR_SCHEDULE];
+    if (!fileBuffer || fileBuffer.length === 0) {
+      throw new Error('File buffer is empty');
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.warn('⚠️ GEMINI_API_KEY not found in environment. Falling back to sample schedule.');
+      const fallback = userRole === 'student' ? SAMPLE_STUDENT_SCHEDULE : SAMPLE_PROFESSOR_SCHEDULE;
+      return {
+        success: true,
+        metadata: { filename: originalName, mimeType, totalClasses: fallback.length, parsedAt: new Date().toISOString(), note: 'Fallback mock data' },
+        schedule: fallback,
+      };
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    // Prepare prompt
+    const prompt = `You are an expert OCR and schedule extraction assistant. 
+Extract the class schedule from this timetable image/document. 
+Return ONLY a raw JSON array. Do not include markdown formatting like \`\`\`json.
+The JSON array must contain objects with these exact keys:
+- "day": string (e.g. "MON", "TUES", "WED", "THURS", "FRI", "SAT", "SUN")
+- "startTime": string (e.g. "09:00" in 24-hour HH:MM format)
+- "endTime": string (e.g. "09:50" in 24-hour HH:MM format)
+- "subject": string (Name of the subject/class)
+- "code": string (Course code or short name, same as subject if unknown)
+- "room": string (Room number or location)
+- "statusLabel": string (For professors: "Lecture", "Tutorial", "Lab", "Mentoring", etc. For students: Professor name or type)
+Optional key:
+- "batch": string (Batch group, e.g. "M", "C", "G1", etc.)
+
+This is a ${userRole} schedule. Ensure the extracted information makes sense for this role.`;
+
+    // Prepare inline data for Gemini
+    const filePart = {
+      inlineData: {
+        data: fileBuffer.toString("base64"),
+        mimeType: mimeType === 'application/pdf' ? 'application/pdf' : mimeType.startsWith('image/') ? mimeType : 'image/jpeg',
+      }
+    };
+
+    console.log(`[parseTimetableDocument] Sending ${mimeType} to Gemini...`);
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [prompt, filePart],
+      config: {
+        temperature: 0.1, // Low temperature for factual extraction
+      }
+    });
+
+    let responseText = response.text || '';
+    responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    let rawJson = [];
+    try {
+      rawJson = JSON.parse(responseText);
+    } catch (parseErr) {
+      console.error('Failed to parse Gemini output as JSON:', responseText);
+      throw new Error('AI returned invalid JSON format');
+    }
+
+    const parsedSchedule = sanitizeScheduleJSON(rawJson, userRole);
 
     return {
       success: true,
       metadata: {
-        filename: originalName || 'schedule.pdf',
-        mimeType: mimeType || 'application/pdf',
+        filename: originalName || 'schedule.file',
+        mimeType: mimeType || 'application/unknown',
         totalClasses: parsedSchedule.length,
-        daysDetected: ['MON', 'TUES', 'WED', 'THURS', 'FRI'],
+        daysDetected: [...new Set(parsedSchedule.map(s => s.day))],
         parsedAt: new Date().toISOString(),
       },
       schedule: parsedSchedule,
