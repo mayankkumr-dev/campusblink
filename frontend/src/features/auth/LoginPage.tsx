@@ -120,12 +120,26 @@ export const LoginPage: React.FC = () => {
           message: 'Redirecting you to your dashboard now.',
         });
       } else {
-        // Handle multi-step sign-in (e.g. email verification required)
-        setAuthStatus({
-          type: 'info',
-          title: 'Additional step required',
-          message: 'Please check your email for a verification link before signing in.',
-        });
+        // Handle multi-step sign-in
+        if (result.status === 'needs_first_factor') {
+          setAuthStatus({
+            type: 'info',
+            title: 'Verification Required',
+            message: 'Your account requires verification to sign in. Please complete this step.',
+          });
+        } else if (result.status === 'needs_second_factor') {
+          setAuthStatus({
+            type: 'info',
+            title: '2FA Required',
+            message: 'Two-factor authentication is required for this account.',
+          });
+        } else {
+          setAuthStatus({
+            type: 'info',
+            title: 'Additional step required',
+            message: `Sign in status is: ${result.status}. Please complete the required steps.`,
+          });
+        }
       }
     } catch (err: any) {
       const clerkError = err?.errors?.[0];
