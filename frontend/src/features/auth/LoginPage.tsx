@@ -46,27 +46,7 @@ export const LoginPage: React.FC = () => {
     setAuthStatus(null);
 
     try {
-      // Resolve username → email if user typed a username
       let identifier = email.trim();
-      if (identifier && !identifier.includes('@')) {
-        // Look up email by username in Supabase profiles
-        const { data: profileRow } = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('username', identifier.toLowerCase())
-          .maybeSingle();
-
-        if (!profileRow?.email) {
-          setAuthStatus({
-            type: 'error',
-            title: 'Username not found',
-            message: 'No account found with that username. Try your email address instead.',
-          });
-          setIsLoading(false);
-          return;
-        }
-        identifier = profileRow.email;
-      }
 
       const result = await signIn.create({
         identifier,
@@ -77,11 +57,21 @@ export const LoginPage: React.FC = () => {
         await setActive({ session: result.createdSessionId });
 
         // Fetch Supabase profile to determine where to redirect
-        const { data: profile } = await supabase
+        // Try by clerk_user_id first (for linked accounts), fallback to email/identifier
+        let { data: profile } = await supabase
           .from('profiles')
           .select('role, professor_status, status, ban_reason')
-          .eq('email', identifier)
+          .eq('clerk_user_id', result.createdUserId)
           .maybeSingle();
+
+        if (!profile && identifier.includes('@')) {
+          const { data: fallbackProfile } = await supabase
+            .from('profiles')
+            .select('role, professor_status, status, ban_reason')
+            .eq('email', identifier)
+            .maybeSingle();
+          profile = fallbackProfile;
+        }
 
         const role = profile?.role;
         const redirectState =
@@ -186,23 +176,8 @@ export const LoginPage: React.FC = () => {
     }
 
     setForgotLoading(true);
+    // Clerk natively supports identifier (email or username) for password reset
     let targetEmail = inputVal;
-
-    // Resolve username → email
-    if (!inputVal.includes('@')) {
-      const { data: profileRow } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('username', inputVal.toLowerCase())
-        .maybeSingle();
-
-      if (!profileRow?.email) {
-        toast.error('Username not found. Please enter your registered email address.');
-        setForgotLoading(false);
-        return;
-      }
-      targetEmail = profileRow.email;
-    }
 
     try {
       await signIn.create({
