@@ -1,4 +1,5 @@
-const admin = require('firebase-admin');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getMessaging: getAdminMessaging } = require('firebase-admin/messaging');
 const path = require('path');
 const { supabaseAdmin } = require('../config/supabase');
 
@@ -10,19 +11,23 @@ let firebaseApp;
 function getFirebaseApp() {
   if (firebaseApp) return firebaseApp;
 
-  const existingApps = admin.apps;
-  if (existingApps.length > 0) {
-    firebaseApp = existingApps[0];
-    return firebaseApp;
+  try {
+    const existingApps = getApps();
+    if (existingApps && existingApps.length > 0) {
+      firebaseApp = existingApps[0];
+      return firebaseApp;
+    }
+  } catch {
+    // If getApps() throws for any reason, continue to initialization
   }
 
   // Priority 1: Inline JSON string in env var (preferred for cloud deployments)
   const inlineJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
   if (inlineJson) {
     try {
-      const serviceAccount = JSON.parse(inlineJson);
-      firebaseApp = admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+      const serviceAccount = typeof inlineJson === 'string' ? JSON.parse(inlineJson) : inlineJson;
+      firebaseApp = initializeApp({
+        credential: cert(serviceAccount),
       });
       console.log('[FCM] Firebase Admin initialised from FIREBASE_SERVICE_ACCOUNT_JSON env var');
       return firebaseApp;
@@ -33,15 +38,19 @@ function getFirebaseApp() {
   }
 
   // Priority 2: Service account file path
-  const serviceAccountPath =
-    process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
-    path.resolve(__dirname, '../../firebase-service-account.json');
+  const rawPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+  let serviceAccountPath;
+  if (rawPath) {
+    serviceAccountPath = path.isAbsolute(rawPath) ? rawPath : path.resolve(process.cwd(), rawPath);
+  } else {
+    serviceAccountPath = path.resolve(__dirname, '../../firebase-service-account.json');
+  }
 
   try {
     // eslint-disable-next-line import/no-dynamic-require
     const serviceAccount = require(serviceAccountPath);
-    firebaseApp = admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+    firebaseApp = initializeApp({
+      credential: cert(serviceAccount),
     });
     console.log('[FCM] Firebase Admin initialised from service account file:', serviceAccountPath);
   } catch (err) {
@@ -62,7 +71,12 @@ function getFirebaseApp() {
 function getMessaging() {
   const app = getFirebaseApp();
   if (!app) return null;
-  return admin.messaging(app);
+  try {
+    return getAdminMessaging(app);
+  } catch (err) {
+    console.error('[FCM] getMessaging failed:', err.message);
+    return null;
+  }
 }
 
 // ─── Preference helper ────────────────────────────────────────────────────────

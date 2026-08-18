@@ -63,23 +63,27 @@ export async function getFCMToken(vapidKey) {
       return null;
     }
 
-    // Ensure the service worker is registered before requesting the token
+    // Ensure the service worker is registered and ready before requesting the token
     let swRegistration;
     if ('serviceWorker' in navigator) {
       try {
-        swRegistration = await navigator.serviceWorker.getRegistration('/');
+        swRegistration = await navigator.serviceWorker.ready;
         if (!swRegistration) {
-          swRegistration = await navigator.serviceWorker.ready;
+          swRegistration = await navigator.serviceWorker.getRegistration();
         }
-      } catch {
-        // Fall through — getToken() will use the default SW if available
+      } catch (swErr) {
+        console.warn('[firebase] Service worker ready check warning:', swErr);
       }
     }
 
-    const token = await getToken(messaging, {
+    const tokenOptions = {
       vapidKey,
-      serviceWorkerRegistration: swRegistration,
-    });
+    };
+    if (swRegistration) {
+      tokenOptions.serviceWorkerRegistration = swRegistration;
+    }
+
+    const token = await getToken(messaging, tokenOptions);
 
     if (!token) {
       console.warn('[firebase] getFCMToken: no token returned (permission not granted?)');

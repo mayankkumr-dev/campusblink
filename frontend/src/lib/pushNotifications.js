@@ -49,8 +49,15 @@ export async function isPushSupported() {
 export async function getPushUnavailableReason() {
   if (typeof window === 'undefined') return 'Not available in this environment.';
 
-  if (!('Notification' in window)) {
-    return 'Push notifications are not supported on this device/browser.';
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || Boolean(navigator.standalone);
+
+  if (isIOS && !isStandalone) {
+    return 'On iPhone/iPad, please add Campus Blink to your Home Screen first (Share → Add to Home Screen) to enable push notifications.';
+  }
+
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    return 'Push notifications are not supported on this browser/device.';
   }
 
   if (!window.isSecureContext) {
@@ -59,16 +66,6 @@ export async function getPushUnavailableReason() {
 
   if (!FIREBASE_VAPID_KEY) {
     return 'Notifications are not configured yet. Please try again in a bit.';
-  }
-
-  // Check FCM/Firebase is available
-  try {
-    const messaging = await getMessagingInstance();
-    if (!messaging) {
-      return 'Push notifications are not supported on this browser.';
-    }
-  } catch {
-    return 'Push notification service is unavailable.';
   }
 
   if (Notification.permission === 'denied') {
@@ -105,7 +102,7 @@ export async function isPushSubscribed() {
 
 /**
  * Requests notification permission, obtains an FCM registration token,
- * then saves it to the backend (which uses the service-role key).
+ * then saves it to the backend (or direct Supabase fallback).
  *
  * @param {string} userId - Supabase user ID
  * @returns {boolean}     - true on success
@@ -132,12 +129,14 @@ export async function subscribeToPush(userId) {
       return false;
     }
 
-    const deviceName = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent)
-      ? 'Mobile'
-      : 'Desktop';
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isMobile = /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const deviceName = isIOS ? 'iOS PWA' : isMobile ? 'Android PWA' : 'Desktop';
+
+    let savedToBackend = false;
 
     // 3. Save via backend endpoint (server-authoritative, uses service role)
-    if (BACKEND_URL !== undefined) {
+    try {
       const headers = await authHeaders();
       const response = await fetch(`${BACKEND_URL}/api/push/subscribe`, {
         method: 'POST',
@@ -146,13 +145,18 @@ export async function subscribeToPush(userId) {
         body: JSON.stringify({ fcmToken, deviceName }),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        savedToBackend = true;
+      } else {
         const payload = await response.json().catch(() => ({}));
-        console.error('[push] Backend subscribe failed:', payload.error || response.status);
-        return false;
+        console.warn('[push] Backend subscribe returned non-200:', payload.error || response.status);
       }
-    } else {
-      // Fallback: direct Supabase write (development without backend)
+    } catch (fetchErr) {
+      console.warn('[push] Backend subscribe fetch error:', fetchErr);
+    }
+
+    // 4. Fallback: direct Supabase write if backend was unavailable
+    if (!savedToBackend) {
       const { error } = await supabase.from('push_subscriptions').upsert(
         {
           user_id: userId,
@@ -169,7 +173,7 @@ export async function subscribeToPush(userId) {
       }
     }
 
-    // 4. Cache token locally for clean unsubscribe later
+    // 5. Cache token locally for clean unsubscribe later
     localStorage.setItem(FCM_TOKEN_CACHE_KEY, fcmToken);
 
     console.log('[push] FCM subscribed successfully', {
