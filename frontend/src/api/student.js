@@ -2,9 +2,11 @@ import { supabase } from '../lib/supabase';
 
 async function getAuthHeader() {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      return { Authorization: `Bearer ${session.access_token}` };
+    if (window.Clerk && window.Clerk.session) {
+      const token = await window.Clerk.session.getToken({ template: 'supabase' });
+      if (token) {
+        return { Authorization: `Bearer ${token}` };
+      }
     }
   } catch (_) {}
   return {};
@@ -15,13 +17,13 @@ async function getAuthHeader() {
 async function fetchWithScheduleFallback(endpoint, options = {}) {
   try {
     const res = await fetch(endpoint, options);
-    if (res.ok && res.headers.get('content-type')?.includes('text/html')) {
-       throw new Error('Vercel HTML response');
+    if (res.headers.get('content-type')?.includes('text/html')) {
+       throw new Error('Server returned HTML error page instead of JSON');
     }
     return res;
   } catch (err) {
     console.warn(`Fetch to ${endpoint} failed, falling back...`);
-    throw err; // Rely strictly on Vercel Proxy to avoid HTTP mixed content issues
+    throw err;
   }
 }
 
@@ -96,7 +98,10 @@ export async function uploadStudentScheduleFile(file) {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetchWithScheduleFallback('/api/student/schedule/upload', {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+    const endpoint = backendUrl ? `${backendUrl}/api/student/schedule/upload` : '/api/student/schedule/upload';
+
+    const res = await fetchWithScheduleFallback(endpoint, {
       method: 'POST',
       credentials: 'include',
       headers: {

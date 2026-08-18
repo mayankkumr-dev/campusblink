@@ -49,13 +49,15 @@ const THUMBNAIL_COMPRESSION_OPTIONS = {
 // ─── Auth ──────────────────────────────────────────────────────────────────────
 
 async function getAuthHeaders() {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
   const headers = {};
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
-  }
+  try {
+    if (window.Clerk && window.Clerk.session) {
+      const token = await window.Clerk.session.getToken({ template: 'supabase' });
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+  } catch (_) {}
   return headers;
 }
 

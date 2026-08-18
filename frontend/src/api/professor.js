@@ -356,9 +356,11 @@ export async function reapproveProfessor(adminId, professorId) {
 
 async function getAuthHeader() {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      return { Authorization: `Bearer ${session.access_token}` };
+    if (window.Clerk && window.Clerk.session) {
+      const token = await window.Clerk.session.getToken({ template: 'supabase' });
+      if (token) {
+        return { Authorization: `Bearer ${token}` };
+      }
     }
   } catch (_) {}
   return {};
@@ -367,10 +369,11 @@ async function getAuthHeader() {
 const HEROKU_API_URL = 'https://campus-blink-api-server-b8fe7246b471.herokuapp.com';
 
 async function fetchWithScheduleFallback(endpoint, options = {}) {
-  // Use relative URLs to allow Vercel rewrites (production) and Vite proxies (development)
-  // to handle routing. This avoids Mixed Content errors when Vercel is HTTPS but backend is HTTP.
   try {
     const res = await fetch(endpoint, options);
+    if (res.headers.get('content-type')?.includes('text/html')) {
+       throw new Error('Server returned HTML error page instead of JSON');
+    }
     return res;
   } catch (err) {
     console.warn(`Fetch to ${endpoint} failed, falling back to Heroku API`);
@@ -449,7 +452,10 @@ export async function uploadProfessorScheduleFile(file) {
     const formData = new FormData();
     formData.append('file', file);
 
-    const res = await fetchWithScheduleFallback('/api/professor/schedule/upload', {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+    const endpoint = backendUrl ? `${backendUrl}/api/professor/schedule/upload` : '/api/professor/schedule/upload';
+
+    const res = await fetchWithScheduleFallback(endpoint, {
       method: 'POST',
       credentials: 'include',
       headers: {
