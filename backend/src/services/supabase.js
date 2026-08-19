@@ -98,21 +98,44 @@ const supabaseService = {
 
   // Delete user
   deleteUser: async (userId) => {
-    // 1. Free up the username by renaming it (in case profile deletion fails due to other FKs)
+    // 1. Free up the username by renaming it
     await supabaseAdmin
       .from('profiles')
       .update({ username: `deleted-${userId}-${Date.now()}` })
       .eq('id', userId);
 
-    // 2. Attempt to explicitly delete the profile row
+    // 2. Fetch the clerk_user_id from the profile before deleting it
+    const { data: profileRow } = await supabaseAdmin
+      .from('profiles')
+      .select('clerk_user_id')
+      .eq('id', userId)
+      .maybeSingle();
+
+    // 3. Delete the profile row from Supabase
     await supabaseAdmin
       .from('profiles')
       .delete()
       .eq('id', userId);
 
-    // 3. Delete the auth user from Supabase Auth
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (error) throw new Error(`Failed to delete user: ${error.message}`);
+    // 4. Delete the user from Clerk (if they have a Clerk account)
+    if (profileRow?.clerk_user_id) {
+      const clerkRes = await fetch(
+        `https://api.clerk.com/v1/users/${profileRow.clerk_user_id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          },
+        }
+      );
+      if (!clerkRes.ok) {
+        const errBody = await clerkRes.json().catch(() => ({}));
+        // 404 means already deleted — that's fine
+        if (clerkRes.status !== 404) {
+          throw new Error(`Failed to delete Clerk user: ${errBody?.errors?.[0]?.message || clerkRes.status}`);
+        }
+      }
+    }
   },
 
   // Get pending professor requests

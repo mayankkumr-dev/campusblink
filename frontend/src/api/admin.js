@@ -69,11 +69,13 @@ export async function getAllUsers(filters, page = 1) {
 export async function updateUserStatus(adminId, userId, status, reason = '') {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
+    const { getClerkToken } = await import('../lib/supabase');
+    const token = getClerkToken();
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ status, ban_reason: reason })
     });
@@ -91,11 +93,13 @@ export async function updateUserStatus(adminId, userId, status, reason = '') {
 export async function changeUserRole(adminId, userId, newRole) {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
+    const { getClerkToken } = await import('../lib/supabase');
+    const token = getClerkToken();
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ role: newRole })
     });
@@ -1415,10 +1419,12 @@ export const getTransactions = async () => {
 export async function permanentlyDeleteUser(adminId, userId) {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
+    const { getClerkToken } = await import('../lib/supabase');
+    const token = getClerkToken();
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
       method: 'DELETE',
       headers: {
-         'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        'Authorization': `Bearer ${token}`
       }
     });
     if (!res.ok) throw new Error((await res.json())?.error || 'Failed to delete user fully.');
@@ -1428,6 +1434,7 @@ export async function permanentlyDeleteUser(adminId, userId) {
     return { data: null, error };
   }
 }
+
 
 
 export const adminAPI = {
@@ -1443,8 +1450,8 @@ export const adminAPI = {
   },
 
   createSocietyUser: async (societyData) => {
-    const { data: session } = await supabase.auth.getSession();
-    const token = session?.session?.access_token;
+    const { getClerkToken } = await import('../lib/supabase');
+    const token = getClerkToken();
     
     const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
     const response = await fetch(`${backendUrl}/api/admin/users/society`, {
@@ -1465,8 +1472,8 @@ export const adminAPI = {
   },
 
   updateSocietyUser: async (societyId, updateData) => {
-    const { data: session } = await supabase.auth.getSession();
-    const adminId = session?.session?.user?.id;
+    const { useAuthStore } = await import('../store/authStore');
+    const adminId = useAuthStore.getState().profile?.id;
     
     const { data, error } = await supabase
       .from('profiles')
@@ -1484,8 +1491,8 @@ export const adminAPI = {
 };
 
 export async function createCanteenOwnerAccount(ownerData) {
-  const { data: session } = await supabase.auth.getSession();
-  const token = session?.session?.access_token;
+  const { getClerkToken } = await import('../lib/supabase');
+  const token = getClerkToken();
   const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/canteen-owner`, {
     method: 'POST',
@@ -1503,8 +1510,8 @@ export async function createCanteenOwnerAccount(ownerData) {
 }
 
 export async function createPrintOwnerAccount(ownerData) {
-  const { data: session } = await supabase.auth.getSession();
-  const token = session?.session?.access_token;
+  const { getClerkToken } = await import('../lib/supabase');
+  const token = getClerkToken();
   const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/print-owner`, {
     method: 'POST',
