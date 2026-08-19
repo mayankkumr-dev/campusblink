@@ -1,0 +1,64 @@
+{
+  "updated": [
+    {
+      "email": "akash.abhishek144@gmail.com",
+      "clerkId": "user_3I4ZSySmpVTXtty2IPcEETRkDfF"
+    },
+    {
+      "email": "yebaka3903@duoley.com",
+      "clerkId": "user_3I4ZTClyklq1SoybGhS3jlMg27S"
+    },
+    {
+      "email": "mrmadhukarjii@gmail.com",
+      "clerkId": "user_3I4ZTEoJ5YEap6JGtLAR9IWu4ZJ"
+    },
+    {
+      "email": "mrmadhukarji@gmail.com",
+      "clerkId": "user_3I4ZTIAP8ZbfWXspay4jS5u0mFn"
+    },
+    {
+      "email": "dokoma1421@epaynine.com",
+      "clerkId": "user_3I4ZTTTfBkOt9XnZig1SNZ4r6Jm"
+    },
+    {
+      "email": "mafivo2049@bevriz.com",
+      "clerkId": "user_3I4ZTVPi55Wq6BcEYfs3jTdtguN"
+    },
+    {
+      "email": "sejega7754@acoxs.com",
+      "clerkId": "user_3I4ZTe9Cq19QGWpwoWdfzEkFp5k"
+    },
+    {
+      "email": "vojex35947@aganseo.com",
+      "clerkId": "user_3I4ZTdD447n4yilDCfrqOp5L4z1"
+    },
+    {
+      "email": "saxena.saksham111612@gmail.com",
+      "clerkId": "user_3I4ZTiyrHgDNozPI5qThGOFBRDN"
+    },
+    {
+      "email": "sheshikiran@university.in",
+      "clerkId": "user_3I4ZTozEd6hPH0QKBiQuw68YDHp"
+    },
+    {
+      "email": "jahayob480@acoxs.com",
+      "clerkId": "user_3I4ZTqvmhAvnxMFfKpgqbnCqnDW"
+    },
+    {
+      "email": "divyanshtwork@gmail.com",
+      "clerkId": "user_3I4ZTviUINAQYqjW2fhXWryhG65"
+    },
+    {
+      "email": "mewali3218@bevriz.com",
+      "clerkId": "user_3I4ZTvLW1oLZjdm2tKuiLrDrAJm"
+    }
+  ],
+  "created": [],
+  "failed": [
+    {
+      "email": "contactus.mayank@gmail.com",
+      "error": "missing data"
+    }
+  ],
+  "skipped": []
+}

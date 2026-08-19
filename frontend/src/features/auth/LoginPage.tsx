@@ -32,6 +32,10 @@ export const LoginPage: React.FC = () => {
   const [showProfessorPendingScreen, setShowProfessorPendingScreen] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
 
+  // MFA / second-factor step
+  const [mfaStep, setMfaStep] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+
   // Forgot Password Modal
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmailInput, setForgotEmailInput] = useState('');
@@ -119,27 +123,32 @@ export const LoginPage: React.FC = () => {
           title: 'Signed in successfully',
           message: 'Redirecting you to your dashboard now.',
         });
-      } else {
-        // Handle multi-step sign-in
-        if (result.status === 'needs_first_factor') {
+      } else if (result.status === 'needs_second_factor') {
+        // Clerk requires a second factor (email_code). Show OTP input.
+        const strategies = result.supportedSecondFactors?.map((f: any) => f.strategy) || [];
+        if (strategies.includes('email_code')) {
+          // Trigger Clerk to send the email code
+          await signIn.prepareSecondFactor({ strategy: 'email_code' });
+          setMfaStep(true);
+          setMfaCode('');
           setAuthStatus({
             type: 'info',
-            title: 'Verification Required',
-            message: `First factor required. Supported: ${result.supportedFirstFactors?.map((f: any) => f.strategy).join(', ')}`,
-          });
-        } else if (result.status === 'needs_second_factor') {
-          setAuthStatus({
-            type: 'info',
-            title: '2FA Required',
-            message: `Second factor required by Clerk. Supported factors: ${result.supportedSecondFactors?.map((f: any) => f.strategy).join(', ') || 'None'}`,
+            title: 'Check your email',
+            message: 'A verification code has been sent to your email. Enter it below to sign in.',
           });
         } else {
           setAuthStatus({
-            type: 'info',
-            title: 'Additional step required',
-            message: `Sign in status is: ${result.status}. Please complete the required steps.`,
+            type: 'error',
+            title: '2FA Required',
+            message: `Your account requires a second factor. Supported: ${strategies.join(', ')}`,
           });
         }
+      } else {
+        setAuthStatus({
+          type: 'info',
+          title: 'Additional step required',
+          message: `Sign in status: ${result.status}. Please try again or contact support.`,
+        });
       }
     } catch (err: any) {
       const clerkError = err?.errors?.[0];
@@ -179,6 +188,90 @@ export const LoginPage: React.FC = () => {
         });
         toast.error(message);
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ── MFA second-factor submit ───────────────────────────────────────────────
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded || !signIn) return;
+
+    const code = mfaCode.trim();
+    if (!code) {
+      toast.error('Please enter the verification code.');
+      return;
+    }
+
+    setIsLoading(true);
+    setAuthStatus(null);
+
+    try {
+      const result = await signIn.attemptSecondFactor({
+        strategy: 'email_code',
+        code,
+      });
+
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
+
+        let identifier = email.trim();
+        let { data: profile } = await supabase
+          .from('profiles')
+          .select('role, professor_status, status, ban_reason')
+          .eq('clerk_user_id', result.createdUserId)
+          .maybeSingle();
+
+        if (!profile && identifier.includes('@')) {
+          const { data: fallbackProfile } = await supabase
+            .from('profiles')
+            .select('role, professor_status, status, ban_reason')
+            .eq('email', identifier)
+            .maybeSingle();
+          profile = fallbackProfile;
+        }
+
+        const role = profile?.role;
+        const acctStatus = String(profile?.status || 'active').toLowerCase();
+        if (acctStatus === 'restricted' || acctStatus === 'banned') {
+          const params = new URLSearchParams({ status: acctStatus });
+          if (profile?.ban_reason) params.set('reason', profile.ban_reason);
+          params.set('email', identifier);
+          navigate(`/account-restricted?${params.toString()}`);
+          return;
+        }
+
+        const redirectState =
+          typeof location.state === 'object' && location.state && 'from' in location.state
+            ? String((location.state as any).from || '')
+            : '';
+        const redirectTarget = new URLSearchParams(location.search).get('redirect');
+
+        if (redirectState && redirectState.startsWith('/')) { navigate(redirectState, { replace: true }); return; }
+        if (redirectTarget && redirectTarget.startsWith('/')) { navigate(redirectTarget, { replace: true }); return; }
+
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'professor') {
+          const profStatus = String(profile?.professor_status || 'pending').toLowerCase();
+          if (profStatus === 'pending') setShowProfessorPendingScreen(true);
+          else if (profStatus === 'rejected') navigate('/professor/rejected');
+          else navigate('/professor/home');
+        } else if (role === 'canteen_owner') navigate('/canteen-dashboard');
+        else if (role === 'print_shop') navigate('/print-dashboard');
+        else navigate('/student/home');
+      } else {
+        setAuthStatus({
+          type: 'error',
+          title: 'Invalid code',
+          message: 'The code you entered is incorrect or has expired. Please try again.',
+        });
+        toast.error('Invalid verification code.');
+      }
+    } catch (err: any) {
+      const msg = err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || 'Verification failed.';
+      setAuthStatus({ type: 'error', title: 'Verification failed', message: msg });
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -228,6 +321,48 @@ export const LoginPage: React.FC = () => {
     );
   }
 
+  // ── MFA / email-code step ──────────────────────────────────────────────────
+  if (mfaStep) {
+    return (
+      <AuthScreenShell>
+        <AuthHeader
+          title="Verify your identity"
+          subtitle={`We sent a 6-digit code to ${email || 'your email'}. Enter it below.`}
+        />
+
+        <AuthStatusBanner status={authStatus} />
+
+        <form onSubmit={handleMfaSubmit} className="space-y-4">
+          <div>
+            <span className="text-sm font-medium ml-1">Verification Code</span>
+            <Input
+              placeholder="Enter 6-digit code"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={mfaCode}
+              onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+              required
+              autoFocus
+              autoComplete="one-time-code"
+            />
+          </div>
+
+          <AuthSubmitButton loading={isLoading} text="Verify & Sign In" />
+        </form>
+
+        <button
+          type="button"
+          onClick={() => { setMfaStep(false); setAuthStatus(null); setMfaCode(''); }}
+          className="text-sm text-center w-full text-muted-foreground hover:underline mt-2"
+        >
+          ← Back to sign in
+        </button>
+      </AuthScreenShell>
+    );
+  }
+
+  // ── Normal login form ──────────────────────────────────────────────────────
   return (
     <AuthScreenShell>
       <AuthHeader
@@ -278,6 +413,7 @@ export const LoginPage: React.FC = () => {
         loading={forgotLoading}
         successEmail={forgotSuccessEmail}
       />
+
     </AuthScreenShell>
   );
 };

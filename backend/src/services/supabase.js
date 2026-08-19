@@ -98,6 +98,19 @@ const supabaseService = {
 
   // Delete user
   deleteUser: async (userId) => {
+    // 1. Free up the username by renaming it (in case profile deletion fails due to other FKs)
+    await supabaseAdmin
+      .from('profiles')
+      .update({ username: `deleted-${userId}-${Date.now()}` })
+      .eq('id', userId);
+
+    // 2. Attempt to explicitly delete the profile row
+    await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+
+    // 3. Delete the auth user from Supabase Auth
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (error) throw new Error(`Failed to delete user: ${error.message}`);
   },
