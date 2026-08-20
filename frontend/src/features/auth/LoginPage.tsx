@@ -23,6 +23,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { isLoaded, signIn, setActive } = useSignIn();
   const { signOut } = useClerk();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -98,6 +99,11 @@ export const LoginPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
+
+        // HYDRATION RACE CONDITION FIX:
+        // Update the global auth store immediately before navigating so the ProtectedRoute
+        // doesn't bounce the user back to /login while waiting for App.tsx to sync.
+        setAuth({ id: (result as any).createdUserId }, profile);
 
         if (redirectState && redirectState.startsWith('/')) {
           navigate(redirectState, { replace: true });
