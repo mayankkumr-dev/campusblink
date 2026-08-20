@@ -356,8 +356,8 @@ export async function reapproveProfessor(adminId, professorId) {
 
 async function getAuthHeader() {
   try {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }

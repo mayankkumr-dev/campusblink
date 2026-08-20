@@ -69,8 +69,8 @@ export async function getAllUsers(filters, page = 1) {
 export async function updateUserStatus(adminId, userId, status, reason = '') {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
       method: 'PATCH',
       headers: {
@@ -93,8 +93,8 @@ export async function updateUserStatus(adminId, userId, status, reason = '') {
 export async function changeUserRole(adminId, userId, newRole) {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/users/${userId}`, {
       method: 'PATCH',
       headers: {
@@ -1419,8 +1419,8 @@ export const getTransactions = async () => {
 export async function permanentlyDeleteUser(adminId, userId) {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
 
     if (!token) {
       throw new Error('No valid authentication token found. Please refresh the page and try again.');
@@ -1454,8 +1454,8 @@ export const adminAPI = {
   },
 
   createSocietyUser: async (societyData) => {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
     
     const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
     const response = await fetch(`${backendUrl}/api/admin/users/society`, {
@@ -1495,8 +1495,8 @@ export const adminAPI = {
 };
 
 export async function createCanteenOwnerAccount(ownerData) {
-  const { getClerkToken } = await import('../lib/supabase');
-  const token = getClerkToken();
+  const { getStandardClerkToken } = await import('../lib/supabase');
+  const token = getStandardClerkToken();
   const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/canteen-owner`, {
     method: 'POST',
@@ -1514,8 +1514,8 @@ export async function createCanteenOwnerAccount(ownerData) {
 }
 
 export async function createPrintOwnerAccount(ownerData) {
-  const { getClerkToken } = await import('../lib/supabase');
-  const token = getClerkToken();
+  const { getStandardClerkToken } = await import('../lib/supabase');
+  const token = getStandardClerkToken();
   const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
   const response = await fetch(`${backendUrl}/api/admin/users/print-owner`, {
     method: 'POST',

@@ -21,13 +21,19 @@ if (!rawUrl || !rawKey) {
 // Call setClerkToken(null) on sign-out.
 // ---------------------------------------------------------------------------
 let _clerkToken = null;
+let _standardClerkToken = null;
 
-export function setClerkToken(token) {
+export function setClerkToken(token, standardToken = null) {
   _clerkToken = token;
+  _standardClerkToken = standardToken || token;
 }
 
 export function getClerkToken() {
   return _clerkToken;
+}
+
+export function getStandardClerkToken() {
+  return _standardClerkToken || _clerkToken;
 }
 
 let supabaseClient;

@@ -2,8 +2,8 @@ import { supabase } from '../lib/supabase';
 
 async function getAuthHeader() {
   try {
-    const { getClerkToken } = await import('../lib/supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('../lib/supabase');
+    const token = getStandardClerkToken();
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }

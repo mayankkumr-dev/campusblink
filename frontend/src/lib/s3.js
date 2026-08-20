@@ -51,8 +51,8 @@ const THUMBNAIL_COMPRESSION_OPTIONS = {
 async function getAuthHeaders() {
   const headers = {};
   try {
-    const { getClerkToken } = await import('./supabase');
-    const token = getClerkToken();
+    const { getStandardClerkToken } = await import('./supabase');
+    const token = getStandardClerkToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

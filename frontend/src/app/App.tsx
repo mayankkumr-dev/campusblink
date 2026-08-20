@@ -130,14 +130,15 @@ function App() {
       try {
         // 'supabase' is the name of your Clerk JWT Template (set in Clerk Dashboard)
         const token = await clerkSession.getToken({ template: 'supabase' });
-        if (!cancelled) setClerkToken(token);
+        const standardToken = await clerkSession.getToken();
+        if (!cancelled) setClerkToken(token, standardToken);
       } catch {
         // Template not yet configured — fall back to default Clerk JWT
         try {
           const token = await clerkSession.getToken();
-          if (!cancelled) setClerkToken(token);
+          if (!cancelled) setClerkToken(token, token);
         } catch {
-          if (!cancelled) setClerkToken(null);
+          if (!cancelled) setClerkToken(null, null);
         }
       }
     }
