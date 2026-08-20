@@ -85,11 +85,13 @@ function jwkToPem(jwk) {
 // ---------------------------------------------------------------------------
 const authMiddleware = async (req, res, next) => {
   try {
-    // 1. Extract token
-    let token = req.cookies?.token || req.cookies?.access_token;
     const authHeader = req.headers.authorization;
-    if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+    let token = null;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7);
+    } else {
+      token = req.cookies?.token || req.cookies?.access_token;
     }
 
     if (!token) {
