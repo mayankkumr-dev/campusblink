@@ -197,6 +197,10 @@ export const LoginPage: React.FC = () => {
         setForgotEmailInput(email);
         setForgotSuccessEmail(null);
         setShowForgotModal(true);
+      } else if (code === 'session_exists') {
+        // User is already signed in on this device. Just gently route them in.
+        navigate('/student/home', { replace: true });
+        return;
       } else {
         setAuthStatus({
           type: 'error',
