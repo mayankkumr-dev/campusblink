@@ -21,7 +21,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://campus-blink-api-server-b8fe7246b471.herokuapp.com/api/$1"
+      "destination": "http://3.229.71.36/api/$1"
     },
     {
       "source": "/((?!assets/|.*\\.[a-zA-Z0-9]+$).*)",
