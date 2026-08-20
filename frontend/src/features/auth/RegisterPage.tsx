@@ -359,7 +359,7 @@ export const RegisterPage: React.FC = () => {
       }
 
       toast.success('Welcome to Campus Blink! 🎉');
-      navigate('/student/home');
+      navigate('/');
     } catch (err: any) {
       const clerkError = err?.errors?.[0];
       const code = clerkError?.code || '';
