@@ -119,8 +119,14 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { isLoaded, signUp, setActive } = useSignUp();
   const { isSignedIn } = useAuth();
+  
+  // Track if we've already checked the initial sign-in state to avoid triggering on successful registration
+  const hasCheckedInitialAuth = React.useRef(false);
 
   useEffect(() => {
+    if (hasCheckedInitialAuth.current) return;
+    hasCheckedInitialAuth.current = true;
+
     if (isSignedIn) {
       toast('Signing you out of your previous session...', { icon: '🧹' });
       // Clear all stuck state
