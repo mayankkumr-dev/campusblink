@@ -344,7 +344,6 @@ export const RegisterPage: React.FC = () => {
         branch,
         section:       section || null,
         role:          'student',
-        expected_roll_number: inviteValidated?.data?.expected_roll_number || null,
       }]);
 
       if (profileError) {
