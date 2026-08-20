@@ -48,9 +48,16 @@ function normalizeSupabaseError(error) {
   return error?.message || error?.error_description || String(error);
 }
 
+const anonSupabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
+const anonSupabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key';
+import { createClient } from '@supabase/supabase-js';
+const anonSupabase = createClient(anonSupabaseUrl, anonSupabaseKey, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+});
+
 async function getProfileById(id) {
   if (!id) return null;
-  const { data } = await supabase
+  const { data } = await anonSupabase
     .from('profiles')
     .select('id, name, username, email, avatar_url, created_at')
     .eq('id', id)
@@ -108,7 +115,7 @@ export async function validateInviteCode(inputCode) {
 
     const code = normalizeInviteCode(rawInput) || rawInput.toUpperCase();
 
-    let { data, error } = await supabase
+    let { data, error } = await anonSupabase
       .from('invite_codes')
       .select('*')
       .ilike('code', code)
@@ -116,7 +123,7 @@ export async function validateInviteCode(inputCode) {
       .maybeSingle();
 
     if (!data && rawInput.toUpperCase() !== code) {
-      const fallback = await supabase
+      const fallback = await anonSupabase
         .from('invite_codes')
         .select('*')
         .ilike('code', rawInput.toUpperCase())
@@ -254,7 +261,7 @@ export async function consumeInviteCodeOnSignup({ code, newUserId, newUserName }
       return { data: null, error: 'Missing invite details.' };
     }
 
-    const { data: inviteRow, error: inviteError } = await supabase
+    const { data: inviteRow, error: inviteError } = await anonSupabase
       .from('invite_codes')
       .select('*')
       .eq('code', normalizedCode)
@@ -279,7 +286,7 @@ export async function consumeInviteCodeOnSignup({ code, newUserId, newUserName }
       return { data: null, error: 'Invite code has expired.' };
     }
 
-    const { error: markUsedError } = await supabase
+    const { error: markUsedError } = await anonSupabase
       .from('invite_codes')
       .update({
         is_used: true,
