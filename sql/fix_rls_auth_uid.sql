@@ -30,21 +30,23 @@ BEGIN
     $func$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
     ';
 
-    -- 2. Redefine app_private.current_user_college to use the new wrapper
-    EXECUTE '
-    CREATE OR REPLACE FUNCTION app_private.current_user_college()
-    RETURNS text
-    LANGUAGE sql
-    STABLE
-    SECURITY DEFINER
-    SET search_path = public
-    AS $func$
-      SELECT p.college
-      FROM public.profiles p
-      WHERE p.id = public.get_user_id()
-      LIMIT 1;
-    $func$;
-    ';
+    -- 2. Update app_private.current_user_college if the schema exists
+    IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'app_private') THEN
+      EXECUTE '
+      CREATE OR REPLACE FUNCTION app_private.current_user_college()
+      RETURNS text
+      LANGUAGE sql
+      STABLE
+      SECURITY DEFINER
+      SET search_path = public
+      AS $func$
+        SELECT p.college
+        FROM public.profiles p
+        WHERE p.id = public.get_user_id()
+        LIMIT 1;
+      $func$;
+      ';
+    END IF;
 
     -- 3. Loop through all policies in public schema and replace auth.uid()
     FOR pol IN 

@@ -6,8 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { Input } from '../../app/components/ui/input';
 import { Button } from '../../app/components/ui/button';
 import { useSignUp, useAuth } from '@clerk/clerk-react';
-import { supabase, setClerkToken } from '../../lib/supabase';
-import { formatInviteCodeInput, validateInviteCode, consumeInviteCodeOnSignup } from '../../api/invites';
+import { formatInviteCodeInput, validateInviteCode } from '../../api/invites';
 import { getFirstName } from '../../lib/user';
 import {
   AuthScreenShell,
@@ -307,6 +306,14 @@ export const RegisterPage: React.FC = () => {
   };
 
   // ── Step 3: Verify OTP → complete Clerk sign-up → create Supabase profile ──
+  //
+  // WHY WE CALL THE BACKEND HERE:
+  // Supabase RLS policies check auth.uid(), which in our Clerk integration maps
+  // the Clerk JWT sub ("user_2xyz...") to a UUID by querying the profiles table.
+  // But at signup time the profile row doesn't exist yet → auth.uid() returns
+  // NULL → all direct Supabase INSERT/UPDATE calls get a 403.
+  // The backend /api/auth/complete-signup endpoint uses the service-role key
+  // which bypasses RLS entirely, breaking this bootstrap chicken-and-egg cycle.
   const handleVerifyEmail = async (code: string) => {
     if (!isLoaded || !signUp) return;
     setVerifying(true);
@@ -326,56 +333,40 @@ export const RegisterPage: React.FC = () => {
       // Activate Clerk session
       await setActive({ session: result.createdSessionId });
 
-      // Force fetch the Supabase JWT immediately so the profile insert is authenticated
-      if (typeof window !== 'undefined' && (window as any).Clerk) {
-        try {
-          const session = (window as any).Clerk.client?.sessions?.find((s: any) => s.id === result.createdSessionId) || (window as any).Clerk.session;
-          if (session) {
-            try {
-              const token = await session.getToken({ template: 'supabase' });
-              if (token) setClerkToken(token);
-            } catch (tmplErr) {
-              const token = await session.getToken();
-              if (token) setClerkToken(token);
-            }
-          }
-        } catch (e) {
-          console.warn('Could not fetch Clerk token immediately:', e);
-        }
-      }
-
       const clerkUserId = result.createdUserId;
       const fullName    = name.trim();
       const normalizedUsername = normalizeUsernameInput(username);
       const inviteCode  = inviteValidated?.code;
 
-      // Create Supabase profile row
-      const profileId = crypto.randomUUID();
-      const { error: profileError } = await supabase.from('profiles').insert([{
-        id:            profileId,
-        clerk_user_id: clerkUserId,
-        email,
-        name:          fullName,
-        username:      normalizedUsername,
-        college,
-        study_year:    studyYear,
-        branch,
-        section:       section || null,
-        role:          'student',
-      }]);
+      // ── Call the backend to create the profile + consume invite (bypasses RLS) ──
+      // VITE_BACKEND_URL = http://localhost:3000 in dev (backend server base URL)
+      // In production, the frontend is served from the same origin so we use relative /api
+      const backendBase = import.meta.env.VITE_BACKEND_URL || '';
+      const backendUrl = backendBase ? `${backendBase}/api` : '/api';
+      const signupRes = await fetch(`${backendUrl}/auth/complete-signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clerkUserId,
+          email,
+          name:       fullName,
+          username:   normalizedUsername,
+          college,
+          study_year: studyYear,
+          branch,
+          section:    section || null,
+          role:       'student',
+          inviteCode: inviteCode || null,
+        }),
+      });
 
-      if (profileError) {
-        console.error('Profile insert error:', profileError);
-        toast.error(`Account created but profile setup failed: ${profileError.message || profileError.code}. Please contact support.`);
-      }
-
-      // Consume invite code in Supabase
-      if (inviteCode) {
-        await consumeInviteCodeOnSignup({
-          code:        inviteCode,
-          newUserId:   profileId,
-          newUserName: fullName,
-        });
+      if (!signupRes.ok) {
+        const errBody = await signupRes.json().catch(() => ({}));
+        console.error('complete-signup error:', errBody);
+        // Non-fatal: account is created in Clerk, profile will sync via webhook.
+        toast.error(
+          `Account created but profile setup encountered an issue. Please contact support if this persists. (${errBody?.error || signupRes.status})`
+        );
       }
 
       toast.success('Welcome to Campus Blink! 🎉');
