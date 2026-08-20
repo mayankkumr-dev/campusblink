@@ -24,8 +24,7 @@ async function syncClerkUserToStore(
   clerkUser: ReturnType<typeof useUser>['user'],
   clerkSession: any,
   setAuth: (u: any, p: any) => void,
-  setIsLoading: (v: boolean) => void,
-  signOut: () => Promise<void>
+  setIsLoading: (v: boolean) => void
 ) {
   try {
     if (!clerkUser) {
@@ -59,14 +58,21 @@ async function syncClerkUserToStore(
       .maybeSingle();
 
     if (!profile) {
-      // Auto-heal ghost accounts: if the user exists in Clerk but not in Supabase,
-      // force them to sign out so they aren't trapped in a broken state.
-      console.warn('Ghost session detected. Profile missing from database. Forcing sign out.');
-      await signOut();
-      setClerkToken(null);
-      setAuth(null, null);
-      toast.error('Your account was removed. You have been signed out.');
-      return;
+      // Safe Auto-heal: If the profile is missing, it's EITHER a new user waiting for the webhook,
+      // OR a ghost account that was deleted from the DB.
+      // We check if the Clerk account was created more than 2 minutes ago.
+      // If it's older than 2 minutes and has no DB profile, the webhook failed or it's a ghost account.
+      const createdAt = clerkUser.createdAt ? new Date(clerkUser.createdAt).getTime() : 0;
+      const isOlderThanTwoMinutes = Date.now() - createdAt > 2 * 60 * 1000;
+      
+      if (isOlderThanTwoMinutes && typeof window !== 'undefined' && (window as any).Clerk) {
+        console.warn('Ghost session detected (account > 2 mins old with no DB profile). Forcing sign out.');
+        await (window as any).Clerk.signOut();
+        setClerkToken(null);
+        setAuth(null, null);
+        toast.error('Your account session is invalid. You have been signed out.');
+        return;
+      }
     }
 
     // If the profile was found but lacks clerk_user_id, back-fill it
@@ -111,7 +117,6 @@ function App() {
   // Clerk hooks
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const { session: clerkSession } = useSession();
-  const { signOut } = useAuth();
 
   useThemeColor();
 
@@ -160,8 +165,8 @@ function App() {
   // ── Clerk user → authStore sync ──────────────────────────────────────────
   useEffect(() => {
     if (!isUserLoaded) return;
-    syncClerkUserToStore(clerkUser, clerkSession, setAuth, setIsLoading, signOut);
-  }, [clerkUser, clerkSession, isUserLoaded, setAuth, setIsLoading, signOut]);
+    syncClerkUserToStore(clerkUser, clerkSession, setAuth, setIsLoading);
+  }, [clerkUser, clerkSession, isUserLoaded, setAuth, setIsLoading]);
 
   // ── FCM foreground message handler ───────────────────────────────────────
   useEffect(() => {
