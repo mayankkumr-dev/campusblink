@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Input } from '../../app/components/ui/input';
 import { Button } from '../../app/components/ui/button';
-import { useSignUp } from '@clerk/clerk-react';
+import { useSignUp, useAuth } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import { formatInviteCodeInput, validateInviteCode, consumeInviteCodeOnSignup } from '../../api/invites';
 import { getFirstName } from '../../lib/user';
@@ -118,6 +118,14 @@ const VerifyEmailScreen: React.FC<VerifyEmailProps> = ({
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { isLoaded, signUp, setActive } = useSignUp();
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      toast('You are already signed in. Please log out first to create a new account.', { icon: '👋' });
+      navigate('/', { replace: true });
+    }
+  }, [isSignedIn, navigate]);
 
   const [registerStep, setRegisterStep] = useState<1 | 2 | 3>(1);
   const [isProfessor, setIsProfessor] = useState(false);
