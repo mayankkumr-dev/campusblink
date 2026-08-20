@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Input } from '../../app/components/ui/input';
-import { useSignIn, useClerk } from '@clerk/clerk-react';
+import { useSignIn, useClerk, useAuth } from '@clerk/clerk-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../store/authStore';
 import {
@@ -22,8 +22,17 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoaded, signIn, setActive } = useSignIn();
-  const { signOut } = useClerk();
+  const { signOut, userId } = useAuth();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const user = useAuthStore((state) => state.user);
+  const profile = useAuthStore((state) => state.profile);
+
+  // Automatically redirect if the user is already signed in (prevents "already signed in" error)
+  useEffect(() => {
+    if (userId && user && profile) {
+      navigate('/student/home', { replace: true });
+    }
+  }, [userId, user, profile, navigate]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,9 +61,6 @@ export const LoginPage: React.FC = () => {
     setAuthStatus(null);
 
     try {
-      // Automatically sign out of any stuck/existing session on this device first
-      await signOut();
-
       let identifier = email.trim();
 
       const result = await signIn.create({
