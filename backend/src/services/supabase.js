@@ -199,7 +199,7 @@ const supabaseService = {
     ];
 
     for (const { table, col } of dependencies) {
-      await supabaseAdmin.from(table).delete().eq(col, userId).catch(() => {});
+      await supabaseAdmin.from(table).delete().eq(col, userId);
     }
 
     // 4. Delete the profile row from Supabase
