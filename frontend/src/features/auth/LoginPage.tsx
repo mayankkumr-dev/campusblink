@@ -30,7 +30,12 @@ export const LoginPage: React.FC = () => {
   // Automatically redirect if the user is already signed in (prevents "already signed in" error)
   useEffect(() => {
     if (userId && user && profile) {
-      navigate('/student/home', { replace: true });
+      const r = profile.role || 'student';
+      if (r === 'admin') navigate('/admin', { replace: true });
+      else if (r === 'professor') navigate('/professor/home', { replace: true });
+      else if (r === 'canteen_owner') navigate('/canteen-dashboard', { replace: true });
+      else if (r === 'print_shop') navigate('/print-dashboard', { replace: true });
+      else navigate('/student/home', { replace: true });
     }
   }, [userId, user, profile, navigate]);
 

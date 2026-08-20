@@ -25,9 +25,10 @@ export const AdminProtectedRoute: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const profile = useAuthStore((state) => state.profile);
 
+  const isLoading = useAuthStore((state) => state.isLoading);
   const hasHydrated = (useAuthStore as any).persist?.hasHydrated?.() ?? true;
 
-  if (!hasHydrated) {
+  if (!hasHydrated || isLoading) {
     return <PageSkeleton />;
   }
 
