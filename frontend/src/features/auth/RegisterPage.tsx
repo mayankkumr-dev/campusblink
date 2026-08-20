@@ -349,7 +349,7 @@ export const RegisterPage: React.FC = () => {
 
       if (profileError) {
         console.error('Profile insert error:', profileError);
-        toast.error('Account created but profile setup failed. Please contact support.');
+        toast.error(`Account created but profile setup failed: ${profileError.message || profileError.code}. Please contact support.`);
       }
 
       // Consume invite code in Supabase

@@ -204,6 +204,20 @@ const supabaseService = {
 
     const deletePromises = dependencies.map(({ table, col }) => 
       supabaseAdmin.from(table).delete().eq(col, userId)
+        .catch(err => {
+          // Ignore missing table errors so deletion can proceed
+          if (err?.code === 'PGRST205' || err?.message?.includes('Could not find the table')) {
+            return { data: null, error: null };
+          }
+          throw err;
+        })
+        .then(res => {
+          if (res?.error && res.error.code === 'PGRST205') {
+            return { data: null, error: null };
+          }
+          if (res?.error) throw res.error;
+          return res;
+        })
     );
     await Promise.all(deletePromises);
 
