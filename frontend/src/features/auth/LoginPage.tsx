@@ -22,6 +22,7 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoaded, signIn, setActive } = useSignIn();
+  const { signOut } = useClerk();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +51,9 @@ export const LoginPage: React.FC = () => {
     setAuthStatus(null);
 
     try {
+      // Automatically sign out of any stuck/existing session on this device first
+      await signOut();
+
       let identifier = email.trim();
 
       const result = await signIn.create({
