@@ -1419,17 +1419,8 @@ export const getTransactions = async () => {
 export async function permanentlyDeleteUser(adminId, userId) {
   if (!import.meta.env.VITE_BACKEND_URL) return { error: { message: "Backend URL not configured." } };
   try {
-    let token = null;
-    if (window.Clerk && window.Clerk.session) {
-      try {
-        token = await window.Clerk.session.getToken({ template: 'supabase' });
-      } catch {
-        token = await window.Clerk.session.getToken();
-      }
-    } else {
-      const { getClerkToken } = await import('../lib/supabase');
-      token = getClerkToken();
-    }
+    const { getClerkToken } = await import('../lib/supabase');
+    const token = getClerkToken();
 
     if (!token) {
       throw new Error('No valid authentication token found. Please refresh the page and try again.');
