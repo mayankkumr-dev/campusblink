@@ -227,9 +227,8 @@ router.delete('/users/:id', authMiddleware, adminOnlyMiddleware, async (req, res
         `campus-blink/marketplace-chat/${id}`,
       ];
 
-      for (const prefix of prefixes) {
-        await s3Service.deleteByPrefix(prefix);
-      }
+      const s3Promises = prefixes.map(prefix => s3Service.deleteByPrefix(prefix));
+      await Promise.all(s3Promises);
     } catch (err) {
       console.error('Failed to purge S3 resources for user:', err);
     }

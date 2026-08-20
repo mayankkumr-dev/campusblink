@@ -117,10 +117,12 @@ const supabaseService = {
     const { data: userPosts } = await supabaseAdmin.from('posts').select('id').eq('author_id', userId);
     if (userPosts && userPosts.length > 0) {
       const postIds = userPosts.map(p => p.id);
-      await supabaseAdmin.from('comments').delete().in('post_id', postIds);
-      await supabaseAdmin.from('post_likes').delete().in('post_id', postIds);
-      await supabaseAdmin.from('bookmarks').delete().in('post_id', postIds);
-      await supabaseAdmin.from('official_notices').delete().in('post_id', postIds);
+      await Promise.all([
+        supabaseAdmin.from('comments').delete().in('post_id', postIds),
+        supabaseAdmin.from('post_likes').delete().in('post_id', postIds),
+        supabaseAdmin.from('bookmarks').delete().in('post_id', postIds),
+        supabaseAdmin.from('official_notices').delete().in('post_id', postIds)
+      ]);
       await supabaseAdmin.from('posts').delete().eq('author_id', userId);
     }
 
@@ -136,8 +138,10 @@ const supabaseService = {
     const { data: userDiaries } = await supabaseAdmin.from('diaries').select('id').eq('author_id', userId);
     if (userDiaries && userDiaries.length > 0) {
       const diaryIds = userDiaries.map(d => d.id);
-      await supabaseAdmin.from('diary_entries').delete().in('diary_id', diaryIds);
-      await supabaseAdmin.from('diary_bookmarks').delete().in('diary_id', diaryIds);
+      await Promise.all([
+        supabaseAdmin.from('diary_entries').delete().in('diary_id', diaryIds),
+        supabaseAdmin.from('diary_bookmarks').delete().in('diary_id', diaryIds)
+      ]);
       await supabaseAdmin.from('diaries').delete().eq('author_id', userId);
     }
     
@@ -198,9 +202,10 @@ const supabaseService = {
       { table: 'contact_issues', col: 'user_id' }
     ];
 
-    for (const { table, col } of dependencies) {
-      await supabaseAdmin.from(table).delete().eq(col, userId);
-    }
+    const deletePromises = dependencies.map(({ table, col }) => 
+      supabaseAdmin.from(table).delete().eq(col, userId)
+    );
+    await Promise.all(deletePromises);
 
     // 4. Delete the profile row from Supabase
     const { error: profileDeleteError } = await supabaseAdmin
