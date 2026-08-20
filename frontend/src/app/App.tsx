@@ -24,7 +24,8 @@ async function syncClerkUserToStore(
   clerkUser: ReturnType<typeof useUser>['user'],
   clerkSession: any,
   setAuth: (u: any, p: any) => void,
-  setIsLoading: (v: boolean) => void
+  setIsLoading: (v: boolean) => void,
+  signOut: () => Promise<void>
 ) {
   try {
     if (!clerkUser) {
@@ -50,20 +51,22 @@ async function syncClerkUserToStore(
 
     const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress || '';
 
-    // Fetch profile by clerk_user_id (fast path) or fall back to email
+    // Fetch profile by clerk_user_id (fast path)
     let { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('clerk_user_id', clerkUser.id)
       .maybeSingle();
 
-    if (!profile && primaryEmail) {
-      const { data: profileByEmail } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', primaryEmail)
-        .maybeSingle();
-      profile = profileByEmail;
+    if (!profile) {
+      // Auto-heal ghost accounts: if the user exists in Clerk but not in Supabase,
+      // force them to sign out so they aren't trapped in a broken state.
+      console.warn('Ghost session detected. Profile missing from database. Forcing sign out.');
+      await signOut();
+      setClerkToken(null);
+      setAuth(null, null);
+      toast.error('Your account was removed. You have been signed out.');
+      return;
     }
 
     // If the profile was found but lacks clerk_user_id, back-fill it
@@ -108,6 +111,7 @@ function App() {
   // Clerk hooks
   const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
   const { session: clerkSession } = useSession();
+  const { signOut } = useAuth();
 
   useThemeColor();
 
@@ -156,8 +160,8 @@ function App() {
   // ── Clerk user → authStore sync ──────────────────────────────────────────
   useEffect(() => {
     if (!isUserLoaded) return;
-    syncClerkUserToStore(clerkUser, clerkSession, setAuth, setIsLoading);
-  }, [clerkUser, clerkSession, isUserLoaded, setAuth, setIsLoading]);
+    syncClerkUserToStore(clerkUser, clerkSession, setAuth, setIsLoading, signOut);
+  }, [clerkUser, clerkSession, isUserLoaded, setAuth, setIsLoading, signOut]);
 
   // ── FCM foreground message handler ───────────────────────────────────────
   useEffect(() => {

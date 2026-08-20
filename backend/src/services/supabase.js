@@ -207,17 +207,7 @@ const supabaseService = {
     );
     await Promise.all(deletePromises);
 
-    // 4. Delete the profile row from Supabase
-    const { error: profileDeleteError } = await supabaseAdmin
-      .from('profiles')
-      .delete()
-      .eq('id', userId);
-      
-    if (profileDeleteError) {
-      throw new Error(`Failed to delete profile: ${profileDeleteError.message}`);
-    }
-
-    // 5. Delete the user from Clerk (if they have a Clerk account)
+    // 4. Delete the user from Clerk (if they have a Clerk account)
     if (profileRow?.clerk_user_id) {
       const clerkRes = await fetch(
         `https://api.clerk.com/v1/users/${profileRow.clerk_user_id}`,
@@ -235,6 +225,16 @@ const supabaseService = {
           throw new Error(`Failed to delete Clerk user: ${errBody?.errors?.[0]?.message || clerkRes.status}`);
         }
       }
+    }
+
+    // 5. Delete the profile row from Supabase
+    const { error: profileDeleteError } = await supabaseAdmin
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+      
+    if (profileDeleteError) {
+      throw new Error(`Failed to delete profile: ${profileDeleteError.message}`);
     }
   },
 
