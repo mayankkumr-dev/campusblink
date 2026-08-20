@@ -517,6 +517,8 @@ export const RegisterPage: React.FC = () => {
             id="register-password"
           />
 
+          <div id="clerk-captcha"></div>
+
           <AuthSubmitButton
             loading={isLoading}
             disabled={usernameStatus.state !== 'available'}

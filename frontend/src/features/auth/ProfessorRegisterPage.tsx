@@ -309,6 +309,8 @@ export const ProfessorRegisterPage: React.FC<ProfessorRegisterPageProps> = ({
           id="professor-register-password"
         />
 
+        <div id="clerk-captcha"></div>
+
         <AuthSubmitButton loading={isLoading} text="Create Professor Account" />
       </form>
 
