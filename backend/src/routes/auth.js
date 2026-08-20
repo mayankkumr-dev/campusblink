@@ -110,4 +110,35 @@ router.get('/verify-email', async (req, res) => {
   }
 });
 
+// Heal ghost account
+router.post('/heal-ghost', authMiddleware, async (req, res) => {
+  try {
+    const clerkUserId = req.user.id;
+    // Confirm profile doesn't exist (ghost account check)
+    const { data: profile } = await supabaseAdmin.from('profiles').select('id').eq('clerk_user_id', clerkUserId).maybeSingle();
+    
+    if (!profile) {
+      // Proceed to delete the Clerk account
+      const clerkRes = await fetch(`https://api.clerk.com/v1/users/${clerkUserId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`
+        }
+      });
+      
+      if (!clerkRes.ok) {
+        console.error('Failed to delete clerk ghost account:', await clerkRes.text());
+        return res.status(500).json({ error: 'Failed to delete ghost account from Clerk' });
+      }
+      
+      return res.json({ message: 'Ghost account deleted successfully' });
+    }
+    
+    return res.status(400).json({ error: 'Not a ghost account, profile exists' });
+  } catch (error) {
+    console.error('Error healing ghost account:', error);
+    res.status(500).json({ error: 'Failed to heal ghost account' });
+  }
+});
+
 module.exports = router;

@@ -122,10 +122,21 @@ export const RegisterPage: React.FC = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      toast('You are already signed in. Please log out first to create a new account.', { icon: '👋' });
-      navigate('/', { replace: true });
+      toast('Signing you out of your previous session...', { icon: '🧹' });
+      // Clear all stuck state
+      localStorage.clear();
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      if (typeof window !== 'undefined' && (window as any).Clerk) {
+        (window as any).Clerk.signOut().then(() => {
+          window.location.reload();
+        }).catch(() => {
+          window.location.reload();
+        });
+      }
     }
-  }, [isSignedIn, navigate]);
+  }, [isSignedIn]);
 
   const [registerStep, setRegisterStep] = useState<1 | 2 | 3>(1);
   const [isProfessor, setIsProfessor] = useState(false);
@@ -267,6 +278,18 @@ export const RegisterPage: React.FC = () => {
       if (code === 'form_identifier_exists') {
         setAuthStatus({ type: 'error', title: 'Email already registered', message: 'This email already has an account. Try signing in instead.' });
         toast.error('Email already registered — try signing in.');
+      } else if (msg.toLowerCase().includes('already signing in') || msg.toLowerCase().includes('sign in attempt in progress') || code === 'session_exists') {
+        // Clerk throws this if there is a stale sign in attempt in the browser.
+        // Aggressively clear local state to un-stick the user
+        localStorage.clear();
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        if (typeof window !== 'undefined' && (window as any).Clerk) {
+          try { await (window as any).Clerk.signOut(); } catch (e) {}
+        }
+        toast.error('Cleared a stuck session. Reloading...');
+        setTimeout(() => window.location.reload(), 1500);
       } else {
         setAuthStatus({ type: 'error', title: 'Registration failed', message: msg });
         toast.error(msg);

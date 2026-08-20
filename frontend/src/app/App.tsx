@@ -67,10 +67,26 @@ async function syncClerkUserToStore(
       
       if (isOlderThanTwoMinutes && typeof window !== 'undefined' && (window as any).Clerk) {
         console.warn('Ghost session detected (account > 2 mins old with no DB profile). Forcing sign out.');
+        try {
+          await clerkUser.delete();
+          console.log('Ghost Clerk account deleted successfully (frontend).');
+        } catch (e) {
+          console.warn('Frontend delete failed, attempting backend heal-ghost:', e);
+          try {
+            const token = await clerkSession.getToken({ template: 'supabase' }) || await clerkSession.getToken();
+            await fetch('/api/auth/heal-ghost', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            console.log('Ghost Clerk account deleted successfully (backend).');
+          } catch (err) {
+            console.error('Backend heal-ghost failed:', err);
+          }
+        }
         await (window as any).Clerk.signOut();
         setClerkToken(null);
         setAuth(null, null);
-        toast.error('Your account session is invalid. You have been signed out.');
+        toast.error('Your account was previously deleted. Please sign up again to restore access.', { duration: 5000 });
         return;
       }
     }
