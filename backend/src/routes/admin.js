@@ -27,6 +27,30 @@ router.get('/stats', authMiddleware, adminOnlyMiddleware, async (req, res) => {
 
 
 // Create Canteen Owner Account + Canteen Shop
+async function createClerkUser({ email, password, name, username, role, college }) {
+  const res = await fetch('https://api.clerk.com/v1/users', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email_address: [email],
+      password: password,
+      first_name: name || '',
+      username: username,
+      skip_password_checks: true,
+      skip_password_requirement: true,
+      public_metadata: { role, college }
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.errors?.[0]?.message || 'Failed to create Clerk user');
+  }
+  return data;
+}
+
 router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
     const { email, password, name, username, college, shop_name } = req.body;
@@ -37,22 +61,28 @@ router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (
     const { data: existingEmail } = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
     if (existingEmail) return res.status(400).json({ error: 'Email is already registered' });
 
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    let clerkUser;
+    try {
+      clerkUser = await createClerkUser({ email, password, name, username, role: 'canteen_owner', college });
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    const { data: newProfile, error: profileError } = await supabaseAdmin.from('profiles').insert([{
+      clerk_user_id: clerkUser.id,
       email,
-      password,
-      email_confirm: true,
-      user_metadata: { role: 'canteen_owner', name, username, college }
-    });
-
-    if (authError) return res.status(400).json({ error: authError.message });
-
-    const userId = authData.user.id;
-    await supabaseAdmin.from('profiles').update({
-      role: 'canteen_owner',
       name,
       username,
-      college
-    }).eq('id', userId);
+      college,
+      role: 'canteen_owner'
+    }]).select('id').single();
+
+    if (profileError) {
+      await fetch(`https://api.clerk.com/v1/users/${clerkUser.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` } });
+      return res.status(400).json({ error: profileError.message });
+    }
+
+    const userId = newProfile.id;
 
     const { data: shop, error: shopError } = await supabaseAdmin.from('canteen_shops').insert([{
       owner_id: userId,
@@ -62,11 +92,12 @@ router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (
     }]).select().single();
 
     if (shopError) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await fetch(`https://api.clerk.com/v1/users/${clerkUser.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` } });
+      await supabaseAdmin.from('profiles').delete().eq('id', userId);
       return res.status(400).json({ error: `Failed to create canteen shop: ${shopError.message}` });
     }
 
-    res.json({ message: 'Canteen owner and shop created successfully', user: authData.user, shop });
+    res.json({ message: 'Canteen owner and shop created successfully', user: { id: userId }, shop });
   } catch (error) {
     console.error('Error creating canteen owner:', error);
     res.status(500).json({ error: error.message || 'Failed to create canteen owner' });
@@ -84,22 +115,28 @@ router.post('/users/print-owner', authMiddleware, adminOnlyMiddleware, async (re
     const { data: existingEmail } = await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle();
     if (existingEmail) return res.status(400).json({ error: 'Email is already registered' });
 
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    let clerkUser;
+    try {
+      clerkUser = await createClerkUser({ email, password, name, username, role: 'print_shop', college });
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    const { data: newProfile, error: profileError } = await supabaseAdmin.from('profiles').insert([{
+      clerk_user_id: clerkUser.id,
       email,
-      password,
-      email_confirm: true,
-      user_metadata: { role: 'print_shop', name, username, college }
-    });
-
-    if (authError) return res.status(400).json({ error: authError.message });
-
-    const userId = authData.user.id;
-    await supabaseAdmin.from('profiles').update({
-      role: 'print_shop',
       name,
       username,
-      college
-    }).eq('id', userId);
+      college,
+      role: 'print_shop'
+    }]).select('id').single();
+
+    if (profileError) {
+      await fetch(`https://api.clerk.com/v1/users/${clerkUser.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` } });
+      return res.status(400).json({ error: profileError.message });
+    }
+
+    const userId = newProfile.id;
 
     const { data: shop, error: shopError } = await supabaseAdmin.from('print_shops').insert([{
       owner_id: userId,
@@ -112,11 +149,12 @@ router.post('/users/print-owner', authMiddleware, adminOnlyMiddleware, async (re
     }]).select().single();
 
     if (shopError) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
+      await fetch(`https://api.clerk.com/v1/users/${clerkUser.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` } });
+      await supabaseAdmin.from('profiles').delete().eq('id', userId);
       return res.status(400).json({ error: `Failed to create print shop: ${shopError.message}` });
     }
 
-    res.json({ message: 'Print owner and shop created successfully', user: authData.user, shop });
+    res.json({ message: 'Print owner and shop created successfully', user: { id: userId }, shop });
   } catch (error) {
     console.error('Error creating print owner:', error);
     res.status(500).json({ error: error.message || 'Failed to create print owner' });
