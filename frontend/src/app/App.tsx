@@ -22,6 +22,7 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // ---------------------------------------------------------------------------
 async function syncClerkUserToStore(
   clerkUser: ReturnType<typeof useUser>['user'],
+  clerkSession: any,
   setAuth: (u: any, p: any) => void,
   setIsLoading: (v: boolean) => void
 ) {
@@ -30,6 +31,21 @@ async function syncClerkUserToStore(
       setClerkToken(null);
       setAuth(null, null);
       return;
+    }
+
+    // Await token before fetching profile to bypass RLS errors
+    if (clerkSession) {
+      try {
+        const token = await clerkSession.getToken({ template: 'supabase' });
+        setClerkToken(token);
+      } catch {
+        try {
+          const token = await clerkSession.getToken();
+          setClerkToken(token);
+        } catch {
+          setClerkToken(null);
+        }
+      }
     }
 
     const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress || '';
@@ -139,8 +155,8 @@ function App() {
   // ── Clerk user → authStore sync ──────────────────────────────────────────
   useEffect(() => {
     if (!isUserLoaded) return;
-    syncClerkUserToStore(clerkUser, setAuth, setIsLoading);
-  }, [clerkUser, isUserLoaded, setAuth, setIsLoading]);
+    syncClerkUserToStore(clerkUser, clerkSession, setAuth, setIsLoading);
+  }, [clerkUser, clerkSession, isUserLoaded, setAuth, setIsLoading]);
 
   // ── FCM foreground message handler ───────────────────────────────────────
   useEffect(() => {
