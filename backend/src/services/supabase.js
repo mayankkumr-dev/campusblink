@@ -111,13 +111,108 @@ const supabaseService = {
       .eq('id', userId)
       .maybeSingle();
 
-    // 3. Delete the profile row from Supabase
-    await supabaseAdmin
+    // 3. Manually cascade delete all related data to satisfy foreign keys
+    
+    // Posts and their relations
+    const { data: userPosts } = await supabaseAdmin.from('posts').select('id').eq('author_id', userId);
+    if (userPosts && userPosts.length > 0) {
+      const postIds = userPosts.map(p => p.id);
+      await supabaseAdmin.from('comments').delete().in('post_id', postIds);
+      await supabaseAdmin.from('post_likes').delete().in('post_id', postIds);
+      await supabaseAdmin.from('bookmarks').delete().in('post_id', postIds);
+      await supabaseAdmin.from('official_notices').delete().in('post_id', postIds);
+      await supabaseAdmin.from('posts').delete().eq('author_id', userId);
+    }
+
+    // Comments and their relations
+    const { data: userComments } = await supabaseAdmin.from('comments').select('id').eq('author_id', userId);
+    if (userComments && userComments.length > 0) {
+      const commentIds = userComments.map(c => c.id);
+      await supabaseAdmin.from('comment_likes').delete().in('comment_id', commentIds);
+      await supabaseAdmin.from('comments').delete().eq('author_id', userId);
+    }
+
+    // Diaries and their relations
+    const { data: userDiaries } = await supabaseAdmin.from('diaries').select('id').eq('author_id', userId);
+    if (userDiaries && userDiaries.length > 0) {
+      const diaryIds = userDiaries.map(d => d.id);
+      await supabaseAdmin.from('diary_entries').delete().in('diary_id', diaryIds);
+      await supabaseAdmin.from('diary_bookmarks').delete().in('diary_id', diaryIds);
+      await supabaseAdmin.from('diaries').delete().eq('author_id', userId);
+    }
+    
+    // Remaining diary entries (if any)
+    await supabaseAdmin.from('diary_entries').delete().eq('author_id', userId);
+
+    // Listings and their relations
+    const { data: userListings } = await supabaseAdmin.from('listings').select('id').eq('seller_id', userId);
+    if (userListings && userListings.length > 0) {
+      const listingIds = userListings.map(l => l.id);
+      await supabaseAdmin.from('listing_messages').delete().in('listing_id', listingIds);
+      await supabaseAdmin.from('wishlists').delete().in('listing_id', listingIds);
+      await supabaseAdmin.from('listings').delete().eq('seller_id', userId);
+    }
+
+    // Conversations and DMs
+    const { data: userConversations } = await supabaseAdmin.from('conversations').select('id').or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+    if (userConversations && userConversations.length > 0) {
+      const convIds = userConversations.map(c => c.id);
+      await supabaseAdmin.from('direct_messages').delete().in('conversation_id', convIds);
+      await supabaseAdmin.from('conversations').delete().or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+    }
+    
+    // Stray DMs (e.g. from listing messages if they use sender_id)
+    await supabaseAdmin.from('direct_messages').delete().eq('sender_id', userId);
+    await supabaseAdmin.from('direct_messages').delete().eq('receiver_id', userId);
+    await supabaseAdmin.from('listing_messages').delete().eq('sender_id', userId);
+
+    // Delete standalone direct dependencies
+    const dependencies = [
+      { table: 'post_likes', col: 'user_id' },
+      { table: 'comment_likes', col: 'user_id' },
+      { table: 'notifications', col: 'user_id' },
+      { table: 'notifications', col: 'actor_id' },
+      { table: 'notification_preferences', col: 'user_id' },
+      { table: 'follows', col: 'follower_id' },
+      { table: 'follows', col: 'following_id' },
+      { table: 'bookmarks', col: 'user_id' },
+      { table: 'wishlists', col: 'user_id' },
+      { table: 'canteen_orders', col: 'user_id' },
+      { table: 'print_orders', col: 'user_id' },
+      { table: 'community_reports', col: 'reporter_id' },
+      { table: 'community_reports', col: 'reported_user_id' },
+      { table: 'marketplace_reports', col: 'reporter_id' },
+      { table: 'marketplace_reports', col: 'reported_user_id' },
+      { table: 'reports', col: 'reporter_id' },
+      { table: 'reports', col: 'reported_user_id' },
+      { table: 'diary_bookmarks', col: 'user_id' },
+      { table: 'profile_social_links', col: 'profile_id' },
+      { table: 'push_subscriptions', col: 'user_id' },
+      { table: 'user_restrictions', col: 'user_id' },
+      { table: 'professor_requests', col: 'user_id' },
+      { table: 'professor_pending_payments', col: 'user_id' },
+      { table: 'admin_audit_log', col: 'admin_id' },
+      { table: 'admin_email_log', col: 'admin_id' },
+      { table: 'app_feedback', col: 'user_id' },
+      { table: 'feedback', col: 'user_id' },
+      { table: 'contact_issues', col: 'user_id' }
+    ];
+
+    for (const { table, col } of dependencies) {
+      await supabaseAdmin.from(table).delete().eq(col, userId).catch(() => {});
+    }
+
+    // 4. Delete the profile row from Supabase
+    const { error: profileDeleteError } = await supabaseAdmin
       .from('profiles')
       .delete()
       .eq('id', userId);
+      
+    if (profileDeleteError) {
+      throw new Error(`Failed to delete profile: ${profileDeleteError.message}`);
+    }
 
-    // 4. Delete the user from Clerk (if they have a Clerk account)
+    // 5. Delete the user from Clerk (if they have a Clerk account)
     if (profileRow?.clerk_user_id) {
       const clerkRes = await fetch(
         `https://api.clerk.com/v1/users/${profileRow.clerk_user_id}`,
