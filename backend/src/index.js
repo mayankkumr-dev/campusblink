@@ -29,6 +29,7 @@ const adminNotesRoutes = require('./routes/adminNotes');
 
 const diaryRoutes = require('./routes/diary');
 const studentRoutes = require('./routes/student');
+const webhookRoutes = require('./routes/webhooks');
 const http = require('http');
 const { initSocket } = require('./config/socket');
 
@@ -78,6 +79,11 @@ app.use(morgan('combined'));
 // Compression
 app.use(compression());
 
+
+// ── Clerk Webhooks (raw body MUST be parsed before express.json) ────────────
+// svix signature verification requires the raw Buffer, not the parsed JSON.
+// Mount this route first so the raw body middleware in webhooks.js takes effect.
+app.use('/api/webhooks', webhookRoutes);
 
 // Cookie parsing (required for secure HttpOnly JWT cookies)
 app.use(cookieParser());

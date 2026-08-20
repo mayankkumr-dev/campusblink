@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
         let { data: profile } = await supabase
           .from('profiles')
           .select('role, professor_status, status, ban_reason')
-          .eq('clerk_user_id', result.createdUserId)
+          .eq('clerk_user_id', (result as any).createdUserId)
           .maybeSingle();
 
         if (!profile && identifier.includes('@')) {
@@ -151,9 +151,10 @@ export const LoginPage: React.FC = () => {
         });
       }
     } catch (err: any) {
+      console.error("LOGIN ERROR:", err);
       const clerkError = err?.errors?.[0];
       const code = clerkError?.code || '';
-      const message = clerkError?.longMessage || clerkError?.message || 'Invalid credentials';
+      const message = clerkError?.longMessage || clerkError?.message || err?.message || 'Invalid credentials';
 
       if (code === 'form_password_incorrect' || code === 'form_identifier_not_found') {
         setAuthStatus({
@@ -220,7 +221,7 @@ export const LoginPage: React.FC = () => {
         let { data: profile } = await supabase
           .from('profiles')
           .select('role, professor_status, status, ban_reason')
-          .eq('clerk_user_id', result.createdUserId)
+          .eq('clerk_user_id', (result as any).createdUserId)
           .maybeSingle();
 
         if (!profile && identifier.includes('@')) {

@@ -67,6 +67,12 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        path: 'forgot-password',
+        lazy: async () => ({
+          Component: (await import('../features/auth/ForgotPasswordPage')).ForgotPasswordPage,
+        }),
+      },
+      {
         path: 'account-restricted',
         lazy: async () => ({
           Component: (await import('../features/auth/AccountRestrictedPage')).AccountRestrictedPage,
