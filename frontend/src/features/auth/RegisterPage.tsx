@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { Input } from '../../app/components/ui/input';
 import { Button } from '../../app/components/ui/button';
 import { useSignUp, useAuth } from '@clerk/clerk-react';
-import { supabase } from '../../lib/supabase';
+import { supabase, setClerkToken } from '../../lib/supabase';
 import { formatInviteCodeInput, validateInviteCode, consumeInviteCodeOnSignup } from '../../api/invites';
 import { getFirstName } from '../../lib/user';
 import {
@@ -325,6 +325,24 @@ export const RegisterPage: React.FC = () => {
 
       // Activate Clerk session
       await setActive({ session: result.createdSessionId });
+
+      // Force fetch the Supabase JWT immediately so the profile insert is authenticated
+      if (typeof window !== 'undefined' && (window as any).Clerk) {
+        try {
+          const session = (window as any).Clerk.client?.sessions?.find((s: any) => s.id === result.createdSessionId) || (window as any).Clerk.session;
+          if (session) {
+            try {
+              const token = await session.getToken({ template: 'supabase' });
+              if (token) setClerkToken(token);
+            } catch (tmplErr) {
+              const token = await session.getToken();
+              if (token) setClerkToken(token);
+            }
+          }
+        } catch (e) {
+          console.warn('Could not fetch Clerk token immediately:', e);
+        }
+      }
 
       const clerkUserId = result.createdUserId;
       const fullName    = name.trim();

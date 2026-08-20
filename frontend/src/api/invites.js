@@ -286,7 +286,7 @@ export async function consumeInviteCodeOnSignup({ code, newUserId, newUserName }
       return { data: null, error: 'Invite code has expired.' };
     }
 
-    const { error: markUsedError } = await anonSupabase
+    const { error: markUsedError } = await supabase
       .from('invite_codes')
       .update({
         is_used: true,
