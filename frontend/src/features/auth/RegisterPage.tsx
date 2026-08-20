@@ -390,6 +390,9 @@ export const RegisterPage: React.FC = () => {
       />
 
       <AuthStatusBanner status={authStatus} />
+      
+      {/* Required for Clerk Bot Protection in custom flows */}
+      <div id="clerk-captcha"></div>
 
       {/* ── Step 1: Invite code ── */}
       {registerStep === 1 ? (
@@ -524,8 +527,6 @@ export const RegisterPage: React.FC = () => {
             placeholder="Create a strong password"
             id="register-password"
           />
-
-          <div id="clerk-captcha"></div>
 
           <AuthSubmitButton
             loading={isLoading}

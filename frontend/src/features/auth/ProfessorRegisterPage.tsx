@@ -251,6 +251,8 @@ export const ProfessorRegisterPage: React.FC<ProfessorRegisterPageProps> = ({
 
       <AuthStatusBanner status={authStatus} />
 
+      <div id="clerk-captcha"></div>
+
       <form onSubmit={handleRegister} className="space-y-4 lg:space-y-3.5">
         <div>
           <span className="text-sm font-medium ml-1">Full Name</span>
@@ -308,8 +310,6 @@ export const ProfessorRegisterPage: React.FC<ProfessorRegisterPageProps> = ({
           placeholder="Create a strong password"
           id="professor-register-password"
         />
-
-        <div id="clerk-captcha"></div>
 
         <AuthSubmitButton loading={isLoading} text="Create Professor Account" />
       </form>
