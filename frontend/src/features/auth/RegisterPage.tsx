@@ -261,6 +261,7 @@ export const RegisterPage: React.FC = () => {
         password,
         firstName,
         lastName,
+        username: normalizedUsername,
         unsafeMetadata: {
           username: normalizedUsername,
           college,
@@ -315,7 +316,9 @@ export const RegisterPage: React.FC = () => {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status !== 'complete') {
-        setVerifyError('Verification incomplete. Please try again.');
+        console.log('Verification result status was not complete:', result);
+        const missing = result.unverifiedFields?.join(', ') || result.missingFields?.join(', ') || '';
+        setVerifyError(`Verification incomplete. Missing: ${missing}. Please try again.`);
         setVerifying(false);
         return;
       }
