@@ -242,8 +242,8 @@ export const RegisterPage: React.FC = () => {
     }
 
     const pwd = password || '';
-    if (pwd.length < 8 || !/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd) || !/[0-9]/.test(pwd) || !/[!?@#$%^&*_\-]/.test(pwd)) {
-      toast.error('Password must be at least 8 chars with 1 uppercase, 1 lowercase, 1 number, and 1 special character.');
+    if (pwd.length < 8) {
+      toast.error('Password must be at least 8 characters long.');
       setIsLoading(false);
       return;
     }
@@ -284,8 +284,16 @@ export const RegisterPage: React.FC = () => {
       if (code === 'form_identifier_exists') {
         setAuthStatus({ type: 'error', title: 'Email already registered', message: 'This email already has an account. Try signing in instead.' });
         toast.error('Email already registered — try signing in.');
-      } else if (msg.toLowerCase().includes('already signing in') || msg.toLowerCase().includes('sign in attempt in progress') || code === 'session_exists') {
-        // Clerk throws this if there is a stale sign in attempt in the browser.
+      } else if (
+        code === 'session_exists' || 
+        code === 'identifier_already_signed_in' ||
+        msg.toLowerCase().includes('already signing in') || 
+        msg.toLowerCase().includes('already signed in') || 
+        msg.toLowerCase().includes('sign in attempt in progress') ||
+        msg.toLowerCase().includes('active session')
+      ) {
+        // Clerk throws this if there is a stale sign in attempt in the browser,
+        // or if the account was deleted remotely but the browser still has a session cookie.
         // Aggressively clear local state to un-stick the user
         localStorage.clear();
         document.cookie.split(";").forEach((c) => {

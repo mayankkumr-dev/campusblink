@@ -14,7 +14,6 @@ import {
   PasswordFormField,
   AuthSubmitButton,
   AuthSwitchLink,
-  ForgotPasswordModal,
   ProfessorPendingScreen,
 } from './AuthFormShared';
 
@@ -52,11 +51,6 @@ export const LoginPage: React.FC = () => {
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
 
-  // Forgot Password Modal
-  const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotEmailInput, setForgotEmailInput] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotSuccessEmail, setForgotSuccessEmail] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,10 +192,8 @@ export const LoginPage: React.FC = () => {
           message: 'Your password was found in an online data breach. For account safety, please reset your password.',
         });
         toast.error('Password breached. Please reset your password.');
-        // Automatically open the forgot password modal
-        setForgotEmailInput(email);
-        setForgotSuccessEmail(null);
-        setShowForgotModal(true);
+        // Automatically navigate to forgot password page
+        navigate('/forgot-password');
       } else if (code === 'session_exists') {
         // User is already signed in on this device. Just gently route them in.
         navigate('/student/home', { replace: true });
@@ -304,38 +296,7 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    setForgotEmailInput(email);
-    setForgotSuccessEmail(null);
-    setShowForgotModal(true);
-  };
-
-  const handleForgotSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isLoaded || !signIn) return;
-
-    const inputVal = forgotEmailInput.trim();
-    if (!inputVal) {
-      toast.error('Please enter your registered email.');
-      return;
-    }
-
-    setForgotLoading(true);
-    // Clerk natively supports identifier (email or username) for password reset
-    let targetEmail = inputVal;
-
-    try {
-      await signIn.create({
-        strategy: 'reset_password_email_code',
-        identifier: targetEmail,
-      });
-      setForgotSuccessEmail(targetEmail);
-      toast.success('Password reset email sent!');
-    } catch (err: any) {
-      const msg = err?.errors?.[0]?.longMessage || 'Failed to send reset email.';
-      toast.error(msg);
-    } finally {
-      setForgotLoading(false);
-    }
+    navigate('/forgot-password');
   };
 
   if (showProfessorPendingScreen) {
@@ -430,15 +391,6 @@ export const LoginPage: React.FC = () => {
         to="/register"
       />
 
-      <ForgotPasswordModal
-        show={showForgotModal}
-        onClose={() => setShowForgotModal(false)}
-        emailInput={forgotEmailInput}
-        onEmailInputChange={setForgotEmailInput}
-        onSubmit={handleForgotSubmit}
-        loading={forgotLoading}
-        successEmail={forgotSuccessEmail}
-      />
 
     </AuthScreenShell>
   );

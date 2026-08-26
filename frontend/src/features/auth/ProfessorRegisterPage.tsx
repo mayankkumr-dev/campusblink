@@ -141,22 +141,13 @@ export const ProfessorRegisterPage: React.FC<ProfessorRegisterPageProps> = ({
     }
 
     const pwd = password || '';
-    if (
-      pwd.length < 8 ||
-      !/[A-Z]/.test(pwd) ||
-      !/[a-z]/.test(pwd) ||
-      !/[0-9]/.test(pwd) ||
-      !/[!?@#$%^&*_\-]/.test(pwd)
-    ) {
+    if (pwd.length < 8) {
       setAuthStatus({
         type: 'error',
         title: 'Weak password',
-        message:
-          'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.',
+        message: 'Password must be at least 8 characters long.',
       });
-      toast.error(
-        'Password must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
-      );
+      toast.error('Password must be at least 8 characters long.');
       setIsLoading(false);
       return;
     }
