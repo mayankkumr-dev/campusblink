@@ -246,16 +246,7 @@ export const UserProfilePage: React.FC = () => {
                 {targetProfile.cover_url ? (
                   <img loading="lazy" src={targetProfile.cover_url} alt="Profile banner" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 relative overflow-hidden flex items-center justify-center">
-                    <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
-                    <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-                    <div className="absolute -left-10 -top-10 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
-                    <div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
-                      <span className="font-syne font-extrabold text-xl sm:text-2xl tracking-widest uppercase text-white/20 select-none">
-                        Campus Blink Journal
-                      </span>
-                    </div>
-                  </div>
+                  <img loading="lazy" src={DEFAULT_BANNER_IMAGE_URL} alt="Profile banner" className="h-full w-full object-cover" />
                 )}
                 <button
                   type="button"
