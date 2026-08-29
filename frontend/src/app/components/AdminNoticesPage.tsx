@@ -511,7 +511,6 @@ export const AdminNoticesPage: React.FC = () => {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Write the full content of the notice here..."
-                      required
                       rows={7}
                       className="w-full rounded-xl border border-border-subtle bg-surface-elevated px-4 py-3 text-sm font-medium text-text-primary outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-text-placeholder resize-none leading-relaxed"
                     />

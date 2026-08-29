@@ -316,7 +316,6 @@ export const NoticeAdminPage: React.FC = () => {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Mid-term Examination Schedule"
-                      required
                       className="w-full h-11 rounded-xl border border-border-subtle bg-surface px-4 text-sm font-semibold text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400"
                     />
                   </div>
@@ -330,7 +329,6 @@ export const NoticeAdminPage: React.FC = () => {
                       value={content}
                       onChange={(e) => setContent(e.target.value)}
                       placeholder="Write the full content of the notice here..."
-                      required
                       rows={7}
                       className="w-full rounded-xl border border-border-subtle bg-surface px-4 py-3 text-sm font-medium text-text-primary outline-none focus:bg-surface focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10 transition-all placeholder:text-slate-400 resize-none leading-relaxed"
                     />
