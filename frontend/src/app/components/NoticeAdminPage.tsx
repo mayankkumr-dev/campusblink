@@ -164,8 +164,8 @@ export const NoticeAdminPage: React.FC = () => {
   // ── Submit new notice ────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      toast.error('Title and content are required.');
+    if (!title.trim() && !content.trim() && files.length === 0) {
+      toast.error('You must provide a title, content, or an attachment.');
       return;
     }
     if (!profile?.id || !profile?.college) {

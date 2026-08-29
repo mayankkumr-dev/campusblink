@@ -179,7 +179,7 @@ const notificationService = {
     // DB notification rows are not created per-user here to avoid O(N) inserts for campus-wide notices.
     await sendPushBatch(targetUserIds, {
       type: 'announcement',
-      title: `${safeTitle} 📢`,
+      title: safeTitle,
       body,
       url,
       tag: `notice-${noticeId || Date.now()}`,

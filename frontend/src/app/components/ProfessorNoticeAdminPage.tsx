@@ -132,7 +132,10 @@ export const ProfessorNoticeAdminPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return toast.error('Title and content are required.');
+    if (!title.trim() && !content.trim() && files.length === 0) {
+      toast.error('You must provide a title, content, or an attachment.');
+      return;
+    }
     setIsSubmitting(true);
     setFileProgress({});
 
@@ -233,11 +236,11 @@ export const ProfessorNoticeAdminPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-1.5">Notice Title</label>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full h-11 rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 text-sm font-semibold text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary" placeholder="e.g. Mid-term Schedule" />
+                <input value={title} onChange={(e) => setTitle(e.target.value)} className="w-full h-11 rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 text-sm font-semibold text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary" placeholder="e.g. Mid-term Schedule" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-1.5">Notice Content</label>
-                <textarea value={content} onChange={(e) => setContent(e.target.value)} required rows={6} className="w-full rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 py-3 text-sm font-medium text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary resize-none" placeholder="Write the full content..." />
+                <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={6} className="w-full rounded-xl border border-gray-200 dark:border-prof-border-strong bg-white dark:bg-prof-bg-surface px-4 py-3 text-sm font-medium text-gray-900 dark:text-prof-text-primary outline-none focus:border-blue-400 dark:focus:border-prof-accent-blue focus:ring-4 focus:ring-blue-50 dark:focus:ring-prof-accent-blue/20 transition-all placeholder:text-gray-300 dark:placeholder:text-prof-text-tertiary resize-none" placeholder="Write the full content..." />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 dark:text-prof-text-tertiary uppercase tracking-wider mb-2">Target Audience</label>

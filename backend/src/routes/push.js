@@ -248,8 +248,8 @@ router.put('/preferences', authMiddleware, async (req, res) => {
 router.post('/broadcast-notice', authMiddleware, async (req, res) => {
   try {
     const { noticeId, title, college, targetYear } = req.body;
-    if (!noticeId || !title) {
-      return res.status(400).json({ error: 'noticeId and title are required' });
+    if (!noticeId) {
+      return res.status(400).json({ error: 'noticeId is required' });
     }
 
     // Fetch the notice content to include in the push notification body

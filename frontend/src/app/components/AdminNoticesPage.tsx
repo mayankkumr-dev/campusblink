@@ -294,7 +294,10 @@ export const AdminNoticesPage: React.FC = () => {
   // ── Form Submit ─────────────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim() && !content.trim() && files.length === 0) {
+      toast.error('You must provide a title, content, or an attachment.');
+      return;
+    }
 
     setIsSubmitting(true);
 
