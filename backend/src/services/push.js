@@ -168,15 +168,23 @@ async function sendMulticast(tokens, payload) {
       },
     },
     // Android PWA (Chrome on Android) uses the webpush config above.
-    // The android block below sets delivery priority to wake the device
-    // but does NOT override the notification UI — that comes from webpush.
+    // ttl MUST be a string with 's' suffix — Firebase Admin SDK v11+ rejects bare numbers.
     android: {
       priority: 'high',
-      ttl: 86400, // 24 hours in seconds
+      ttl: '86400s', // 24 hours — must be a Duration string, not a bare number
     },
+    // iOS APNs — requires 'alert' object with title+body, otherwise treated as
+    // a silent/data push and never shown to the user.
     apns: {
+      headers: {
+        'apns-priority': '10', // 10 = immediate delivery (vs 5 = conserve power)
+      },
       payload: {
         aps: {
+          alert: {
+            title: title || 'Campus Blink',
+            body: body || 'You have a new update.',
+          },
           badge: 1,
           sound: 'default',
         },

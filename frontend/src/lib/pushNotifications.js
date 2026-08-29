@@ -40,9 +40,10 @@ async function authHeaders() {
 
 export async function isPushSupported() {
   return (
+    typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
     'Notification' in window &&
-    typeof window !== 'undefined'
+    Boolean(window.isSecureContext)
   );
 }
 

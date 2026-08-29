@@ -258,6 +258,8 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+  // NOTIFICATION_NAVIGATE is handled by the React app (App.tsx),
+  // which listens for this message via navigator.serviceWorker.onmessage.
 });
 
 function toAbsoluteUrl(candidate) {
@@ -277,11 +279,15 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clientList) => {
+      // 1. Exact URL match already open — just focus it
       const exactMatch = clientList.find((client) => client.url === targetUrl);
       if (exactMatch && 'focus' in exactMatch) {
         return exactMatch.focus();
       }
 
+      // 2. Any same-origin window — focus it, then signal the React app to
+      // navigate. We avoid WindowClient.navigate() because it is unreliable
+      // on iOS Safari (throws or is a no-op depending on Safari version).
       const sameOriginClient = clientList.find((client) => {
         try {
           return new URL(client.url).origin === self.location.origin;
@@ -290,14 +296,17 @@ self.addEventListener('notificationclick', (event) => {
         }
       });
 
-      if (sameOriginClient) {
+      if (sameOriginClient && 'focus' in sameOriginClient) {
         await sameOriginClient.focus();
-        if ('navigate' in sameOriginClient) {
-          return sameOriginClient.navigate(targetUrl);
-        }
-        return undefined;
+        // Post to React so it can do client-side routing (works on iOS/Android)
+        sameOriginClient.postMessage({
+          type: 'NOTIFICATION_NAVIGATE',
+          url: targetUrl,
+        });
+        return;
       }
 
+      // 3. No open window — open a brand-new one
       return clients.openWindow(targetUrl);
     })
   );

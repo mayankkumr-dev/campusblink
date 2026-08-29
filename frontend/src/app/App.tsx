@@ -240,6 +240,31 @@ function App() {
     };
   }, []);
 
+  // ── Service Worker → React navigation bridge ─────────────────────────────
+  // When the user taps a push notification while the app window is already
+  // open, firebase-messaging-sw.js posts NOTIFICATION_NAVIGATE instead of
+  // calling WindowClient.navigate() (which is unreliable on iOS Safari).
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+
+    const onSWMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'NOTIFICATION_NAVIGATE' && event.data?.url) {
+        try {
+          const targetUrl = new URL(event.data.url);
+          // Only navigate for same-origin URLs
+          if (targetUrl.origin === window.location.origin) {
+            router.navigate(targetUrl.pathname + targetUrl.search + targetUrl.hash);
+          }
+        } catch {
+          // Invalid URL — ignore
+        }
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', onSWMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', onSWMessage);
+  }, []);
+
   useEffect(() => {
     const handleContextMenu = (event: MouseEvent) => {
       event.preventDefault();
