@@ -356,28 +356,86 @@ const NoticeSkeleton: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
 // ─── Main Notices Page ────────────────────────────────────────────────────────
 
 export const NoticesPage: React.FC = () => {
-  const profile = useAuthStore((state) => state.profile);
+  const { profile } = useAuthStore();
   const [notices, setNotices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const LIMIT = 30;
+
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [initialLastSeen, setInitialLastSeen] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = Boolean(profile?.is_notice_admin) || profile?.role === 'admin';
 
-  const load = useCallback(async (refresh = false) => {
-    if (refresh) setIsRefreshing(true);
-    else setIsLoading(true);
-    const { data } = await getNoticesForStudent({
-      college: profile?.college,
-      studyYear: profile?.study_year || profile?.academic_year,
-    });
-    setNotices(data);
-    if (refresh) setIsRefreshing(false);
-    else setIsLoading(false);
-  }, [profile?.college, profile?.study_year, profile?.academic_year]);
+  const load = useCallback(
+    async (refresh = false) => {
+      if (!profile?.college) return;
+      
+      const currentOffset = refresh ? 0 : offset;
+      
+      if (refresh) {
+        setIsRefreshing(true);
+        setHasMore(true);
+      } else if (currentOffset === 0) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      const res = await getNoticesForStudent({ 
+        college: profile?.college, 
+        studyYear: profile?.study_year || profile?.academic_year,
+        limit: LIMIT,
+        offset: currentOffset
+      });
+      
+      if (res.data) {
+        if (res.data.length < LIMIT) {
+          setHasMore(false);
+        }
+        setNotices((prev) => refresh ? res.data : [...prev, ...res.data]);
+        setOffset(currentOffset + res.data.length);
+        
+        if (refresh && res.data.length > 0) {
+          markNoticesAsSeen(profile?.id);
+          setInitialLastSeen(new Date().toISOString());
+        }
+      } else if (res.error) {
+        toast.error('Failed to load notices');
+      }
+
+      setIsLoading(false);
+      setIsRefreshing(false);
+      setIsLoadingMore(false);
+    },
+    [profile?.college, profile?.study_year, profile?.academic_year, offset]
+  );
+
+  // ─── Intersection Observer for Infinite Scroll ─────────────────────────────
+  
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading && !isLoadingMore && !isSearchActive) {
+          load(false);
+        }
+      },
+      { threshold: 0.1, rootMargin: '400px' }
+    );
+    
+    observer.observe(target);
+    return () => observer.unobserve(target);
+  }, [load, hasMore, isLoading, isLoadingMore, isSearchActive]);
 
   useEffect(() => {
     setInitialLastSeen(localStorage.getItem('campus_blink_notices_last_seen'));
@@ -477,7 +535,7 @@ export const NoticesPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 pt-4 md:px-6">
+        <div className="max-w-2xl mx-auto px-4 pt-4 md:px-6 flex flex-col h-full">
           {/* Notice Admin Quick Link */}
           {isAdmin && (
             <Link
@@ -532,54 +590,15 @@ export const NoticesPage: React.FC = () => {
             </div>
           )}
 
-          {/* Pinned notices */}
-          {!isLoading && pinned.length > 0 && (
-            <div className="space-y-3 mb-4">
-              {pinned.map((notice) => {
-                const isUnread = checkIsUnread(notice.created_at);
-                const comp = (
-                  <NoticeCard
-                    key={notice.id}
-                    index={globalIndex}
-                    notice={notice}
-                    isAdmin={isAdmin}
-                    onSoftDelete={handleSoftDelete}
-                    isUnread={isUnread}
-                  />
-                );
-                globalIndex++;
-                return comp;
-              })}
-            </div>
-          )}
-
-          {/* Divider between pinned and regular */}
-          {!isLoading && pinned.length > 0 && (regular.length > 0 || filteredDeleted.length > 0) && (
-            <div
-              className="flex items-center gap-3 my-5"
-              style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
-            >
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">Recent</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-            </div>
-          )}
-
-          {/* Regular + deleted notices */}
-          {!isLoading && (regular.length > 0 || filteredDeleted.length > 0) && (
-            <div className="space-y-3">
-              {[...regular, ...filteredDeleted]
-                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                .map((notice) => {
+          {/* Chat-style WhatsApp list (Reverse DOM order) */}
+          <div className="flex flex-col-reverse pb-4">
+            
+            {/* 1. Pinned Notices (Visually at the absolute bottom of the list) */}
+            {!isLoading && pinned.length > 0 && (
+              <div className="space-y-3 mt-4">
+                {pinned.map((notice) => {
                   const isUnread = checkIsUnread(notice.created_at);
-                  const comp = notice.is_deleted ? (
-                    <div
-                      key={notice.id}
-                      style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
-                    >
-                      <DeletedNoticePlaceholder />
-                    </div>
-                  ) : (
+                  const comp = (
                     <NoticeCard
                       key={notice.id}
                       index={globalIndex}
@@ -591,10 +610,66 @@ export const NoticesPage: React.FC = () => {
                   );
                   globalIndex++;
                   return comp;
-                })
-              }
-            </div>
-          )}
+                })}
+              </div>
+            )}
+
+            {/* 2. Divider between pinned and regular */}
+            {!isLoading && pinned.length > 0 && (regular.length > 0 || filteredDeleted.length > 0) && (
+              <div
+                className="flex items-center gap-3 mt-5 mb-1"
+                style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
+              >
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">Recent</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+              </div>
+            )}
+
+            {/* 3. Regular + deleted notices */}
+            {!isLoading && (regular.length > 0 || filteredDeleted.length > 0) && (
+              <div className="space-y-3">
+                {[...regular, ...filteredDeleted]
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                  .map((notice) => {
+                    const isUnread = checkIsUnread(notice.created_at);
+                    const comp = notice.is_deleted ? (
+                      <div
+                        key={notice.id}
+                        style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
+                      >
+                        <DeletedNoticePlaceholder />
+                      </div>
+                    ) : (
+                      <NoticeCard
+                        key={notice.id}
+                        index={globalIndex}
+                        notice={notice}
+                        isAdmin={isAdmin}
+                        onSoftDelete={handleSoftDelete}
+                        isUnread={isUnread}
+                      />
+                    );
+                    globalIndex++;
+                    return comp;
+                  })
+                }
+              </div>
+            )}
+
+            {/* 4. Intersection Observer Target & Loading Spinner (Visually at the absolute top of the list) */}
+            {!isLoading && !isSearchActive && notices.length > 0 && (
+              <div ref={loadMoreRef} className="py-6 flex justify-center mt-auto">
+                {isLoadingMore ? (
+                  <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                ) : hasMore ? (
+                  <div className="h-5" /> /* Invisible spacer */
+                ) : (
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">End of history</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>
