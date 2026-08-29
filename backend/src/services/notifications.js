@@ -164,7 +164,9 @@ const notificationService = {
     if (!targetUserIds?.length) return;
 
     const safeTitle = String(noticeTitle || 'A new notice').trim();
-    const url = noticeId ? `/notices/${noticeId}` : '/notices';
+    // Route to the student notices list — the individual notice ID is not directly
+    // routable from a notification tap; the list page is the correct destination.
+    const url = '/student/notices';
     const body = `A new official notice has been posted.`;
 
     // Fan-out: send push to each user using chunked batching (500 users per batch).

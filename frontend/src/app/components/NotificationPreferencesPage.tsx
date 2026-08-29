@@ -105,10 +105,20 @@ export const NotificationPreferencesPage: React.FC = () => {
 
   const handleTestPush = async () => {
     try {
-      await sendTestPush();
-      toast.success('Test notification sent');
+      const result = await sendTestPush();
+      // The backend now returns tokenCount + device info
+      if (result?.tokenCount > 0) {
+        toast.success(`Test sent to ${result.tokenCount} device${result.tokenCount > 1 ? 's' : ''}! Background the app now to see it.`);
+      } else {
+        toast.success('Test notification sent');
+      }
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to send test notification');
+      const msg = error?.message || 'Failed to send test notification';
+      if (msg.includes('No push subscriptions')) {
+        toast.error('No device token registered. Please tap "Enable Notifications" first.');
+      } else {
+        toast.error(msg);
+      }
     }
   };
 

@@ -91,21 +91,88 @@ router.delete('/unsubscribe', authMiddleware, async (req, res) => {
 
 // ── POST /api/push/test ───────────────────────────────────────────────────────
 // Sends a test FCM notification to the authenticated user's registered devices.
+// Returns diagnostic info: token count found, whether send was attempted.
 router.post('/test', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
+
+    // Check how many tokens are registered for this user
+    const { data: subscriptions, error: subError } = await supabaseAdmin
+      .from('push_subscriptions')
+      .select('fcm_token, device_name, token_updated_at')
+      .eq('user_id', userId)
+      .not('fcm_token', 'is', null);
+
+    if (subError) {
+      console.error('[push/test] Supabase query error:', subError);
+      return res.status(500).json({ error: 'Failed to query push subscriptions', detail: subError.message });
+    }
+
+    const tokenCount = subscriptions?.length || 0;
+
+    if (tokenCount === 0) {
+      return res.status(404).json({
+        error: 'No push subscriptions found for this user. Please enable notifications first.',
+        tokenCount: 0,
+        userId,
+      });
+    }
+
     await sendPushToUser(userId, {
       type: 'announcement',
-      title: 'Test notification 🔔',
-      body: 'Push notifications are working correctly!',
-      url: '/',
+      title: '🔔 Test Notification',
+      body: 'Push notifications are working! Tap to open notices.',
+      url: '/student/notices',
       important: false,
     });
 
-    res.json({ message: 'Test push queued' });
+    res.json({
+      message: 'Test push sent',
+      tokenCount,
+      userId,
+      devices: subscriptions.map((s) => ({
+        deviceName: s.device_name,
+        tokenPrefix: s.fcm_token?.slice(0, 20) + '…',
+        lastUpdated: s.token_updated_at,
+      })),
+    });
   } catch (error) {
     console.error('Error sending test push:', error);
     res.status(500).json({ error: error.message || 'Failed to send test push' });
+  }
+});
+
+// ── GET /api/push/status ──────────────────────────────────────────────────────
+// Diagnostic: returns all registered FCM tokens for the current user.
+// Use this to verify that a subscription was saved to the DB after enabling notifications.
+router.get('/status', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { data: subscriptions, error } = await supabaseAdmin
+      .from('push_subscriptions')
+      .select('id, device_name, token_updated_at, fcm_token')
+      .eq('user_id', userId)
+      .not('fcm_token', 'is', null)
+      .order('token_updated_at', { ascending: false });
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({
+      userId,
+      subscriptionCount: subscriptions?.length || 0,
+      subscriptions: (subscriptions || []).map((s) => ({
+        id: s.id,
+        deviceName: s.device_name,
+        tokenPrefix: s.fcm_token?.slice(0, 30) + '…',
+        lastUpdated: s.token_updated_at,
+      })),
+    });
+  } catch (err) {
+    console.error('[push/status] error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
