@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, getStandardClerkToken } from './supabase';
 import { getFCMToken, deleteFCMToken, getMessagingInstance } from './firebase';
 
 const FIREBASE_VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || '';
@@ -19,10 +19,12 @@ const FCM_TOKEN_CACHE_KEY = 'cb_fcm_token_v1';
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Returns the current Supabase access token, or null. */
+/** Returns the current Clerk access token for backend API calls. */
 async function getAccessToken() {
-  const { data } = await supabase.auth.getSession();
-  return data?.session?.access_token || null;
+  // The app uses Clerk for auth — the Clerk JWT is stored in-memory via
+  // setClerkToken() in App.tsx. supabase.auth.getSession() always returns null
+  // because Supabase's own auth is disabled (persistSession: false).
+  return getStandardClerkToken() || null;
 }
 
 /** Builds authenticated headers for backend requests. */
