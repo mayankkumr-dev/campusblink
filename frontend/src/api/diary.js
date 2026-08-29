@@ -4,7 +4,7 @@
  * Communicates with the Supabase JS client and the Node.js / AWS Rekognition backend.
  */
 
-import { supabase } from '../lib/supabase';
+import { supabase, getStandardClerkToken } from '../lib/supabase';
 
 const AUTHOR_SELECT = `
   id, content, font_family, text_color, bg_color, gradient, scale,
@@ -207,8 +207,7 @@ export async function deleteDiaryEntry(id, authorId) {
   try {
     // 1. Attempt Backend API delete (cleans up photos & storage)
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token;
+      const token = getStandardClerkToken();
 
       const response = await fetch(`/api/diary/${encodeURIComponent(id)}`, {
         method: 'DELETE',
