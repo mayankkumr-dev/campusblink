@@ -146,31 +146,29 @@ async function sendMulticast(tokens, payload) {
 
   const message = {
     tokens,
-    notification: {
+    // Root notification removed to force DATA-ONLY mode for Web Push (PWA).
+    // This guarantees the service worker's onBackgroundMessage ALWAYS fires,
+    // allowing us to reliably handle the notification ourselves.
+    data: {
       title: title || 'Campus Blink',
       body: body || 'You have a new update.',
-    },
-    data: {
       url: clickAction,
       click_action: clickAction,
-      icon: '/logo2/Blue_transparent.png?v=8',
-      badge: '/logo2/Blue_transparent.png?v=8',
     },
+    // Keep webpush config minimal since we handle it in the SW
     webpush: {
-      notification: {
-        icon: '/logo2/Blue_transparent.png?v=8',
-        badge: '/logo2/Blue_transparent.png?v=8',
-        click_action: clickAction,
-        requireInteraction: false,
-      },
       fcmOptions: {
         link: clickAction,
       },
     },
-    // Android PWA (Chrome on Android) uses the webpush config above.
+    // Android native app config (does not affect Web Push PWA)
     android: {
       priority: 'high',
       ttl: 86400000, // 24 hours in milliseconds
+      notification: {
+        title: title || 'Campus Blink',
+        body: body || 'You have a new update.',
+      }
     },
     // iOS APNs — requires 'alert' object with title+body, otherwise treated as
     // a silent/data push and never shown to the user.
