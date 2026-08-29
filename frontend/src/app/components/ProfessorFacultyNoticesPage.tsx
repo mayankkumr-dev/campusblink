@@ -181,6 +181,7 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
           body: JSON.stringify({
             noticeId: data.id,
             title: data.title || title.trim(),
+            content: data.content || content.trim(),
             college: profile?.college || 'All',
             targetYear: 'faculty',
           }),

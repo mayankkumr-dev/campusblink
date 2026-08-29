@@ -243,6 +243,7 @@ export const NoticeAdminPage: React.FC = () => {
         body: JSON.stringify({
           noticeId: data.id,
           title: data.title || title.trim(),
+          content: data.content || content.trim(),
           college: profile.role === 'admin' ? targetCollege : profile.college,
           targetYear,
         }),

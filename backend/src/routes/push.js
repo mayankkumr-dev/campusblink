@@ -247,19 +247,12 @@ router.put('/preferences', authMiddleware, async (req, res) => {
 // Called by the frontend immediately after saving an official notice.
 router.post('/broadcast-notice', authMiddleware, async (req, res) => {
   try {
-    const { noticeId, title, college, targetYear } = req.body;
+    const { noticeId, title, content, college, targetYear } = req.body;
     if (!noticeId) {
       return res.status(400).json({ error: 'noticeId is required' });
     }
 
-    // Fetch the notice content to include in the push notification body
-    const { data: noticeData } = await supabaseAdmin
-      .from('official_notices')
-      .select('content')
-      .eq('id', noticeId)
-      .single();
-    
-    const noticeContent = noticeData?.content || '';
+    const noticeContent = content || '';
 
     // Determine target users based on college and targetYear
     let query = supabaseAdmin.from('profiles').select('id').eq('status', 'active');

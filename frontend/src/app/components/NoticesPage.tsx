@@ -591,11 +591,11 @@ export const NoticesPage: React.FC = () => {
           )}
 
           {/* Chat-style WhatsApp list (Reverse DOM order) */}
-          <div className="flex flex-col-reverse pb-4">
+          <div className="flex flex-col-reverse pb-4 gap-3">
             
             {/* 1. Pinned Notices (Visually at the absolute bottom of the list) */}
             {!isLoading && pinned.length > 0 && (
-              <div className="space-y-3 mt-4">
+              <div className="space-y-3">
                 {pinned.map((notice) => {
                   const isUnread = checkIsUnread(notice.created_at);
                   const comp = (
@@ -617,7 +617,7 @@ export const NoticesPage: React.FC = () => {
             {/* 2. Divider between pinned and regular */}
             {!isLoading && pinned.length > 0 && (regular.length > 0 || filteredDeleted.length > 0) && (
               <div
-                className="flex items-center gap-3 mt-5 mb-1"
+                className="flex items-center gap-3 my-2"
                 style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
               >
                 <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
@@ -628,7 +628,7 @@ export const NoticesPage: React.FC = () => {
 
             {/* 3. Regular + deleted notices */}
             {!isLoading && (regular.length > 0 || filteredDeleted.length > 0) && (
-              <div className="space-y-3">
+              <>
                 {[...regular, ...filteredDeleted]
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                   .map((notice) => {
@@ -654,7 +654,7 @@ export const NoticesPage: React.FC = () => {
                     return comp;
                   })
                 }
-              </div>
+              </>
             )}
 
             {/* 4. Intersection Observer Target & Loading Spinner (Visually at the absolute top of the list) */}
