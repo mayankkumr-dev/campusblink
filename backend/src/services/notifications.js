@@ -159,15 +159,21 @@ const notificationService = {
    * @param {string[]} targetUserIds - Array of user IDs to notify
    * @param {string}   noticeTitle   - Title of the notice
    * @param {string}   noticeId      - DB ID of the notice (for routing)
+   * @param {string}   noticeContent - Content of the notice (for the push body)
    */
-  notifyOfficialNotice: async (targetUserIds, noticeTitle, noticeId) => {
+  notifyOfficialNotice: async (targetUserIds, noticeTitle, noticeId, noticeContent = '') => {
     if (!targetUserIds?.length) return;
 
     const safeTitle = String(noticeTitle || 'A new notice').trim();
     // Route to the student notices list — the individual notice ID is not directly
     // routable from a notification tap; the list page is the correct destination.
     const url = '/student/notices';
-    const body = `A new official notice has been posted.`;
+    
+    let body = 'A new official notice has been posted.';
+    if (noticeContent && noticeContent.trim() !== '') {
+      const cleanContent = noticeContent.trim();
+      body = cleanContent.length > 100 ? cleanContent.substring(0, 100) + '...' : cleanContent;
+    }
 
     // Fan-out: send push to each user using chunked batching (500 users per batch).
     // DB notification rows are not created per-user here to avoid O(N) inserts for campus-wide notices.

@@ -252,6 +252,15 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'noticeId and title are required' });
     }
 
+    // Fetch the notice content to include in the push notification body
+    const { data: noticeData } = await supabaseAdmin
+      .from('official_notices')
+      .select('content')
+      .eq('id', noticeId)
+      .single();
+    
+    const noticeContent = noticeData?.content || '';
+
     // Determine target users based on college and targetYear
     let query = supabaseAdmin.from('profiles').select('id').eq('status', 'active');
 
@@ -281,7 +290,7 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
     if (targetUserIds.length > 0) {
       const notificationService = require('../services/notifications');
       notificationService
-        .notifyOfficialNotice(targetUserIds, title, noticeId)
+        .notifyOfficialNotice(targetUserIds, title, noticeId, noticeContent)
         .catch(console.error);
     }
 
