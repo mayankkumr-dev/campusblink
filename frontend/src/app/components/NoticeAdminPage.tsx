@@ -230,10 +230,10 @@ export const NoticeAdminPage: React.FC = () => {
     // ── Broadcast FCM push to all targeted students ────────────────────────
     // Fire-and-forget: errors here must NOT block the UI success flow.
     try {
-      const token = await import('../../lib/supabase').then(m => m.supabase.auth.getSession())
-        .then(({ data: s }) => s?.session?.access_token || null);
-
-      fetch('/api/push/broadcast-notice', {
+      const token = await import('../../lib/supabase').then(m => m.getStandardClerkToken());
+      
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+      fetch(`${backendUrl}/api/push/broadcast-notice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

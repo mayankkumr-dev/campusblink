@@ -166,10 +166,9 @@ export const ProfessorFacultyNoticesPage: React.FC = () => {
     // Fire-and-forget: errors here must NOT block the UI success flow.
     if (data?.id) {
       try {
-        const { supabase: sb } = await import('../../lib/supabase');
-        const { data: authSession } = await sb.auth.getSession();
-        const token = authSession?.session?.access_token;
-        fetch('/api/push/broadcast-notice', {
+        const token = await import('../../lib/supabase').then(m => m.getStandardClerkToken());
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
+        fetch(`${backendUrl}/api/push/broadcast-notice`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

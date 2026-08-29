@@ -138,7 +138,8 @@ app.use('/api/push', generalLimiter, pushRoutes);
 app.use('/api/feed', generalLimiter, feedRoutes);
 app.use('/api/notes', generalLimiter, notesRoutes);
 app.use('/api/admin/notes', adminNotesRoutes);
-
+const noticesRoutes = require('./routes/notices');
+app.use('/api/notices', generalLimiter, noticesRoutes);
 
 app.use('/api/diary', generalLimiter, diaryRoutes);
 app.use('/api/student', generalLimiter, studentRoutes);

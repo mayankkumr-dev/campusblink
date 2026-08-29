@@ -29,7 +29,6 @@ router.post('/subscribe', authMiddleware, async (req, res) => {
           user_id: req.user.id,
           fcm_token: fcmToken.trim(),
           device_name: String(deviceName || 'Unknown').trim(),
-          updated_at: new Date().toISOString(),
           token_updated_at: new Date().toISOString(),
         },
         { onConflict: 'user_id,fcm_token' }
@@ -290,6 +289,33 @@ router.post('/broadcast-notice', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error broadcasting notice:', error);
     res.status(500).json({ error: error.message || 'Failed to broadcast notice' });
+  }
+});
+
+// ── POST /api/push/preferences ───────────────────────────────────────────────
+// Saves notification preferences bypassing RLS
+router.post('/preferences', authMiddleware, async (req, res) => {
+  try {
+    const preferences = req.body;
+    
+    const { data, error } = await supabaseAdmin
+      .from('notification_preferences')
+      .upsert(
+        { user_id: req.user.id, ...preferences },
+        { onConflict: 'user_id' }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[push/preferences] Supabase upsert error:', error);
+      return res.status(500).json({ error: 'Failed to save preferences' });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    console.error('[push/preferences] Unexpected error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

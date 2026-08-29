@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, getStandardClerkToken } from '../lib/supabase';
 import { uploadAttachment } from '../lib/s3';
 
 const NOTICES_LAST_SEEN_KEY = 'campus_blink_notices_last_seen';
@@ -212,10 +212,7 @@ export async function getNoticesForAdmin(college = null) {
 
 // ─── Write Helpers ────────────────────────────────────────────────────────────
 
-/**
- * Create a new official notice.
- */
-export async function createNotice({ authorId, college, title, content, targetYear, attachments = [], isPinned = false, pinExpiresAt = null }) {
+export async function createNotice({ authorId, college, title, content, targetYear, attachments, isPinned = false, pinExpiresAt = null }) {
   const fullPayload = {
     author_id: authorId,
     college,
@@ -225,39 +222,31 @@ export async function createNotice({ authorId, college, title, content, targetYe
     attachments,
     is_pinned: isPinned,
     pin_expires_at: pinExpiresAt,
-    is_deleted: false,
   };
 
   try {
-    let { data, error } = await supabase
-      .from('official_notices')
-      .insert(fullPayload)
-      .select()
-      .single();
+    const _clerkToken = getStandardClerkToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(_clerkToken ? { Authorization: `Bearer ${_clerkToken}` } : {})
+    };
+    
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
 
-    // If Supabase complains about missing schema cache columns (e.g. is_deleted or pin_expires_at), retry with base schema
-    if (error && (error.message?.includes('schema cache') || error.message?.includes('column'))) {
-      const basePayload = {
-        author_id: authorId,
-        college,
-        title,
-        content,
-        target_year: targetYear,
-        attachments,
-        is_pinned: isPinned,
-      };
-      const res = await supabase
-        .from('official_notices')
-        .insert(basePayload)
-        .select()
-        .single();
-      data = res.data;
-      error = res.error;
+    const response = await fetch(`${backendUrl}/api/notices/publish`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+      body: JSON.stringify(fullPayload),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || 'Failed to publish notice');
     }
 
-    if (error) throw error;
-
-    return { data, error: null };
+    const result = await response.json();
+    return { data: result.data, error: null };
   } catch (error) {
     return { data: null, error };
   }

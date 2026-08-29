@@ -168,10 +168,9 @@ async function sendMulticast(tokens, payload) {
       },
     },
     // Android PWA (Chrome on Android) uses the webpush config above.
-    // ttl MUST be a string with 's' suffix — Firebase Admin SDK v11+ rejects bare numbers.
     android: {
       priority: 'high',
-      ttl: '86400s', // 24 hours — must be a Duration string, not a bare number
+      ttl: 86400000, // 24 hours in milliseconds
     },
     // iOS APNs — requires 'alert' object with title+body, otherwise treated as
     // a silent/data push and never shown to the user.

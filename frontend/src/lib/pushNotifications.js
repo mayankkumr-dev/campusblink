@@ -250,17 +250,21 @@ export async function getNotificationPreferences(userId) {
 }
 
 export async function saveNotificationPreferences(userId, preferences) {
-  const { data, error } = await supabase
-    .from('notification_preferences')
-    .upsert(
-      { user_id: userId, ...preferences },
-      { onConflict: 'user_id' }
-    )
-    .select()
-    .single();
+  const headers = await authHeaders();
+  const response = await fetch(`${BACKEND_URL}/api/push/preferences`, {
+    method: 'POST',
+    headers,
+    credentials: 'include',
+    body: JSON.stringify(preferences),
+  });
 
-  if (error) throw error;
-  return data;
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.error || 'Failed to save preferences');
+  }
+
+  const result = await response.json();
+  return result.data;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
