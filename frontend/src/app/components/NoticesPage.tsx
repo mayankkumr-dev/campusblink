@@ -57,7 +57,30 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
+    
+    // Status bar dynamic color sync
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])') as HTMLMetaElement;
+    const originalColor = metaThemeColor ? metaThemeColor.content : null;
+    
+    if (metaThemeColor) {
+      metaThemeColor.content = '#000000';
+    } else {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = 'theme-color';
+      metaThemeColor.content = '#000000';
+      document.head.appendChild(metaThemeColor);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      if (metaThemeColor) {
+        if (originalColor) {
+          metaThemeColor.content = originalColor;
+        } else {
+          metaThemeColor.content = document.documentElement.classList.contains('dark') ? '#101113' : '#F9FAFB';
+        }
+      }
+    };
   }, [onClose]);
 
   const handleDownload = async () => {
