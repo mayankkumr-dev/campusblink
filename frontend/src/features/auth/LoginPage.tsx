@@ -260,6 +260,11 @@ export const LoginPage: React.FC = () => {
           return;
         }
 
+        // HYDRATION RACE CONDITION FIX:
+        // Update the global auth store immediately before navigating so the ProtectedRoute
+        // doesn't bounce the user back to /login while waiting for App.tsx to sync.
+        setAuth({ id: (result as any).createdUserId }, profile);
+
         const redirectState =
           typeof location.state === 'object' && location.state && 'from' in location.state
             ? String((location.state as any).from || '')
