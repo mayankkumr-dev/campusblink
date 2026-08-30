@@ -60,6 +60,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   const [isAnimating, setIsAnimating] = useState(false);
   
   const touchStart = useRef<{ x: number, y: number, time: number } | null>(null);
+  const lastTouchTime = useRef<number>(0);
   const isMultiTouch = useRef(false);
 
   useEffect(() => {
@@ -81,9 +82,6 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
 
     return () => {
       document.removeEventListener('keydown', handleKey);
-      if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
       if (metaThemeColor) {
         if (originalColor) {
           metaThemeColor.content = originalColor;
@@ -93,21 +91,6 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
       }
     };
   }, [onClose]);
-
-  // Fullscreen API toggle
-  useEffect(() => {
-    try {
-      if (!controlsVisible && scale <= 1.05) {
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        }
-      } else if (controlsVisible) {
-        if (document.fullscreenElement && document.exitFullscreen) {
-          document.exitFullscreen().catch(() => {});
-        }
-      }
-    } catch (e) {}
-  }, [controlsVisible, scale]);
 
   const handleDownload = async () => {
     try {
@@ -195,6 +178,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           if (Math.abs(deltaY) > 10 && controlsVisible) setControlsVisible(false);
         }}
         onTouchEnd={(e) => {
+          lastTouchTime.current = Date.now();
           if (!touchStart.current || isMultiTouch.current) {
             touchStart.current = null;
             return;
@@ -222,8 +206,10 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           touchStart.current = null;
         }}
         onClick={() => {
-          // Fallback for mouse clicks
-          if (isZoomedOut && swipeY === 0) setControlsVisible(prev => !prev);
+          // Fallback for mouse clicks (desktop), ignore if recent touch event
+          if (isZoomedOut && swipeY === 0 && (Date.now() - lastTouchTime.current > 500)) {
+            setControlsVisible(prev => !prev);
+          }
         }}
       >
         <TransformWrapper
