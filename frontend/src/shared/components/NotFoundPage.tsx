@@ -24,8 +24,7 @@ export const NotFoundPage: React.FC = () => {
           if (reg?.waiting) {
             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           }
-          // Forcefully unregister to break the loop of serving old assets
-          await reg.unregister();
+          await reg?.update();
         }
       } catch (e) {
         console.error('SW unregister error', e);
