@@ -42,9 +42,17 @@ try {
 
       const { notification: fcmNotification, data: fcmData } = payload;
 
-      const title = fcmNotification?.title || fcmData?.title || 'Campus Blink';
-      const body = fcmNotification?.body || fcmData?.body || 'You have a new update.';
-      const targetUrl = fcmData?.url || fcmData?.click_action || fcmNotification?.click_action || '/';
+      // If Firebase SDK automatically processed a notification payload, 
+      // do NOT call showNotification ourselves, otherwise the user gets duplicates!
+      if (fcmNotification || payload?.webpush?.notification) {
+        console.log('[SW FCM] Notification already handled natively by Firebase.');
+        return;
+      }
+
+      // Fallback for data-only messages (though iOS drops them, Android/Desktop might receive them)
+      const title = fcmData?.title || 'Campus Blink';
+      const body = fcmData?.body || 'You have a new update.';
+      const targetUrl = fcmData?.url || fcmData?.click_action || '/';
 
       const options = {
         body,
