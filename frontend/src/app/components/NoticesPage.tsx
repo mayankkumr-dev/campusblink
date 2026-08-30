@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Trash2,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import {
