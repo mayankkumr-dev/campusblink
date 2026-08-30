@@ -159,7 +159,12 @@ async function sendMulticast(tokens, payload) {
       click_action: clickAction,
     },
     // Keep webpush config minimal since we handle it in the SW
+    // Web Push config with high urgency for immediate delivery
     webpush: {
+      headers: {
+        Urgency: 'high',
+        TTL: '86400',
+      },
       fcmOptions: {
         link: clickAction,
       },
