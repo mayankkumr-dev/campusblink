@@ -174,7 +174,7 @@ const notificationService = {
         title: safeTitle,
         message: body,
         link: url,
-        is_is_read: false,
+        is_read: false,
         created_at: new Date().toISOString(),
       }));
 
