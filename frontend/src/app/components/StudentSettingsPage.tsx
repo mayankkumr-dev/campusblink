@@ -593,21 +593,34 @@ export const StudentSettingsPage: React.FC = () => {
               onClick={async () => {
                 const toastId = toast.loading('Checking for updates...');
                 try {
+                  let swFound = false;
+                  
+                  // 1. Unregister all service workers
                   if ('serviceWorker' in navigator) {
-                    const reg = await navigator.serviceWorker.getRegistration();
-                    if (reg) {
-                      await reg.update();
-                      if (reg.waiting) {
-                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                      }
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of registrations) {
+                      await reg.unregister();
+                      swFound = true;
                     }
                   }
+                  
+                  // 2. Completely nuke the Cache Storage API
                   if ('caches' in window) {
                     const keys = await caches.keys();
-                    await Promise.all(keys.map((key) => caches.delete(key)));
+                    for (let key of keys) {
+                      await caches.delete(key);
+                    }
                   }
+                  
                   toast.success('Updating application...', { id: toastId });
-                  setTimeout(() => window.location.reload(), 800);
+                  
+                  // 3. Force hard reload (bypass browser cache by appending timestamp)
+                  setTimeout(() => {
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('v', Date.now().toString());
+                    window.location.href = currentUrl.toString();
+                  }, 800);
+                  
                 } catch (e) {
                   toast.error('Failed to check for updates', { id: toastId });
                 }
