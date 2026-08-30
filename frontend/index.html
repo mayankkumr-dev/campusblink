@@ -155,7 +155,23 @@
       })();
     </script>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/main.tsx" onerror="handleLoadError()"></script>
+    <script>
+      function handleLoadError() {
+        var splash = document.getElementById('app-splash');
+        if (splash) {
+          splash.innerHTML = '<div style="text-align:center; padding: 20px; font-family: sans-serif;"><h3>Update Failed</h3><p>Please clear your browser cache or reinstall the app to continue.</p><button onclick="window.location.reload(true)" style="padding: 10px 20px; background: #2D4EF5; color: white; border: none; border-radius: 8px; margin-top: 10px;">Force Reload</button></div>';
+        }
+      }
+      
+      // Fallback: if React doesn't mount within 5 seconds, it might have crashed silently
+      setTimeout(function() {
+        var root = document.getElementById('root');
+        if (root && root.innerHTML.trim() === '') {
+          handleLoadError();
+        }
+      }, 5000);
+    </script>
   </body>
 </html>
   
