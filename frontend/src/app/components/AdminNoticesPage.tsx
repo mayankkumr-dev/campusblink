@@ -22,7 +22,7 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import {
   createNotice,
-  softDeleteNotice,
+  deleteNoticeAndAttachments,
   hardRemoveNotice,
   restoreNotice,
   getNoticesForAdmin,
@@ -393,9 +393,9 @@ export const AdminNoticesPage: React.FC = () => {
       return;
     }
 
-    if (!window.confirm('Delete this notice? Students will see "This message has been deleted" in its place.')) return;
+    if (!window.confirm('Permanently delete this notice and all its attachments? This action cannot be undone.')) return;
     setActionLoadingId(notice.id);
-    const { error } = await softDeleteNotice(notice.id, profile?.id);
+    const { error } = await deleteNoticeAndAttachments(notice);
     setActionLoadingId(null);
     if (error) { toast.error('Failed to delete notice.'); return; }
     toast.success('Notice deleted. Students see the deletion placeholder.');

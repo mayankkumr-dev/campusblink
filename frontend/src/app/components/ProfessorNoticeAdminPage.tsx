@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import {
-  createNotice, softDeleteNotice, restoreNotice, getNoticesForAdmin,
+  createNotice, deleteNoticeAndAttachments, restoreNotice, getNoticesForAdmin,
   togglePinNotice, uploadNoticeAttachment,
 } from '../../api/notices';
 import { FileProgressBar } from '../../shared/components/UploadOverlay';
@@ -206,8 +206,8 @@ export const ProfessorNoticeAdminPage: React.FC = () => {
     if (notice.is_deleted) {
       await restoreNotice(notice.id);
     } else {
-      if (!window.confirm('Hide this notice from students?')) return;
-      await softDeleteNotice(notice.id, profile?.id);
+      if (!window.confirm('Permanently delete this notice and all its attachments? This action cannot be undone.')) return;
+      await deleteNoticeAndAttachments(notice);
     }
     loadNotices();
   };

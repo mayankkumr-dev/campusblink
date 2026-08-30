@@ -1,5 +1,5 @@
 import { supabase, getStandardClerkToken } from '../lib/supabase';
-import { uploadAttachment } from '../lib/s3';
+import { uploadAttachment, deleteFile } from '../lib/s3';
 
 const NOTICES_LAST_SEEN_KEY = 'campus_blink_notices_last_seen';
 
@@ -282,6 +282,39 @@ export async function softDeleteNotice(noticeId, deletedById = null) {
     }
     return { error: null };
   } catch (error) {
+    return { error };
+  }
+}
+
+/**
+ * Completely delete a notice and its S3 attachments from the database.
+ */
+export async function deleteNoticeAndAttachments(notice) {
+  try {
+    // 1. Delete all attachments from S3
+    if (notice.attachments && Array.isArray(notice.attachments)) {
+      for (const att of notice.attachments) {
+        if (att.url) {
+          // deleteFile automatically extracts the S3 key from the URL
+          const { error: s3Error } = await deleteFile(att.url);
+          if (s3Error) {
+            console.warn(`Failed to delete S3 attachment ${att.url}:`, s3Error);
+          }
+        }
+      }
+    }
+
+    // 2. Hard delete from Supabase
+    const { error: dbError } = await supabase
+      .from('official_notices')
+      .delete()
+      .eq('id', notice.id);
+
+    if (dbError) throw dbError;
+
+    return { error: null };
+  } catch (error) {
+    console.error("Hard delete notice failed:", error);
     return { error };
   }
 }

@@ -14,7 +14,7 @@ import { useAuthStore } from '../../store/authStore';
 import {
   getNoticesForStudent,
   markNoticesAsSeen,
-  softDeleteNotice,
+  deleteNoticeAndAttachments,
 } from '../../api/notices';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
@@ -407,10 +407,10 @@ const NoticeCard: React.FC<{
   const senderName = notice.sender_name || 'Administration';
 
   const handleSoftDelete = async () => {
-    if (!window.confirm('Delete this notice? Students will see "This message has been deleted" in its place.')) return;
+    if (!window.confirm('Permanently delete this notice and all its attachments? This action cannot be undone.')) return;
     setDeletingId(true);
     const profile = useAuthStore.getState().profile;
-    const { error } = await softDeleteNotice(notice.id, profile?.id);
+    const { error } = await deleteNoticeAndAttachments(notice);
     setDeletingId(false);
     if (error) { toast.error('Failed to delete notice.'); return; }
     toast.success('Notice deleted.');
