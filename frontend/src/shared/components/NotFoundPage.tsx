@@ -14,46 +14,55 @@ export const NotFoundPage: React.FC = () => {
      error.message.toLowerCase().includes('importing a module script failed'))
   );
 
+  const triggerAppUpdate = async () => {
+    setIsUpdating(true);
+    
+    if ('serviceWorker' in navigator) {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) {
+          if (reg?.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          // Forcefully unregister to break the loop of serving old assets
+          await reg.unregister();
+        }
+      } catch (e) {
+        console.error('SW unregister error', e);
+      }
+    }
+
+    // Clear all CacheStorage to wipe old precache and runtime caches
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      } catch (e) {
+        console.error('Cache delete error', e);
+      }
+    }
+
+    // Small delay to ensure promises settle, then hard reload with cache buster
+    setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('t', Date.now().toString());
+      window.location.href = url.toString();
+    }, 150);
+  };
+
   useEffect(() => {
     if (isChunkError) {
       const hasReloaded = sessionStorage.getItem('cb_chunk_reload_guard');
       if (!hasReloaded) {
         sessionStorage.setItem('cb_chunk_reload_guard', 'true');
-        setIsUpdating(true);
-        // Force service worker to skip waiting & update immediately before reloading
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistration().then((reg) => {
-            if (reg?.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-            reg?.update();
-          }).finally(() => {
-            window.setTimeout(() => {
-              window.location.reload();
-            }, 150);
-          });
-        } else {
-          window.location.reload();
-        }
+        triggerAppUpdate();
       }
     }
   }, [isChunkError]);
 
   const handleManualUpdate = () => {
-    setIsUpdating(true);
     sessionStorage.removeItem('cb_chunk_reload_guard');
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg?.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-        reg?.update();
-      }).finally(() => {
-        window.location.reload();
-      });
-    } else {
-      window.location.reload();
-    }
+    triggerAppUpdate();
   };
 
   return (
