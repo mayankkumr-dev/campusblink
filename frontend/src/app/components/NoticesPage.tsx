@@ -1,18 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   Bell,
   FileText,
   Download,
   Pin,
   Loader2,
-  RefreshCw,
   Megaphone,
   ChevronDown,
   ChevronUp,
   ExternalLink,
   Trash2,
-  Search,
-  ArrowLeft,
   X,
   ZoomIn,
 } from 'lucide-react';
@@ -24,6 +21,7 @@ import {
 } from '../../api/notices';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
+import { supabase } from '../../lib/supabase';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -53,12 +51,6 @@ function yearLabel(year: string) {
   return year;
 }
 
-function isPinnedAndActive(notice: any): boolean {
-  if (!notice.is_pinned) return false;
-  if (!notice.pin_expires_at) return true;
-  return new Date(notice.pin_expires_at) > new Date();
-}
-
 function getAttachmentCategory(type: string) {
   if (type?.startsWith('image/')) return 'image';
   if (type === 'application/pdf') return 'pdf';
@@ -68,31 +60,10 @@ function getAttachmentCategory(type: string) {
 function getNoticeCategory(title: string): 'urgent' | 'event' | 'general' {
   if (!title) return 'general';
   const t = title.toLowerCase();
-  if (t.includes('urgent') || t.includes('important') || t.includes('deadline') || t.includes('alert') || t.includes('warning')) return 'urgent';
-  if (t.includes('event') || t.includes('workshop') || t.includes('webinar') || t.includes('competition') || t.includes('fest') || t.includes('cultural')) return 'event';
+  if (t.includes('urgent') || t.includes('important') || t.includes('alert')) return 'urgent';
+  if (t.includes('event') || t.includes('workshop') || t.includes('competition')) return 'event';
   return 'general';
 }
-
-const CATEGORY_META = {
-  urgent: {
-    gradient: 'from-red-500/10 via-rose-500/5 to-transparent',
-    bar: 'bg-gradient-to-b from-red-500 to-rose-600',
-    badge: 'bg-red-500/10 text-red-600 border border-red-200',
-    label: 'Urgent',
-  },
-  event: {
-    gradient: 'from-emerald-500/10 via-green-500/5 to-transparent',
-    bar: 'bg-gradient-to-b from-emerald-500 to-green-600',
-    badge: 'bg-emerald-500/10 text-emerald-700 border border-emerald-200',
-    label: 'Event',
-  },
-  general: {
-    gradient: 'from-blue-500/10 via-indigo-500/5 to-transparent',
-    bar: 'bg-gradient-to-b from-blue-500 to-indigo-600',
-    badge: 'bg-blue-500/10 text-blue-700 border border-blue-200',
-    label: 'Notice',
-  },
-} as const;
 
 // ─── Image Lightbox ──────────────────────────────────────────────────────────
 
@@ -184,8 +155,8 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
 // ─── Deleted Notice Placeholder ──────────────────────────────────────────────
 
 const DeletedNoticePlaceholder: React.FC = () => (
-  <div className="bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-4 flex items-center gap-3">
-    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+  <div className="bg-white shadow-sm border border-dashed border-gray-200 rounded-2xl p-4 flex items-center gap-3 mb-3">
+    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
       <Trash2 className="w-4 h-4 text-gray-300" />
     </div>
     <p className="text-sm text-gray-400 font-medium italic">This message has been deleted.</p>
@@ -199,16 +170,11 @@ const NoticeCard: React.FC<{
   isAdmin: boolean;
   onSoftDelete: (id: string) => void;
   index: number;
-  isUnread?: boolean;
-}> = ({ notice, isAdmin, onSoftDelete, index, isUnread }) => {
+}> = ({ notice, isAdmin, onSoftDelete, index }) => {
   const [expanded, setExpanded] = useState(false);
   const [deletingId, setDeletingId] = useState(false);
   const isLong = (notice.content?.length || 0) > 200;
-
   const attachments: any[] = Array.isArray(notice.attachments) ? notice.attachments : [];
-  const pinActive = isPinnedAndActive(notice);
-  const category = getNoticeCategory(notice.title || '');
-  const meta = CATEGORY_META[category];
 
   const handleSoftDelete = async () => {
     if (!window.confirm('Delete this notice? Students will see "This message has been deleted" in its place.')) return;
@@ -223,135 +189,59 @@ const NoticeCard: React.FC<{
 
   return (
     <article
-      className={[
-        'relative bg-white dark:bg-[#171A21] rounded-2xl border overflow-hidden transition-all duration-300 group',
-        pinActive
-          ? 'border-amber-200 dark:border-amber-900/50 shadow-sm'
-          : 'border-gray-100 dark:border-[#262A33] shadow-sm hover:border-gray-200 dark:hover:border-gray-700',
-      ].join(' ')}
-      style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${index * 60}ms` }}
+      className="relative bg-white rounded-2xl p-4 shadow-sm border border-gray-100 transition-all duration-300 mb-3"
+      style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${index * 30}ms` }}
     >
-      {/* Category gradient background */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${meta.gradient} pointer-events-none opacity-40 dark:opacity-20`} />
-
-      {/* Left color bar */}
-      <div className={`absolute top-0 left-0 bottom-0 w-1 ${meta.bar} rounded-l-2xl`} />
-
-      {/* Unread pulse dot */}
-      {isUnread && (
-        <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
-      )}
-
-      <div className="relative p-5 pl-6">
-        {/* Pinned badge */}
-        {pinActive && (
-          <div className="flex items-center gap-1.5 mb-3">
-            <Pin className="w-3 h-3 text-amber-500 fill-amber-500" />
-            <span className="text-[10px] font-extrabold text-amber-600 dark:text-amber-400 uppercase tracking-[0.1em]">Pinned</span>
-            {notice.pin_expires_at && (
-              <span className="ml-auto text-[10px] text-amber-500 dark:text-amber-400 font-medium">
-                Expires {new Date(notice.pin_expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Meta row */}
-        <div className="flex items-center gap-2 mb-2.5 flex-wrap">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.badge}`}>
-            {meta.label}
-          </span>
-          <span className="text-[10px] font-semibold text-gray-400 dark:text-[#9AA0AC] uppercase tracking-wider">
-            {yearLabel(notice.target_year)}
-          </span>
-          <span className="text-gray-200 dark:text-gray-700">•</span>
-          <span className="text-[10px] font-medium text-gray-400 dark:text-[#9AA0AC]">
-            {formatRelativeTime(notice.created_at)}
-          </span>
-        </div>
-
-        {/* Title row with delete */}
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <h2
-            className="text-[15px] font-extrabold text-gray-900 dark:text-[#F4F5F7] leading-snug flex-1"
-          >
-            {notice.title}
-          </h2>
-          {isAdmin && (
-            <button
-              type="button"
-              title="Delete notice"
-              onClick={handleSoftDelete}
-              disabled={deletingId}
-              className="w-8 h-8 rounded-full hover:bg-rose-50 dark:hover:bg-rose-900/30 text-gray-300 dark:text-gray-600 hover:text-rose-500 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 sm:opacity-100 shrink-0 -mt-1"
-            >
-              {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-            </button>
-          )}
-        </div>
-
-        {/* Content */}
-        {notice.content && (
-          <p className={`text-sm text-gray-500 dark:text-[#9AA0AC] leading-relaxed whitespace-pre-wrap font-medium ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
-            {notice.content}
-          </p>
-        )}
-        {isLong && (
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <h2 className="text-[15px] font-bold text-gray-900 leading-snug flex-1">
+          {notice.title}
+        </h2>
+        {isAdmin && (
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
-            className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 transition-colors"
+            title="Delete notice"
+            onClick={handleSoftDelete}
+            disabled={deletingId}
+            className="w-8 h-8 rounded-full hover:bg-rose-50 text-gray-300 hover:text-rose-500 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 sm:opacity-100 shrink-0 -mt-1"
           >
-            {expanded
-              ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
-              : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>
-            }
+            {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
           </button>
         )}
+      </div>
 
-        {/* Attachments */}
-        {attachments.length > 0 && (
-          <div className="mt-3.5 flex flex-wrap gap-2.5 relative z-10">
-            {attachments.map((att, idx) => (
-              <AttachmentCard key={idx} att={att} />
-            ))}
-          </div>
-        )}
+      {notice.content && (
+        <p className={`text-sm text-gray-600 leading-relaxed whitespace-pre-wrap ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
+          {notice.content}
+        </p>
+      )}
+      
+      {isLong && (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
+          className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          {expanded
+            ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
+            : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>
+          }
+        </button>
+      )}
 
-        {/* Footer date */}
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-[#262A33] flex items-center justify-between">
-          <span className="text-[10px] font-medium text-gray-400 dark:text-[#9AA0AC]">{formatDate(notice.created_at)}</span>
-          {attachments.length > 0 && (
-            <span className="text-[10px] font-semibold text-gray-400 dark:text-[#9AA0AC]">
-              {attachments.length} attachment{attachments.length > 1 ? 's' : ''}
-            </span>
-          )}
+      {attachments.length > 0 && (
+        <div className="mt-3.5 flex flex-wrap gap-2.5">
+          {attachments.map((att, idx) => (
+            <AttachmentCard key={idx} att={att} />
+          ))}
         </div>
+      )}
+
+      <div className="mt-2 text-right">
+        <span className="text-xs text-gray-400 font-medium">{formatRelativeTime(notice.created_at)}</span>
       </div>
     </article>
   );
 };
-
-// ─── Skeleton Loader ─────────────────────────────────────────────────────────
-
-const NoticeSkeleton: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
-  <div
-    className="bg-white rounded-2xl border border-gray-100 p-5 pl-6 relative overflow-hidden"
-    style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${delay}ms` }}
-  >
-    <div className="absolute top-0 left-0 bottom-0 w-1 bg-gray-100 rounded-l-2xl" />
-    <div className="flex gap-2 mb-3">
-      <div className="h-4 bg-gray-100 rounded-full w-14 animate-pulse" />
-      <div className="h-4 bg-gray-100 rounded-full w-20 animate-pulse" />
-    </div>
-    <div className="h-5 bg-gray-100 rounded-lg w-3/4 mb-3 animate-pulse" />
-    <div className="space-y-2">
-      <div className="h-3.5 bg-gray-100 rounded w-full animate-pulse" />
-      <div className="h-3.5 bg-gray-100 rounded w-5/6 animate-pulse" />
-      <div className="h-3.5 bg-gray-100 rounded w-2/3 animate-pulse" />
-    </div>
-  </div>
-);
 
 // ─── Main Notices Page ────────────────────────────────────────────────────────
 
@@ -359,119 +249,172 @@ export const NoticesPage: React.FC = () => {
   const { profile } = useAuthStore();
   const [notices, setNotices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [hasMoreOlder, setHasMoreOlder] = useState(true);
   
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const LIMIT = 30;
+  const [isScrolledUp, setIsScrolledUp] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [initialLastSeen, setInitialLastSeen] = useState<string | null>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  const previousScrollHeight = useRef<number>(0);
+  const previousScrollTop = useRef<number>(0);
+  const isPrependingRef = useRef(false);
 
   const isAdmin = Boolean(profile?.is_notice_admin) || profile?.role === 'admin';
+  const LIMIT = 15;
 
-  const load = useCallback(
-    async (refresh = false) => {
-      if (!profile?.college) return;
-      
-      const currentOffset = refresh ? 0 : offset;
-      
-      if (refresh) {
-        setIsRefreshing(true);
-        setHasMore(true);
-      } else if (currentOffset === 0) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
+  // 1. Initial Load
+  const loadInitial = useCallback(async () => {
+    if (!profile?.college) return;
+    setIsLoading(true);
+    const res = await getNoticesForStudent({ 
+      college: profile?.college, 
+      studyYear: profile?.study_year || profile?.academic_year,
+      limit: LIMIT,
+    });
+    
+    if (res.data) {
+      if (res.data.length < LIMIT) setHasMoreOlder(false);
+      setNotices(res.data);
+      // Auto-scroll to bottom after initial render
+      setTimeout(() => {
+        scrollToBottom(false);
+      }, 100);
+      markNoticesAsSeen(profile?.id);
+      window.dispatchEvent(new CustomEvent('notices-seen'));
+    } else {
+      toast.error('Failed to load notices');
+    }
+    setIsLoading(false);
+  }, [profile?.college, profile?.study_year, profile?.academic_year]);
 
-      const res = await getNoticesForStudent({ 
-        college: profile?.college, 
-        studyYear: profile?.study_year || profile?.academic_year,
-        limit: LIMIT,
-        offset: currentOffset
-      });
+  // 2. Load Older
+  const loadOlder = useCallback(async () => {
+    if (!profile?.college || isLoadingOlder || !hasMoreOlder || notices.length === 0) return;
+    setIsLoadingOlder(true);
+    
+    // Get the timestamp of the oldest notice currently in state (which is at index 0)
+    const oldestTimestamp = notices[0].created_at;
+
+    const res = await getNoticesForStudent({ 
+      college: profile?.college, 
+      studyYear: profile?.study_year || profile?.academic_year,
+      limit: LIMIT,
+      beforeTimestamp: oldestTimestamp
+    });
+    
+    if (res.data) {
+      if (res.data.length < LIMIT) setHasMoreOlder(false);
       
-      if (res.data) {
-        if (res.data.length < LIMIT) {
-          setHasMore(false);
-        }
-        setNotices((prev) => refresh ? res.data : [...prev, ...res.data]);
-        setOffset(currentOffset + res.data.length);
+      if (res.data.length > 0) {
+        // Record scroll metrics before updating state
+        previousScrollHeight.current = document.documentElement.scrollHeight;
+        previousScrollTop.current = document.documentElement.scrollTop;
+        isPrependingRef.current = true;
         
-        if (refresh && res.data.length > 0) {
-          markNoticesAsSeen(profile?.id);
-          setInitialLastSeen(new Date().toISOString());
-        }
-      } else if (res.error) {
-        toast.error('Failed to load notices');
+        // Prepend older notices
+        setNotices((prev) => [...res.data, ...prev]);
       }
+    }
+    setIsLoadingOlder(false);
+  }, [profile?.college, profile?.study_year, profile?.academic_year, notices, isLoadingOlder, hasMoreOlder]);
 
-      setIsLoading(false);
-      setIsRefreshing(false);
-      setIsLoadingMore(false);
-    },
-    [profile?.college, profile?.study_year, profile?.academic_year, offset]
-  );
+  // Use Layout Effect to restore scroll position immediately after DOM paints new items
+  useLayoutEffect(() => {
+    if (isPrependingRef.current) {
+      const newScrollHeight = document.documentElement.scrollHeight;
+      const heightDifference = newScrollHeight - previousScrollHeight.current;
+      
+      // Adjust scroll top by the height of the new elements inserted at the top
+      window.scrollTo(0, previousScrollTop.current + heightDifference);
+      
+      isPrependingRef.current = false;
+    }
+  }, [notices]);
 
-  // ─── Intersection Observer for Infinite Scroll ─────────────────────────────
-  
+  // 3. Setup Intersection Observer for Sentinel
   useEffect(() => {
     const target = loadMoreRef.current;
-    if (!target) return;
+    if (!target || isLoading) return;
     
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading && !isLoadingMore && !isSearchActive) {
-          load(false);
+        if (entries[0].isIntersecting && hasMoreOlder && !isLoadingOlder) {
+          loadOlder();
         }
       },
-      { threshold: 0.1, rootMargin: '400px' }
+      { threshold: 0.1, rootMargin: '400px' } // Pre-fetch before user hits absolute top
     );
     
     observer.observe(target);
     return () => observer.unobserve(target);
-  }, [load, hasMore, isLoading, isLoadingMore, isSearchActive]);
+  }, [loadOlder, hasMoreOlder, isLoading, isLoadingOlder]);
 
+  // 4. Initial Trigger
+  useEffect(() => { loadInitial(); }, [loadInitial]);
+
+  // 5. Scroll Tracking for 'Jump to Latest'
   useEffect(() => {
-    setInitialLastSeen(localStorage.getItem('campus_blink_notices_last_seen'));
-    markNoticesAsSeen();
-    window.dispatchEvent(new CustomEvent('notices-seen'));
-  }, []);
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight || window.innerHeight;
+      
+      // If user is scrolled up more than 150px from bottom
+      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+      setIsScrolledUp(distanceFromBottom > 150);
+      
+      // If user returns to bottom naturally, clear unread count
+      if (distanceFromBottom <= 50 && unreadCount > 0) {
+        setUnreadCount(0);
+        markNoticesAsSeen(profile?.id);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [unreadCount, profile?.id]);
 
-  useEffect(() => { load(); }, [load]);
+  const scrollToBottom = (smooth = true) => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+    setUnreadCount(0);
+    markNoticesAsSeen(profile?.id);
+  };
 
+  // 6. Realtime Subscription
   useEffect(() => {
-    if (isSearchActive) searchInputRef.current?.focus();
-  }, [isSearchActive]);
+    if (!profile?.college) return;
+
+    const channel = supabase.channel('official_notices_changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'official_notices' }, (payload) => {
+        const newNotice = payload.new;
+        
+        // Basic filtering to see if notice belongs to user's college
+        if (newNotice.college !== 'All' && newNotice.college !== profile.college) return;
+        
+        setNotices(prev => [...prev, newNotice]);
+        
+        if (isScrolledUp) {
+          setUnreadCount(c => c + 1);
+        } else {
+          // If already at bottom, just push them down
+          setTimeout(() => scrollToBottom(true), 100);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.college, isScrolledUp]);
 
   const handleSoftDelete = (deletedId: string) => {
     setNotices((prev) => prev.map((n) => n.id === deletedId ? { ...n, is_deleted: true } : n));
   };
-
-  const filterBySearch = (list: any[]) => {
-    if (!searchQuery) return list;
-    const lowerQ = searchQuery.toLowerCase();
-    return list.filter(n => n.title?.toLowerCase().includes(lowerQ) || n.content?.toLowerCase().includes(lowerQ));
-  };
-
-  const activeNotices = notices.filter((n) => !n.is_deleted);
-  const deletedNotices = notices.filter((n) => n.is_deleted);
-  const filteredActive = filterBySearch(activeNotices);
-  const filteredDeleted = filterBySearch(deletedNotices);
-  const pinned = filteredActive.filter(isPinnedAndActive);
-  const regular = filteredActive.filter((n) => !isPinnedAndActive(n));
-
-  const checkIsUnread = (createdAt: string) => {
-    if (!initialLastSeen) return true;
-    return new Date(createdAt) > new Date(initialLastSeen);
-  };
-
-  let globalIndex = 0;
 
   return (
     <>
@@ -482,92 +425,41 @@ export const NoticesPage: React.FC = () => {
         }
       `}</style>
 
-      <div className="min-h-full bg-gray-50 dark:bg-[#101113] pb-16">
-        {/* Slim action bar — icons only (layout already renders "Notices" title) */}
-        <div className="sticky top-0 z-30 bg-white/80 dark:bg-[#171A21]/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#262A33]">
-          <div className="max-w-2xl mx-auto px-4 py-2.5 flex items-center gap-2">
-            {isSearchActive ? (
-              <div className="flex items-center gap-2 w-full animate-in fade-in slide-in-from-right-4 duration-200">
-                <button
-                  onClick={() => { setIsSearchActive(false); setSearchQuery(''); }}
-                  className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search notices…"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-gray-100 dark:bg-[#202226] pl-9 pr-4 py-2 rounded-full text-sm font-medium text-gray-900 dark:text-[#F4F5F7] focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
+      {/* Main Container - bg-gray-50 enforced */}
+      <div className="min-h-full bg-gray-50 pb-20 relative">
+        <div className="max-w-2xl mx-auto px-4 md:px-6 flex flex-col pt-4">
+          
+          {/* Top Sentinel & Loading Indicator */}
+          <div ref={loadMoreRef} className="py-2 flex justify-center w-full min-h-[40px]">
+            {isLoadingOlder ? (
+              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            ) : !hasMoreOlder && notices.length > 0 ? (
+              <p className="text-xs font-medium text-gray-400 text-center py-2">
+                You have reached the beginning of campus notices.
+              </p>
             ) : (
-              <div className="flex items-center justify-end w-full gap-1">
-                <button
-                  onClick={() => setIsSearchActive(true)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
-                >
-                  <Search className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => load(true)}
-                  disabled={isRefreshing}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors disabled:opacity-40"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
+              <div className="h-5" />
             )}
           </div>
-        </div>
 
-        <div className="max-w-2xl mx-auto px-4 pt-4 md:px-6 flex flex-col h-full">
-          {/* Notice Admin Quick Link */}
-          {isAdmin && (
-            <Link
-              to="/student/notices/admin"
-              className="mb-5 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-amber-950/40 dark:to-orange-950/40 rounded-2xl border border-orange-100 dark:border-amber-900/50 active:scale-[0.99] transition-all group hover:shadow-md"
-              style={{ animation: 'slideUpFade 0.3s ease both' }}
-            >
-              <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-amber-900/60 flex items-center justify-center text-orange-600 dark:text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Megaphone className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-orange-900 dark:text-amber-300">Notice Admin Panel</p>
-                <p className="text-[11px] text-orange-600/70 dark:text-amber-400/80 font-medium">Publish &amp; manage notices</p>
-              </div>
-              <ExternalLink className="w-4 h-4 text-orange-400 dark:text-amber-400 shrink-0 group-hover:text-orange-500 dark:group-hover:text-amber-300 transition-colors" />
-            </Link>
-          )}
-
-          {/* Loading skeletons */}
+          {/* Skeletons */}
           {isLoading && (
-            <div className="space-y-3">
-              {[0, 80, 160].map((d) => <NoticeSkeleton key={d} delay={d} />)}
+            <div className="space-y-3 mt-4">
+              {[0, 80, 160].map((d) => (
+                <div key={d} className="bg-white rounded-2xl border border-gray-100 p-5 pl-6 relative overflow-hidden" style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${d}ms` }}>
+                  <div className="h-4 bg-gray-100 rounded-full w-14 animate-pulse mb-3" />
+                  <div className="h-5 bg-gray-100 rounded-lg w-3/4 mb-3 animate-pulse" />
+                  <div className="h-3.5 bg-gray-100 rounded w-full animate-pulse mb-2" />
+                  <div className="h-3.5 bg-gray-100 rounded w-5/6 animate-pulse" />
+                </div>
+              ))}
             </div>
           )}
 
           {/* Empty state */}
           {!isLoading && notices.length === 0 && (
-            <div
-              className="flex flex-col items-center justify-center py-28 text-center"
-              style={{ animation: 'slideUpFade 0.4s ease both' }}
-            >
-              <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center justify-center text-gray-300 mb-4">
+            <div className="flex flex-col items-center justify-center py-28 text-center" style={{ animation: 'slideUpFade 0.4s ease both' }}>
+              <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 mb-4">
                 <Bell className="w-7 h-7 stroke-[1.5]" />
               </div>
               <p className="text-lg font-extrabold text-gray-800" style={{ fontFamily: 'SF Pro Display, system-ui, sans-serif' }}>No notices yet</p>
@@ -577,101 +469,61 @@ export const NoticesPage: React.FC = () => {
             </div>
           )}
 
-          {/* Empty search results */}
-          {!isLoading && notices.length > 0 && filteredActive.length === 0 && filteredDeleted.length === 0 && (
-            <div
-              className="flex flex-col items-center justify-center py-20 text-center"
-              style={{ animation: 'slideUpFade 0.4s ease both' }}
-            >
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mb-3">
-                <Search className="w-5 h-5" />
-              </div>
-              <p className="text-sm text-gray-500 font-semibold">No results for &quot;{searchQuery}&quot;</p>
+          {/* Notice Feed (Standard DOM order) */}
+          {!isLoading && notices.length > 0 && (
+            <div className="flex flex-col">
+              {notices.map((notice, index) => 
+                notice.is_deleted ? (
+                  <DeletedNoticePlaceholder key={notice.id} />
+                ) : (
+                  <NoticeCard
+                    key={notice.id}
+                    index={index}
+                    notice={notice}
+                    isAdmin={isAdmin}
+                    onSoftDelete={handleSoftDelete}
+                  />
+                )
+              )}
             </div>
           )}
 
-          {/* Chat-style WhatsApp list (Reverse DOM order) */}
-          <div className="flex flex-col-reverse pb-4 gap-3">
-            
-            {/* 1. Pinned Notices (Visually at the absolute bottom of the list) */}
-            {!isLoading && pinned.length > 0 && (
-              <div className="space-y-3">
-                {pinned.map((notice) => {
-                  const isUnread = checkIsUnread(notice.created_at);
-                  const comp = (
-                    <NoticeCard
-                      key={notice.id}
-                      index={globalIndex}
-                      notice={notice}
-                      isAdmin={isAdmin}
-                      onSoftDelete={handleSoftDelete}
-                      isUnread={isUnread}
-                    />
-                  );
-                  globalIndex++;
-                  return comp;
-                })}
+          {/* Notice Admin Quick Link (Bottom) */}
+          {isAdmin && !isLoading && (
+            <Link
+              to="/student/notices/admin"
+              className="mt-6 mb-6 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-200 active:scale-[0.99] transition-all group shadow-sm hover:shadow-md"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 shrink-0 group-hover:scale-105 transition-transform">
+                <Megaphone className="w-4 h-4" />
               </div>
-            )}
-
-            {/* 2. Divider between pinned and regular */}
-            {!isLoading && pinned.length > 0 && (regular.length > 0 || filteredDeleted.length > 0) && (
-              <div
-                className="flex items-center gap-3 my-2"
-                style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
-              >
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.12em]">Recent</span>
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-900">Notice Admin Panel</p>
+                <p className="text-[11px] text-gray-500 font-medium">Publish &amp; manage notices</p>
               </div>
-            )}
+              <ExternalLink className="w-4 h-4 text-gray-400 shrink-0 group-hover:text-gray-600 transition-colors" />
+            </Link>
+          )}
 
-            {/* 3. Regular + deleted notices */}
-            {!isLoading && (regular.length > 0 || filteredDeleted.length > 0) && (
-              <>
-                {[...regular, ...filteredDeleted]
-                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                  .map((notice) => {
-                    const isUnread = checkIsUnread(notice.created_at);
-                    const comp = notice.is_deleted ? (
-                      <div
-                        key={notice.id}
-                        style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${globalIndex * 60}ms` }}
-                      >
-                        <DeletedNoticePlaceholder />
-                      </div>
-                    ) : (
-                      <NoticeCard
-                        key={notice.id}
-                        index={globalIndex}
-                        notice={notice}
-                        isAdmin={isAdmin}
-                        onSoftDelete={handleSoftDelete}
-                        isUnread={isUnread}
-                      />
-                    );
-                    globalIndex++;
-                    return comp;
-                  })
-                }
-              </>
-            )}
-
-            {/* 4. Intersection Observer Target & Loading Spinner (Visually at the absolute top of the list) */}
-            {!isLoading && !isSearchActive && notices.length > 0 && (
-              <div ref={loadMoreRef} className="py-6 flex justify-center mt-auto">
-                {isLoadingMore ? (
-                  <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                ) : hasMore ? (
-                  <div className="h-5" /> /* Invisible spacer */
-                ) : (
-                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">End of history</p>
-                )}
-              </div>
-            )}
-          </div>
         </div>
       </div>
+
+      {/* Jump to Latest FAB */}
+      {isScrolledUp && (
+        <button
+          onClick={() => scrollToBottom(true)}
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md shadow-lg border border-gray-200 rounded-full px-4 py-2 flex items-center gap-2 z-40 animate-in slide-in-from-bottom-10 fade-in duration-300 active:scale-95"
+        >
+          <ChevronDown className="w-4 h-4 text-blue-600" />
+          <span className="text-sm font-semibold text-blue-600">Jump to Latest</span>
+          
+          {unreadCount > 0 && (
+            <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in zoom-in duration-200 shadow-sm">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      )}
     </>
   );
 };

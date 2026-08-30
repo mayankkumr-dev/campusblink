@@ -11,7 +11,7 @@ const NOTICES_LAST_SEEN_KEY = 'campus_blink_notices_last_seen';
  * Soft-deleted notices are included but shown as placeholders.
  * Fully-removed notices are hidden by RLS.
  */
-export async function getNoticesForStudent({ college, studyYear, limit = 50, offset = 0 } = {}) {
+export async function getNoticesForStudent({ college, studyYear, limit = 15, beforeTimestamp = null } = {}) {
   try {
     let query = supabase
       .from('official_notices')
@@ -29,7 +29,11 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
       .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('is_pinned', { ascending: false })
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .limit(limit);
+
+    if (beforeTimestamp) {
+      query = query.lt('created_at', beforeTimestamp);
+    }
 
     if (college) {
       query = query.in('college', [college, 'All']);
@@ -56,7 +60,10 @@ export async function getNoticesForStudent({ college, studyYear, limit = 50, off
 
     const { data, error } = await query;
     if (error) throw error;
-    return { data: data || [], error: null };
+    
+    // Reverse the data so it's in chronological order (newest at the end)
+    const reversedData = data ? [...data].reverse() : [];
+    return { data: reversedData, error: null };
   } catch (error) {
     return { data: [], error };
   }
