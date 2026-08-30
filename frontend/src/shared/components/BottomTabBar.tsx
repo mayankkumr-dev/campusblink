@@ -63,7 +63,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ items, onMenuClick }
     <nav
       aria-label="Bottom Navigation"
       className={`md:hidden fixed bottom-0 left-0 right-0 w-full z-[999] flex items-center justify-between select-none transition-all duration-300 ease-in-out bg-white/95 dark:bg-[#171A21]/95 backdrop-blur-xl border-t border-gray-200 dark:border-[#262A33] pb-safe ${
-        scrollDirection === 'down'
+        scrollDirection === 'down' && !location.pathname.startsWith('/student/notices')
           ? 'translate-y-[160%] opacity-0 pointer-events-none'
           : 'translate-y-0 opacity-100 pointer-events-auto'
       }`}
