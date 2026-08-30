@@ -131,7 +131,7 @@ export const AdminPublishedNoticesLazyPage: React.FC = () => {
             {notices.map((notice) => {
               const pinned = isPinnedAndActive(notice);
               return (
-                <div key={notice.id} className={\`p-4 sm:p-5 hover:bg-surface-elevated transition-colors \${notice.is_deleted ? 'opacity-60' : ''}\`}>
+                <div key={notice.id} className={`p-4 sm:p-5 hover:bg-surface-elevated transition-colors ${notice.is_deleted ? 'opacity-60' : ''}`}>
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex-1 min-w-0 space-y-2">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -171,11 +171,11 @@ export const AdminPublishedNoticesLazyPage: React.FC = () => {
                       <button
                         onClick={() => handleSoftDelete(notice)}
                         disabled={actionLoadingId === notice.id}
-                        className={\`p-2 rounded-xl border transition-all \${
+                        className={`p-2 rounded-xl border transition-all ${
                           notice.is_deleted 
                             ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'
                             : 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
-                        }\`}
+                        }`}
                         title={notice.is_deleted ? 'Restore' : 'Soft Delete'}
                       >
                         {actionLoadingId === notice.id ? (
