@@ -162,10 +162,14 @@ export const PWALayer: React.FC = () => {
         <button
           onClick={handleUpdateNow}
           id="pwa-update-banner"
-          className="fixed top-14 left-1/2 z-[120] -translate-x-1/2 rounded-full bg-[var(--accent-blue)] px-5 py-2 text-xs font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition-all"
+          className="fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 rounded-xl bg-gray-900 dark:bg-white px-5 py-3 text-[13px] font-semibold text-white dark:text-gray-900 shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
           style={{ whiteSpace: 'nowrap' }}
         >
-          ✨ Campus Blink just got better — tap to update
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+          </span>
+          Campus Blink just got an update! Tap to restart.
         </button>
       )}
 
