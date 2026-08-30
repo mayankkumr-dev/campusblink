@@ -414,7 +414,6 @@ export const AdminNoticesPage: React.FC = () => {
               </div>
             </div>
 
-          </div>
         </div>
       </div>
     </>

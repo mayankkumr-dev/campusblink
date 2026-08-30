@@ -203,8 +203,7 @@ export async function getNoticesForAdmin(college = null) {
       .order('created_at', { ascending: false });
 
     if (college && college !== 'All') {
-      // Include college-specific notices AND Global/All notices so admins can see them
-      query = query.or(`college.eq.${college},college.eq.All,college.eq.Global`);
+      query = query.in('college', [college, 'All', 'Global']);
     }
 
     const { data, error } = await query;
@@ -240,7 +239,7 @@ export async function getNoticesForAdminPaginated(page = 1, limit = 10, college 
       .order('created_at', { ascending: false });
 
     if (college && college !== 'All') {
-      query = query.or(`college.eq.${college},college.eq.All,college.eq.Global`);
+      query = query.in('college', [college, 'All', 'Global']);
     }
 
     // Pagination logic (0-indexed for Supabase range)
