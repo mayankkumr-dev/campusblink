@@ -320,19 +320,25 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
       const response = await fetch(att.url, { mode: 'cors' });
       if (!response.ok) throw new Error('Network response was not ok');
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = att.name || 'Document.pdf';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      toast.success('Document ready', { id: toastId });
+      
+      let mime = blob.type;
+      if (!mime || !mime.startsWith('application/')) mime = 'application/pdf';
+      const file = new File([blob], att.name || 'Document.pdf', { type: mime });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: att.name || 'Document',
+        });
+        toast.dismiss(toastId);
+      } else {
+        // Fallback: If share is unsupported, use Google Docs Viewer to view without downloading
+        window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(att.url)}`, '_blank');
+        toast.dismiss(toastId);
+      }
     } catch (err) {
       toast.error('Opening in browser...', { id: toastId });
-      // Fallback: open in new tab if CORS fails or fetch errors
+      // Final fallback if fetch/CORS fails
       window.open(att.url, '_blank', 'noopener,noreferrer');
     }
   };
