@@ -222,4 +222,34 @@ async function handleUserDeleted(data) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// POST /api/webhooks/deploy
+// ---------------------------------------------------------------------------
+// Triggered by Vercel/Netlify/GitHub on successful frontend deployment
+// Sends a push notification to all users to force update their PWA
+router.post('/deploy', async (req, res) => {
+  const secret = process.env.DEPLOY_WEBHOOK_SECRET;
+  const providedSecret = req.headers['x-deploy-secret'] || req.query.secret;
+
+  // Protect the endpoint
+  if (!secret || providedSecret !== secret) {
+    console.warn('[WEBHOOK:deploy] Unauthorized deployment webhook attempt');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  console.log('[WEBHOOK:deploy] Deployment success webhook received. Broadcasting push update...');
+
+  // Import lazily to avoid circular dependencies
+  const { sendPushToAll } = require('../services/push');
+
+  // Trigger push broadcast asynchronously
+  sendPushToAll(
+    '✨ Update Available!',
+    'A new version of Campus Blink just landed. Tap here to open and automatically update the app!',
+    '/?refresh=true'
+  ).catch(err => console.error('[WEBHOOK:deploy] Push broadcast failed:', err));
+
+  return res.status(200).json({ success: true, message: 'Update push broadcast initiated' });
+});
+
 module.exports = router;

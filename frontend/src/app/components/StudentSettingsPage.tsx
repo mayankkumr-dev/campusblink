@@ -587,6 +587,44 @@ export const StudentSettingsPage: React.FC = () => {
                 <ChevronRight className="w-5 h-5 text-accent-amber/50 group-hover:text-accent-amber transition-colors flex-shrink-0" />
               </Link>
             )}
+
+            {/* Check for Updates */}
+            <button
+              onClick={async () => {
+                const toastId = toast.loading('Checking for updates...');
+                try {
+                  if ('serviceWorker' in navigator) {
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    if (reg) {
+                      await reg.update();
+                      if (reg.waiting) {
+                        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                      }
+                    }
+                  }
+                  if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map((key) => caches.delete(key)));
+                  }
+                  toast.success('Updating application...', { id: toastId });
+                  setTimeout(() => window.location.reload(), 800);
+                } catch (e) {
+                  toast.error('Failed to check for updates', { id: toastId });
+                }
+              }}
+              className="w-full group flex items-center justify-between p-6 md:p-8 border-b border-border-subtle bg-surface hover:bg-surface-elevated transition-colors text-left"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-active:rotate-180 transition-all duration-300">
+                  <RefreshCw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-syne text-lg font-bold text-text-primary mb-1">Check for Updates</h2>
+                  <p className="text-sm text-text-secondary">Refresh the application cache to fetch the latest version.</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-text-secondary group-hover:text-blue-500 transition-colors flex-shrink-0" />
+            </button>
           </div>
           
           <div className="p-6 md:p-8 bg-surface">
