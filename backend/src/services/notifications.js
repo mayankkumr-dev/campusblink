@@ -12,7 +12,7 @@ const notificationService = {
         title,
         message,
         link,
-        read: false,
+        is_read: false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -87,7 +87,7 @@ const notificationService = {
         title: 'New Follower 👤',
         message: `${safeFollowerName} just followed you.`,
         link: url,
-        read: false,
+        is_read: false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -128,7 +128,7 @@ const notificationService = {
         title: 'Campus Diaries ❤️',
         message: `${safeLikerName} liked your diary entry.`,
         link: url,
-        read: false,
+        is_read: false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -174,7 +174,7 @@ const notificationService = {
         title: safeTitle,
         message: body,
         link: url,
-        read: false,
+        is_is_read: false,
         created_at: new Date().toISOString(),
       }));
 
@@ -215,7 +215,7 @@ const notificationService = {
         title: 'Message Request 💬',
         message: `${safeSenderName} wants to connect.`,
         link: url,
-        read: false,
+        is_read: false,
         created_at: new Date().toISOString(),
       })
       .select()
@@ -244,7 +244,7 @@ const notificationService = {
   markAsRead: async (notificationId) => {
     const { error } = await supabaseAdmin
       .from('notifications')
-      .update({ read: true })
+      .update({ is_read: true })
       .eq('id', notificationId);
 
     if (error) throw new Error(`Failed to mark notification as read: ${error.message}`);

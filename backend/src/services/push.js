@@ -146,9 +146,12 @@ async function sendMulticast(tokens, payload) {
 
   const message = {
     tokens,
-    // Root notification removed to force DATA-ONLY mode for Web Push (PWA).
-    // This guarantees the service worker's onBackgroundMessage ALWAYS fires,
-    // allowing us to reliably handle the notification ourselves.
+    // We MUST include the root notification object for iOS Safari (PWA) 
+    // to actually wake up and show the push notification. Data-only is dropped by iOS.
+    notification: {
+      title: title || 'Campus Blink',
+      body: body || 'You have a new update.',
+    },
     data: {
       title: title || 'Campus Blink',
       body: body || 'You have a new update.',

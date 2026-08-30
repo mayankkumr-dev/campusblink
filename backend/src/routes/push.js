@@ -244,7 +244,6 @@ router.put('/preferences', authMiddleware, async (req, res) => {
 
 // ── POST /api/push/broadcast-notice ───────────────────────────────────────────
 // Trigger endpoint to broadcast a notice push to targeted students.
-// Called by the frontend immediately after saving an official notice.
 router.post('/broadcast-notice', authMiddleware, async (req, res) => {
   try {
     const { noticeId, title, content, college, targetYear } = req.body;

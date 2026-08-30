@@ -352,24 +352,6 @@ export const NoticesPage: React.FC = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 relative">
       
-      {/* Admin Panel Header */}
-      {isAdmin && (
-        <div className="bg-white border-b border-gray-200 shrink-0 z-10">
-          <Link
-            to="/student/notices/admin"
-            className="flex items-center gap-3 px-4 py-3 bg-orange-50/50 hover:bg-orange-50 transition-colors"
-          >
-            <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0 shadow-sm">
-              <Megaphone className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-orange-700">Notice Admin Panel</p>
-              <p className="text-[11px] text-orange-600/70 font-medium">Publish &amp; manage notices</p>
-            </div>
-          </Link>
-        </div>
-      )}
-
       {/* Main Reversed Scroll Container */}
       <div className="flex-1 overflow-y-auto flex flex-col-reverse px-4 md:px-6 relative">
         <div className="w-full max-w-2xl mx-auto flex flex-col-reverse">
@@ -434,6 +416,24 @@ export const NoticesPage: React.FC = () => {
               <div className="h-5" />
             )}
           </div>
+          
+          {/* Notice Admin Quick Link */}
+          {isAdmin && (
+            <Link
+              to="/student/notices/admin"
+              className="mb-5 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-amber-950/40 dark:to-orange-950/40 rounded-2xl border border-orange-100 dark:border-amber-900/50 active:scale-[0.99] transition-all group hover:shadow-md"
+              style={{ animation: 'slideUpFade 0.3s ease both' }}
+            >
+              <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-amber-900/60 flex items-center justify-center text-orange-600 dark:text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
+                <Megaphone className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-orange-900 dark:text-amber-300">Notice Admin Panel</p>
+                <p className="text-[11px] text-orange-600/70 dark:text-amber-400/80 font-medium">Publish &amp; manage notices</p>
+              </div>
+              <ExternalLink className="w-4 h-4 text-orange-400 dark:text-amber-400 shrink-0 group-hover:text-orange-500 dark:group-hover:text-amber-300 transition-colors" />
+            </Link>
+          )}
 
         </div>
       </div>
