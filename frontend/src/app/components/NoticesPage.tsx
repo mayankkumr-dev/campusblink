@@ -254,6 +254,7 @@ export const NoticesPage: React.FC = () => {
   
   const [isScrolledUp, setIsScrolledUp] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isReady, setIsReady] = useState(false);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   
@@ -277,10 +278,9 @@ export const NoticesPage: React.FC = () => {
     if (res.data) {
       if (res.data.length < LIMIT) setHasMoreOlder(false);
       setNotices(res.data);
-      // Auto-scroll to bottom after initial render
-      setTimeout(() => {
-        scrollToBottom(false);
-      }, 100);
+      if (res.data.length === 0) {
+        setIsReady(true);
+      }
       markNoticesAsSeen(profile?.id);
       window.dispatchEvent(new CustomEvent('notices-seen'));
     } else {
@@ -322,6 +322,13 @@ export const NoticesPage: React.FC = () => {
 
   // Use Layout Effect to restore scroll position immediately after DOM paints new items
   useLayoutEffect(() => {
+    if (!isReady && notices.length > 0) {
+      // Synchronous scroll to bottom on first load BEFORE paint
+      window.scrollTo(0, document.documentElement.scrollHeight);
+      setIsReady(true);
+      return;
+    }
+
     if (isPrependingRef.current) {
       const newScrollHeight = document.documentElement.scrollHeight;
       const heightDifference = newScrollHeight - previousScrollHeight.current;
@@ -426,8 +433,8 @@ export const NoticesPage: React.FC = () => {
       `}</style>
 
       {/* Main Container - bg-gray-50 enforced */}
-      <div className="min-h-full bg-gray-50 pb-20 relative">
-        <div className="max-w-2xl mx-auto px-4 md:px-6 flex flex-col pt-4">
+      <div className={`min-h-[calc(100vh-64px)] bg-gray-50 pb-20 relative flex flex-col transition-opacity duration-200 ${isReady || (notices.length === 0 && !isLoading) ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="max-w-2xl mx-auto px-4 md:px-6 flex flex-col pt-4 flex-1 w-full">
           
           {/* Top Sentinel & Loading Indicator */}
           <div ref={loadMoreRef} className="py-2 flex justify-center w-full min-h-[40px]">
@@ -492,7 +499,7 @@ export const NoticesPage: React.FC = () => {
           {isAdmin && !isLoading && (
             <Link
               to="/student/notices/admin"
-              className="mt-6 mb-6 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-200 active:scale-[0.99] transition-all group shadow-sm hover:shadow-md"
+              className="mt-auto mb-2 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-200 active:scale-[0.99] transition-all group shadow-sm hover:shadow-md"
             >
               <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 shrink-0 group-hover:scale-105 transition-transform">
                 <Megaphone className="w-4 h-4" />
