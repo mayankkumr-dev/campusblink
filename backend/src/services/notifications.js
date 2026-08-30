@@ -151,23 +151,12 @@ const notificationService = {
     return data;
   },
 
-  /**
-   * Fires when an official notice/announcement is posted.
-   * Sends to an array of target user IDs (e.g. all active students).
-   * Uses fire-and-forget batch delivery — failures are logged, not retried.
-   *
-   * @param {string[]} targetUserIds - Array of user IDs to notify
-   * @param {string}   noticeTitle   - Title of the notice
-   * @param {string}   noticeId      - DB ID of the notice (for routing)
-   * @param {string}   noticeContent - Content of the notice (for the push body)
-   */
-  notifyOfficialNotice: async (targetUserIds, noticeTitle, noticeId, noticeContent = '') => {
+  notifyOfficialNotice: async (targetUserIds, noticeTitle, noticeId, noticeContent = '', isFaculty = false) => {
     if (!targetUserIds?.length) return;
 
     const safeTitle = String(noticeTitle || 'A new notice').trim();
-    // Route to the student notices list — the individual notice ID is not directly
-    // routable from a notification tap; the list page is the correct destination.
-    const url = '/student/notices';
+    // Route appropriately based on target audience
+    const url = isFaculty ? '/professor/notices' : '/student/notices';
     
     let body = 'A new official notice has been posted.';
     if (noticeContent && noticeContent.trim() !== '') {
@@ -175,8 +164,27 @@ const notificationService = {
       body = cleanContent.length > 100 ? cleanContent.substring(0, 100) + '...' : cleanContent;
     }
 
-    // Fan-out: send push to each user using chunked batching (500 users per batch).
-    // DB notification rows are not created per-user here to avoid O(N) inserts for campus-wide notices.
+    // 1. Bulk insert into notifications table so it appears in the /notifications page
+    const BATCH_SIZE = 500;
+    for (let i = 0; i < targetUserIds.length; i += BATCH_SIZE) {
+      const chunk = targetUserIds.slice(i, i + BATCH_SIZE);
+      const notificationsToInsert = chunk.map(userId => ({
+        user_id: userId,
+        type: 'announcement',
+        title: safeTitle,
+        message: body,
+        link: url,
+        read: false,
+        created_at: new Date().toISOString(),
+      }));
+
+      const { error } = await supabaseAdmin.from('notifications').insert(notificationsToInsert);
+      if (error) {
+        console.error('[notifyOfficialNotice] DB bulk insert failed:', error.message);
+      }
+    }
+
+    // 2. Fan-out: send push to each user using chunked batching
     await sendPushBatch(targetUserIds, {
       type: 'announcement',
       title: safeTitle,
