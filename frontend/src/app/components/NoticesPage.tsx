@@ -315,30 +315,28 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
 
   const handleDocumentClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    const toastId = toast.loading(`Opening ${att.name || 'Document'}...`);
-    try {
-      const response = await fetch(att.url, { mode: 'cors' });
-      if (!response.ok) throw new Error('Network response was not ok');
-      const blob = await response.blob();
-      
-      let mime = blob.type;
-      if (!mime || !mime.startsWith('application/')) mime = 'application/pdf';
-      const file = new File([blob], att.name || 'Document.pdf', { type: mime });
+    
+    const isPdf = att.url.toLowerCase().includes('.pdf');
+    const isAndroid = /android/i.test(navigator.userAgent || navigator.vendor || (window as any).opera);
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: att.name || 'Document',
-        });
-        toast.dismiss(toastId);
-      } else {
-        // Fallback: If share is unsupported, use Google Docs Viewer to view without downloading
-        window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(att.url)}`, '_blank');
-        toast.dismiss(toastId);
+    if (isAndroid) {
+      // Use Android Intent to trigger "Open With" drawer (ACTION_VIEW)
+      const cleanUrl = att.url.replace(/^https?:\/\//, '');
+      const scheme = att.url.startsWith('https') ? 'https' : 'http';
+      
+      let mimeType = 'application/pdf';
+      if (!isPdf) {
+        const lowerUrl = att.url.toLowerCase();
+        if (lowerUrl.includes('.doc')) mimeType = 'application/msword';
+        else if (lowerUrl.includes('.ppt')) mimeType = 'application/vnd.ms-powerpoint';
+        else if (lowerUrl.includes('.xls')) mimeType = 'application/vnd.ms-excel';
+        else mimeType = '*/*';
       }
-    } catch (err) {
-      toast.error('Opening in browser...', { id: toastId });
-      // Final fallback if fetch/CORS fails
+      
+      const intentUrl = `intent://${cleanUrl}#Intent;scheme=${scheme};type=${mimeType};action=android.intent.action.VIEW;end;`;
+      window.location.href = intentUrl;
+    } else {
+      // iOS / Desktop: just open in new tab. Safari views PDFs natively inline.
       window.open(att.url, '_blank', 'noopener,noreferrer');
     }
   };
