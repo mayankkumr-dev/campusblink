@@ -96,23 +96,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   }, [onClose]);
 
   const toggleControlsAndFullscreen = (forceShow?: boolean) => {
-    setControlsVisible(prev => {
-      const willShow = forceShow !== undefined ? forceShow : !prev;
-      
-      try {
-        if (!willShow) {
-          if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          }
-        } else {
-          if (document.fullscreenElement && document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
-          }
-        }
-      } catch (e) {}
-
-      return willShow;
-    });
+    setControlsVisible(prev => forceShow !== undefined ? forceShow : !prev);
   };
 
   const handleDownload = async () => {
@@ -171,7 +155,10 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   return (
     <div 
       className="fixed inset-0 z-[9999] animate-in fade-in duration-200"
-      style={{ backgroundColor: `rgba(0, 0, 0, ${backdropOpacity})` }}
+      style={{ 
+        backgroundColor: `rgba(0, 0, 0, ${backdropOpacity})`,
+        transition: 'background-color 0.3s ease'
+      }}
     >
       {/* Swipeable Container */}
       <div 
