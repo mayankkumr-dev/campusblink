@@ -55,6 +55,11 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }> = ({ src, alt, onClose }) => {
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [scale, setScale] = useState(1);
+  const [swipeY, setSwipeY] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  
+  const touchStart = useRef<{ x: number, y: number, time: number } | null>(null);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -119,18 +124,12 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           title: alt || 'Shared Image',
         });
       } else if (navigator.share) {
-        // Fallback to URL if file sharing is not supported by browser
-        await navigator.share({
-          title: alt || 'Shared Image',
-          url: src
-        });
+        await navigator.share({ title: alt || 'Shared Image', url: src });
       } else {
         fallbackShare();
       }
     } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
-        fallbackShare();
-      }
+      if ((err as Error).name !== 'AbortError') fallbackShare();
     }
   };
 
@@ -139,20 +138,78 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
     toast.success('Link copied to clipboard!');
   };
 
+  // Calculate dynamic opacity for the backdrop based on swipe distance
+  const backdropOpacity = Math.max(0, 0.95 - (Math.abs(swipeY) / 300));
+  const isZoomedOut = scale <= 1.05;
+
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl animate-in fade-in duration-200">
-      {/* Pinch-to-Zoom Image (Full Screen) */}
-      <div className="absolute inset-0">
+    <div 
+      className="fixed inset-0 z-[9999] animate-in fade-in duration-200"
+      style={{ backgroundColor: `rgba(0, 0, 0, ${backdropOpacity})` }}
+    >
+      {/* Swipeable Container */}
+      <div 
+        className="absolute inset-0"
+        style={{ 
+          transform: `translateY(${swipeY}px)`,
+          transition: isAnimating ? 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none'
+        }}
+        onTouchStart={(e) => {
+          if (!isZoomedOut) return;
+          setIsAnimating(false);
+          touchStart.current = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+            time: Date.now()
+          };
+        }}
+        onTouchMove={(e) => {
+          if (!isZoomedOut || !touchStart.current) return;
+          const deltaY = e.touches[0].clientY - touchStart.current.y;
+          setSwipeY(deltaY);
+          if (Math.abs(deltaY) > 10 && controlsVisible) setControlsVisible(false);
+        }}
+        onTouchEnd={(e) => {
+          if (!touchStart.current) return;
+          const touch = e.changedTouches[0];
+          const deltaX = Math.abs(touch.clientX - touchStart.current.x);
+          const deltaY = touch.clientY - touchStart.current.y;
+          const absDeltaY = Math.abs(deltaY);
+          const timeElapsed = Date.now() - touchStart.current.time;
+
+          if (deltaX < 10 && absDeltaY < 10 && timeElapsed < 300) {
+            setControlsVisible(prev => !prev);
+          }
+          
+          if (isZoomedOut) {
+            setIsAnimating(true);
+            if (absDeltaY > 120) {
+              onClose();
+            } else {
+              setSwipeY(0);
+              if (absDeltaY > 10) setControlsVisible(true);
+            }
+          }
+          touchStart.current = null;
+        }}
+        onClick={() => {
+          // Fallback for mouse clicks
+          if (isZoomedOut && swipeY === 0) setControlsVisible(prev => !prev);
+        }}
+      >
         <TransformWrapper
           initialScale={1}
           minScale={1}
           maxScale={8}
           centerOnInit
           doubleClick={{ mode: 'zoomIn' }}
+          panning={{ disabled: isZoomedOut }}
           onTransformed={(ref) => {
-            if (ref.state.scale > 1.05 && controlsVisible) {
+            const newScale = ref.state.scale;
+            setScale(newScale);
+            if (newScale > 1.05 && controlsVisible) {
               setControlsVisible(false);
-            } else if (ref.state.scale <= 1.05 && !controlsVisible) {
+            } else if (newScale <= 1.05 && !controlsVisible && swipeY === 0) {
               setControlsVisible(true);
             }
           }}
@@ -161,22 +218,22 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
             <img
               src={src}
               alt={alt}
-              className="max-w-full max-h-full object-contain"
-              onClick={() => setControlsVisible(prev => !prev)}
+              className="w-full h-full object-contain select-none pointer-events-none"
+              draggable={false}
             />
           </TransformComponent>
         </TransformWrapper>
       </div>
 
       {/* Top Navigation Overlay */}
-      <div className={`absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-50 text-white pointer-events-none pt-safe transition-opacity duration-300 ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-50 text-white pointer-events-none pt-safe transition-opacity duration-300 ${controlsVisible && swipeY === 0 ? 'opacity-100' : 'opacity-0'}`}>
         <button onClick={onClose} className="pointer-events-auto w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors shadow-sm border border-white/10">
           <X className="w-5 h-5" />
         </button>
       </div>
       
       {/* Bottom Action Bar Overlay */}
-      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 p-6 z-50 pb-safe pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 p-6 z-50 pb-safe pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${controlsVisible && swipeY === 0 ? 'opacity-100' : 'opacity-0'}`}>
         <button onClick={handleDownload} className="pointer-events-auto flex flex-col items-center gap-1.5 text-white/90 hover:text-white transition-colors active:scale-95">
           <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/10 shadow-sm flex items-center justify-center">
             <Download className="w-5 h-5" />
