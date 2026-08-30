@@ -115,7 +115,9 @@ router.post('/users/canteen-owner', authMiddleware, adminOnlyMiddleware, async (
       return res.status(400).json({ error: err.message });
     }
 
+    const newId = require('crypto').randomUUID();
     const { data: newProfile, error: profileError } = await supabaseAdmin.from('profiles').insert([{
+      id: newId,
       clerk_user_id: clerkUser.id,
       email,
       name,
@@ -164,18 +166,20 @@ router.post('/users/print-owner', authMiddleware, adminOnlyMiddleware, async (re
 
     let clerkUser;
     try {
-      clerkUser = await createClerkUser({ email, password, name, username, role: 'print_shop', college });
+      clerkUser = await createClerkUser({ email, password, name, username, role: 'print_owner', college });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
 
+    const newId = require('crypto').randomUUID();
     const { data: newProfile, error: profileError } = await supabaseAdmin.from('profiles').insert([{
+      id: newId,
       clerk_user_id: clerkUser.id,
       email,
       name,
       username,
       college,
-      role: 'print_shop'
+      role: 'print_owner'
     }]).select('id').single();
 
     if (profileError) {
