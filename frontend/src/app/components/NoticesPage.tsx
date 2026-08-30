@@ -54,6 +54,8 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 // ─── Image Lightbox ──────────────────────────────────────────────────────────
 
 const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }> = ({ src, alt, onClose }) => {
+  const [controlsVisible, setControlsVisible] = useState(true);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
@@ -147,26 +149,34 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           maxScale={8}
           centerOnInit
           doubleClick={{ mode: 'zoomIn' }}
+          onTransformed={(ref) => {
+            if (ref.state.scale > 1.05 && controlsVisible) {
+              setControlsVisible(false);
+            } else if (ref.state.scale <= 1.05 && !controlsVisible) {
+              setControlsVisible(true);
+            }
+          }}
         >
           <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <img
               src={src}
               alt={alt}
               className="max-w-full max-h-full object-contain"
+              onClick={() => setControlsVisible(prev => !prev)}
             />
           </TransformComponent>
         </TransformWrapper>
       </div>
 
       {/* Top Navigation Overlay */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-50 text-white pointer-events-none pt-safe">
+      <div className={`absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-50 text-white pointer-events-none pt-safe transition-opacity duration-300 ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
         <button onClick={onClose} className="pointer-events-auto w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors shadow-sm border border-white/10">
           <X className="w-5 h-5" />
         </button>
       </div>
       
       {/* Bottom Action Bar Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 p-6 z-50 pb-safe pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 p-6 z-50 pb-safe pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 ${controlsVisible ? 'opacity-100' : 'opacity-0'}`}>
         <button onClick={handleDownload} className="pointer-events-auto flex flex-col items-center gap-1.5 text-white/90 hover:text-white transition-colors active:scale-95">
           <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/10 shadow-sm flex items-center justify-center">
             <Download className="w-5 h-5" />
