@@ -313,6 +313,30 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
     }
   };
 
+  const handleDocumentClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const toastId = toast.loading(`Opening ${att.name || 'Document'}...`);
+    try {
+      const response = await fetch(att.url, { mode: 'cors' });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = att.name || 'Document.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Document ready', { id: toastId });
+    } catch (err) {
+      toast.error('Opening in browser...', { id: toastId });
+      // Fallback: open in new tab if CORS fails or fetch errors
+      window.open(att.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   if (isImage) {
     return (
       <>
@@ -337,9 +361,8 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
   return (
     <a
       href={att.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-gray-50 rounded-xl p-3 flex items-center gap-3 mt-3 border border-gray-100 active:scale-[0.98] transition-transform w-full text-left group"
+      onClick={handleDocumentClick}
+      className="bg-gray-50 rounded-xl p-3 flex items-center gap-3 mt-3 border border-gray-100 active:scale-[0.98] transition-transform w-full text-left group cursor-pointer"
     >
       <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-white border border-gray-100 shadow-sm ${isPdf ? 'text-red-500' : 'text-gray-600'}`}>
         <FileText className="w-5 h-5" />
