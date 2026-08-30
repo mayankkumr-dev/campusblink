@@ -79,19 +79,33 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      
+      const mime = blob.type || 'image/jpeg';
+      const ext = mime.split('/')[1] || 'jpg';
+      const filename = alt ? `${alt.replace(/[^a-z0-9]/gi, '_')}.${ext}` : `shared_image.${ext}`;
+      const file = new File([blob], filename, { type: mime });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: alt || 'Shared Image',
+        });
+      } else if (navigator.share) {
+        // Fallback to URL if file sharing is not supported by browser
         await navigator.share({
           title: alt || 'Shared Image',
           url: src
         });
-      } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          fallbackShare();
-        }
+      } else {
+        fallbackShare();
       }
-    } else {
-      fallbackShare();
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        fallbackShare();
+      }
     }
   };
 
@@ -101,16 +115,9 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-200">
-      {/* Top Navigation */}
-      <div className="flex items-center justify-between p-4 z-50 text-white">
-        <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-          <X className="w-5 h-5" />
-        </button>
-      </div>
-      
-      {/* Pinch-to-Zoom Image */}
-      <div className="flex-1 overflow-hidden relative">
+    <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl animate-in fade-in duration-200">
+      {/* Pinch-to-Zoom Image (Full Screen) */}
+      <div className="absolute inset-0">
         <TransformWrapper
           initialScale={1}
           minScale={1}
@@ -127,21 +134,28 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           </TransformComponent>
         </TransformWrapper>
       </div>
+
+      {/* Top Navigation Overlay */}
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 z-50 text-white pointer-events-none pt-safe">
+        <button onClick={onClose} className="pointer-events-auto w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center transition-colors shadow-sm border border-white/10">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
       
-      {/* Bottom Action Bar */}
-      <div className="flex items-center justify-center gap-6 p-4 z-50 pb-safe">
-        <button onClick={handleDownload} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors active:scale-95">
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+      {/* Bottom Action Bar Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 p-6 z-50 pb-safe pointer-events-none bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+        <button onClick={handleDownload} className="pointer-events-auto flex flex-col items-center gap-1.5 text-white/90 hover:text-white transition-colors active:scale-95">
+          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/10 shadow-sm flex items-center justify-center">
             <Download className="w-5 h-5" />
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-wider">Download</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-white/90 shadow-black drop-shadow-md">Download</span>
         </button>
         
-        <button onClick={handleShare} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors active:scale-95">
-          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+        <button onClick={handleShare} className="pointer-events-auto flex flex-col items-center gap-1.5 text-white/90 hover:text-white transition-colors active:scale-95">
+          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/10 shadow-sm flex items-center justify-center">
             <ExternalLink className="w-5 h-5" />
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-wider">Share</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-white/90 shadow-black drop-shadow-md">Share</span>
         </button>
       </div>
     </div>
@@ -156,11 +170,30 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
   const isImage = category === 'image';
   const isPdf = category === 'pdf';
 
+  useEffect(() => {
+    if (lightboxOpen) {
+      window.history.pushState({ lightbox: true }, '');
+      const handlePopState = () => setLightboxOpen(false);
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [lightboxOpen]);
+
+  const closeLightbox = () => {
+    if (window.history.state?.lightbox) {
+      window.history.back();
+    } else {
+      setLightboxOpen(false);
+    }
+  };
+
   if (isImage) {
     return (
       <>
         {lightboxOpen && (
-          <ImageLightbox src={att.url} alt={att.name} onClose={() => setLightboxOpen(false)} />
+          <ImageLightbox src={att.url} alt={att.name} onClose={closeLightbox} />
         )}
         <button
           type="button"
