@@ -1,17 +1,13 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Bell,
   FileText,
   Download,
-  Pin,
   Loader2,
   Megaphone,
   ChevronDown,
-  ChevronUp,
-  ExternalLink,
   Trash2,
   X,
-  ZoomIn,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import {
@@ -46,23 +42,10 @@ function formatRelativeTime(iso: string): string {
   return formatDate(iso);
 }
 
-function yearLabel(year: string) {
-  if (year === 'all') return 'All Students';
-  return year;
-}
-
 function getAttachmentCategory(type: string) {
   if (type?.startsWith('image/')) return 'image';
   if (type === 'application/pdf') return 'pdf';
   return 'doc';
-}
-
-function getNoticeCategory(title: string): 'urgent' | 'event' | 'general' {
-  if (!title) return 'general';
-  const t = title.toLowerCase();
-  if (t.includes('urgent') || t.includes('important') || t.includes('alert')) return 'urgent';
-  if (t.includes('event') || t.includes('workshop') || t.includes('competition')) return 'event';
-  return 'general';
 }
 
 // ─── Image Lightbox ──────────────────────────────────────────────────────────
@@ -95,13 +78,15 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   );
 };
 
-// ─── Attachment Preview Card ─────────────────────────────────────────────────
+// ─── Notice Attachment Renderer ──────────────────────────────────────────────
 
-const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
+const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const category = getAttachmentCategory(att.type || '');
+  const isImage = category === 'image';
+  const isPdf = category === 'pdf';
 
-  if (category === 'image') {
+  if (isImage) {
     return (
       <>
         {lightboxOpen && (
@@ -110,44 +95,35 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
         <button
           type="button"
           onClick={() => setLightboxOpen(true)}
-          className="group relative block w-28 h-20 rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all active:scale-95"
+          className="block w-full mt-3 active:opacity-80 transition-opacity outline-none"
         >
           <img
             src={att.url}
             alt={att.name}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            className="w-full aspect-[4/3] sm:aspect-video object-cover rounded-xl border border-gray-100 shadow-sm bg-gray-50"
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-            <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" />
-          </div>
-          <div className="absolute bottom-1 left-1 right-1">
-            <span className="text-[9px] font-bold text-white bg-black/50 rounded px-1 py-0.5 truncate block text-center backdrop-blur-sm">
-              {att.name?.split('.').pop()?.toUpperCase() || 'IMG'}
-            </span>
-          </div>
         </button>
       </>
     );
   }
 
-  const isPdf = category === 'pdf';
   return (
     <a
       href={att.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 hover:shadow-md transition-all group min-w-0 max-w-xs active:scale-[0.98]"
+      className="bg-gray-50 rounded-xl p-3 flex items-center gap-3 mt-3 border border-gray-100 active:scale-[0.98] transition-transform w-full text-left group"
     >
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isPdf ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-        <FileText className="w-4 h-4" />
+      <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-white border border-gray-100 shadow-sm ${isPdf ? 'text-red-500' : 'text-gray-600'}`}>
+        <FileText className="w-5 h-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-bold text-gray-800 truncate">{att.name || 'Document'}</p>
+        <p className="truncate text-sm font-medium text-gray-800">{att.name || 'Document'}</p>
         <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-0.5">
-          {isPdf ? 'PDF' : 'Document'}
+          {isPdf ? 'PDF Document' : 'Attachment'}
         </p>
       </div>
-      <Download className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-colors shrink-0" />
+      <Download className="w-4 h-4 text-gray-400 shrink-0 mr-1 group-hover:text-gray-700 transition-colors" />
     </a>
   );
 };
@@ -155,7 +131,7 @@ const AttachmentCard: React.FC<{ att: any }> = ({ att }) => {
 // ─── Deleted Notice Placeholder ──────────────────────────────────────────────
 
 const DeletedNoticePlaceholder: React.FC = () => (
-  <div className="bg-white shadow-sm border border-dashed border-gray-200 rounded-2xl p-4 flex items-center gap-3 mb-3">
+  <div className="bg-white shadow-sm border border-dashed border-gray-200 rounded-2xl p-4 flex items-center gap-3 mb-4">
     <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center shrink-0">
       <Trash2 className="w-4 h-4 text-gray-300" />
     </div>
@@ -169,12 +145,10 @@ const NoticeCard: React.FC<{
   notice: any;
   isAdmin: boolean;
   onSoftDelete: (id: string) => void;
-  index: number;
-}> = ({ notice, isAdmin, onSoftDelete, index }) => {
-  const [expanded, setExpanded] = useState(false);
+}> = ({ notice, isAdmin, onSoftDelete }) => {
   const [deletingId, setDeletingId] = useState(false);
-  const isLong = (notice.content?.length || 0) > 200;
   const attachments: any[] = Array.isArray(notice.attachments) ? notice.attachments : [];
+  const senderName = notice.sender_name || 'Administration';
 
   const handleSoftDelete = async () => {
     if (!window.confirm('Delete this notice? Students will see "This message has been deleted" in its place.')) return;
@@ -188,57 +162,50 @@ const NoticeCard: React.FC<{
   };
 
   return (
-    <article
-      className="relative bg-white rounded-2xl p-4 shadow-sm border border-gray-100 transition-all duration-300 mb-3"
-      style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${index * 30}ms` }}
-    >
-      <div className="flex items-start justify-between gap-4 mb-2">
-        <h2 className="text-[15px] font-bold text-gray-900 leading-snug flex-1">
+    <article className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-3">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0 text-blue-600">
+            <Bell className="w-3.5 h-3.5" />
+          </div>
+          <span className="text-sm font-semibold text-gray-800 tracking-tight">{senderName}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-gray-400">{formatRelativeTime(notice.created_at)}</span>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={handleSoftDelete}
+              disabled={deletingId}
+              className="w-6 h-6 rounded-full hover:bg-rose-50 text-gray-300 hover:text-rose-500 flex items-center justify-center transition-all shrink-0"
+            >
+              {deletingId ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div>
+        <h2 className="text-base font-bold text-gray-900 tracking-tight mb-1.5">
           {notice.title}
         </h2>
-        {isAdmin && (
-          <button
-            type="button"
-            title="Delete notice"
-            onClick={handleSoftDelete}
-            disabled={deletingId}
-            className="w-8 h-8 rounded-full hover:bg-rose-50 text-gray-300 hover:text-rose-500 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 sm:opacity-100 shrink-0 -mt-1"
-          >
-            {deletingId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-          </button>
+        {notice.content && (
+          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+            {notice.content}
+          </p>
         )}
       </div>
 
-      {notice.content && (
-        <p className={`text-sm text-gray-600 leading-relaxed whitespace-pre-wrap ${!expanded && isLong ? 'line-clamp-3' : ''}`}>
-          {notice.content}
-        </p>
-      )}
-      
-      {isLong && (
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); setExpanded(!expanded); }}
-          className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          {expanded
-            ? <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
-            : <><ChevronDown className="w-3.5 h-3.5" /> Read more</>
-          }
-        </button>
-      )}
-
+      {/* Attachments */}
       {attachments.length > 0 && (
-        <div className="mt-3.5 flex flex-wrap gap-2.5">
+        <div className="flex flex-col mt-1">
           {attachments.map((att, idx) => (
-            <AttachmentCard key={idx} att={att} />
+            <NoticeAttachment key={idx} att={att} />
           ))}
         </div>
       )}
-
-      <div className="mt-2 text-right">
-        <span className="text-xs text-gray-400 font-medium">{formatRelativeTime(notice.created_at)}</span>
-      </div>
     </article>
   );
 };
@@ -254,13 +221,9 @@ export const NoticesPage: React.FC = () => {
   
   const [isScrolledUp, setIsScrolledUp] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isReady, setIsReady] = useState(false);
 
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  
-  const previousScrollHeight = useRef<number>(0);
-  const previousScrollTop = useRef<number>(0);
-  const isPrependingRef = useRef(false);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
 
   const isAdmin = Boolean(profile?.is_notice_admin) || profile?.role === 'admin';
   const LIMIT = 15;
@@ -278,9 +241,6 @@ export const NoticesPage: React.FC = () => {
     if (res.data) {
       if (res.data.length < LIMIT) setHasMoreOlder(false);
       setNotices(res.data);
-      if (res.data.length === 0) {
-        setIsReady(true);
-      }
       markNoticesAsSeen(profile?.id);
       window.dispatchEvent(new CustomEvent('notices-seen'));
     } else {
@@ -294,7 +254,6 @@ export const NoticesPage: React.FC = () => {
     if (!profile?.college || isLoadingOlder || !hasMoreOlder || notices.length === 0) return;
     setIsLoadingOlder(true);
     
-    // Get the timestamp of the oldest notice currently in state (which is at index 0)
     const oldestTimestamp = notices[0].created_at;
 
     const res = await getNoticesForStudent({ 
@@ -308,41 +267,15 @@ export const NoticesPage: React.FC = () => {
       if (res.data.length < LIMIT) setHasMoreOlder(false);
       
       if (res.data.length > 0) {
-        // Record scroll metrics before updating state
-        previousScrollHeight.current = document.documentElement.scrollHeight;
-        previousScrollTop.current = document.documentElement.scrollTop;
-        isPrependingRef.current = true;
-        
-        // Prepend older notices
         setNotices((prev) => [...res.data, ...prev]);
       }
     }
     setIsLoadingOlder(false);
   }, [profile?.college, profile?.study_year, profile?.academic_year, notices, isLoadingOlder, hasMoreOlder]);
 
-  // Use Layout Effect to restore scroll position immediately after DOM paints new items
-  useLayoutEffect(() => {
-    if (!isReady && notices.length > 0) {
-      // Synchronous scroll to bottom on first load BEFORE paint
-      window.scrollTo(0, document.documentElement.scrollHeight);
-      setIsReady(true);
-      return;
-    }
-
-    if (isPrependingRef.current) {
-      const newScrollHeight = document.documentElement.scrollHeight;
-      const heightDifference = newScrollHeight - previousScrollHeight.current;
-      
-      // Adjust scroll top by the height of the new elements inserted at the top
-      window.scrollTo(0, previousScrollTop.current + heightDifference);
-      
-      isPrependingRef.current = false;
-    }
-  }, [notices]);
-
-  // 3. Setup Intersection Observer for Sentinel
+  // 3. Setup Intersection Observer for Sentinel (Load Older)
   useEffect(() => {
-    const target = loadMoreRef.current;
+    const target = topSentinelRef.current;
     if (!target || isLoading) return;
     
     const observer = new IntersectionObserver(
@@ -351,43 +284,38 @@ export const NoticesPage: React.FC = () => {
           loadOlder();
         }
       },
-      { threshold: 0.1, rootMargin: '400px' } // Pre-fetch before user hits absolute top
+      { threshold: 0.1, rootMargin: '400px' } 
     );
     
     observer.observe(target);
-    return () => observer.unobserve(target);
+    return () => observer.disconnect();
   }, [loadOlder, hasMoreOlder, isLoading, isLoadingOlder]);
 
-  // 4. Initial Trigger
-  useEffect(() => { loadInitial(); }, [loadInitial]);
-
-  // 5. Scroll Tracking for 'Jump to Latest'
+  // 4. Setup Intersection Observer for Bottom (Unread Tracking)
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight || window.innerHeight;
-      
-      // If user is scrolled up more than 150px from bottom
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      setIsScrolledUp(distanceFromBottom > 150);
-      
-      // If user returns to bottom naturally, clear unread count
-      if (distanceFromBottom <= 50 && unreadCount > 0) {
-        setUnreadCount(0);
-        markNoticesAsSeen(profile?.id);
-      }
-    };
+    const target = bottomSentinelRef.current;
+    if (!target) return;
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsScrolledUp(!entry.isIntersecting);
+        if (entry.isIntersecting && unreadCount > 0) {
+          setUnreadCount(0);
+          markNoticesAsSeen(profile?.id);
+        }
+      },
+      { threshold: 0 }
+    );
+    
+    observer.observe(target);
+    return () => observer.disconnect();
   }, [unreadCount, profile?.id]);
 
-  const scrollToBottom = (smooth = true) => {
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: smooth ? 'smooth' : 'auto'
-    });
+  // 5. Initial Trigger
+  useEffect(() => { loadInitial(); }, [loadInitial]);
+
+  const scrollToBottom = () => {
+    bottomSentinelRef.current?.scrollIntoView({ behavior: 'smooth' });
     setUnreadCount(0);
     markNoticesAsSeen(profile?.id);
   };
@@ -400,7 +328,6 @@ export const NoticesPage: React.FC = () => {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'official_notices' }, (payload) => {
         const newNotice = payload.new;
         
-        // Basic filtering to see if notice belongs to user's college
         if (newNotice.college !== 'All' && newNotice.college !== profile.college) return;
         
         setNotices(prev => [...prev, newNotice]);
@@ -408,8 +335,7 @@ export const NoticesPage: React.FC = () => {
         if (isScrolledUp) {
           setUnreadCount(c => c + 1);
         } else {
-          // If already at bottom, just push them down
-          setTimeout(() => scrollToBottom(true), 100);
+          setTimeout(scrollToBottom, 100);
         }
       })
       .subscribe();
@@ -424,24 +350,84 @@ export const NoticesPage: React.FC = () => {
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes slideUpFade {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0);    }
-        }
-      `}</style>
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 relative">
+      
+      {/* Admin Panel Header */}
+      {isAdmin && (
+        <div className="bg-white border-b border-gray-200 shrink-0 z-10">
+          <Link
+            to="/student/notices/admin"
+            className="flex items-center gap-3 px-4 py-3 bg-orange-50/50 hover:bg-orange-50 transition-colors"
+          >
+            <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0 shadow-sm">
+              <Megaphone className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-orange-700">Notice Admin Panel</p>
+              <p className="text-[11px] text-orange-600/70 font-medium">Publish &amp; manage notices</p>
+            </div>
+          </Link>
+        </div>
+      )}
 
-      {/* Main Container - bg-gray-50 enforced */}
-      <div className={`min-h-[calc(100vh-64px)] bg-gray-50 pb-20 relative flex flex-col transition-opacity duration-200 ${isReady || (notices.length === 0 && !isLoading) ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="max-w-2xl mx-auto px-4 md:px-6 flex flex-col pt-4 flex-1 w-full">
+      {/* Main Reversed Scroll Container */}
+      <div className="flex-1 overflow-y-auto flex flex-col-reverse px-4 md:px-6 relative">
+        <div className="w-full max-w-2xl mx-auto flex flex-col-reverse">
+          
+          {/* Bottom Sentinel & Padding */}
+          <div ref={bottomSentinelRef} className="h-6 w-full shrink-0" />
+
+          {/* Empty state */}
+          {!isLoading && notices.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-28 text-center opacity-100 mb-auto">
+              <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 mb-4">
+                <Bell className="w-7 h-7 stroke-[1.5]" />
+              </div>
+              <p className="text-lg font-bold text-gray-800 tracking-tight">No notices yet</p>
+              <p className="text-sm text-gray-400 font-medium mt-1 max-w-xs">
+                Official notices from your college administration will appear here.
+              </p>
+            </div>
+          )}
+          
+          {/* Notice Feed */}
+          {!isLoading && notices.length > 0 && (
+            <>
+              {[...notices].reverse().map((notice) => 
+                notice.is_deleted ? (
+                  <DeletedNoticePlaceholder key={notice.id} />
+                ) : (
+                  <NoticeCard
+                    key={notice.id}
+                    notice={notice}
+                    isAdmin={isAdmin}
+                    onSoftDelete={handleSoftDelete}
+                  />
+                )
+              )}
+            </>
+          )}
+
+          {/* Skeletons */}
+          {isLoading && (
+            <div className="space-y-4 mb-4 flex flex-col-reverse">
+              {[1, 2, 3].map((d) => (
+                <div key={d} className="bg-white rounded-2xl border border-gray-100 p-5 pl-6 relative overflow-hidden mb-4">
+                  <div className="h-4 bg-gray-100 rounded-full w-1/3 animate-pulse mb-4" />
+                  <div className="h-4 bg-gray-100 rounded-lg w-3/4 mb-2 animate-pulse" />
+                  <div className="h-4 bg-gray-100 rounded w-full animate-pulse mb-2" />
+                  <div className="h-4 bg-gray-100 rounded w-5/6 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          )}
           
           {/* Top Sentinel & Loading Indicator */}
-          <div ref={loadMoreRef} className="py-2 flex justify-center w-full min-h-[40px]">
+          <div ref={topSentinelRef} className="py-4 flex justify-center w-full min-h-[60px] shrink-0 mb-4 mt-2">
             {isLoadingOlder ? (
               <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
             ) : !hasMoreOlder && notices.length > 0 ? (
-              <p className="text-xs font-medium text-gray-400 text-center py-2">
+              <p className="text-xs font-medium text-gray-400 text-center bg-gray-100/50 px-3 py-1 rounded-full">
                 You have reached the beginning of campus notices.
               </p>
             ) : (
@@ -449,88 +435,25 @@ export const NoticesPage: React.FC = () => {
             )}
           </div>
 
-          {/* Skeletons */}
-          {isLoading && (
-            <div className="space-y-3 mt-4">
-              {[0, 80, 160].map((d) => (
-                <div key={d} className="bg-white rounded-2xl border border-gray-100 p-5 pl-6 relative overflow-hidden" style={{ animation: 'slideUpFade 0.4s ease both', animationDelay: `${d}ms` }}>
-                  <div className="h-4 bg-gray-100 rounded-full w-14 animate-pulse mb-3" />
-                  <div className="h-5 bg-gray-100 rounded-lg w-3/4 mb-3 animate-pulse" />
-                  <div className="h-3.5 bg-gray-100 rounded w-full animate-pulse mb-2" />
-                  <div className="h-3.5 bg-gray-100 rounded w-5/6 animate-pulse" />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!isLoading && notices.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-28 text-center" style={{ animation: 'slideUpFade 0.4s ease both' }}>
-              <div className="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 mb-4">
-                <Bell className="w-7 h-7 stroke-[1.5]" />
-              </div>
-              <p className="text-lg font-extrabold text-gray-800" style={{ fontFamily: 'SF Pro Display, system-ui, sans-serif' }}>No notices yet</p>
-              <p className="text-sm text-gray-400 font-medium mt-1 max-w-xs">
-                Official notices from your college administration will appear here.
-              </p>
-            </div>
-          )}
-
-          {/* Notice Feed (Standard DOM order) */}
-          {!isLoading && notices.length > 0 && (
-            <div className="flex flex-col">
-              {notices.map((notice, index) => 
-                notice.is_deleted ? (
-                  <DeletedNoticePlaceholder key={notice.id} />
-                ) : (
-                  <NoticeCard
-                    key={notice.id}
-                    index={index}
-                    notice={notice}
-                    isAdmin={isAdmin}
-                    onSoftDelete={handleSoftDelete}
-                  />
-                )
-              )}
-            </div>
-          )}
-
-          {/* Notice Admin Quick Link (Bottom) */}
-          {isAdmin && !isLoading && (
-            <Link
-              to="/student/notices/admin"
-              className="mt-auto mb-2 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-200 active:scale-[0.99] transition-all group shadow-sm hover:shadow-md"
-            >
-              <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 shrink-0 group-hover:scale-105 transition-transform">
-                <Megaphone className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-900">Notice Admin Panel</p>
-                <p className="text-[11px] text-gray-500 font-medium">Publish &amp; manage notices</p>
-              </div>
-              <ExternalLink className="w-4 h-4 text-gray-400 shrink-0 group-hover:text-gray-600 transition-colors" />
-            </Link>
-          )}
-
         </div>
       </div>
 
       {/* Jump to Latest FAB */}
       {isScrolledUp && (
         <button
-          onClick={() => scrollToBottom(true)}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md shadow-lg border border-gray-200 rounded-full px-4 py-2 flex items-center gap-2 z-40 animate-in slide-in-from-bottom-10 fade-in duration-300 active:scale-95"
+          onClick={scrollToBottom}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md shadow-lg border border-gray-200 rounded-full px-4 py-2 flex items-center gap-2 z-40 animate-in fade-in zoom-in duration-200 active:scale-95"
         >
           <ChevronDown className="w-4 h-4 text-blue-600" />
           <span className="text-sm font-semibold text-blue-600">Jump to Latest</span>
           
           {unreadCount > 0 && (
-            <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in zoom-in duration-200 shadow-sm">
+            <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
               {unreadCount}
             </span>
           )}
         </button>
       )}
-    </>
+    </div>
   );
 };
