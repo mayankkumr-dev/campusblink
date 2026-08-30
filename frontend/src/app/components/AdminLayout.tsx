@@ -255,7 +255,8 @@ export const AdminLayout: React.FC = () => {
           <SidebarNavLink to="/admin/community-hub" icon={MessageSquare} label="Community Hub" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/flagged-diaries" icon={Flag} label="Flagged Diaries" onNavigate={closeMenu} />
           <SidebarNavLink to="/admin/notice-admins" icon={UserCheck} label="Notice Admin Access" onNavigate={closeMenu} />
-          <SidebarNavLink to="/admin/notices" icon={Megaphone} label="Compose Notice" onNavigate={closeMenu} />
+          <SidebarNavLink to="/admin/notices" exact icon={Megaphone} label="Compose Notice" onNavigate={closeMenu} />
+          <SidebarNavLink to="/admin/published-notices" icon={Megaphone} label="Published Notices" onNavigate={closeMenu} />
         </AccordionCategory>
 
         <AccordionCategory label="Education & Notes">

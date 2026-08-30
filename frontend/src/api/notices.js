@@ -204,7 +204,8 @@ export async function getNoticesForAdmin(college = null) {
       .order('created_at', { ascending: false });
 
     if (college && college !== 'All') {
-      query = query.eq('college', college);
+      // Include college-specific notices AND Global/All notices so admins can see them
+      query = query.or(`college.eq.${college},college.eq.All,college.eq.Global`);
     }
 
     const { data, error } = await query;
@@ -214,6 +215,48 @@ export async function getNoticesForAdmin(college = null) {
   } catch (error) {
     console.error('getNoticesForAdmin error:', error);
     return { data: [], error };
+  }
+}
+
+/**
+ * Fetch paginated notices for the super admin list view.
+ */
+export async function getNoticesForAdminPaginated(page = 1, limit = 10, college = null) {
+  try {
+    let query = supabase
+      .from('official_notices')
+      .select(`
+        id,
+        title,
+        content,
+        target_year,
+        attachments,
+        is_pinned,
+        pin_expires_at,
+        is_deleted,
+        created_at,
+        author:profiles!official_notices_author_id_fkey(name, email, role),
+        deleted_by:profiles!official_notices_deleted_by_id_fkey(name, email, role)
+      `, { count: 'exact' })
+      .or('is_fully_removed.is.null,is_fully_removed.eq.false')
+      .order('created_at', { ascending: false });
+
+    if (college && college !== 'All') {
+      query = query.or(`college.eq.${college},college.eq.All,college.eq.Global`);
+    }
+
+    // Pagination logic (0-indexed for Supabase range)
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+
+    const { data, count, error } = await query;
+
+    if (error) throw error;
+    return { data: data || [], count: count || 0, error: null };
+  } catch (error) {
+    console.error('getNoticesForAdminPaginated error:', error);
+    return { data: [], count: 0, error };
   }
 }
 

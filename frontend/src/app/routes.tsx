@@ -682,6 +682,12 @@ export const router = createBrowserRouter([
                 }),
               },
               {
+                path: 'published-notices',
+                lazy: async () => ({
+                  Component: (await import('./components/AdminPublishedNoticesLazyPage')).AdminPublishedNoticesLazyPage,
+                }),
+              },
+              {
                 path: 'notice-admins',
                 lazy: async () => ({
                   Component: (await import('./components/AdminNoticeManagementPage')).AdminNoticeManagementPage,
