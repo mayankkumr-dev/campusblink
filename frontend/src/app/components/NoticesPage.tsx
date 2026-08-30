@@ -49,6 +49,8 @@ function getAttachmentCategory(type: string) {
   return 'doc';
 }
 
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+
 // ─── Image Lightbox ──────────────────────────────────────────────────────────
 
 const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }> = ({ src, alt, onClose }) => {
@@ -58,23 +60,90 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = alt || 'download';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      toast.error('Failed to download image');
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: alt || 'Shared Image',
+          url: src
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          fallbackShare();
+        }
+      }
+    } else {
+      fallbackShare();
+    }
+  };
+
+  const fallbackShare = () => {
+    navigator.clipboard.writeText(src);
+    toast.success('Link copied to clipboard!');
+  };
+
   return (
-    <div
-      className="fixed inset-0 z-[999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
-      onClick={onClose}
-    >
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors z-10"
-      >
-        <X className="w-5 h-5" />
-      </button>
-      <img
-        src={src}
-        alt={alt}
-        className="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain"
-        onClick={(e) => e.stopPropagation()}
-      />
+    <div className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-200">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between p-4 z-50 text-white">
+        <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      
+      {/* Pinch-to-Zoom Image */}
+      <div className="flex-1 overflow-hidden relative">
+        <TransformWrapper
+          initialScale={1}
+          minScale={1}
+          maxScale={8}
+          centerOnInit
+          doubleClick={{ mode: 'zoomIn' }}
+        >
+          <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src={src}
+              alt={alt}
+              className="max-w-full max-h-full object-contain"
+            />
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
+      
+      {/* Bottom Action Bar */}
+      <div className="flex items-center justify-center gap-6 p-4 z-50 pb-safe">
+        <button onClick={handleDownload} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors active:scale-95">
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+            <Download className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-medium uppercase tracking-wider">Download</span>
+        </button>
+        
+        <button onClick={handleShare} className="flex flex-col items-center gap-1.5 text-white/80 hover:text-white transition-colors active:scale-95">
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+            <ExternalLink className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] font-medium uppercase tracking-wider">Share</span>
+        </button>
+      </div>
     </div>
   );
 };
@@ -96,12 +165,12 @@ const NoticeAttachment: React.FC<{ att: any }> = ({ att }) => {
         <button
           type="button"
           onClick={() => setLightboxOpen(true)}
-          className="block w-full mt-3 active:opacity-80 transition-opacity outline-none"
+          className="block w-full active:opacity-80 transition-opacity outline-none"
         >
           <img
             src={att.url}
             alt={att.name}
-            className="w-full aspect-[4/3] sm:aspect-video object-cover rounded-xl border border-gray-100 shadow-sm bg-gray-50"
+            className="w-full h-auto max-h-80 object-contain rounded-xl border border-gray-100 bg-gray-50 mt-3"
           />
         </button>
       </>
@@ -393,7 +462,7 @@ export const NoticesPage: React.FC = () => {
           {/* Notice Feed */}
           {!isLoading && notices.length > 0 && (
             <>
-              {notices.map((notice) => 
+              {[...notices].reverse().map((notice) => 
                 notice.is_deleted ? (
                   <DeletedNoticePlaceholder key={notice.id} />
                 ) : (

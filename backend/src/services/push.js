@@ -148,6 +148,8 @@ async function sendMulticast(tokens, payload) {
     tokens,
     // We MUST include the root notification object for iOS Safari (PWA) 
     // to actually wake up and show the push notification. Data-only is dropped by iOS.
+    // We MUST include the root notification object for iOS Safari (PWA) 
+    // to actually wake up and show the push notification. Data-only is dropped by iOS.
     notification: {
       title: title || 'Campus Blink',
       body: body || 'You have a new update.',
@@ -160,10 +162,21 @@ async function sendMulticast(tokens, payload) {
     },
     // Keep webpush config minimal since we handle it in the SW
     // Web Push config with high urgency for immediate delivery
+    // Web Push config with high urgency and full notification styling
     webpush: {
       headers: {
         Urgency: 'high',
         TTL: '86400',
+      },
+      notification: {
+        title: title || 'Campus Blink',
+        body: body || 'You have a new update.',
+        icon: '/logo2/Blue_transparent.png?v=8',
+        badge: '/logo2/Blue_transparent.png?v=8',
+        vibrate: [200, 100, 200],
+        requireInteraction: false,
+        tag: 'campus-blink-fcm',
+        renotify: true,
       },
       fcmOptions: {
         link: clickAction,

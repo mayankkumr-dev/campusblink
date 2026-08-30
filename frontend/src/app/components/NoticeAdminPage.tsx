@@ -111,17 +111,26 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
         <div className="space-y-2">
           {files.map((file, idx) => (
             <div key={idx}>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface border border-border-subtle shadow-2xs">
-                {getFileIcon(file.type)}
-                <span className="flex-1 text-xs font-semibold text-text-primary truncate min-w-0">{file.name}</span>
-                <span className="text-[10px] text-text-secondary/70 font-medium shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 transition-colors"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+              <div className="flex flex-col gap-3 px-4 py-3 rounded-xl bg-surface border border-border-subtle shadow-2xs">
+                <div className="flex items-center gap-3">
+                  {getFileIcon(file.type)}
+                  <span className="flex-1 text-xs font-semibold text-text-primary truncate min-w-0">{file.name}</span>
+                  <span className="text-[10px] text-text-secondary/70 font-medium shrink-0">{(file.size / 1024).toFixed(0)} KB</span>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                    className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-rose-50 text-text-secondary/70 hover:text-rose-600 transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {file.type.startsWith('image/') && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className="w-full h-auto max-h-80 object-contain rounded-xl border border-gray-100 bg-gray-50"
+                  />
+                )}
               </div>
               <FileProgressBar
                 progress={typeof fileProgress[idx] === 'number' ? fileProgress[idx] as number : 0}

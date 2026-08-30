@@ -217,7 +217,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
             const progress = fileProgress[i];
 
             return (
-              <div key={i} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-surface border border-border-subtle shadow-2xs">
+              <div key={i} className="flex flex-col gap-3 p-3 rounded-2xl bg-surface border border-border-subtle shadow-2xs">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     {getFileIcon(file.type)}
@@ -237,6 +237,14 @@ const FileUploader: React.FC<FileUploaderProps> = ({ files, onChange, uploading,
                     </button>
                   )}
                 </div>
+
+                {file.type.startsWith('image/') && (
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    className="w-full h-auto max-h-80 object-contain rounded-xl border border-gray-100 bg-gray-50"
+                  />
+                )}
 
                 {uploading && progress !== undefined && progress !== 'done' && (
                   <FileProgressBar
