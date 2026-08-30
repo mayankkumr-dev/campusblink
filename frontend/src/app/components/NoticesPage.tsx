@@ -60,6 +60,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   const [isAnimating, setIsAnimating] = useState(false);
   
   const touchStart = useRef<{ x: number, y: number, time: number } | null>(null);
+  const isMultiTouch = useRef(false);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -175,6 +176,11 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
         }}
         onTouchStart={(e) => {
           if (!isZoomedOut) return;
+          if (e.touches.length > 1) {
+            isMultiTouch.current = true;
+            return;
+          }
+          isMultiTouch.current = false;
           setIsAnimating(false);
           touchStart.current = {
             x: e.touches[0].clientX,
@@ -183,20 +189,24 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           };
         }}
         onTouchMove={(e) => {
-          if (!isZoomedOut || !touchStart.current) return;
+          if (!isZoomedOut || !touchStart.current || isMultiTouch.current || e.touches.length > 1) return;
           const deltaY = e.touches[0].clientY - touchStart.current.y;
           setSwipeY(deltaY);
           if (Math.abs(deltaY) > 10 && controlsVisible) setControlsVisible(false);
         }}
         onTouchEnd={(e) => {
-          if (!touchStart.current) return;
+          if (!touchStart.current || isMultiTouch.current) {
+            touchStart.current = null;
+            return;
+          }
           const touch = e.changedTouches[0];
           const deltaX = Math.abs(touch.clientX - touchStart.current.x);
           const deltaY = touch.clientY - touchStart.current.y;
           const absDeltaY = Math.abs(deltaY);
           const timeElapsed = Date.now() - touchStart.current.time;
 
-          if (deltaX < 10 && absDeltaY < 10 && timeElapsed < 300) {
+          // Generous tap detection
+          if (deltaX < 30 && absDeltaY < 30 && timeElapsed < 500) {
             setControlsVisible(prev => !prev);
           }
           
