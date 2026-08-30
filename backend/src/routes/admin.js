@@ -28,6 +28,7 @@ router.get('/stats', authMiddleware, adminOnlyMiddleware, async (req, res) => {
 
 // Create Canteen Owner Account + Canteen Shop
 async function createClerkUser({ email, password, name, username, role, college }) {
+  // Step 1: Create the Clerk user
   const res = await fetch('https://api.clerk.com/v1/users', {
     method: 'POST',
     headers: {
@@ -48,6 +49,52 @@ async function createClerkUser({ email, password, name, username, role, college 
   if (!res.ok) {
     throw new Error(data.errors?.[0]?.message || 'Failed to create Clerk user');
   }
+
+  const userId = data.id;
+
+  // Step 2: Mark the email address as verified so the user can sign in immediately
+  // without needing to click an email verification link or enter an OTP code.
+  const primaryEmailId = data.email_addresses?.[0]?.id;
+  if (primaryEmailId) {
+    try {
+      await fetch(`https://api.clerk.com/v1/email_addresses/${primaryEmailId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ verified: true })
+      });
+    } catch (verifyErr) {
+      console.warn(`[createClerkUser] Could not pre-verify email for ${userId}:`, verifyErr);
+    }
+  }
+
+  // Step 3: Disable MFA / second-factor authentication for this shop account.
+  // Shop owner accounts should sign in with password only (no OTP/verification code required).
+  try {
+    // Fetch existing second factors
+    const mfaRes = await fetch(`https://api.clerk.com/v1/users/${userId}/mfa`, {
+      headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` }
+    });
+    if (mfaRes.ok) {
+      const mfaData = await mfaRes.json();
+      // Delete all second factors (totp, backup_codes, etc.)
+      const factors = mfaData?.second_factors || [];
+      for (const factor of factors) {
+        if (factor.id) {
+          await fetch(`https://api.clerk.com/v1/users/${userId}/mfa/${factor.id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}` }
+          });
+        }
+      }
+    }
+  } catch (mfaErr) {
+    // Non-critical: log warning but don't fail user creation
+    console.warn(`[createClerkUser] Could not check/disable MFA for ${userId}:`, mfaErr);
+  }
+
   return data;
 }
 

@@ -274,6 +274,21 @@ export async function getAdminCanteenOwners() {
   }
 }
 
+// Look up a profile by email address (used in edit forms to resolve email → owner_id)
+export async function getProfileByEmail(email) {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, email, college, role')
+      .eq('email', email.toLowerCase().trim())
+      .maybeSingle();
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 export async function createAdminCanteen(adminId, payload) {
   try {
     const name = String(payload?.name || '').trim();

@@ -27,6 +27,14 @@ import {
 import { FileProgressBar } from '../../shared/components/UploadOverlay';
 import toast from 'react-hot-toast';
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function getFileIcon(mimeType: string) {
+  if (mimeType.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-blue-500 shrink-0" />;
+  if (mimeType === 'application/pdf') return <FileText className="w-4 h-4 text-rose-500 shrink-0" />;
+  return <FileText className="w-4 h-4 text-slate-400 shrink-0" />;
+}
+
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
 const YEAR_OPTIONS = [

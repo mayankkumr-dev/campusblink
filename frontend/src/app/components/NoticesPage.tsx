@@ -238,7 +238,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           centerOnInit
           doubleClick={{ mode: 'zoomIn' }}
           panning={{ disabled: isZoomedOut }}
-          onTransformed={(ref) => {
+          onTransform={(ref) => {
             const newScale = ref.state.scale;
             setScale(newScale);
             if (newScale > 1.05 && controlsVisible) {

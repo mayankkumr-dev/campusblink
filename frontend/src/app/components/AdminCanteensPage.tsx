@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Filter, PlusCircle, MoreVertical, Edit3, Eye, 
-  ShoppingBag, UtensilsCrossed, Mail, AlertTriangle, 
-  PauseCircle, PlayCircle, Trash2, X, Loader2
+  Search, PlusCircle, MoreVertical, Edit3, Eye, 
+  Mail, PauseCircle, PlayCircle, X, Loader2, Upload, ImageIcon
 } from 'lucide-react';
-import { createAdminCanteen, getAdminCanteenOwners, getAllCanteens, updateAdminCanteen, updateCanteenStatus, createCanteenOwnerAccount } from '../../api/admin';
+import { createAdminCanteen, getAllCanteens, updateAdminCanteen, updateCanteenStatus, createCanteenOwnerAccount, getProfileByEmail } from '../../api/admin';
+import { uploadImage } from '../../lib/cloudinary';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
@@ -13,6 +13,7 @@ const EMPTY_FORM = {
   id: '',
   name: '',
   owner_id: '',
+  owner_email: '',
   college: '',
   logo_url: '',
   is_active: true,
@@ -29,8 +30,10 @@ export const AdminCanteensPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [owners, setOwners] = useState<any[]>([]);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [ownerLookupStatus, setOwnerLookupStatus] = useState<'idle' | 'checking' | 'found' | 'not_found'>('idle');
+  const [ownerLookupName, setOwnerLookupName] = useState('');
   const [ownerForm, setOwnerForm] = useState({
     name: '',
     username: '',
@@ -49,7 +52,6 @@ export const AdminCanteensPage: React.FC = () => {
       setIsOwnerModalOpen(false);
       setOwnerForm({ name: '', username: '', email: '', password: '', college: '', shop_name: '' });
       fetchCanteens();
-      fetchOwners();
     } catch (error: any) {
       toast.error(error.message || 'Failed to create canteen owner account');
     } finally {
@@ -61,7 +63,6 @@ export const AdminCanteensPage: React.FC = () => {
 
   useEffect(() => {
     fetchCanteens();
-    fetchOwners();
   }, []);
 
   const fetchCanteens = async () => {
@@ -71,13 +72,42 @@ export const AdminCanteensPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const fetchOwners = async () => {
-    const { data, error } = await getAdminCanteenOwners();
-    if (error) {
-      toast.error(error.message || 'Failed to load owner list');
+  // Resolve owner email → owner_id on blur
+  const handleOwnerEmailBlur = async () => {
+    const email = form.owner_email.trim();
+    if (!email) {
+      setOwnerLookupStatus('idle');
+      setForm(prev => ({ ...prev, owner_id: '' }));
       return;
     }
-    setOwners(data || []);
+    setOwnerLookupStatus('checking');
+    const { data, error } = await getProfileByEmail(email);
+    if (error || !data) {
+      setOwnerLookupStatus('not_found');
+      setOwnerLookupName('');
+      setForm(prev => ({ ...prev, owner_id: '' }));
+    } else {
+      setOwnerLookupStatus('found');
+      setOwnerLookupName(data.name || data.email);
+      setForm(prev => ({ ...prev, owner_id: data.id, college: data.college || prev.college }));
+    }
+  };
+
+  // Logo file upload handler
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingLogo(true);
+    try {
+      const { data, error } = await uploadImage(file, `campus-blink/shop-logos/canteen`);
+      if (error) throw error;
+      setForm(prev => ({ ...prev, logo_url: data.url }));
+      toast.success('Logo uploaded!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to upload logo');
+    } finally {
+      setIsUploadingLogo(false);
+    }
   };
 
   const filteredCanteens = canteens.filter(c => {
@@ -107,6 +137,8 @@ export const AdminCanteensPage: React.FC = () => {
 
   const handleOpenCreate = () => {
     setForm(EMPTY_FORM);
+    setOwnerLookupStatus('idle');
+    setOwnerLookupName('');
     setIsModalOpen(true);
   };
 
@@ -115,10 +147,13 @@ export const AdminCanteensPage: React.FC = () => {
       id: shop.id,
       name: shop.name || '',
       owner_id: shop.owner_id || '',
+      owner_email: shop.owner?.email || '',
       college: shop.college || '',
       logo_url: shop.logo_url || '',
       is_active: Boolean(shop.is_active),
     });
+    setOwnerLookupStatus(shop.owner?.email ? 'found' : 'idle');
+    setOwnerLookupName(shop.owner?.name || '');
     setActiveDropdown(null);
     setIsModalOpen(true);
   };
@@ -127,12 +162,16 @@ export const AdminCanteensPage: React.FC = () => {
     event.preventDefault();
     if (!adminProfile?.id) return;
 
+    // Validate owner resolved
+    if (isEditMode && form.owner_email && !form.owner_id) {
+      toast.error('Owner email not found. Please verify and try again.');
+      return;
+    }
+
     setIsSaving(true);
     const loadingToast = toast.loading(isEditMode ? 'Updating canteen...' : 'Creating canteen...');
 
-    const payload = {
-      ...form,
-    };
+    const payload = { ...form };
 
     const { data, error } = isEditMode
       ? await updateAdminCanteen(adminProfile.id, form.id, payload)
@@ -143,7 +182,7 @@ export const AdminCanteensPage: React.FC = () => {
       const isRlsError = message.toLowerCase().includes('row-level security policy');
       toast.error(
         isRlsError
-          ? 'Supabase RLS is blocking canteen writes. Run fix_core_rls.sql (and your admin SQL setup) in Supabase SQL Editor.'
+          ? 'Supabase RLS is blocking canteen writes. Run fix_core_rls.sql in Supabase SQL Editor.'
           : message,
         { id: loadingToast }
       );
@@ -153,13 +192,12 @@ export const AdminCanteensPage: React.FC = () => {
 
     toast.success(`${data?.name || 'Canteen'} ${isEditMode ? 'updated' : 'created'} successfully`, { id: loadingToast });
     setForm(EMPTY_FORM);
+    setOwnerLookupStatus('idle');
+    setOwnerLookupName('');
     setIsModalOpen(false);
     setIsSaving(false);
     fetchCanteens();
-    fetchOwners();
   };
-
-  const selectedOwner = owners.find((owner) => owner.id === form.owner_id);
 
   const StatusBadge = ({ status }: { status: string }) => {
     const badges: any = {
@@ -345,33 +383,36 @@ export const AdminCanteensPage: React.FC = () => {
                   />
                 </div>
 
+                {/* Owner — email input with live lookup */}
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-900">Owner</label>
-                  <select
-                    value={form.owner_id}
-                    onChange={(e) => {
-                      const nextOwner = owners.find((owner) => owner.id === e.target.value);
-                      setForm((prev) => ({
-                        ...prev,
-                        owner_id: e.target.value,
-                        college: nextOwner?.college || prev.college,
-                      }));
-                    }}
-                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-400/50"
-                    required
-                  >
-                    <option value="">Select a user</option>
-                    {owners.map((owner) => (
-                      <option key={owner.id} value={owner.id}>
-                        {owner.name || owner.email} {owner.email ? `(${owner.email})` : ''}
-                      </option>
-                    ))}
-                  </select>
-                  {selectedOwner ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      Current role: {selectedOwner.role || 'unknown'} • College: {selectedOwner.college || 'Not set'}
-                    </p>
-                  ) : null}
+                  <label className="mb-2 block text-sm font-bold text-slate-900">Owner Email</label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={form.owner_email}
+                      onChange={(e) => {
+                        setForm(prev => ({ ...prev, owner_email: e.target.value, owner_id: '' }));
+                        setOwnerLookupStatus('idle');
+                        setOwnerLookupName('');
+                      }}
+                      onBlur={handleOwnerEmailBlur}
+                      placeholder="owner@example.com"
+                      className={`w-full rounded-lg border px-4 py-3 text-sm text-slate-900 outline-none transition-colors bg-slate-100
+                        ${ownerLookupStatus === 'found' ? 'border-emerald-400' : ownerLookupStatus === 'not_found' ? 'border-rose-400' : 'border-black/10 focus:border-amber-400/50'}`}
+                    />
+                    {ownerLookupStatus === 'checking' && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-amber-500" />
+                    )}
+                  </div>
+                  {ownerLookupStatus === 'found' && (
+                    <p className="mt-1.5 text-xs text-emerald-600 font-medium">✓ Owner found: {ownerLookupName}</p>
+                  )}
+                  {ownerLookupStatus === 'not_found' && (
+                    <p className="mt-1.5 text-xs text-rose-500 font-medium">✗ No user found with this email</p>
+                  )}
+                  {ownerLookupStatus === 'idle' && !isEditMode && (
+                    <p className="mt-1.5 text-xs text-slate-400">Enter the owner's email and click away to verify</p>
+                  )}
                 </div>
 
                 <div>
@@ -385,14 +426,47 @@ export const AdminCanteensPage: React.FC = () => {
                   />
                 </div>
 
+                {/* Logo Upload */}
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-bold text-slate-900">Logo URL</label>
-                  <input
-                    value={form.logo_url}
-                    onChange={(e) => setForm((prev) => ({ ...prev, logo_url: e.target.value }))}
-                    placeholder="https://..."
-                    className="w-full rounded-lg border border-black/10 bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none focus:border-amber-400/50"
-                  />
+                  <label className="mb-2 block text-sm font-bold text-slate-900">Shop Logo</label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-slate-900 flex items-center justify-center shrink-0 overflow-hidden border border-black/10">
+                      {form.logo_url ? (
+                        <img src={form.logo_url} alt="Logo preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-slate-500" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                        id="canteen-logo-upload"
+                      />
+                      <label
+                        htmlFor="canteen-logo-upload"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-black/10 bg-slate-100 hover:bg-slate-200 text-sm font-bold text-slate-700 cursor-pointer transition-colors"
+                      >
+                        {isUploadingLogo ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                        ) : (
+                          <><Upload className="w-4 h-4" /> {form.logo_url ? 'Change Logo' : 'Upload Logo'}</>
+                        )}
+                      </label>
+                      {form.logo_url && (
+                        <button
+                          type="button"
+                          onClick={() => setForm(prev => ({ ...prev, logo_url: '' }))}
+                          className="ml-2 text-xs text-rose-500 hover:text-rose-700 font-medium"
+                        >
+                          Remove
+                        </button>
+                      )}
+                      <p className="mt-1 text-xs text-slate-400">PNG, JPG, WebP — max 10MB</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -410,7 +484,7 @@ export const AdminCanteensPage: React.FC = () => {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-slate-900 font-sans font-bold hover:bg-black/[0.03] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={isSaving} className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 font-sans font-bold text-slate-900 hover:bg-yellow-400 disabled:opacity-60">
+                <button type="submit" disabled={isSaving || isUploadingLogo} className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 font-sans font-bold text-slate-900 hover:bg-yellow-400 disabled:opacity-60">
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <PlusCircle className="h-4 w-4" />} {isEditMode ? 'Save Changes' : 'Create Canteen'}
                 </button>
               </div>
