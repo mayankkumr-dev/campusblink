@@ -212,8 +212,8 @@ export const NoticeAdminPage: React.FC = () => {
     const { data, error } = await createNotice({
       authorId: profile.id,
       college: profile.role === 'admin' ? targetCollege : profile.college,
-      title: title.trim(),
-      content: content.trim(),
+      title: title.trim() || ' ',
+      content: content.trim() || ' ',
       targetYear,
       attachments,
       isPinned,

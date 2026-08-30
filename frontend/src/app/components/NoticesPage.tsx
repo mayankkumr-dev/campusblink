@@ -188,16 +188,20 @@ const NoticeCard: React.FC<{
       </div>
 
       {/* Content */}
-      <div>
-        <h2 className="text-base font-bold text-gray-900 tracking-tight mb-1.5">
-          {notice.title}
-        </h2>
-        {notice.content && (
-          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
-            {notice.content}
-          </p>
-        )}
-      </div>
+      {(notice.title?.trim() || notice.content?.trim()) && (
+        <div>
+          {notice.title?.trim() && (
+            <h2 className="text-base font-bold text-gray-900 tracking-tight mb-1.5">
+              {notice.title}
+            </h2>
+          )}
+          {notice.content?.trim() && (
+            <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+              {notice.content}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Attachments */}
       {attachments.length > 0 && (
