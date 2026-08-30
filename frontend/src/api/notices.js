@@ -197,8 +197,7 @@ export async function getNoticesForAdmin(college = null) {
         pin_expires_at,
         is_deleted,
         created_at,
-        author:profiles!official_notices_author_id_fkey(name, email, role),
-        deleted_by:profiles!official_notices_deleted_by_id_fkey(name, email, role)
+        author:profiles!official_notices_author_id_fkey(name, email, role)
       `)
       .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('created_at', { ascending: false });
@@ -235,8 +234,7 @@ export async function getNoticesForAdminPaginated(page = 1, limit = 10, college 
         pin_expires_at,
         is_deleted,
         created_at,
-        author:profiles!official_notices_author_id_fkey(name, email, role),
-        deleted_by:profiles!official_notices_deleted_by_id_fkey(name, email, role)
+        author:profiles!official_notices_author_id_fkey(name, email, role)
       `, { count: 'exact' })
       .or('is_fully_removed.is.null,is_fully_removed.eq.false')
       .order('created_at', { ascending: false });
