@@ -80,6 +80,9 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
 
     return () => {
       document.removeEventListener('keydown', handleKey);
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
       if (metaThemeColor) {
         if (originalColor) {
           metaThemeColor.content = originalColor;
@@ -90,9 +93,24 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
     };
   }, [onClose]);
 
+  // Fullscreen API toggle
+  useEffect(() => {
+    try {
+      if (!controlsVisible && scale <= 1.05) {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else if (controlsVisible) {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    } catch (e) {}
+  }, [controlsVisible, scale]);
+
   const handleDownload = async () => {
     try {
-      const response = await fetch(src);
+      const response = await fetch(src, { mode: 'cors' });
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -104,18 +122,19 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (e) {
-      toast.error('Failed to download image');
+      toast.error('Failed to download image. Note: Ensure CORS is configured.');
     }
   };
 
   const handleShare = async () => {
     try {
-      const response = await fetch(src);
+      const response = await fetch(src, { mode: 'cors' });
       const blob = await response.blob();
       
-      const mime = blob.type || 'image/jpeg';
-      const ext = mime.split('/')[1] || 'jpg';
-      const filename = alt ? `${alt.replace(/[^a-z0-9]/gi, '_')}.${ext}` : `shared_image.${ext}`;
+      let mime = blob.type;
+      if (!mime || !mime.startsWith('image/')) mime = 'image/jpeg';
+      const ext = mime === 'image/png' ? 'png' : 'jpg';
+      const filename = alt ? `${alt.replace(/[^a-z0-9]/gi, '_').substring(0, 50)}.${ext}` : `shared_image.${ext}`;
       const file = new File([blob], filename, { type: mime });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -139,7 +158,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   };
 
   // Calculate dynamic opacity for the backdrop based on swipe distance
-  const backdropOpacity = Math.max(0, 0.95 - (Math.abs(swipeY) / 300));
+  const backdropOpacity = controlsVisible ? Math.max(0, 0.95 - (Math.abs(swipeY) / 300)) : 1;
   const isZoomedOut = scale <= 1.05;
 
   return (
