@@ -82,6 +82,9 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
 
     return () => {
       document.removeEventListener('keydown', handleKey);
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
       if (metaThemeColor) {
         if (originalColor) {
           metaThemeColor.content = originalColor;
@@ -91,6 +94,26 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
       }
     };
   }, [onClose]);
+
+  const toggleControlsAndFullscreen = (forceShow?: boolean) => {
+    setControlsVisible(prev => {
+      const willShow = forceShow !== undefined ? forceShow : !prev;
+      
+      try {
+        if (!willShow) {
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          }
+        } else {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          }
+        }
+      } catch (e) {}
+
+      return willShow;
+    });
+  };
 
   const handleDownload = async () => {
     try {
@@ -175,7 +198,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
           if (!isZoomedOut || !touchStart.current || isMultiTouch.current || e.touches.length > 1) return;
           const deltaY = e.touches[0].clientY - touchStart.current.y;
           setSwipeY(deltaY);
-          if (Math.abs(deltaY) > 10 && controlsVisible) setControlsVisible(false);
+          if (Math.abs(deltaY) > 10 && controlsVisible) toggleControlsAndFullscreen(false);
         }}
         onTouchEnd={(e) => {
           lastTouchTime.current = Date.now();
@@ -191,7 +214,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
 
           // Generous tap detection
           if (deltaX < 30 && absDeltaY < 30 && timeElapsed < 500) {
-            setControlsVisible(prev => !prev);
+            toggleControlsAndFullscreen();
           }
           
           if (isZoomedOut) {
@@ -200,7 +223,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
               onClose();
             } else {
               setSwipeY(0);
-              if (absDeltaY > 10) setControlsVisible(true);
+              if (absDeltaY > 10) toggleControlsAndFullscreen(true);
             }
           }
           touchStart.current = null;
@@ -208,7 +231,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
         onClick={() => {
           // Fallback for mouse clicks (desktop), ignore if recent touch event
           if (isZoomedOut && swipeY === 0 && (Date.now() - lastTouchTime.current > 500)) {
-            setControlsVisible(prev => !prev);
+            toggleControlsAndFullscreen();
           }
         }}
       >
