@@ -67,6 +67,12 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKey);
     
+    // Prevent pull-to-refresh and background scrolling
+    const originalOverscroll = document.body.style.overscrollBehavior;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.overflow = 'hidden';
+    
     // Status bar dynamic color sync
     let metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])') as HTMLMetaElement;
     const originalColor = metaThemeColor ? metaThemeColor.content : null;
@@ -82,6 +88,9 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
 
     return () => {
       document.removeEventListener('keydown', handleKey);
+      document.body.style.overscrollBehavior = originalOverscroll;
+      document.body.style.overflow = originalOverflow;
+      
       if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
