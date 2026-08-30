@@ -101,7 +101,7 @@ const ImageLightbox: React.FC<{ src: string; alt: string; onClose: () => void }>
   };
 
   return (
-    <div className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-200">
       {/* Top Navigation */}
       <div className="flex items-center justify-between p-4 z-50 text-white">
         <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
